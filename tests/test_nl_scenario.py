@@ -21,7 +21,8 @@ def basis():
 
 def intent(**kw) -> ScenarioIntent:
     base = dict(supported=True, unsupported_reason=None, driver="direct", components=["ELC_GAS"], countries=[],
-                size_pct=10.0, profile="permanent", profile_months=None, start_month=None, second_round=False,
+                size_pct=10.0, profile="permanent", profile_months=None, start_month=None, start_in_months=None,
+                second_round=False,
                 assumptions=[])
     base.update(kw)
     return ScenarioIntent(**base)
@@ -135,7 +136,7 @@ def test_refusal_or_unparseable_output_is_a_clean_error(basis, parsed, stop):
 def test_intent_schema_has_no_free_numeric_output_beyond_user_figures():
     props = ScenarioIntent.model_json_schema()["properties"]
     numeric = {k for k, v in props.items() if "number" in str(v)}
-    assert numeric == {"size_pct", "profile_months"}  # both are copies of what the user wrote
+    assert numeric == {"size_pct", "profile_months", "start_in_months"}  # each is a copy of a number the user wrote
 
 
 def test_system_prompt_lists_valid_months_and_codes(basis):
@@ -149,3 +150,20 @@ def test_score_case():
     assert all(score_case(exp, got, None).values())
     assert score_case({"error": True}, None, "rejected") == {"rejected": True}
     assert score_case({"error": True}, got, None) == {"rejected": False}
+
+
+def test_delay_phrase_sets_start_from_the_horizon(basis):
+    sc, notes = intent_to_scenario(intent(start_in_months=6), "gas +40% 6 months lag", basis)
+    assert sc.start == basis.months[6] and any("delay of 6" in n for n in notes)
+    sc0, _ = intent_to_scenario(intent(start_in_months=0), "x", basis)
+    assert sc0.start == basis.months[0]
+
+
+@pytest.mark.parametrize("kw,match", [
+    (dict(start_in_months=60), "outside the simulation window"),
+    (dict(start_in_months=-2), "outside the simulation window"),
+    (dict(start_in_months=3, start_month="2027-01"), "either a start date or a delay"),
+])
+def test_bad_delays_are_rejected(basis, kw, match):
+    with pytest.raises(NLError, match=match):
+        intent_to_scenario(intent(**kw), "x", basis)

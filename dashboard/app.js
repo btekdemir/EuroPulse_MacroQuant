@@ -291,9 +291,9 @@
 
   // ------------------------------------------------------------------ natural-language box
   let nlPending = null;
-  // Live calls only make sense on a deployed http(s) site. `?nl=live` forces it on for local testing.
-  const liveOk = () => /^https?:$/.test(location.protocol)
-    && (!/^(localhost|127\.0\.0\.1)$/.test(location.hostname) || /[?&]nl=live\b/.test(location.search));
+  // Live calls need a server that answers /api/scenario (the Vercel site, or deploy/serve_local.py).
+  // Opened from a file or any server without that route, the box falls back to the recorded examples.
+  const liveOk = () => /^https?:$/.test(location.protocol);
 
   function showInterpretation(res, srcLabel) {
     nlPending = res;
@@ -325,7 +325,10 @@
     try {
       const r = await fetch("/api/scenario", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) });
       let body = {}; try { body = await r.json(); } catch (e) { /* non-JSON error page */ }
-      if (!r.ok || !body.scenario) { el("nl-status").textContent = body.error || `${t("nl_failed")} (${r.status})`; return; }
+      if (!r.ok || !body.scenario) {
+        el("nl-status").textContent = [404, 405, 501].includes(r.status) ? t("nl_live_off") : (body.error || `${t("nl_failed")} (${r.status})`);
+        return;
+      }
       el("nl-status").textContent = "";
       showInterpretation(body, t("nl_live", { model: body.model }));
     } catch (e) { el("nl-status").textContent = t("nl_failed"); } finally { el("nl-go").disabled = false; }
