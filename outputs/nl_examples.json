@@ -5,24 +5,28 @@
       "lang": "en",
       "scenario": {
         "name": "ELC_GAS +40% (DE/IT)",
-        "components": [
-          "ELC_GAS"
+        "legs": [
+          {
+            "components": [
+              "ELC_GAS"
+            ],
+            "countries": [
+              "DE",
+              "IT"
+            ],
+            "size_pct": 40.0,
+            "profile": {
+              "kind": "decaying",
+              "half_life_months": 3.0,
+              "months": null,
+              "fractions": null
+            },
+            "start": "2026-10"
+          }
         ],
-        "countries": [
-          "DE",
-          "IT"
-        ],
-        "size_pct": 40.0,
-        "profile": {
-          "kind": "decaying",
-          "half_life_months": 3.0,
-          "months": null,
-          "fractions": null
-        },
-        "start": "2026-10",
         "second_round": false,
         "second_round_regime": "post2020",
-        "rationale": "Natural-language request: \u201cGas prices up 40% in Germany and Italy, fading over 6 months\u201d. An LLM only classified the text into this schema and copied the user's own figures; the user confirmed the interpretation. All conversions are deterministic code. Assumptions: 'Gas prices' mapped to household gas component ELC_GAS; No start month given, so left null; Size of 40% taken as a rise in the gas price as written.",
+        "rationale": "Natural-language request: \u201cGas prices up 40% in Germany and Italy, fading over 6 months\u201d. An LLM only classified the text into 1 shock(s) and copied the user's own figures; the user confirmed the interpretation. All conversions are deterministic code. Assumptions: none.",
         "sources": [
           "User text (LLM-parsed, user-confirmed)"
         ],
@@ -30,9 +34,6 @@
       },
       "interpretation": [
         "You wrote: \u201cGas prices up 40% in Germany and Italy, fading over 6 months\u201d",
-        "Assumed: 'Gas prices' mapped to household gas component ELC_GAS",
-        "Assumed: No start month given, so left null",
-        "Assumed: Size of 40% taken as a rise in the gas price as written",
         "No start given: starts in 2026-10, the first month after the last published data.",
         "'Fading over 6 months' is modelled as exponential decay with half-life 3 months (about 25% of the shock remains after that time).",
         "Applies to ELC_GAS in DE, IT, from 2026-10."
@@ -44,36 +45,36 @@
       "lang": "en",
       "scenario": {
         "name": "Brent +30% (EA)",
-        "components": [
-          "FUEL"
+        "legs": [
+          {
+            "components": [
+              "FUEL"
+            ],
+            "countries": [],
+            "size_pct": 8.389,
+            "profile": {
+              "kind": "custom",
+              "half_life_months": null,
+              "months": null,
+              "fractions": [
+                0.6605,
+                0.916,
+                1.0
+              ]
+            },
+            "start": "2026-10"
+          }
         ],
-        "countries": [],
-        "size_pct": 8.389,
-        "profile": {
-          "kind": "custom",
-          "half_life_months": null,
-          "months": null,
-          "fractions": [
-            0.6605,
-            0.916,
-            1.0
-          ]
-        },
-        "start": "2026-10",
         "second_round": false,
         "second_round_regime": "post2020",
-        "rationale": "Natural-language request: \u201cBrent crude +30%\u201d. An LLM only classified the text into this schema and copied the user's own figures; the user confirmed the interpretation. All conversions are deterministic code. Assumptions: Brent crude change of +30% copied as written; no pass-through to HICP components applied; No time path mentioned, so treated as permanent; No start month given, so left null; No countries named, so whole euro area.",
+        "rationale": "Natural-language request: \u201cBrent crude +30%\u201d. An LLM only classified the text into 1 shock(s) and copied the user's own figures; the user confirmed the interpretation. All conversions are deterministic code. Assumptions: none.",
         "sources": [
           "User text (LLM-parsed, user-confirmed)"
         ],
-        "mapping": "FUEL level = (1 + Brent)^0.307 \u2212 1, lag profile from the estimated distributed lag"
+        "mapping": "Brent shock 1: FUEL level = (1 + Brent)^0.307 \u2212 1"
       },
       "interpretation": [
         "You wrote: \u201cBrent crude +30%\u201d",
-        "Assumed: Brent crude change of +30% copied as written; no pass-through to HICP components applied",
-        "Assumed: No time path mentioned, so treated as permanent",
-        "Assumed: No start month given, so left null",
-        "Assumed: No countries named, so whole euro area",
         "No start given: starts in 2026-10, the first month after the last published data.",
         "Brent +30% \u2192 fuel prices +8.389% through the estimated elasticity 0.31 (computed by the model code, not the LLM).",
         "Applies to FUEL in the whole euro area, from 2026-10."
@@ -85,23 +86,27 @@
       "lang": "en",
       "scenario": {
         "name": "ELC_GAS +10% (FR)",
-        "components": [
-          "ELC_GAS"
+        "legs": [
+          {
+            "components": [
+              "ELC_GAS"
+            ],
+            "countries": [
+              "FR"
+            ],
+            "size_pct": 10.0,
+            "profile": {
+              "kind": "permanent",
+              "half_life_months": null,
+              "months": null,
+              "fractions": null
+            },
+            "start": "2027-02"
+          }
         ],
-        "countries": [
-          "FR"
-        ],
-        "size_pct": 10.0,
-        "profile": {
-          "kind": "permanent",
-          "half_life_months": null,
-          "months": null,
-          "fractions": null
-        },
-        "start": "2027-02",
         "second_round": false,
         "second_round_regime": "post2020",
-        "rationale": "Natural-language request: \u201cElectricity tariff in France rises 10% permanently from February 2027\u201d. An LLM only classified the text into this schema and copied the user's own figures; the user confirmed the interpretation. All conversions are deterministic code. Assumptions: 'Electricity tariff' mapped to ELC_GAS (household energy bills / regulated tariffs); 'Permanently' mapped to permanent profile; 'From February 2027' mapped to start month 2027-02.",
+        "rationale": "Natural-language request: \u201cElectricity tariff in France rises 10% permanently from February 2027\u201d. An LLM only classified the text into 1 shock(s) and copied the user's own figures; the user confirmed the interpretation. All conversions are deterministic code. Assumptions: none.",
         "sources": [
           "User text (LLM-parsed, user-confirmed)"
         ],
@@ -109,9 +114,6 @@
       },
       "interpretation": [
         "You wrote: \u201cElectricity tariff in France rises 10% permanently from February 2027\u201d",
-        "Assumed: 'Electricity tariff' mapped to ELC_GAS (household energy bills / regulated tariffs)",
-        "Assumed: 'Permanently' mapped to permanent profile",
-        "Assumed: 'From February 2027' mapped to start month 2027-02",
         "Applies to ELC_GAS in FR, from 2027-02."
       ],
       "model": "claude-haiku-5-5"
@@ -121,22 +123,26 @@
       "lang": "en",
       "scenario": {
         "name": "FOOD_P+FOOD_NP -5% (EA)",
-        "components": [
-          "FOOD_P",
-          "FOOD_NP"
+        "legs": [
+          {
+            "components": [
+              "FOOD_P",
+              "FOOD_NP"
+            ],
+            "countries": [],
+            "size_pct": -5.0,
+            "profile": {
+              "kind": "temporary",
+              "half_life_months": null,
+              "months": 3,
+              "fractions": null
+            },
+            "start": "2026-10"
+          }
         ],
-        "countries": [],
-        "size_pct": -5.0,
-        "profile": {
-          "kind": "temporary",
-          "half_life_months": null,
-          "months": 3,
-          "fractions": null
-        },
-        "start": "2026-10",
         "second_round": false,
         "second_round_regime": "post2020",
-        "rationale": "Natural-language request: \u201cFood prices fall 5% for 3 months\u201d. An LLM only classified the text into this schema and copied the user's own figures; the user confirmed the interpretation. All conversions are deterministic code. Assumptions: 'food' interpreted as FOOD_P and FOOD_NP; no countries named, so whole euro area; 'for 3 months' mapped to lasts_for.",
+        "rationale": "Natural-language request: \u201cFood prices fall 5% for 3 months\u201d. An LLM only classified the text into 1 shock(s) and copied the user's own figures; the user confirmed the interpretation. All conversions are deterministic code. Assumptions: none.",
         "sources": [
           "User text (LLM-parsed, user-confirmed)"
         ],
@@ -144,9 +150,6 @@
       },
       "interpretation": [
         "You wrote: \u201cFood prices fall 5% for 3 months\u201d",
-        "Assumed: 'food' interpreted as FOOD_P and FOOD_NP",
-        "Assumed: no countries named, so whole euro area",
-        "Assumed: 'for 3 months' mapped to lasts_for",
         "No start given: starts in 2026-10, the first month after the last published data.",
         "Applies to FOOD_P, FOOD_NP in the whole euro area, from 2026-10."
       ],
@@ -157,23 +160,27 @@
       "lang": "fr",
       "scenario": {
         "name": "ELC_GAS +20% (ES)",
-        "components": [
-          "ELC_GAS"
+        "legs": [
+          {
+            "components": [
+              "ELC_GAS"
+            ],
+            "countries": [
+              "ES"
+            ],
+            "size_pct": 20.0,
+            "profile": {
+              "kind": "permanent",
+              "half_life_months": null,
+              "months": null,
+              "fractions": null
+            },
+            "start": "2026-10"
+          }
         ],
-        "countries": [
-          "ES"
-        ],
-        "size_pct": 20.0,
-        "profile": {
-          "kind": "permanent",
-          "half_life_months": null,
-          "months": null,
-          "fractions": null
-        },
-        "start": "2026-10",
         "second_round": false,
         "second_round_regime": "post2020",
-        "rationale": "Natural-language request: \u201cLes prix du gaz augmentent de 20 % en Espagne\u201d. An LLM only classified the text into this schema and copied the user's own figures; the user confirmed the interpretation. All conversions are deterministic code. Assumptions: Gas prices mapped to ELC_GAS (gas component); No time path mentioned, so treated as permanent; No start month given, so start_month is null.",
+        "rationale": "Natural-language request: \u201cLes prix du gaz augmentent de 20 % en Espagne\u201d. An LLM only classified the text into 1 shock(s) and copied the user's own figures; the user confirmed the interpretation. All conversions are deterministic code. Assumptions: none.",
         "sources": [
           "User text (LLM-parsed, user-confirmed)"
         ],
@@ -181,9 +188,6 @@
       },
       "interpretation": [
         "You wrote: \u201cLes prix du gaz augmentent de 20 % en Espagne\u201d",
-        "Assumed: Gas prices mapped to ELC_GAS (gas component)",
-        "Assumed: No time path mentioned, so treated as permanent",
-        "Assumed: No start month given, so start_month is null",
         "No start given: starts in 2026-10, the first month after the last published data.",
         "Applies to ELC_GAS in ES, from 2026-10."
       ],
@@ -194,23 +198,27 @@
       "lang": "en",
       "scenario": {
         "name": "ELC_GAS +25% (EL)",
-        "components": [
-          "ELC_GAS"
+        "legs": [
+          {
+            "components": [
+              "ELC_GAS"
+            ],
+            "countries": [
+              "EL"
+            ],
+            "size_pct": 25.0,
+            "profile": {
+              "kind": "decaying",
+              "half_life_months": 4.0,
+              "months": null,
+              "fractions": null
+            },
+            "start": "2026-10"
+          }
         ],
-        "countries": [
-          "EL"
-        ],
-        "size_pct": 25.0,
-        "profile": {
-          "kind": "decaying",
-          "half_life_months": 4.0,
-          "months": null,
-          "fractions": null
-        },
-        "start": "2026-10",
         "second_round": false,
         "second_round_regime": "post2020",
-        "rationale": "Natural-language request: \u201cA 25% jump in electricity prices in Greece with a half-life of 4 months\u201d. An LLM only classified the text into this schema and copied the user's own figures; the user confirmed the interpretation. All conversions are deterministic code. Assumptions: Electricity mapped to ELC_GAS component; Greece mapped to country code EL; No start month given, so left null.",
+        "rationale": "Natural-language request: \u201cA 25% jump in electricity prices in Greece with a half-life of 4 months\u201d. An LLM only classified the text into 1 shock(s) and copied the user's own figures; the user confirmed the interpretation. All conversions are deterministic code. Assumptions: none.",
         "sources": [
           "User text (LLM-parsed, user-confirmed)"
         ],
@@ -218,9 +226,6 @@
       },
       "interpretation": [
         "You wrote: \u201cA 25% jump in electricity prices in Greece with a half-life of 4 months\u201d",
-        "Assumed: Electricity mapped to ELC_GAS component",
-        "Assumed: Greece mapped to country code EL",
-        "Assumed: No start month given, so left null",
         "No start given: starts in 2026-10, the first month after the last published data.",
         "Applies to ELC_GAS in EL, from 2026-10."
       ],
