@@ -257,6 +257,7 @@ class ShockBasis(Strict):
     energy_components: list[str]
     second_round: dict[str, dict[str, Any]]
     fuel_brent_elasticity: dict[str, Any]
+    break_test: dict[str, Any] = Field(description="Chow, sup-Wald and sub-sample tests of the energy->core regime")
     aggregation_check_max_abs: float = Field(description="max |Σ_c W_c,i − EA w_eff_i|")
     presets: list[Scenario]
     assumptions: list[str]

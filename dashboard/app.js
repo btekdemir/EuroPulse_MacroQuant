@@ -392,6 +392,7 @@
       { x: bu.map((x) => toDate(x.target)), y: bu.map((x) => x.fc), mode: "lines", name: t("m_bottom_up"), line: { color: css("--accent"), width: 2 }, hovertemplate: "%{y:.2f}%" },
     ], baseLayout({ yaxis: Object.assign(baseLayout().yaxis, { ticksuffix: "%" }) }));
 
+    renderBreak();
     table(el("tbl-sel"), [t("sel_component"), t("sel_candidate"), t("sel_vs"), t("sel_p"), t("sel_accepted")],
       B.selection_log.map((s) => {
         const sel = s.candidate === "SELECTED";
@@ -407,6 +408,27 @@
       }));
     table(el("tbl-vin"), [t("vin_source"), t("vin_dataset"), t("vin_updated")],
       M.vintages.map((v) => [v.name, v.dataset, v.updated]));
+  }
+
+  function renderBreak() {
+    const bt = S.break_test, c = bt.chow, sw = bt.sup_wald;
+    el("n-brk").textContent = t("brk_summary", {
+      date: monthLabel(c.break), diff: sgn(c.diff_cumulative, 3), se: fmt(c.diff_se, 3), p: fmt(c.p_cumulative, 3),
+      pj: fmt(c.p_joint, 2), sup: fmt(sw.stat, 1), crit: fmt(sw.critical_values["5%"], 2), argmax: monthLabel(sw.argmax),
+    });
+    const xs = sw.path.map((q) => toDate(q.date));
+    plot("p-brk", [
+      { x: xs, y: sw.path.map((q) => q.wald), mode: "lines", name: t("brk_wald"), line: { color: css("--text-primary"), width: 2 }, hovertemplate: "%{y:.1f}" },
+      { x: [xs[0], xs[xs.length - 1]], y: [sw.critical_values["5%"], sw.critical_values["5%"]], mode: "lines", name: t("brk_crit"),
+        line: { color: css("--critical"), width: 1, dash: "dash" }, hoverinfo: "skip" },
+      { x: [toDate(c.break)], y: [sw.wald_at_known], mode: "markers", name: t("brk_known", { date: monthLabel(c.break) }),
+        marker: { size: 10, color: css("--accent"), line: { color: css("--surface-1"), width: 2 } }, hovertemplate: "%{y:.1f}<extra></extra>" },
+    ], baseLayout());
+    table(el("tbl-brk-sub"), [t("brk_period"), "n", t("brk_cum"), t("brk_se")],
+      bt.subsamples.map((x) => [`${monthLabel(x.start)} – ${monthLabel(x.end)}` + (x.label.includes("excl") ? ` (${t("brk_excl_peak")})` : ""),
+        String(x.n), fmt(x.cumulative, 3), fmt(x.se, 3)]), [1, 2, 3]);
+    table(el("tbl-brk-sens"), [t("brk_break"), t("brk_pre"), t("brk_post"), t("brk_diff"), "p"],
+      bt.sensitivity.map((x) => [monthLabel(x.break), fmt(x.pre_cumulative, 3), fmt(x.post_cumulative, 3), sgn(x.diff, 3), fmt(x.p_cumulative, 3)]), [1, 2, 3, 4]);
   }
 
   // ------------------------------------------------------------------ wiring

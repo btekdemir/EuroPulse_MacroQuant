@@ -223,3 +223,28 @@ It does not change after the results are in.
   - light/dark plus OS auto;
   - works at phone width (no horizontal scroll at 375px).
 - **Verified in a browser:** five tabs, no console errors. The simulator numbers equal the Python engine's, and the FR toggle, dark mode and mobile width were all checked.
+
+## D21. Structural break tests for the energy → core regime (20 Oct 2026, `passthrough.break_tests`)
+
+- **Why:** D18 split the second round at 2020 on prior evidence, not from a test. This entry tests that choice.
+- **Specification:** the D18 distributed lag over the full sample, plus a post-break intercept and post-break lag coefficients γ_k, with HAC (Newey-West) errors.
+
+  H0: Σγ_k = 0, i.e. the 12-month cumulative pass-through is unchanged.
+
+| Test | Result |
+|---|---|
+| Chow at 2020-01, cumulative | +0.078 higher after (s.e. 0.026), χ²(1) p = 0.003 |
+| Chow at 2020-01, all 13 γ jointly | χ²(13) p = 0.12 (the shift is in the sum; single lags are noisy) |
+| sup-Wald / QLR (Andrews 1993), central 70% | 17.9 vs 5% critical value 8.68, so the pass-through is unstable |
+| Break date sensitivity 2019 / 2020 / 2021 / 2022 | difference +0.083 / +0.078 / +0.053 / +0.052; p 0.001 / 0.003 / 0.046 / 0.029 |
+
+- **The sup-Wald maximum is at 2012-09, not 2020. Why that is not a 2012 break:**
+  - The sub-sample pass-through is −0.005 (2002–12) and 0.001 (2013–19): both zero, and equal.
+  - It is 0.091 (s.e. 0.015) only from 2020.
+  - A single-break test puts the break early because the high-pass-through period sits at the end of a long "after" segment, and a balanced split gives a smaller standard error.
+  - I also checked on synthetic data with a known break: sup-Wald locates the date only to within about ±2 years, because the statistic sums 13 noisy lag coefficients (`tests/test_break_tests.py`).
+- **Is it just 2022?**
+  - Dropping the peak (Jan 2022 – Jun 2023): 0.088 (s.e. 0.032). The difference survives.
+  - Dropping all of 2021–23: 0.042 (s.e. 0.056) on 45 months, too few to tell. Most of the evidence comes from that episode.
+- **Decision:** keep the two regimes. The default post-2020 estimate stays, the toggle stays off by default and labelled uncertain, and the evidence is shown in the dashboard (Model & validation tab).
+- **Not done:** Bai-Perron multiple-break tests, and a level-dependent (threshold) pass-through model. The latter is ECB WP 3062's finding of stronger pass-through at high prices, and the natural next step.

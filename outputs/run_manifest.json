@@ -1,6 +1,6 @@
 {
-  "run_at": "2026-10-19T18:55:17.478447Z",
-  "code_version": "1fecdd8-dirty",
+  "run_at": "2026-10-19T21:42:16.292530Z",
+  "code_version": "1610d5d-dirty",
   "config_hash": "9d6e88196c92317d",
   "python": "3.11.15",
   "offline": true,
@@ -71,7 +71,7 @@
       "updated": "last observation 2026-10-12",
       "sha256": "03a95c7a42ab4dfc4dd2841b3995e7f7517de5b96f7ef31c1519e3a07ec12753",
       "n_values": 3264,
-      "fetched_at": "2026-10-19T18:54:27.168980+00:00",
+      "fetched_at": "2026-10-19T21:41:27.850802+00:00",
       "from_cache": true,
       "raw_file": "data/raw/oil_bulletin/03a95c7a42ab.xlsx"
     },
@@ -81,7 +81,7 @@
       "updated": "last observation 2026-10-14",
       "sha256": "cf9f077822a7620434e86b7d48aa44bada7ef99f57726d50035ae50b549e9011",
       "n_values": 9108,
-      "fetched_at": "2026-10-19T18:54:27.189983+00:00",
+      "fetched_at": "2026-10-19T21:41:27.872720+00:00",
       "from_cache": true,
       "raw_file": "data/raw/brent/cf9f077822a7.csv"
     },
@@ -91,11 +91,11 @@
       "updated": "last observation 2026-10-19",
       "sha256": "7a6e3abdfbba53ccc4bd2ccf8f029fba82aa5895ee9a057d00fb1f4de353635d",
       "n_values": 5839,
-      "fetched_at": "2026-10-19T18:54:27.216313+00:00",
+      "fetched_at": "2026-10-19T21:41:27.897762+00:00",
       "from_cache": true,
       "raw_file": "data/raw/eurusd/7a6e3abdfbba.csv"
     }
   ],
   "last_period": "2026-09",
-  "runtime_seconds": 52.9
+  "runtime_seconds": 50.9
 }

@@ -149,7 +149,7 @@ def build_basis(d: CleanData, s: Settings, outlook: dict, pt: dict, presets: lis
         origin=outlook["origin"], months=months, components=s.components, countries=s.countries,
         weight_matrix=W, ea_effective_weights=ea, baseline_yoy=baseline, growth_factor=growth,
         core_share=float(sum(ea[i] for i in CORE)), energy_components=ENERGY,
-        second_round=pt["second_round"], fuel_brent_elasticity=pt["fuel_brent"],
+        second_round=pt["second_round"], fuel_brent_elasticity=pt["fuel_brent"], break_test=pt["break_test"],
         aggregation_check_max_abs=float(check), presets=presets, assumptions=ASSUMPTIONS)
 
 

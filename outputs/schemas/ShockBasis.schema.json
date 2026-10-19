@@ -284,6 +284,12 @@
       "title": "Fuel Brent Elasticity",
       "type": "object"
     },
+    "break_test": {
+      "additionalProperties": true,
+      "description": "Chow, sup-Wald and sub-sample tests of the energy->core regime",
+      "title": "Break Test",
+      "type": "object"
+    },
     "aggregation_check_max_abs": {
       "description": "max |\u03a3_c W_c,i \u2212 EA w_eff_i|",
       "title": "Aggregation Check Max Abs",
@@ -317,6 +323,7 @@
     "energy_components",
     "second_round",
     "fuel_brent_elasticity",
+    "break_test",
     "aggregation_check_max_abs",
     "presets",
     "assumptions"
