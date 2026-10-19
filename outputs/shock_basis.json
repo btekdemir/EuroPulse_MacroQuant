@@ -491,7 +491,7 @@
         },
         {
           "date": "2006-02",
-          "wald": 2.658825079202876,
+          "wald": 2.6588250792028743,
           "diff_cumulative": 0.10661570475238251
         },
         {
@@ -531,7 +531,7 @@
         },
         {
           "date": "2006-10",
-          "wald": 6.080451629495622,
+          "wald": 6.080451629495625,
           "diff_cumulative": 0.14680365071076337
         },
         {
@@ -571,7 +571,7 @@
         },
         {
           "date": "2007-06",
-          "wald": 6.808632635811643,
+          "wald": 6.808632635811645,
           "diff_cumulative": 0.14273586842504787
         },
         {
@@ -611,7 +611,7 @@
         },
         {
           "date": "2008-02",
-          "wald": 2.8505546516427422,
+          "wald": 2.850554651642742,
           "diff_cumulative": 0.10256564911140434
         },
         {
@@ -801,7 +801,7 @@
         },
         {
           "date": "2011-04",
-          "wald": 11.551159594091358,
+          "wald": 11.551159594091361,
           "diff_cumulative": 0.10125907845659518
         },
         {
@@ -881,7 +881,7 @@
         },
         {
           "date": "2012-08",
-          "wald": 17.59291951532549,
+          "wald": 17.592919515325484,
           "diff_cumulative": 0.1121678920676502
         },
         {
@@ -991,7 +991,7 @@
         },
         {
           "date": "2014-06",
-          "wald": 14.486218573398261,
+          "wald": 14.486218573398258,
           "diff_cumulative": 0.09981149125121602
         },
         {
@@ -1001,7 +1001,7 @@
         },
         {
           "date": "2014-08",
-          "wald": 12.289584499440885,
+          "wald": 12.289584499440881,
           "diff_cumulative": 0.09518891094745566
         },
         {
@@ -1121,7 +1121,7 @@
         },
         {
           "date": "2016-08",
-          "wald": 7.53024575832812,
+          "wald": 7.530245758328123,
           "diff_cumulative": 0.0711694313838378
         },
         {
@@ -1231,7 +1231,7 @@
         },
         {
           "date": "2018-06",
-          "wald": 7.968460297464006,
+          "wald": 7.968460297464008,
           "diff_cumulative": 0.07287159522407237
         },
         {
@@ -1301,7 +1301,7 @@
         },
         {
           "date": "2019-08",
-          "wald": 10.682069615690068,
+          "wald": 10.682069615690072,
           "diff_cumulative": 0.08396027444761411
         },
         {
@@ -1341,7 +1341,7 @@
         },
         {
           "date": "2020-04",
-          "wald": 8.246172589851902,
+          "wald": 8.2461725898519,
           "diff_cumulative": 0.0748683181528527
         },
         {
@@ -1441,7 +1441,7 @@
         },
         {
           "date": "2021-12",
-          "wald": 3.9255243073345216,
+          "wald": 3.9255243073345207,
           "diff_cumulative": 0.048857829781779
         },
         {
@@ -1501,7 +1501,7 @@
         },
         {
           "date": "2022-12",
-          "wald": 0.154644318936592,
+          "wald": 0.15464431893659192,
           "diff_cumulative": 0.01761274073347334
         }
       ]
@@ -1559,7 +1559,7 @@
         "end": "2019-12",
         "n": 76,
         "cumulative": 0.0008627992075303098,
-        "se": 0.0275332429755778
+        "se": 0.027533242975577802
       },
       {
         "label": "2019-now",
@@ -1583,22 +1583,26 @@
   "presets": [
     {
       "name": "Oil supply shock (Brent +30%)",
-      "components": [
-        "FUEL"
+      "legs": [
+        {
+          "components": [
+            "FUEL"
+          ],
+          "countries": [],
+          "size_pct": 8.389,
+          "profile": {
+            "kind": "custom",
+            "half_life_months": null,
+            "months": null,
+            "fractions": [
+              0.6605,
+              0.916,
+              1.0
+            ]
+          },
+          "start": "2026-11"
+        }
       ],
-      "countries": [],
-      "size_pct": 8.389,
-      "profile": {
-        "kind": "custom",
-        "half_life_months": null,
-        "months": null,
-        "fractions": [
-          0.6605,
-          0.916,
-          1.0
-        ]
-      },
-      "start": "2026-11",
       "second_round": false,
       "second_round_regime": "post2020",
       "rationale": "A supply disruption (e.g. Strait of Hormuz) lifts Brent in EUR by 30% and it stays there. Fuel consumer prices respond with the estimated elasticity 0.31 (HAC s.e. 0.04, 2005-03\u20132026-09): +8.4% on the fuel price level, 66% of it in the first month. Elasticity < 1 because excise duty is per litre.",
@@ -1612,18 +1616,22 @@
     },
     {
       "name": "European gas price spike",
-      "components": [
-        "ELC_GAS"
+      "legs": [
+        {
+          "components": [
+            "ELC_GAS"
+          ],
+          "countries": [],
+          "size_pct": 20.0,
+          "profile": {
+            "kind": "ramp",
+            "half_life_months": null,
+            "months": 6,
+            "fractions": null
+          },
+          "start": "2026-11"
+        }
       ],
-      "countries": [],
-      "size_pct": 20.0,
-      "profile": {
-        "kind": "ramp",
-        "half_life_months": null,
-        "months": 6,
-        "fractions": null
-      },
-      "start": "2026-11",
       "second_round": false,
       "second_round_regime": "post2020",
       "rationale": "Wholesale gas (TTF) spikes. Retail gas and electricity follow slowly and partially because of regulated tariffs, fixed-term contracts and price caps, so the shock ramps in over 6 months. Size +20% on the retail level, about a quarter of the 2021\u201322 episode, when euro area electricity, gas and heat prices rose 75% from Jun 2021 to their peak (Eurostat).",
@@ -1635,20 +1643,24 @@
     },
     {
       "name": "France regulated electricity tariff +10%",
-      "components": [
-        "ELC_GAS"
+      "legs": [
+        {
+          "components": [
+            "ELC_GAS"
+          ],
+          "countries": [
+            "FR"
+          ],
+          "size_pct": 6.241,
+          "profile": {
+            "kind": "permanent",
+            "half_life_months": null,
+            "months": null,
+            "fractions": null
+          },
+          "start": "2027-02"
+        }
       ],
-      "countries": [
-        "FR"
-      ],
-      "size_pct": 6.241,
-      "profile": {
-        "kind": "permanent",
-        "half_life_months": null,
-        "months": null,
-        "fractions": null
-      },
-      "start": "2027-02",
       "second_round": false,
       "second_round_regime": "post2020",
       "rationale": "Illustrative +10% change in France's regulated electricity tariff (TRVE), which is typically revised on 1 February. Electricity is 62.4% of France's ELC_GAS weight in 2026 (Eurostat CP0451 / ELC_GAS), so ELC_GAS in France rises 6.24%. Assumes the change applies to all households.",
@@ -1660,7 +1672,7 @@
     }
   ],
   "assumptions": [
-    "A1 The shock is to the consumer price level vs baseline, following the chosen profile from the start month.",
+    "A1 Each shock leg moves the consumer price level vs baseline along its own profile from its own start month; legs on the same country and component compound (their log effects add).",
     "A2 Weights: each country \u00d7 component share of the euro area* basket at origin prices, held constant (no weight drift, no Jan 2027 reweighting).",
     "A3 YoY impact = (1 + baseline YoY) \u00d7 (R_t / R_t\u221212 \u2212 1): a permanent shock lifts YoY for 12 months, then drops out.",
     "A4 Second round (optional, estimated, uncertain): energy \u2192 core via a 12-month distributed lag, regime-specific, with 95% bands; energy treated as exogenous.",

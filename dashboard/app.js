@@ -118,16 +118,21 @@
     const qs = (k) => [F.last_actual_yoy, ...P.map((p) => p.quantiles[k])];
     const fc = [F.last_actual_yoy, ...P.map((p) => p.point)];
     const acc = css("--accent");
+    // The fan and the forecast line are anchored at the last published value (origin) so they join the
+    // history, but the anchor is not a forecast: it is hidden from the tooltip, which lists Oct-Dec only.
+    const hoverX = fx.slice(1);
     const band = (lo, hi, color, name) => [
       { x: fx, y: qs(lo), mode: "lines", line: { width: 0 }, hoverinfo: "skip", showlegend: false },
-      { x: fx, y: qs(hi), mode: "lines", line: { width: 0 }, fill: "tonexty", fillcolor: css(color), name,
-        customdata: qs(lo), hovertemplate: `${name}: %{customdata:.1f}–%{y:.1f}%<extra></extra>` },
+      { x: fx, y: qs(hi), mode: "lines", line: { width: 0 }, fill: "tonexty", fillcolor: css(color), name, hoverinfo: "skip" },
+      { x: hoverX, y: qs(hi).slice(1), customdata: qs(lo).slice(1), mode: "markers", marker: { size: 1, opacity: 0 },
+        showlegend: false, hovertemplate: `${name}: %{customdata:.1f}–%{y:.1f}%<extra></extra>` },
     ];
     plot("p-headline", [
       ...band("q05", "q95", "--band90", t("s_band90")),
       ...band("q16", "q84", "--band68", t("s_band68")),
       { x: hx, y: hy, mode: "lines", name: t("s_actual"), line: { color: css("--text-primary"), width: 2 }, hovertemplate: "%{y:.2f}%" },
-      { x: fx, y: fc, mode: "lines+markers", name: t("s_forecast"), line: { color: acc, width: 2, dash: "dot" },
+      { x: fx, y: fc, mode: "lines", line: { color: acc, width: 2, dash: "dot" }, hoverinfo: "skip", showlegend: false },
+      { x: hoverX, y: fc.slice(1), mode: "lines+markers", name: t("s_forecast"), line: { color: acc, width: 2, dash: "dot" },
         marker: { size: 8, color: acc, line: { color: css("--surface-1"), width: 2 } }, hovertemplate: "%{y:.2f}%" },
       { x: [hx[0], fx[fx.length - 1]], y: [F.ecb_target, F.ecb_target], mode: "lines", name: t("s_target"),
         line: { color: css("--neutral"), width: 1, dash: "dash" }, hoverinfo: "skip" },
@@ -223,8 +228,15 @@
 
   // ------------------------------------------------------------------ shock simulator
   const PROFILES = ["permanent", "decaying", "temporary", "ramp", "custom"];
+  const LEG_SLOT = ["--s1", "--s2", "--s3", "--s4", "--s5", "--s6"];  // the six validated chart colours: max six shocks
+  const MAX_LEGS = LEG_SLOT.length;
   let scenario = JSON.parse(JSON.stringify(S.presets[0]));
   let presetIdx = 0;
+  let activeLeg = 0;
+
+  const activeShock = () => scenario.legs[activeLeg];
+  const newLeg = () => ({ components: ["ELC_GAS"], countries: [], size_pct: 10, profile: { kind: "permanent" }, start: S.months[0] });
+  const legLabel = (lg) => `${lg.components.map(comp).join(" + ") || "?"} · ${lg.countries.length ? lg.countries.join("/") : geo("EA")} · ${sgn(lg.size_pct, 1)}%`;
 
   function buildForm() {
     const comps = el("f-comps"); comps.replaceChildren();
@@ -243,6 +255,14 @@
     });
     el("f-allea").addEventListener("change", () => { if (el("f-allea").checked) cs.querySelectorAll("input").forEach((i) => { i.checked = false; }); fromForm(); });
     ["f-size", "f-start", "f-profile", "f-param", "f-second", "f-regime"].forEach((id) => el(id).addEventListener("input", fromForm));
+    el("leg-add").addEventListener("click", () => {
+      if (scenario.legs.length >= MAX_LEGS) return;
+      scenario.legs.push(newLeg()); activeLeg = scenario.legs.length - 1; markCustom(); refreshAll();
+    });
+    el("leg-del").addEventListener("click", () => {
+      if (scenario.legs.length <= 1) return;
+      scenario.legs.splice(activeLeg, 1); activeLeg = Math.min(activeLeg, scenario.legs.length - 1); markCustom(); refreshAll();
+    });
     el("nl-go").addEventListener("click", nlInterpret);
     el("nl-run").addEventListener("click", nlRun);
     el("nl-text").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); nlInterpret(); } });
@@ -253,37 +273,55 @@
     });
   }
 
+  function refreshAll() { labelForm(); toForm(); renderLegs(); renderShock(); }
+
+  function renderLegs() {
+    const strip = el("leg-strip"); strip.replaceChildren();
+    scenario.legs.forEach((lg, k) => {
+      const b = node("button", { type: "button" });
+      b.append(node("span", { class: "swatch", style: `background:var(${LEG_SLOT[k]})` }), document.createTextNode(`${k + 1}. ${legLabel(lg)}`));
+      b.setAttribute("aria-pressed", String(k === activeLeg));
+      b.addEventListener("click", () => { activeLeg = k; labelForm(); toForm(); renderLegs(); });
+      strip.appendChild(b);
+    });
+    el("leg-add").disabled = scenario.legs.length >= MAX_LEGS;
+    el("leg-del").disabled = scenario.legs.length <= 1;
+    el("leg-edit").textContent = scenario.legs.length > 1 ? t("sim_editing", { n: activeLeg + 1 }) : "";
+  }
+
   function labelForm() {
+    const lg = activeShock();
     el("f-comps").querySelectorAll("[data-comp]").forEach((s) => { s.textContent = comp(s.dataset.comp); });
     el("f-countries").querySelectorAll("label").forEach((l) => { l.title = geo(l.querySelector("input").value); });
-    const st = el("f-start"), cur = st.value || scenario.start;
-    st.replaceChildren(...S.months.map((m) => node("option", { value: m }, monthLabel(m)))); st.value = cur;
-    const pr = el("f-profile"), pc = pr.value || scenario.profile.kind;
-    pr.replaceChildren(...PROFILES.filter((p) => p !== "custom" || scenario.profile.fractions).map((p) => node("option", { value: p }, t("prof_" + p))));
-    pr.value = pc;
+    const st = el("f-start");
+    st.replaceChildren(...S.months.map((m) => node("option", { value: m }, monthLabel(m)))); st.value = lg.start;
+    const pr = el("f-profile");
+    pr.replaceChildren(...PROFILES.filter((p) => p !== "custom" || lg.profile.fractions).map((p) => node("option", { value: p }, t("prof_" + p))));
+    pr.value = lg.profile.kind;
     const rg = el("f-regime"), rc = rg.value || scenario.second_round_regime;
     rg.replaceChildren(...["post2020", "pre2020"].map((r) => {
       const s = S.second_round[r];
       return node("option", { value: r }, `${t("regime_" + r)} (${s.start}–${s.end}, 12m: ${fmt(s.total, 3)})`);
     }));
-    rg.value = rc;
+    rg.value = scenario.second_round_regime || rc;
     const presets = el("presets"); presets.replaceChildren();
     S.presets.forEach((p, i) => {
       const b = node("button", { type: "button" }, t("preset_" + i));
       b.setAttribute("aria-pressed", String(i === presetIdx));
-      b.addEventListener("click", () => { presetIdx = i; scenario = JSON.parse(JSON.stringify(p)); toForm(); renderShock(); labelForm(); });
+      b.addEventListener("click", () => { presetIdx = i; scenario = JSON.parse(JSON.stringify(p)); activeLeg = 0; refreshAll(); });
       presets.appendChild(b);
     });
   }
 
   function toForm() {
-    el("f-comps").querySelectorAll("input").forEach((i) => { i.checked = scenario.components.includes(i.value); });
-    el("f-countries").querySelectorAll("input").forEach((i) => { i.checked = scenario.countries.includes(i.value); });
-    el("f-allea").checked = scenario.countries.length === 0;
-    el("f-size").value = scenario.size_pct;
-    el("f-start").value = scenario.start;
-    el("f-profile").value = scenario.profile.kind;
-    el("f-param").value = scenario.profile.half_life_months || scenario.profile.months || 6;
+    const lg = activeShock();
+    el("f-comps").querySelectorAll("input").forEach((i) => { i.checked = lg.components.includes(i.value); });
+    el("f-countries").querySelectorAll("input").forEach((i) => { i.checked = lg.countries.includes(i.value); });
+    el("f-allea").checked = lg.countries.length === 0;
+    el("f-size").value = lg.size_pct;
+    el("f-start").value = lg.start;
+    el("f-profile").value = lg.profile.kind;
+    el("f-param").value = lg.profile.half_life_months || lg.profile.months || 6;
     el("f-second").checked = scenario.second_round;
     el("f-regime").value = scenario.second_round_regime;
     paramVisibility();
@@ -337,8 +375,8 @@
   function nlRun() {
     if (!nlPending) return;
     scenario = JSON.parse(JSON.stringify(nlPending.scenario));
-    presetIdx = -1;
-    labelForm(); toForm(); renderShock();
+    presetIdx = -1; activeLeg = 0;
+    refreshAll();
     el("sim-export").scrollIntoView({ block: "nearest" });
   }
 
@@ -348,35 +386,37 @@
     el("l-param").textContent = k === "decaying" ? t("sim_halflife") : t("sim_months");
   }
 
+  // Once the user edits anything, the preset's written rationale no longer describes the scenario.
+  function markCustom() {
+    if (presetIdx >= 0 && JSON.stringify(scenario.legs) === JSON.stringify(S.presets[presetIdx].legs)) return;
+    presetIdx = -1;
+    Object.assign(scenario, { name: "Custom scenario", sources: ["Dashboard simulator"], mapping: null,
+      rationale: "User-defined scenario built in the dashboard (no external mapping). Edit this text before sharing." });
+    el("presets").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", "false"));
+  }
+
   function fromForm() {
     paramVisibility();
+    const lg = activeShock();
     const k = el("f-profile").value, v = Math.max(1, Number(el("f-param").value) || 1);
     const profile = { kind: k };
     if (k === "decaying") profile.half_life_months = v;
     if (k === "temporary" || k === "ramp") profile.months = Math.min(24, Math.round(v));
-    if (k === "custom") profile.fractions = (S.presets.find((p) => p.profile.fractions) || {}).profile.fractions;
-    const preset = S.presets[presetIdx];
-    scenario = {
-      name: "Custom scenario", components: [...el("f-comps").querySelectorAll("input:checked")].map((i) => i.value),
+    if (k === "custom") profile.fractions = lg.profile.fractions || (S.presets.map((p) => p.legs[0].profile.fractions).find(Boolean));
+    Object.assign(lg, {
+      components: [...el("f-comps").querySelectorAll("input:checked")].map((i) => i.value),
       countries: [...el("f-countries").querySelectorAll("input:checked")].map((i) => i.value),
       size_pct: Number(el("f-size").value) || 0, profile, start: el("f-start").value,
-      second_round: el("f-second").checked, second_round_regime: el("f-regime").value,
-      rationale: "User-defined scenario built in the dashboard (no external mapping). Edit this text before sharing.",
-      sources: ["Dashboard simulator"], mapping: null,
-    };
-    if (preset && matchesPreset(preset)) { scenario = Object.assign({}, preset, { second_round: scenario.second_round, second_round_regime: scenario.second_round_regime }); }
-    else presetIdx = -1;
-    el("presets").querySelectorAll("button").forEach((b, i) => b.setAttribute("aria-pressed", String(i === presetIdx)));
+    });
+    scenario.second_round = el("f-second").checked;
+    scenario.second_round_regime = el("f-regime").value;
+    markCustom();
+    renderLegs();
     renderShock();
   }
 
-  function matchesPreset(p) {
-    return JSON.stringify([p.components, p.countries, p.size_pct, p.start, p.profile.kind]) ===
-      JSON.stringify([scenario.components, scenario.countries, scenario.size_pct, scenario.start, scenario.profile.kind]);
-  }
-
   function renderShock() {
-    const none = scenario.components.length === 0;
+    const none = scenario.legs.some((lg) => lg.components.length === 0);
     el("sim-warn").hidden = !none;
     const r = none ? null : ShockEngine.simulate(scenario, S);
     const kpi = (id, label, value, sub) => el(id).replaceChildren(node("div", { class: "label" }, label), node("div", { class: "value" }, value), node("div", { class: "sub" }, sub || ""));
@@ -384,15 +424,22 @@
     if (!r) { ["k-peak", "k-dec", "k-shocked"].forEach((id) => kpi(id, "", "–")); Plotly.purge(el("p-shock")); Plotly.purge(el("p-shockpath")); return; }
     kpi("k-peak", t("sim_peak"), sgn(r.peak_pp) + " " + t("pp"), monthLabel(r.peak_month));
     kpi("k-dec", t("sim_dec", { date: monthLabel(last.date) }), sgn(r.delta_yoy_pp[decIdx]) + " " + t("pp"),
-      scenario.second_round ? `${t("s_first")} ${sgn(r.delta_first_round_pp[decIdx])} · ${t("s_second")} ${sgn(r.delta_second_round_pp[decIdx])}` : t("s_first"));
+      scenario.second_round ? `${t("s_first")} ${sgn(r.delta_first_round_pp[decIdx])} · ${t("s_second")} ${sgn(r.delta_second_round_pp[decIdx])}`
+        : scenario.legs.length > 1 ? t("sim_n_shocks", { n: scenario.legs.length }) : t("s_first"));
     kpi("k-shocked", t("sim_shocked", { date: monthLabel(last.date) }), pct(r.shocked_yoy[decIdx]), `${t("s_baseline")}: ${pct(last.point)}`);
 
     const xs = r.months.map(toDate);
-    const tr = [{ type: "bar", name: t("s_first"), x: xs, y: r.delta_first_round_pp, marker: { color: css("--accent") }, hovertemplate: "%{y:+.3f} " + t("pp") }];
+    const multi = scenario.legs.length > 1;
+    const tr = multi
+      ? scenario.legs.map((lg, k) => ({ type: "bar", name: `${k + 1}. ${legLabel(lg)}`, x: xs, y: r.leg_first_round_pp[k],
+        marker: { color: css(LEG_SLOT[k]), line: { color: css("--surface-1"), width: 1 } }, hovertemplate: "%{y:+.3f} " + t("pp") }))
+      : [{ type: "bar", name: t("s_first"), x: xs, y: r.delta_first_round_pp, marker: { color: css("--accent") }, hovertemplate: "%{y:+.3f} " + t("pp") }];
     if (scenario.second_round) {
-      tr.push({ type: "bar", name: t("s_second"), x: xs, y: r.delta_second_round_pp, marker: { color: css("--s2") }, hovertemplate: "%{y:+.3f} " + t("pp") });
+      tr.push({ type: "bar", name: t("s_second"), x: xs, y: r.delta_second_round_pp, marker: { color: css("--text-muted") }, hovertemplate: "%{y:+.3f} " + t("pp") });
       tr.push({ x: xs, y: r.delta_total_low_pp, mode: "lines", line: { width: 0 }, hoverinfo: "skip", showlegend: false });
       tr.push({ x: xs, y: r.delta_total_high_pp, mode: "lines", line: { width: 0 }, fill: "tonexty", fillcolor: css("--band68"), name: t("s_band2"), hoverinfo: "skip" });
+    }
+    if (multi || scenario.second_round) {
       tr.push({ x: xs, y: r.delta_yoy_pp, mode: "lines+markers", name: t("s_total"), line: { color: css("--text-primary"), width: 2 }, marker: { size: 6 }, hovertemplate: "%{y:+.3f} " + t("pp") });
     }
     plot("p-shock", tr, baseLayout({ barmode: "relative", bargap: 0.3 }));
@@ -414,6 +461,15 @@
     rat.append(node("br"), node("b", {}, t("sim_sources") + ": "), document.createTextNode(scenario.sources.join("; ")));
     if (lang !== "en") rat.append(node("br"), node("i", {}, t("rationale_lang_note")));
     el("sim-assume").replaceChildren(...S.assumptions.map((a) => node("li", {}, a)));
+    el("legs-block").hidden = !multi;
+    if (multi) {
+      table(el("tbl-legs"), [t("leg_shock"), t("leg_alone_peak"), t("leg_alone_dec", { date: monthLabel(last.date) })],
+        scenario.legs.map((lg, k) => {
+          const arr = r.leg_first_round_pp[k];
+          const pk = arr.reduce((a, b) => (Math.abs(b) > Math.abs(a) ? b : a), 0);
+          return [`${k + 1}. ${legLabel(lg)}`, sgn(pk, 3), sgn(arr[decIdx], 3)];
+        }), [1, 2]);
+    }
     table(el("tbl-shock"), [t("month"), t("impact"), t("first_round"), t("second_round")],
       r.months.map((m, i) => [monthLabel(m), sgn(r.delta_yoy_pp[i], 3), sgn(r.delta_first_round_pp[i], 3), sgn(r.delta_second_round_pp[i], 3)]), [1, 2, 3]);
   }
@@ -493,7 +549,7 @@
     if (tab === "overview") renderOverview();
     if (tab === "drivers") renderDrivers();
     if (tab === "countries") renderCountries();
-    if (tab === "shocks") { labelForm(); toForm(); renderShock(); renderNL(); }
+    if (tab === "shocks") { refreshAll(); renderNL(); }
     if (tab === "model") renderModel();
   }
   function renderAll() { applyText(); renderTab(activeTab); }

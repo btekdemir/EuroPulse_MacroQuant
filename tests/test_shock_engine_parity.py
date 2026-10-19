@@ -7,7 +7,7 @@ import subprocess
 import pytest
 
 from hicp.config import ROOT
-from hicp.schemas import Profile, Scenario, ShockBasis
+from hicp.schemas import Leg, Profile, Scenario, ShockBasis
 from hicp.shocks import profile_fraction, simulate
 
 BASIS = ROOT / "outputs" / "shock_basis.json"
@@ -26,9 +26,21 @@ EXTRA = [
 ]
 
 
+MULTI = [
+    Scenario(name="three legs different countries", rationale="x" * 40, sources=["test"], second_round=True, legs=[
+        Leg(components=["ELC_GAS"], countries=["ES"], size_pct=-15, profile=Profile(kind="permanent"), start="2026-11"),
+        Leg(components=["FUEL"], countries=["DE"], size_pct=20, profile=Profile(kind="decaying", half_life_months=3), start="2026-10"),
+        Leg(components=["FOOD_P", "FOOD_NP"], countries=["MT"], size_pct=8, profile=Profile(kind="temporary", months=4), start="2027-01")]),
+    Scenario(name="overlapping legs same cell", rationale="x" * 40, sources=["test"], legs=[
+        Leg(components=["SERV", "FUEL"], countries=["FR", "DE"], size_pct=10, profile=Profile(kind="permanent"), start="2026-10"),
+        Leg(components=["FUEL"], countries=["DE"], size_pct=10, profile=Profile(kind="ramp", months=5), start="2026-12"),
+        Leg(components=["IGD_NNRG"], size_pct=-3, profile=Profile(kind="permanent"), start="2027-02")]),
+]
+
+
 def test_js_engine_matches_python():
     basis = ShockBasis.model_validate_json(BASIS.read_text())
-    scenarios = list(basis.presets) + [p.model_copy(update={"second_round": True}) for p in basis.presets] + EXTRA
+    scenarios = MULTI + list(basis.presets) + [p.model_copy(update={"second_round": True}) for p in basis.presets] + EXTRA
     script = f"""
       const E = require({json.dumps(str(ROOT / 'dashboard' / 'shock_engine.js'))});
       const basis = JSON.parse(require('fs').readFileSync({json.dumps(str(BASIS))}, 'utf8'));
@@ -44,6 +56,8 @@ def test_js_engine_matches_python():
                     "delta_total_high_pp"):
             assert getattr(r_py, key) == pytest.approx(r_js[key], abs=1e-12), (sc.name, key)
         assert r_py.peak_month == r_js["peak_month"]
+        for ly, lj in zip(r_py.leg_first_round_pp, r_js["leg_first_round_pp"], strict=True):
+            assert ly == pytest.approx(lj, abs=1e-12), (sc.name, "leg")
 
 
 def test_profiles():

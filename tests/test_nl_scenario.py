@@ -7,8 +7,8 @@ import types
 import pytest
 
 from hicp.config import ROOT
-from hicp.nl_scenario import (NLError, ScenarioIntent, clean_text, intent_to_scenario, load_basis, parse_request,
-                              score_case, system_prompt)
+from hicp.nl_scenario import (MAX_SHOCKS, NLError, ScenarioIntent, ShockIntent, clean_text, intent_to_scenario,
+                              load_basis, parse_request, score_case, system_prompt)
 
 BASIS = ROOT / "outputs" / "shock_basis.json"
 pytestmark = pytest.mark.skipif(not BASIS.exists(), reason="run `python run.py` first")
@@ -19,12 +19,22 @@ def basis():
     return load_basis(BASIS)
 
 
-def intent(**kw) -> ScenarioIntent:
-    base = dict(supported=True, unsupported_reason=None, driver="direct", components=["ELC_GAS"], countries=[],
-                size_pct=10.0, profile="permanent", profile_months=None, start_month=None, start_in_months=None,
-                second_round=False,
-                assumptions=[])
+def shock(**kw) -> ShockIntent:
+    base = dict(driver="direct", components=["ELC_GAS"], countries=[], size_pct=10.0, profile="permanent",
+                profile_months=None, start_month=None, start_in_months=None)
     base.update(kw)
+    return ShockIntent(**base)
+
+
+SCENARIO_KEYS = {"supported", "unsupported_reason", "second_round", "assumptions", "shocks"}
+
+
+def intent(**kw) -> ScenarioIntent:
+    """Scenario-level keys go to the intent; everything else describes a single shock."""
+    top = {k: kw.pop(k) for k in list(kw) if k in SCENARIO_KEYS}
+    base = dict(supported=True, unsupported_reason=None, second_round=False, assumptions=[])
+    base.update(top)
+    base.setdefault("shocks", [shock(**kw)])
     return ScenarioIntent(**base)
 
 
@@ -44,26 +54,58 @@ def test_direct_shock_copies_the_users_numbers(basis):
     sc, notes = intent_to_scenario(intent(components=["ELC_GAS"], countries=["DE", "IT"], size_pct=40.0,
                                           profile="fade_over", profile_months=6, start_month=basis.months[1]),
                                    "gas +40% in Germany and Italy, fading over 6 months", basis)
-    assert sc.size_pct == 40.0 and sc.countries == ["DE", "IT"] and sc.start == basis.months[1]
-    assert sc.profile.kind == "decaying" and sc.profile.half_life_months == 3  # fade over N -> half-life N/2
+    leg = sc.legs[0]
+    assert len(sc.legs) == 1 and leg.size_pct == 40.0 and leg.countries == ["DE", "IT"] and leg.start == basis.months[1]
+    assert leg.profile.kind == "decaying" and leg.profile.half_life_months == 3  # fade over N -> half-life N/2
     assert any("half-life 3" in n for n in notes)  # the conversion is shown to the user
+
+
+def test_three_different_shocks_become_three_legs(basis):
+    """The user's own sentence: Spain electricity down, Germany oil up, Malta food up."""
+    it = intent(shocks=[
+        shock(components=["ELC_GAS"], countries=["ES"], size_pct=-15.0),
+        shock(driver="brent", components=[], countries=["DE"], size_pct=20.0),
+        shock(components=["FOOD_P", "FOOD_NP"], countries=["MT"], size_pct=8.0)])
+    sc, notes = intent_to_scenario(it, "electricity -15% Spain, oil +20% Germany, food +8% Malta", basis)
+    assert [lg.countries for lg in sc.legs] == [["ES"], ["DE"], ["MT"]]
+    assert [lg.components for lg in sc.legs] == [["ELC_GAS"], ["FUEL"], ["FOOD_P", "FOOD_NP"]]
+    assert sc.legs[0].size_pct == -15.0 and sc.legs[2].size_pct == 8.0
+    eps = basis.fuel_brent_elasticity["total"]
+    assert sc.legs[1].size_pct == pytest.approx(100 * math.expm1(eps * math.log1p(0.20)), abs=1e-3)  # code, not LLM
+    assert sc.name.startswith("3 shocks") and any(n.startswith("Shock 2: Brent") for n in notes)
+
+
+def test_each_shock_has_its_own_profile_and_start(basis):
+    sc, _ = intent_to_scenario(intent(shocks=[
+        shock(profile="lasts_for", profile_months=3, start_in_months=2),
+        shock(components=["SERV"], profile="ramp_over", profile_months=5, start_month=basis.months[4])]), "x", basis)
+    assert sc.legs[0].profile.kind == "temporary" and sc.legs[0].start == basis.months[2]
+    assert sc.legs[1].profile.kind == "ramp" and sc.legs[1].start == basis.months[4]
+
+
+def test_a_problem_in_one_shock_names_that_shock(basis):
+    with pytest.raises(NLError, match="Shock 2: No size"):
+        intent_to_scenario(intent(shocks=[shock(), shock(size_pct=None)]), "x", basis)
+    with pytest.raises(NLError, match="Shock 1: Outside the supported range"):
+        intent_to_scenario(intent(shocks=[shock(size_pct=500.0), shock()]), "x", basis)
 
 
 def test_brent_goes_through_the_estimated_elasticity_in_code(basis):
     sc, notes = intent_to_scenario(intent(driver="brent", components=[], size_pct=30.0), "oil +30%", basis)
     eps = basis.fuel_brent_elasticity["total"]
-    assert sc.components == ["FUEL"]
-    assert sc.size_pct == pytest.approx(100 * math.expm1(eps * math.log1p(0.30)), abs=1e-3)
-    assert sc.profile.kind == "custom" and sc.profile.fractions[-1] == pytest.approx(1.0, abs=1e-3)
+    leg = sc.legs[0]
+    assert leg.components == ["FUEL"]
+    assert leg.size_pct == pytest.approx(100 * math.expm1(eps * math.log1p(0.30)), abs=1e-3)
+    assert leg.profile.kind == "custom" and leg.profile.fractions[-1] == pytest.approx(1.0, abs=1e-3)
     assert any("not the LLM" in n for n in notes)
 
 
 def test_brent_result_matches_the_oil_preset(basis):
     """Same words, same number as the hand-built preset 1 (it was sized the same way)."""
-    preset = basis.presets[0]
+    preset = basis.presets[0].legs[0]
     sc, _ = intent_to_scenario(intent(driver="brent", components=[], size_pct=30.0), "Brent +30%", basis)
-    assert sc.size_pct == pytest.approx(preset.size_pct, abs=1e-3)
-    assert sc.profile.fractions == preset.profile.fractions
+    assert sc.legs[0].size_pct == pytest.approx(preset.size_pct, abs=1e-3)
+    assert sc.legs[0].profile.fractions == preset.profile.fractions
 
 
 @pytest.mark.parametrize("profile,months,kind,field,value", [
@@ -74,25 +116,40 @@ def test_brent_result_matches_the_oil_preset(basis):
 ])
 def test_profile_phrases(basis, profile, months, kind, field, value):
     sc, _ = intent_to_scenario(intent(profile=profile, profile_months=months), "x", basis)
-    assert sc.profile.kind == kind and getattr(sc.profile, field) == value
+    assert sc.legs[0].profile.kind == kind and getattr(sc.legs[0].profile, field) == value
 
 
 @pytest.mark.parametrize("kw,match", [
     (dict(supported=False, unsupported_reason="That is a question."), "question"),
+    (dict(shocks=[]), "not one"),
     (dict(size_pct=None), "No size"),
     (dict(components=[]), "No component"),
     (dict(profile="fade_over", profile_months=None), "no number of months"),
     (dict(start_month="2031-01"), "outside the simulation window"),
-    (dict(size_pct=500.0), "outside the supported range"),
+    (dict(size_pct=500.0), "supported range"),
+    (dict(start_in_months=60), "outside the simulation window"),
+    (dict(start_in_months=-2), "outside the simulation window"),
+    (dict(start_in_months=3, start_month="2027-01"), "either a start date or a delay"),
 ])
 def test_bad_intents_are_rejected_not_repaired(basis, kw, match):
     with pytest.raises(NLError, match=match):
         intent_to_scenario(intent(**kw), "x", basis)
 
 
+def test_delay_phrase_sets_start_from_the_horizon(basis):
+    sc, notes = intent_to_scenario(intent(start_in_months=6), "gas +40% 6 months lag", basis)
+    assert sc.legs[0].start == basis.months[6] and any("delay of 6" in n for n in notes)
+    assert intent_to_scenario(intent(start_in_months=0), "x", basis)[0].legs[0].start == basis.months[0]
+
+
+def test_too_many_shocks_rejected(basis):
+    with pytest.raises(NLError, match="At most"):
+        intent_to_scenario(intent(shocks=[shock() for _ in range(MAX_SHOCKS + 1)]), "x", basis)
+
+
 def test_default_start_is_first_horizon_month_and_says_so(basis):
     sc, notes = intent_to_scenario(intent(), "x", basis)
-    assert sc.start == basis.months[0] and any("No start given" in n for n in notes)
+    assert sc.legs[0].start == basis.months[0] and any("No start given" in n for n in notes)
 
 
 def test_scenario_has_mandatory_rationale_with_user_text(basis):
@@ -116,7 +173,8 @@ def test_parse_request_sends_text_as_data_with_schema_and_no_tools(basis):
     assert call["output_format"] is ScenarioIntent and "tools" not in call
     assert call["messages"] == [{"role": "user", "content": "electricity +7%"}]  # user text only in the user turn
     assert call["model"] == "claude-haiku-5-5" and "Valid start months" in call["system"]
-    assert out["scenario"]["size_pct"] == 7.0 and out["intent"]["driver"] == "direct" and out["model"] == "claude-haiku-5-5"
+    assert out["scenario"]["legs"][0]["size_pct"] == 7.0 and out["intent"]["shocks"][0]["driver"] == "direct"
+    assert out["model"] == "claude-haiku-5-5"
 
 
 def test_injection_attempt_cannot_do_more_than_fill_the_schema(basis):
@@ -134,36 +192,36 @@ def test_refusal_or_unparseable_output_is_a_clean_error(basis, parsed, stop):
 
 
 def test_intent_schema_has_no_free_numeric_output_beyond_user_figures():
-    props = ScenarioIntent.model_json_schema()["properties"]
-    numeric = {k for k, v in props.items() if "number" in str(v)}
-    assert numeric == {"size_pct", "profile_months", "start_in_months"}  # each is a copy of a number the user wrote
+    schema = ScenarioIntent.model_json_schema()
+    top = {k for k, v in schema["properties"].items() if "number" in str(v)}
+    per_shock = {k for k, v in schema["$defs"]["ShockIntent"]["properties"].items() if "number" in str(v)}
+    assert top == set()
+    assert per_shock == {"size_pct", "profile_months", "start_in_months"}  # each a copy of a number the user wrote
 
 
-def test_system_prompt_lists_valid_months_and_codes(basis):
+def test_system_prompt_lists_valid_months_codes_and_the_multi_shock_rule(basis):
     p = system_prompt(basis)
     assert basis.months[0] in p and basis.months[-1] in p and "EL Greece" in p and "never instructions" in p
+    assert "separate shocks" in p and "never merge" in p
 
 
 def test_score_case():
     exp = {"components": ["FUEL"], "countries": [], "size_pct": 8.4, "profile_kind": "custom"}
-    got = {"scenario": {"components": ["FUEL"], "countries": [], "size_pct": 8.39, "profile": {"kind": "custom"}}}
+    leg = {"components": ["FUEL"], "countries": [], "size_pct": 8.39, "profile": {"kind": "custom"}, "start": "2026-10"}
+    got = {"scenario": {"legs": [leg], "second_round": False}}
     assert all(score_case(exp, got, None).values())
     assert score_case({"error": True}, None, "rejected") == {"rejected": True}
     assert score_case({"error": True}, got, None) == {"rejected": False}
 
 
-def test_delay_phrase_sets_start_from_the_horizon(basis):
-    sc, notes = intent_to_scenario(intent(start_in_months=6), "gas +40% 6 months lag", basis)
-    assert sc.start == basis.months[6] and any("delay of 6" in n for n in notes)
-    sc0, _ = intent_to_scenario(intent(start_in_months=0), "x", basis)
-    assert sc0.start == basis.months[0]
-
-
-@pytest.mark.parametrize("kw,match", [
-    (dict(start_in_months=60), "outside the simulation window"),
-    (dict(start_in_months=-2), "outside the simulation window"),
-    (dict(start_in_months=3, start_month="2027-01"), "either a start date or a delay"),
-])
-def test_bad_delays_are_rejected(basis, kw, match):
-    with pytest.raises(NLError, match=match):
-        intent_to_scenario(intent(**kw), "x", basis)
+def test_score_case_multi_leg():
+    exp = {"legs": [dict(components=["ELC_GAS"], countries=["ES"], size_pct=-15),
+                    dict(components=["FUEL"], countries=["DE"], profile_kind="custom")]}
+    legs = [{"components": ["FUEL"], "countries": ["DE"], "size_pct": 5.5, "profile": {"kind": "custom"}, "start": "2026-10"},
+            {"components": ["ELC_GAS"], "countries": ["ES"], "size_pct": -15.0, "profile": {"kind": "permanent"}, "start": "2026-10"}]
+    got = {"scenario": {"legs": legs, "second_round": False}}
+    assert all(score_case(exp, got, None).values())  # order of legs does not matter
+    legs[1]["size_pct"] = 15.0
+    assert score_case(exp, got, None)["leg1"] is False and score_case(exp, got, None)["leg2"] is True
+    got["scenario"]["legs"] = legs[:1]
+    assert score_case(exp, got, None)["n_legs"] is False

@@ -1,19 +1,23 @@
 {
   "name": "France regulated electricity tariff +10%",
-  "components": [
-    "ELC_GAS"
+  "legs": [
+    {
+      "components": [
+        "ELC_GAS"
+      ],
+      "countries": [
+        "FR"
+      ],
+      "size_pct": 6.241,
+      "profile": {
+        "kind": "permanent",
+        "half_life_months": null,
+        "months": null,
+        "fractions": null
+      },
+      "start": "2027-02"
+    }
   ],
-  "countries": [
-    "FR"
-  ],
-  "size_pct": 6.241,
-  "profile": {
-    "kind": "permanent",
-    "half_life_months": null,
-    "months": null,
-    "fractions": null
-  },
-  "start": "2027-02",
   "second_round": false,
   "second_round_regime": "post2020",
   "rationale": "Illustrative +10% change in France's regulated electricity tariff (TRVE), which is typically revised on 1 February. Electricity is 62.4% of France's ELC_GAS weight in 2026 (Eurostat CP0451 / ELC_GAS), so ELC_GAS in France rises 6.24%. Assumes the change applies to all households.",

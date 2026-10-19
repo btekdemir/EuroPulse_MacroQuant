@@ -39,7 +39,7 @@ subprocess.run([sys.executable, str(ROOT / "deploy" / "prepare.py")], check=True
 spec = importlib.util.spec_from_file_location("scenario_fn", ROOT / "deploy" / "api" / "scenario.py")
 fn = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(fn)
-PAGE = (ROOT / "deploy" / "public" / "index.html").read_bytes()
+PAGE_FILE = ROOT / "outputs" / "dashboard.html"  # read on every request: always the latest build
 
 
 class Local(BaseHTTPRequestHandler):
@@ -52,7 +52,7 @@ class Local(BaseHTTPRequestHandler):
 
     def do_GET(self):  # noqa: N802
         if self.path.split("?")[0] in ("/", "/index.html", "/dashboard.html"):
-            self._send(200, PAGE, "text/html; charset=utf-8")
+            self._send(200, PAGE_FILE.read_bytes(), "text/html; charset=utf-8")
         else:
             self._send(404, b'{"error":"not found"}')
 

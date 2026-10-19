@@ -268,3 +268,14 @@ It does not change after the results are in.
   - the actual Vercel deploy.
 
   Each of the first two makes about 20 paid API calls (well under a cent at this model's price) and waits for your approval.
+
+## D23. Multi-shock scenarios (20 Oct 2026)
+
+- **Why:** the first design allowed one shock per scenario: one component list × one country list × one size × one profile, applied to every combination. "Electricity −15% in Spain, oil +20% in Germany, food +8% in Malta" could not be expressed, and ticking three countries and three components would silently apply one figure to nine cells.
+- **Design:** a `Scenario` is now a list of `Leg`s (up to 6, one per validated chart colour). Each leg has its own components, countries, size, profile and start month. Second-round settings stay scenario-level.
+- **Engine (`shocks._cell_shocks`):** each (country, component) cell sums the log price-level deviations of the legs that touch it, so overlapping shocks compound (+10% and +10% = +21%) and nothing is overwritten. The order of legs does not matter. The by-leg table shows each leg run alone; the sum of those can differ from the total only when legs overlap or through the YoY ratio's mild non-linearity.
+- **Old scenarios still load:** a validator converts the earlier one-shock JSON into a one-leg scenario. `tests/data_single_leg_reference.json` freezes the single-shock engine's outputs (and the basis they were computed on) from before the change; the new engine reproduces them to 1e−12.
+- **Tests (`tests/test_multi_leg.py`):** regression to the old results; disjoint legs equal a single leg on the union; compounding; order invariance; a hand calculation of the user's own Spain/Germany/Malta sentence; per-leg start months; the JS engine equals Python on multi-leg and overlapping scenarios.
+- **LLM:** the intent schema is now a list of `ShockIntent`s. Its numeric fields are still only copies of the user's figures (tested). The prompt tells the model never to merge shocks or apply one figure to everything, and a problem in one shock is reported as "Shock 2: …".
+- **A subtlety to state openly:** "oil +20% in Germany" is read as a *Brent* change (the oil price itself), which the code converts to fuel +5.8% through the 0.31 elasticity. A user who means "petrol prices in Germany +20%" should say "fuel prices". The interpretation lines show which reading was taken, before anything runs. Brent is a global price, so applying it to one country is a modelling choice the user makes explicit.
+- **Not yet re-run:** the 23-sentence eval (5 multi-shock cases added) and the 6 recorded examples, because both call the paid API.

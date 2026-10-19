@@ -34,7 +34,8 @@ def test_handle_happy_path_and_errors(fn):
     fn._hits.clear(); fn._day.clear()
     status, body = fn.handle(json.dumps({"text": "petrol +12% in NL"}).encode(), "1.1.1.1", client=_fake(fn))
     out = json.loads(body)
-    assert status == 200 and out["scenario"]["countries"] == ["NL"] and out["scenario"]["size_pct"] == 12.0
+    leg = out["scenario"]["legs"][0]
+    assert status == 200 and leg["countries"] == ["NL"] and leg["size_pct"] == 12.0
     assert fn.handle(b"not json", "1.1.1.1")[0] == 400
     assert fn.handle(json.dumps({"text": 5}).encode(), "1.1.1.1")[0] == 400
     assert fn.handle(json.dumps({"text": "x" * 400}).encode(), "1.1.1.1")[0] == 400

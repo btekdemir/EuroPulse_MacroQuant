@@ -2,9 +2,10 @@
 
 Assumptions (also shown in the dashboard's assumptions panel):
 
-A1. A shock is to the consumer price LEVEL of the chosen components in the chosen countries
-    (or euro area-wide), relative to the baseline: L(m) = profile(m) · ln(1 + size/100), m = months
-    since the start month; zero before the start.
+A1. A scenario is one or more legs. A leg is a shock to the consumer price LEVEL of its components in
+    its countries (or euro area-wide), relative to the baseline: L(m) = profile(m) · ln(1 + size/100),
+    m = months since the leg's start month; zero before. Legs hitting the same (country, component) cell
+    add in logs (they compound on the price level), so nothing is overwritten.
 A2. Weights are the effective weights at the origin (Sep 2026), held constant. They are each
     (country, component) cell's share of the euro area* headline basket at Sep 2026 prices:
         W_c,i = country share in EA (country weight × relative price drift since Dec)
@@ -33,13 +34,14 @@ import pandas as pd
 from hicp.chainlink import dec, effective_weights
 from hicp.clean import CleanData
 from hicp.config import Settings
-from hicp.schemas import Profile, Scenario, ShockBasis, ShockResult
+from hicp.schemas import Leg, Profile, Scenario, ShockBasis, ShockResult
 
 ENERGY = ["FUEL", "ELC_GAS"]
 CORE = ["IGD_NNRG", "SERV"]
 
 ASSUMPTIONS = [
-    "A1 The shock is to the consumer price level vs baseline, following the chosen profile from the start month.",
+    "A1 Each shock leg moves the consumer price level vs baseline along its own profile from its own start month; "
+    "legs on the same country and component compound (their log effects add).",
     "A2 Weights: each country × component share of the euro area* basket at origin prices, held constant "
     "(no weight drift, no Jan 2027 reweighting).",
     "A3 YoY impact = (1 + baseline YoY) × (R_t / R_t−12 − 1): a permanent shock lifts YoY for 12 months, then drops out.",
@@ -71,21 +73,42 @@ def _months_since(start: str, month: str) -> int:
     return (y1 - y0) * 12 + (m1 - m0)
 
 
-def simulate(sc: Scenario, basis: ShockBasis) -> ShockResult:
-    comps = sc.components
-    countries = sc.countries or basis.countries
-    lvl = math.log1p(sc.size_pct / 100)
-    W = sum(basis.weight_matrix[c][i] for c in countries for i in comps)  # shocked basket share
-    w_energy = sum(basis.ea_effective_weights[i] for i in basis.energy_components)
-    w_shock_energy = sum(basis.weight_matrix[c][i] for c in countries for i in comps if i in basis.energy_components)
-    reg = basis.second_round[sc.second_round_regime]
+def _cell_shocks(legs: list[Leg], basis: ShockBasis) -> list[tuple[str, str, list[float]]]:
+    """Per touched (country, component) cell: the shock's log price-level deviation L(t) for every month.
 
-    first, second, e_dev = [], [], []
-    for month in basis.months:
-        f = profile_fraction(sc.profile, _months_since(sc.start, month))
-        x = math.expm1(f * lvl)  # e^L − 1
-        first.append(W * x)
-        e_dev.append(100 * w_shock_energy * x / w_energy if w_energy else 0.0)  # % of EA energy level
+    Legs that hit the same cell add in logs, i.e. compound on the price level: +10% then +10% = +21%.
+    Nothing is overwritten and the order of legs does not matter."""
+    cells: dict[tuple[str, str], list[float]] = {}
+    for leg in legs:
+        lvl = math.log1p(leg.size_pct / 100)
+        path = [profile_fraction(leg.profile, _months_since(leg.start, m)) * lvl for m in basis.months]
+        for c in leg.countries or basis.countries:
+            for i in leg.components:
+                cur = cells.setdefault((c, i), [0.0] * len(basis.months))
+                for t, v in enumerate(path):
+                    cur[t] += v
+    return [(c, i, L) for (c, i), L in cells.items()]
+
+
+def _first_round(legs: list[Leg], basis: ShockBasis) -> tuple[list[float], list[float]]:
+    """Headline level effect Σ W·(e^L − 1) and the energy-basket deviation (%) for every month."""
+    n = len(basis.months)
+    first, energy = [0.0] * n, [0.0] * n
+    w_energy = sum(basis.ea_effective_weights[i] for i in basis.energy_components)
+    for c, i, L in _cell_shocks(legs, basis):
+        w = basis.weight_matrix[c][i]
+        for t in range(n):
+            x = w * math.expm1(L[t])
+            first[t] += x
+            if i in basis.energy_components:
+                energy[t] += x
+    return first, [100 * x / w_energy if w_energy else 0.0 for x in energy]
+
+
+def simulate(sc: Scenario, basis: ShockBasis) -> ShockResult:
+    reg = basis.second_round[sc.second_round_regime]
+    first, e_dev = _first_round(sc.legs, basis)
+
     def core_level(cum: list[float]) -> list[float]:
         out = []
         for t in range(len(e_dev)):
@@ -112,12 +135,16 @@ def simulate(sc: Scenario, basis: ShockBasis) -> ShockResult:
     d_second = [a - b for a, b in zip(d_tot, d_first)]
     band = [[dyoy([first[t] + v[t] for t in range(len(first))], t) for t in range(len(first))]
             for v in (second_lo, second_hi)]
+    per_leg = []
+    for leg in sc.legs:  # each leg on its own (first round only), for the by-leg table
+        f_leg, _ = _first_round([leg], basis)
+        per_leg.append([dyoy(f_leg, t) for t in range(len(f_leg))])
     shocked = [None if b is None else b + d for b, d in zip(basis.baseline_yoy, d_tot)]
     k = int(np.argmax(np.abs(d_tot)))
     return ShockResult(scenario=sc, months=basis.months, delta_yoy_pp=d_tot, delta_first_round_pp=d_first,
                        delta_second_round_pp=d_second, delta_total_low_pp=band[0], delta_total_high_pp=band[1],
                        baseline_yoy=basis.baseline_yoy, shocked_yoy=shocked,
-                       peak_pp=d_tot[k], peak_month=basis.months[k])
+                       peak_pp=d_tot[k], peak_month=basis.months[k], leg_first_round_pp=per_leg)
 
 
 # --------------------------------------------------------------------------- basis

@@ -212,5 +212,141 @@
   "expected": {
    "error": true
   }
+ },
+ {
+  "text": "Electricity prices fall 15% in Spain, oil rises 20% in Germany, food rises 8% in Malta",
+  "expected": {
+   "legs": [
+    {
+     "components": [
+      "ELC_GAS"
+     ],
+     "countries": [
+      "ES"
+     ],
+     "size_pct": -15,
+     "profile_kind": "permanent"
+    },
+    {
+     "components": [
+      "FUEL"
+     ],
+     "countries": [
+      "DE"
+     ],
+     "profile_kind": "custom"
+    },
+    {
+     "components": [
+      "FOOD_P",
+      "FOOD_NP"
+     ],
+     "countries": [
+      "MT"
+     ],
+     "size_pct": 8,
+     "profile_kind": "permanent"
+    }
+   ]
+  }
+ },
+ {
+  "text": "Gas +30% in Italy for 6 months, and services +2% in France permanently",
+  "expected": {
+   "legs": [
+    {
+     "components": [
+      "ELC_GAS"
+     ],
+     "countries": [
+      "IT"
+     ],
+     "size_pct": 30,
+     "profile_kind": "temporary",
+     "profile_param": 6
+    },
+    {
+     "components": [
+      "SERV"
+     ],
+     "countries": [
+      "FR"
+     ],
+     "size_pct": 2,
+     "profile_kind": "permanent"
+    }
+   ]
+  }
+ },
+ {
+  "text": "Fuel +10% in Germany starting January 2027, food -3% in Spain starting March 2027",
+  "expected": {
+   "legs": [
+    {
+     "components": [
+      "FUEL"
+     ],
+     "countries": [
+      "DE"
+     ],
+     "size_pct": 10,
+     "start": "2027-01"
+    },
+    {
+     "components": [
+      "FOOD_P",
+      "FOOD_NP"
+     ],
+     "countries": [
+      "ES"
+     ],
+     "size_pct": -3,
+     "start": "2027-03"
+    }
+   ]
+  }
+ },
+ {
+  "text": "Gas and petrol both rise 10% in Spain",
+  "expected": {
+   "legs": [
+    {
+     "components": [
+      "ELC_GAS",
+      "FUEL"
+     ],
+     "countries": [
+      "ES"
+     ],
+     "size_pct": 10,
+     "profile_kind": "permanent"
+    }
+   ]
+  }
+ },
+ {
+  "text": "Électricité +10 % en France et carburants -5 % en Allemagne",
+  "expected": {
+   "legs": [
+    {
+     "components": [
+      "ELC_GAS"
+     ],
+     "countries": [
+      "FR"
+     ],
+     "size_pct": 10
+    },
+    {
+     "components": [
+      "FUEL"
+     ],
+     "countries": [
+      "DE"
+     ],
+     "size_pct": -5
+    }
+   ]
+  }
  }
 ]

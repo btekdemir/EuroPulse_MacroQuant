@@ -207,19 +207,18 @@ class Profile(Strict):
         return self
 
 
-class Scenario(Strict):
-    name: str = Field(min_length=3)
+MAX_LEGS = 6
+LEGACY_LEG_FIELDS = ("components", "countries", "size_pct", "profile", "start")
+
+
+class Leg(Strict):
+    """One shock: the same price-level change for a set of components in a set of countries."""
     components: list[Literal[COMPONENTS]] = Field(min_length=1)  # type: ignore[valid-type]
     countries: list[Literal[COUNTRIES]] = Field(default_factory=list,  # type: ignore[valid-type]
                                                 description="empty = euro area-wide")
     size_pct: float = Field(gt=-50, lt=200, description="shock to the consumer price LEVEL, %")
     profile: Profile
     start: str = Field(pattern=r"^\d{4}-\d{2}$")
-    second_round: bool = False
-    second_round_regime: Literal["post2020", "pre2020"] = "post2020"
-    rationale: str = Field(min_length=40, description="Mandatory: why this size, profile and mapping")
-    sources: list[str] = Field(min_length=1)
-    mapping: str | None = Field(default=None, description="How an external shock maps to the HICP component")
 
     @field_validator("components", "countries")
     @classmethod
@@ -227,6 +226,29 @@ class Scenario(Strict):
         if len(set(v)) != len(v):
             raise ValueError("duplicates")
         return v
+
+
+class Scenario(Strict):
+    """One or more legs, run together. Legs that hit the same (country, component) cell combine
+    multiplicatively on the price level (their log deviations add); nothing is overwritten."""
+    name: str = Field(min_length=3)
+    legs: list[Leg] = Field(min_length=1, max_length=MAX_LEGS)
+    second_round: bool = False
+    second_round_regime: Literal["post2020", "pre2020"] = "post2020"
+    rationale: str = Field(min_length=40, description="Mandatory: why these sizes, profiles and mappings")
+    sources: list[str] = Field(min_length=1)
+    mapping: str | None = Field(default=None, description="How an external shock maps to the HICP component")
+
+    @model_validator(mode="before")
+    @classmethod
+    def legacy_single_shock(cls, data):
+        """Accept the earlier one-shock JSON (components/countries/size_pct/profile/start at the top
+        level) as a one-leg scenario, so saved scenarios and recorded examples stay valid."""
+        if isinstance(data, dict) and "legs" not in data and "components" in data:
+            data = dict(data)
+            leg = {k: data.pop(k) for k in LEGACY_LEG_FIELDS if k in data}
+            data["legs"] = [leg]
+        return data
 
 
 class ShockResult(Strict):
@@ -241,6 +263,9 @@ class ShockResult(Strict):
     shocked_yoy: list[float | None]
     peak_pp: float
     peak_month: str
+    leg_first_round_pp: list[list[float]] = Field(
+        description="First-round y/y impact of each leg run on its own; their sum can differ from the total "
+                    "when legs overlap on a cell (the level effects compound)")
 
 
 class NLExample(Strict):

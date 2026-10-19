@@ -192,7 +192,7 @@
   "brk_diff": "Difference",
   "brk_reading": "Reading: 2002–2012 and 2013–2019 both show zero pass-through, so there is no 2012 break. The single-break test peaks early because the high-pass-through period (2020 on) sits at the end of a long 'after' segment. The higher pass-through is a post-2019 feature, robust to the break year (2019–2022) and to dropping the 2022–23 peak, but outside 2021–23 there are too few months to pin it down. A multiple-break (Bai-Perron) or level-dependent model is the natural next step.",
   "nl_title": "Describe a scenario in words",
-  "nl_intro": "An LLM only turns your sentence into the scenario fields below. It never computes a number: the engine does, and you confirm first.",
+  "nl_intro": "An LLM only turns your sentence into one or more shocks. It never computes a number: the engine does, and you confirm first.",
   "nl_go": "Interpret",
   "nl_run": "Run this scenario",
   "nl_confirm_title": "Is this what you meant?",
@@ -202,7 +202,18 @@
   "nl_failed": "Interpretation failed",
   "nl_recorded": "Recorded LLM output ({model})",
   "nl_live": "Live LLM output ({model})",
-  "nl_examples": "Examples"
+  "nl_examples": "Examples",
+  "sim_legs": "Shocks in this scenario (select one to edit)",
+  "sim_add_leg": "+ Add shock",
+  "sim_del_leg": "Remove shock",
+  "sim_editing": "Editing shock {n}",
+  "sim_n_shocks": "{n} shocks together",
+  "s_leg": "Shock {n}",
+  "leg_table_title": "Each shock on its own",
+  "leg_alone_peak": "Peak alone, pp",
+  "leg_alone_dec": "Impact on {date} alone, pp",
+  "leg_shock": "Shock",
+  "leg_note": "Bars: each shock on its own (first round). Line: all shocks together. They add up unless shocks hit the same country and component, where the price effects compound."
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -397,7 +408,7 @@
   "brk_diff": "Écart",
   "brk_reading": "Lecture : 2002–2012 et 2013–2019 montrent tous deux une transmission nulle, il n'y a donc pas de rupture en 2012. Le test à rupture unique culmine tôt parce que la période de forte transmission (à partir de 2020) se trouve à la fin d'un long segment « après ». La transmission plus forte est un phénomène post-2019, robuste à l'année de rupture (2019–2022) et à l'exclusion du pic de 2022–23, mais hors 2021–23 il y a trop peu de mois pour la mesurer précisément. Un modèle à ruptures multiples (Bai-Perron) ou dépendant du niveau des prix est la suite naturelle.",
   "nl_title": "Décrire un scénario en une phrase",
-  "nl_intro": "Un LLM transforme seulement votre phrase en champs de scénario. Il ne calcule aucun chiffre : le moteur s'en charge, après votre confirmation.",
+  "nl_intro": "Un LLM transforme seulement votre phrase en un ou plusieurs chocs. Il ne calcule aucun chiffre : le moteur s'en charge, après votre confirmation.",
   "nl_go": "Interpréter",
   "nl_run": "Lancer ce scénario",
   "nl_confirm_title": "Est-ce bien ce que vous vouliez dire ?",
@@ -407,6 +418,17 @@
   "nl_failed": "Échec de l'interprétation",
   "nl_recorded": "Sortie LLM enregistrée ({model})",
   "nl_live": "Sortie LLM en direct ({model})",
-  "nl_examples": "Exemples"
+  "nl_examples": "Exemples",
+  "sim_legs": "Chocs de ce scénario (sélectionnez-en un pour le modifier)",
+  "sim_add_leg": "+ Ajouter un choc",
+  "sim_del_leg": "Supprimer le choc",
+  "sim_editing": "Modification du choc {n}",
+  "sim_n_shocks": "{n} chocs combinés",
+  "s_leg": "Choc {n}",
+  "leg_table_title": "Chaque choc isolément",
+  "leg_alone_peak": "Pic isolé, pt",
+  "leg_alone_dec": "Impact sur {date} isolé, pt",
+  "leg_shock": "Choc",
+  "leg_note": "Barres : chaque choc isolément (premier tour). Courbe : tous les chocs ensemble. Ils s'additionnent, sauf si des chocs touchent le même pays et la même composante : leurs effets sur les prix se composent."
  }
 }

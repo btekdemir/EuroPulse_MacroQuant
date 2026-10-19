@@ -1,5 +1,81 @@
 {
   "$defs": {
+    "Leg": {
+      "additionalProperties": false,
+      "description": "One shock: the same price-level change for a set of components in a set of countries.",
+      "properties": {
+        "components": {
+          "items": {
+            "enum": [
+              "FUEL",
+              "ELC_GAS",
+              "FOOD_P",
+              "FOOD_NP",
+              "IGD_NNRG",
+              "SERV"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Components",
+          "type": "array"
+        },
+        "countries": {
+          "description": "empty = euro area-wide",
+          "items": {
+            "enum": [
+              "AT",
+              "BE",
+              "BG",
+              "CY",
+              "DE",
+              "EE",
+              "EL",
+              "ES",
+              "FI",
+              "FR",
+              "HR",
+              "IE",
+              "IT",
+              "LT",
+              "LU",
+              "LV",
+              "MT",
+              "NL",
+              "PT",
+              "SI",
+              "SK"
+            ],
+            "type": "string"
+          },
+          "title": "Countries",
+          "type": "array"
+        },
+        "size_pct": {
+          "description": "shock to the consumer price LEVEL, %",
+          "exclusiveMaximum": 200,
+          "exclusiveMinimum": -50,
+          "title": "Size Pct",
+          "type": "number"
+        },
+        "profile": {
+          "$ref": "#/$defs/Profile"
+        },
+        "start": {
+          "pattern": "^\\d{4}-\\d{2}$",
+          "title": "Start",
+          "type": "string"
+        }
+      },
+      "required": [
+        "components",
+        "size_pct",
+        "profile",
+        "start"
+      ],
+      "title": "Leg",
+      "type": "object"
+    },
     "Profile": {
       "additionalProperties": false,
       "description": "How the price-level shock evolves after the start month (fraction of the full size).",
@@ -69,73 +145,21 @@
     }
   },
   "additionalProperties": false,
+  "description": "One or more legs, run together. Legs that hit the same (country, component) cell combine\nmultiplicatively on the price level (their log deviations add); nothing is overwritten.",
   "properties": {
     "name": {
       "minLength": 3,
       "title": "Name",
       "type": "string"
     },
-    "components": {
+    "legs": {
       "items": {
-        "enum": [
-          "FUEL",
-          "ELC_GAS",
-          "FOOD_P",
-          "FOOD_NP",
-          "IGD_NNRG",
-          "SERV"
-        ],
-        "type": "string"
+        "$ref": "#/$defs/Leg"
       },
+      "maxItems": 6,
       "minItems": 1,
-      "title": "Components",
+      "title": "Legs",
       "type": "array"
-    },
-    "countries": {
-      "description": "empty = euro area-wide",
-      "items": {
-        "enum": [
-          "AT",
-          "BE",
-          "BG",
-          "CY",
-          "DE",
-          "EE",
-          "EL",
-          "ES",
-          "FI",
-          "FR",
-          "HR",
-          "IE",
-          "IT",
-          "LT",
-          "LU",
-          "LV",
-          "MT",
-          "NL",
-          "PT",
-          "SI",
-          "SK"
-        ],
-        "type": "string"
-      },
-      "title": "Countries",
-      "type": "array"
-    },
-    "size_pct": {
-      "description": "shock to the consumer price LEVEL, %",
-      "exclusiveMaximum": 200,
-      "exclusiveMinimum": -50,
-      "title": "Size Pct",
-      "type": "number"
-    },
-    "profile": {
-      "$ref": "#/$defs/Profile"
-    },
-    "start": {
-      "pattern": "^\\d{4}-\\d{2}$",
-      "title": "Start",
-      "type": "string"
     },
     "second_round": {
       "default": false,
@@ -152,7 +176,7 @@
       "type": "string"
     },
     "rationale": {
-      "description": "Mandatory: why this size, profile and mapping",
+      "description": "Mandatory: why these sizes, profiles and mappings",
       "minLength": 40,
       "title": "Rationale",
       "type": "string"
@@ -181,10 +205,7 @@
   },
   "required": [
     "name",
-    "components",
-    "size_pct",
-    "profile",
-    "start",
+    "legs",
     "rationale",
     "sources"
   ],

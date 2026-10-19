@@ -1,17 +1,21 @@
 {
   "name": "European gas price spike",
-  "components": [
-    "ELC_GAS"
+  "legs": [
+    {
+      "components": [
+        "ELC_GAS"
+      ],
+      "countries": [],
+      "size_pct": 20.0,
+      "profile": {
+        "kind": "ramp",
+        "half_life_months": null,
+        "months": 6,
+        "fractions": null
+      },
+      "start": "2026-11"
+    }
   ],
-  "countries": [],
-  "size_pct": 20.0,
-  "profile": {
-    "kind": "ramp",
-    "half_life_months": null,
-    "months": 6,
-    "fractions": null
-  },
-  "start": "2026-11",
   "second_round": false,
   "second_round_regime": "post2020",
   "rationale": "Wholesale gas (TTF) spikes. Retail gas and electricity follow slowly and partially because of regulated tariffs, fixed-term contracts and price caps, so the shock ramps in over 6 months. Size +20% on the retail level, about a quarter of the 2021\u201322 episode, when euro area electricity, gas and heat prices rose 75% from Jun 2021 to their peak (Eurostat).",

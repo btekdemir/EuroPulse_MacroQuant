@@ -21,26 +21,43 @@
     return (y1 - y0) * 12 + (m1 - m0);
   }
 
-  function simulate(sc, basis) {
-    const comps = sc.components;
-    const countries = sc.countries && sc.countries.length ? sc.countries : basis.countries;
-    const lvl = Math.log1p(sc.size_pct / 100);
-    let W = 0, wShockEnergy = 0;
-    for (const c of countries) for (const i of comps) {
-      W += basis.weight_matrix[c][i];
-      if (basis.energy_components.includes(i)) wShockEnergy += basis.weight_matrix[c][i];
+  // Per touched (country, component) cell: log price-level deviation L(t). Legs on the same cell add in logs.
+  function cellShocks(legs, basis) {
+    const cells = new Map();
+    for (const leg of legs) {
+      const lvl = Math.log1p(leg.size_pct / 100);
+      const path = basis.months.map((m) => profileFraction(leg.profile, monthsSince(leg.start, m)) * lvl);
+      const countries = leg.countries && leg.countries.length ? leg.countries : basis.countries;
+      for (const c of countries) for (const i of leg.components) {
+        const key = c + "|" + i;
+        if (!cells.has(key)) cells.set(key, { c, i, L: basis.months.map(() => 0) });
+        const cur = cells.get(key).L;
+        for (let t = 0; t < path.length; t++) cur[t] += path[t];
+      }
     }
+    return [...cells.values()];
+  }
+
+  function firstRound(legs, basis) {
+    const n = basis.months.length;
+    const first = new Array(n).fill(0), energy = new Array(n).fill(0);
     let wEnergy = 0;
     for (const i of basis.energy_components) wEnergy += basis.ea_effective_weights[i];
-    const reg = basis.second_round[sc.second_round_regime || "post2020"];
-
-    const first = [], eDev = [];
-    for (const month of basis.months) {
-      const f = profileFraction(sc.profile, monthsSince(sc.start, month));
-      const x = Math.expm1(f * lvl);
-      first.push(W * x);
-      eDev.push(wEnergy ? 100 * wShockEnergy * x / wEnergy : 0);
+    for (const { c, i, L } of cellShocks(legs, basis)) {
+      const w = basis.weight_matrix[c][i];
+      const isEnergy = basis.energy_components.includes(i);
+      for (let t = 0; t < n; t++) {
+        const x = w * Math.expm1(L[t]);
+        first[t] += x;
+        if (isEnergy) energy[t] += x;
+      }
     }
+    return [first, energy.map((x) => (wEnergy ? 100 * x / wEnergy : 0))];
+  }
+
+  function simulate(sc, basis) {
+    const reg = basis.second_round[sc.second_round_regime || "post2020"];
+    const [first, eDev] = firstRound(sc.legs, basis);
     const coreLevel = (cum) => eDev.map((_, t) => {
       let c = 0;
       for (let j = 0; j <= t; j++) {
@@ -67,13 +84,17 @@
       const p = first.map((f, t) => f + v[t]);
       return p.map((_, t) => dyoy(p, t));
     });
+    const perLeg = sc.legs.map((leg) => {
+      const [f] = firstRound([leg], basis);
+      return f.map((_, t) => dyoy(f, t));
+    });
     const shocked = basis.baseline_yoy.map((b, t) => (b === null ? null : b + dTot[t]));
     let k = 0;
     for (let t = 1; t < dTot.length; t++) if (Math.abs(dTot[t]) > Math.abs(dTot[k])) k = t;
     return {
       months: basis.months, delta_yoy_pp: dTot, delta_first_round_pp: dFirst, delta_second_round_pp: dSecond,
       delta_total_low_pp: band[0], delta_total_high_pp: band[1], baseline_yoy: basis.baseline_yoy,
-      shocked_yoy: shocked, peak_pp: dTot[k], peak_month: basis.months[k],
+      shocked_yoy: shocked, peak_pp: dTot[k], peak_month: basis.months[k], leg_first_round_pp: perLeg,
     };
   }
 
