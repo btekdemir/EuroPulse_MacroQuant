@@ -1,0 +1,29 @@
+{
+  "name": "Oil supply shock (Brent +30%)",
+  "components": [
+    "FUEL"
+  ],
+  "countries": [],
+  "size_pct": 8.389,
+  "profile": {
+    "kind": "custom",
+    "half_life_months": null,
+    "months": null,
+    "fractions": [
+      0.6605,
+      0.916,
+      1.0
+    ]
+  },
+  "start": "2026-11",
+  "second_round": false,
+  "second_round_regime": "post2020",
+  "rationale": "A supply disruption (e.g. Strait of Hormuz) lifts Brent in EUR by 30% and it stays there. Fuel consumer prices respond with the estimated elasticity 0.31 (HAC s.e. 0.04, 2005-03\u20132026-09): +8.4% on the fuel price level, 66% of it in the first month. Elasticity < 1 because excise duty is per litre.",
+  "sources": [
+    "FRED DCOILBRENTEU",
+    "ECB EXR USD/EUR",
+    "Eurostat prc_hicp_minr FUEL",
+    "hicp/passthrough.py"
+  ],
+  "mapping": "FUEL level = (1.30)^0.307 \u2212 1, lag profile from the estimated distributed lag"
+}

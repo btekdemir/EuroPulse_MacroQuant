@@ -1,0 +1,295 @@
+{
+  "$defs": {
+    "Profile": {
+      "additionalProperties": false,
+      "description": "How the price-level shock evolves after the start month (fraction of the full size).",
+      "properties": {
+        "kind": {
+          "enum": [
+            "permanent",
+            "decaying",
+            "temporary",
+            "ramp",
+            "custom"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "half_life_months": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "decaying only",
+          "title": "Half Life Months"
+        },
+        "months": {
+          "anyOf": [
+            {
+              "maximum": 24,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "temporary: duration; ramp: months to full size",
+          "title": "Months"
+        },
+        "fractions": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "custom: fraction per month, last value held",
+          "title": "Fractions"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "Profile",
+      "type": "object"
+    },
+    "Scenario": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 3,
+          "title": "Name",
+          "type": "string"
+        },
+        "components": {
+          "items": {
+            "enum": [
+              "FUEL",
+              "ELC_GAS",
+              "FOOD_P",
+              "FOOD_NP",
+              "IGD_NNRG",
+              "SERV"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Components",
+          "type": "array"
+        },
+        "countries": {
+          "description": "empty = euro area-wide",
+          "items": {
+            "enum": [
+              "AT",
+              "BE",
+              "BG",
+              "CY",
+              "DE",
+              "EE",
+              "EL",
+              "ES",
+              "FI",
+              "FR",
+              "HR",
+              "IE",
+              "IT",
+              "LT",
+              "LU",
+              "LV",
+              "MT",
+              "NL",
+              "PT",
+              "SI",
+              "SK"
+            ],
+            "type": "string"
+          },
+          "title": "Countries",
+          "type": "array"
+        },
+        "size_pct": {
+          "description": "shock to the consumer price LEVEL, %",
+          "exclusiveMaximum": 200,
+          "exclusiveMinimum": -50,
+          "title": "Size Pct",
+          "type": "number"
+        },
+        "profile": {
+          "$ref": "#/$defs/Profile"
+        },
+        "start": {
+          "pattern": "^\\d{4}-\\d{2}$",
+          "title": "Start",
+          "type": "string"
+        },
+        "second_round": {
+          "default": false,
+          "title": "Second Round",
+          "type": "boolean"
+        },
+        "second_round_regime": {
+          "default": "post2020",
+          "enum": [
+            "post2020",
+            "pre2020"
+          ],
+          "title": "Second Round Regime",
+          "type": "string"
+        },
+        "rationale": {
+          "description": "Mandatory: why this size, profile and mapping",
+          "minLength": 40,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Sources",
+          "type": "array"
+        },
+        "mapping": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "How an external shock maps to the HICP component",
+          "title": "Mapping"
+        }
+      },
+      "required": [
+        "name",
+        "components",
+        "size_pct",
+        "profile",
+        "start",
+        "rationale",
+        "sources"
+      ],
+      "title": "Scenario",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "scenario": {
+      "$ref": "#/$defs/Scenario"
+    },
+    "months": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Months",
+      "type": "array"
+    },
+    "delta_yoy_pp": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Delta Yoy Pp",
+      "type": "array"
+    },
+    "delta_first_round_pp": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Delta First Round Pp",
+      "type": "array"
+    },
+    "delta_second_round_pp": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Delta Second Round Pp",
+      "type": "array"
+    },
+    "delta_total_low_pp": {
+      "description": "Total with the second-round 95% lower bound",
+      "items": {
+        "type": "number"
+      },
+      "title": "Delta Total Low Pp",
+      "type": "array"
+    },
+    "delta_total_high_pp": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Delta Total High Pp",
+      "type": "array"
+    },
+    "baseline_yoy": {
+      "items": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Baseline Yoy",
+      "type": "array"
+    },
+    "shocked_yoy": {
+      "items": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "Shocked Yoy",
+      "type": "array"
+    },
+    "peak_pp": {
+      "title": "Peak Pp",
+      "type": "number"
+    },
+    "peak_month": {
+      "title": "Peak Month",
+      "type": "string"
+    }
+  },
+  "required": [
+    "scenario",
+    "months",
+    "delta_yoy_pp",
+    "delta_first_round_pp",
+    "delta_second_round_pp",
+    "delta_total_low_pp",
+    "delta_total_high_pp",
+    "baseline_yoy",
+    "shocked_yoy",
+    "peak_pp",
+    "peak_month"
+  ],
+  "title": "ShockResult",
+  "type": "object"
+}

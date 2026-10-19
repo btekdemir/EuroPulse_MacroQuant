@@ -197,6 +197,54 @@
       ],
       "title": "SelectionStep",
       "type": "object"
+    },
+    "TrackPoint": {
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "origin": {
+          "title": "Origin",
+          "type": "string"
+        },
+        "h": {
+          "maximum": 3,
+          "minimum": 1,
+          "title": "H",
+          "type": "integer"
+        },
+        "target": {
+          "title": "Target",
+          "type": "string"
+        },
+        "fc": {
+          "title": "Fc",
+          "type": "number"
+        },
+        "actual": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Actual"
+        }
+      },
+      "required": [
+        "model",
+        "origin",
+        "h",
+        "target",
+        "fc",
+        "actual"
+      ],
+      "title": "TrackPoint",
+      "type": "object"
     }
   },
   "additionalProperties": false,
@@ -248,6 +296,14 @@
       },
       "title": "Metrics",
       "type": "array"
+    },
+    "track": {
+      "description": "Out-of-sample headline YoY forecasts vs actual",
+      "items": {
+        "$ref": "#/$defs/TrackPoint"
+      },
+      "title": "Track",
+      "type": "array"
     }
   },
   "required": [
@@ -257,7 +313,8 @@
     "selection_sample",
     "selected_models",
     "selection_log",
-    "metrics"
+    "metrics",
+    "track"
   ],
   "title": "BacktestMetrics",
   "type": "object"

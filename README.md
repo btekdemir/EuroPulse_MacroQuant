@@ -1,7 +1,11 @@
 # Euro Area HICP: Bottom-up Forecast, Shock Simulation & Dashboard
 
-> Work in progress (19 Oct 2026): data, validation, chain-linking, forecast and backtest are done.
-> Shocks, dashboard and deck are next.
+> Status (19 Oct 2026): data, validation, forecast, backtest, shock engine and dashboard are done.
+> The deck is next.
+
+**Dashboard:** open `outputs/dashboard.html`. It is one self-contained file that works offline,
+with an FR/EN toggle and five tabs: Overview, Drivers, Countries, Shock simulator, Model &
+validation.
 
 ## Answer first
 
@@ -50,6 +54,26 @@ uses 2010–2019 origins only; 2020 onwards is a hold-out.
 The model beats the random walk significantly at h = 1. At h = 3 the RMSE is lower, but not
 significantly. It under-predicted the 2021–22 surge (2020–2023 h = 3 bias −0.64pp).
 See D14.
+
+## Shock simulator
+
+You pick components and/or countries, a price-level shock, a start month and a profile
+(permanent, decaying, temporary, ramp). The pass-through to euro area\* headline YoY is
+recomputed in the browser:
+
+- **First round:** effective weights per country × component.
+- **Second round (optional):** a regime-dependent energy → core distributed lag, with a 95% band.
+
+Every scenario is a validated `Scenario` object with a mandatory rationale; download it from the
+dashboard. Presets, in `config/scenarios/`:
+
+| Preset | Mapping | Peak impact on headline |
+|---|---|---|
+| Oil supply shock, Brent +30% | fuel elasticity 0.31 (estimated) → FUEL +8.4% | +0.46pp (Jan 2027) |
+| European gas price spike | retail ELC_GAS +20% over 6 months (judgemental) | +1.07pp (Apr 2027) |
+| France regulated electricity +10% | electricity 62.4% of FR ELC_GAS → +6.24% | +0.06pp |
+
+Assumptions are listed in `src/hicp/shocks.py` and shown in the dashboard. See D17–D19.
 
 ## Data sources (verified against the live API, 19 Oct 2026)
 

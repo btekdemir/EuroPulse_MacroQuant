@@ -20,13 +20,17 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from hicp import backtest as bt  # noqa: E402
 from hicp.clean import clean_all  # noqa: E402
 from hicp.config import ROOT, load_settings  # noqa: E402
 from hicp.external import pull_external, pump_index  # noqa: E402
 from hicp.ingest import pull_all  # noqa: E402
+from hicp.export import country_view, track, write_shock_outputs  # noqa: E402
 from hicp.outlook import build_outlook  # noqa: E402
+from hicp.passthrough import estimate_all  # noqa: E402
+from hicp.shocks import build_basis, make_presets  # noqa: E402
 from hicp.schemas import (BacktestMetrics, DataVintage, Forecast, RunManifest, SelectionStep,  # noqa: E402
                           export_json_schemas, write_json)
 from hicp.validate import run_all  # noqa: E402
@@ -54,17 +58,17 @@ def main() -> int:
     s = load_settings()
     out = s.outputs_dir
 
-    log.info("1/5 ingest Eurostat (%s)", "offline" if args.offline else "live")
+    log.info("1/6 ingest Eurostat (%s)", "offline" if args.offline else "live")
     raw, pulls = pull_all(s, offline=args.offline)
-    log.info("2/5 ingest external energy data")
+    log.info("2/6 ingest external energy data")
     ext, ext_pulls = pull_external(s, offline=args.offline)
     pulls += ext_pulls
 
-    log.info("3/5 clean")
+    log.info("3/6 clean")
     data = clean_all(raw, s)
     data.save(s)
 
-    log.info("4/5 validate")
+    log.info("4/6 validate")
     report = run_all(data, s, {p.name: p.updated for p in pulls})
     write_json(report, out / "validation_report.json")
     for g in report.gates:
@@ -76,19 +80,34 @@ def main() -> int:
                   ", ".join(f"{g.gate} ({g.message})" for g in report.blocking))
         return 2
 
-    log.info("5/5 backtest (walk-forward, origins from %s) and forecast", s.raw["backtest"]["first_origin"])
+    log.info("5/6 backtest (walk-forward, origins from %s) and forecast", s.raw["backtest"]["first_origin"])
     cfg = s.raw["backtest"]
     inp = bt.make_inputs(data, s, pump_index(ext.pump))
     res = bt.run_backtest(inp, cfg["first_origin"], *cfg["selection_sample"], rolling=cfg["rolling_window"])
-    write_json(Forecast(**build_outlook(inp, res)), out / "forecast.json")
+    outlook = build_outlook(inp, res)
+    write_json(Forecast(**outlook), out / "forecast.json")
     write_json(BacktestMetrics(
         rule=RULE, first_origin=cfg["first_origin"], last_origin=f"{inp.index.index.max():%Y-%m}",
         selection_sample=tuple(cfg["selection_sample"]), selected_models=res.choice,
         selection_log=[SelectionStep(**_nan_to_none(r)) for r in res.selection.to_dict("records")],
-        metrics=[_nan_to_none(r) for r in res.metrics.to_dict("records")]), out / "backtest_metrics.json")
+        metrics=[_nan_to_none(r) for r in res.metrics.to_dict("records")], track=track(res.headline)),
+        out / "backtest_metrics.json")
     res.headline.to_csv(out / "backtest_headline_forecasts.csv", index=False, date_format="%Y-%m")
     for r in res.metrics[(res.metrics.model == "bottom_up") & (res.metrics["sample"] == "full")].itertuples():
         log.info("  bottom-up h=%d: RMSE %.2fpp, ratio vs RW %.2f, DM p %.3f", r.h, r.rmse, r.rmse_ratio_vs_rw, r.dm_p)
+
+    log.info("6/6 shocks, countries and dashboard data")
+    pt = estimate_all(inp.index, ext.brent_eur)
+    presets = make_presets(data, s, pt, inp.index.index.max())
+    basis = build_basis(data, s, outlook, pt, presets)
+    for r in write_shock_outputs(basis, out):
+        log.info("  preset %-42s peak %+.2fpp in %s", r.scenario.name, r.peak_pp, r.peak_month)
+    write_json(country_view(data, s), out / "countries.json")
+    try:
+        from dashboard.build_dashboard import build
+        log.info("  dashboard -> %s", build(out).relative_to(ROOT))
+    except ImportError:
+        log.warning("  dashboard builder not available")
 
     write_manifest(s, args, report, pulls, t0)
     log.info("validation %s; done in %.1fs", report.summary, time.perf_counter() - t0)

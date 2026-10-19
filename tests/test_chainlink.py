@@ -131,3 +131,16 @@ def test_changing_composition_new_member_enters_in_january():
     np.testing.assert_allclose(out.loc["2020"], (100 * a / a.iloc[0]).loc["2020"], rtol=1e-13)
     jan21 = out.loc["2020-12-01"] * (0.9 * a["2021-01-01"] / a["2020-12-01"] + 0.1 * 1.05)
     assert out.loc["2021-01-01"] == pytest.approx(jan21, rel=1e-13)
+
+
+def test_contributions_of_new_member_count_only_from_its_first_link():
+    """A country with no weight last year contributes only through this year's link."""
+    idx = months("2019-12-01", 37)
+    a = pd.Series(100 * 1.002 ** np.arange(37), index=idx)
+    c = pd.Series(100 * 1.01 ** np.arange(37), index=idx)
+    w = pd.DataFrame({"A": [1000.0, 1000.0, 900.0], "C": [np.nan, np.nan, 100.0]}, index=[2020, 2021, 2022])
+    ix = pd.DataFrame({"A": a, "C": c})
+    ix["EA"] = pd.concat([pd.Series([100.0], index=idx[:1]), chain_link(ix, w, ["A", "C"], "2020-01", pd.Series(100.0, index=idx))])
+    contrib = exact_contributions(ix, w, ["A", "C"], "EA")
+    np.testing.assert_allclose(contrib.sum(axis=1), yoy(ix["EA"]).loc[contrib.index], atol=1e-10)
+    assert (contrib.loc["2021", "C"] == 0).all() and (contrib.loc["2022", "C"] > 0).all()

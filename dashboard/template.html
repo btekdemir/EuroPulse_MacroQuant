@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Euro Area Inflation Monitor</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface-1: #fcfcfb; --surface-2: #f3f2ee;
+  --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #6f6d68;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11,11,11,0.10);
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300;
+  --neutral: #898781; --band90: rgba(42,120,214,0.12); --band68: rgba(42,120,214,0.24);
+  --good: #0ca30c; --warning: #fab219; --critical: #d03b3b; --good-text: #006300;
+  --accent: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface-1: #1a1a19; --surface-2: #232321;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #9a988f;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300;
+    --band90: rgba(57,135,229,0.16); --band68: rgba(57,135,229,0.32); --good-text: #0ca30c; --accent: #3987e5;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface-1: #1a1a19; --surface-2: #232321;
+  --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #9a988f;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300;
+  --band90: rgba(57,135,229,0.16); --band68: rgba(57,135,229,0.32); --good-text: #0ca30c; --accent: #3987e5;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--page); color: var(--text-primary);
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { padding: 20px 24px 0; max-width: 1280px; margin: 0 auto; }
+.top { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; justify-content: space-between; }
+h1 { font-size: 22px; margin: 0; font-weight: 650; letter-spacing: -0.01em; }
+.subtitle { color: var(--text-secondary); margin: 4px 0 0; }
+.controls { display: flex; gap: 8px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface-1); }
+.seg button { border: 0; background: transparent; color: var(--text-secondary); padding: 6px 10px; font: inherit; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--text-primary); font-weight: 600; }
+nav { display: flex; gap: 4px; margin-top: 16px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+nav button { border: 0; background: none; font: inherit; color: var(--text-secondary); padding: 10px 14px;
+  cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
+nav button[aria-selected="true"] { color: var(--text-primary); border-bottom-color: var(--accent); font-weight: 600; }
+main { max-width: 1280px; margin: 0 auto; padding: 16px 24px 32px; }
+section[role="tabpanel"] { display: none; }
+section[role="tabpanel"].active { display: block; }
+.grid { display: grid; gap: 16px; grid-template-columns: repeat(12, 1fr); }
+.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 16px; grid-column: span 12; min-width: 0; }
+.span-6 { grid-column: span 6; } .span-4 { grid-column: span 4; } .span-8 { grid-column: span 8; } .span-3 { grid-column: span 3; }
+@media (max-width: 900px) { .span-6, .span-4, .span-8, .span-3 { grid-column: span 12; } header, main { padding-left: 16px; padding-right: 16px; } }
+.card h2 { font-size: 15px; margin: 0 0 4px; font-weight: 600; }
+.note { color: var(--text-secondary); font-size: 12.5px; margin: 6px 0 0; }
+.src { color: var(--text-muted); font-size: 11.5px; margin-top: 6px; }
+.kpi .label { color: var(--text-secondary); font-size: 12.5px; }
+.kpi .value { font-size: 30px; font-weight: 650; margin: 2px 0; letter-spacing: -0.02em; }
+.kpi .sub { color: var(--text-muted); font-size: 12px; }
+.answer { font-size: 15px; line-height: 1.55; margin: 0; }
+.plot { width: 100%; height: 360px; }
+.plot.tall { height: 460px; } .plot.short { height: 280px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { color: var(--text-secondary); font-weight: 600; font-size: 12px; }
+td.num, th.num { text-align: right; }
+.tablewrap { overflow-x: auto; }
+.toggle-table { margin-top: 8px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-secondary);
+  border-radius: 6px; padding: 4px 8px; font: inherit; font-size: 12px; cursor: pointer; }
+.status { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.st-pass .dot { background: var(--good); } .st-warn .dot { background: var(--warning); } .st-fail .dot { background: var(--critical); }
+.form { display: grid; gap: 12px; }
+.form fieldset { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin: 0; }
+.form legend { color: var(--text-secondary); font-size: 12px; padding: 0 4px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips label { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border: 1px solid var(--border);
+  border-radius: 999px; background: var(--surface-2); cursor: pointer; font-size: 12.5px; }
+.chips input { margin: 0; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+.row label { display: grid; gap: 3px; font-size: 12px; color: var(--text-secondary); }
+input[type="number"], select { font: inherit; padding: 5px 8px; border: 1px solid var(--axis); border-radius: 6px;
+  background: var(--surface-1); color: var(--text-primary); min-width: 90px; }
+.presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.presets button, .btn { font: inherit; padding: 7px 12px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface-2); color: var(--text-primary); cursor: pointer; }
+.presets button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.assume { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; font-size: 12.5px; color: var(--text-secondary); }
+.assume ul { margin: 4px 0 0; padding-left: 18px; }
+.warnmsg { color: var(--critical); font-size: 12.5px; }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+footer { color: var(--text-muted); font-size: 12px; max-width: 1280px; margin: 0 auto; padding: 0 24px 24px; }
+b.sig { color: var(--text-primary); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div><h1 data-i18n="title"></h1><p class="subtitle" data-i18n="subtitle"></p></div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="fr" aria-pressed="false">FR</button>
+      </div>
+      <div class="seg" role="group" aria-label="Theme">
+        <button type="button" data-theme-btn="auto" aria-pressed="true" data-i18n="theme_auto"></button>
+        <button type="button" data-theme-btn="light" aria-pressed="false" data-i18n="theme_light"></button>
+        <button type="button" data-theme-btn="dark" aria-pressed="false" data-i18n="theme_dark"></button>
+      </div>
+    </div>
+  </div>
+  <nav role="tablist">
+    <button role="tab" data-tab="overview" aria-selected="true" data-i18n="tab_overview"></button>
+    <button role="tab" data-tab="drivers" aria-selected="false" data-i18n="tab_drivers"></button>
+    <button role="tab" data-tab="countries" aria-selected="false" data-i18n="tab_countries"></button>
+    <button role="tab" data-tab="shocks" aria-selected="false" data-i18n="tab_shocks"></button>
+    <button role="tab" data-tab="model" aria-selected="false" data-i18n="tab_model"></button>
+  </nav>
+</header>
+<main>
+  <section role="tabpanel" id="tab-overview" class="active">
+    <div class="grid">
+      <div class="card span-3 kpi" id="kpi-dec"></div>
+      <div class="card span-3 kpi" id="kpi-last"></div>
+      <div class="card span-3 kpi" id="kpi-ecb"></div>
+      <div class="card span-3 kpi" id="kpi-base"></div>
+      <div class="card"><h2 data-i18n="answer_title"></h2><p class="answer" id="answer"></p></div>
+      <div class="card"><h2 id="t-headline"></h2><div class="plot tall" id="p-headline"></div>
+        <p class="note" data-i18n="ch_headline_note"></p><p class="src" data-src="src_eurostat"></p>
+        <button class="toggle-table" data-table="tbl-headline"></button><div class="tablewrap" id="tbl-headline" hidden></div></div>
+    </div>
+  </section>
+  <section role="tabpanel" id="tab-drivers">
+    <div class="grid">
+      <div class="card"><h2 data-i18n="ch_contrib"></h2><div class="plot tall" id="p-contrib"></div>
+        <p class="note" data-i18n="ch_contrib_note"></p><p class="src" data-src="src_eurostat"></p>
+        <button class="toggle-table" data-table="tbl-contrib"></button><div class="tablewrap" id="tbl-contrib" hidden></div></div>
+      <div class="card span-6"><h2 id="t-basemom"></h2><div class="plot short" id="p-basemom"></div>
+        <p class="note" data-i18n="ch_basemom_note"></p><p class="src" data-src="src_eurostat"></p>
+        <div class="tablewrap" id="tbl-basemom"></div></div>
+      <div class="card span-6"><h2 id="t-weights"></h2><div class="plot short" id="p-weights"></div>
+        <p class="note" data-i18n="ch_weights_note"></p><p class="src" data-src="src_eurostat"></p>
+        <button class="toggle-table" data-table="tbl-weights"></button><div class="tablewrap" id="tbl-weights" hidden></div></div>
+    </div>
+  </section>
+  <section role="tabpanel" id="tab-countries">
+    <div class="grid">
+      <div class="card span-4"><h2 id="t-cbar"></h2><div class="plot tall" id="p-cbar"></div>
+        <p class="note" id="n-cbar"></p><p class="src" data-src="src_eurostat"></p></div>
+      <div class="card span-8"><h2 data-i18n="ch_country_sm"></h2><div class="plot tall" id="p-csm"></div>
+        <p class="note" data-i18n="ch_country_sm_note"></p><p class="src" data-src="src_eurostat"></p></div>
+    </div>
+  </section>
+  <section role="tabpanel" id="tab-shocks">
+    <div class="grid">
+      <div class="card span-4">
+        <h2 data-i18n="sim_presets"></h2><div class="presets" id="presets"></div>
+        <h2 style="margin-top:16px" data-i18n="sim_custom"></h2>
+        <div class="form" id="sim-form">
+          <fieldset><legend data-i18n="sim_components"></legend><div class="chips" id="f-comps"></div></fieldset>
+          <fieldset><legend data-i18n="sim_countries"></legend>
+            <div class="chips"><label><input type="checkbox" id="f-allea" checked> <span data-i18n="sim_all_ea"></span></label></div>
+            <div class="chips" id="f-countries" style="margin-top:6px"></div></fieldset>
+          <div class="row">
+            <label><span data-i18n="sim_size"></span><input type="number" id="f-size" step="0.5" value="10"></label>
+            <label><span data-i18n="sim_start"></span><select id="f-start"></select></label>
+          </div>
+          <div class="row">
+            <label><span data-i18n="sim_profile"></span><select id="f-profile"></select></label>
+            <label id="w-param"><span id="l-param"></span><input type="number" id="f-param" min="1" max="24" step="1" value="6"></label>
+          </div>
+          <div class="chips"><label><input type="checkbox" id="f-second"> <span data-i18n="sim_second"></span></label></div>
+          <div class="row"><label><span data-i18n="sim_regime"></span><select id="f-regime"></select></label></div>
+          <div class="warnmsg" id="sim-warn" hidden data-i18n="sim_warn_none"></div>
+          <button class="btn" id="sim-export" type="button" data-i18n="sim_export"></button>
+        </div>
+      </div>
+      <div class="card span-8">
+        <div class="grid" style="gap:12px">
+          <div class="span-4 kpi" style="grid-column: span 4" id="k-peak"></div>
+          <div class="span-4 kpi" style="grid-column: span 4" id="k-dec"></div>
+          <div class="span-4 kpi" style="grid-column: span 4" id="k-shocked"></div>
+        </div>
+        <h2 style="margin-top:12px" data-i18n="ch_shock"></h2><div class="plot" id="p-shock"></div>
+        <p class="note" data-i18n="ch_shock_note"></p><p class="src" data-src="src_shock"></p>
+        <h2 style="margin-top:12px" data-i18n="ch_shock_path"></h2><div class="plot short" id="p-shockpath"></div>
+        <div class="assume" id="sim-rationale"></div>
+        <div class="assume" style="margin-top:8px"><b data-i18n="sim_assumptions"></b><ul id="sim-assume"></ul></div>
+        <button class="toggle-table" data-table="tbl-shock"></button><div class="tablewrap" id="tbl-shock" hidden></div>
+      </div>
+    </div>
+  </section>
+  <section role="tabpanel" id="tab-model">
+    <div class="grid">
+      <div class="card"><h2 data-i18n="bt_title"></h2>
+        <div class="row" style="margin:6px 0 10px"><label><span data-i18n="bt_sample"></span><select id="bt-sample"></select></label></div>
+        <div class="tablewrap" id="tbl-bt"></div><p class="note" data-i18n="bt_note"></p><p class="src" data-src="src_backtest"></p></div>
+      <div class="card"><h2 id="t-track"></h2>
+        <div class="row" style="margin:6px 0"><div class="seg" id="track-h"></div></div>
+        <div class="plot" id="p-track"></div><p class="note" id="n-track"></p><p class="src" data-src="src_backtest"></p></div>
+      <div class="card span-6"><h2 data-i18n="sel_title"></h2><p class="note" data-i18n="sel_rule"></p><div class="tablewrap" id="tbl-sel"></div></div>
+      <div class="card span-6"><h2 data-i18n="val_title"></h2><div class="tablewrap" id="tbl-val"></div></div>
+      <div class="card span-6"><h2 data-i18n="vin_title"></h2><div class="tablewrap" id="tbl-vin"></div></div>
+      <div class="card span-6"><h2 data-i18n="method_title"></h2><p class="note" data-i18n="method_text"></p></div>
+    </div>
+  </section>
+</main>
+<footer id="footer"></footer>
+<script id="dashboard-data" type="application/json">__DATA__</script>
+<script>__PLOTLY__</script>
+<script>__ENGINE__</script>
+<script>__APP__</script>
+</body>
+</html>

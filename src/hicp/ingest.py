@@ -175,7 +175,8 @@ def pull_all(settings: Settings, offline: bool = False) -> tuple[dict[str, pd.Da
                      + [("unit", u) for u in cfg["units"]] + since),
         "index_countries": (ds["index"], geo_c + [(dim, c) for c in [settings.headline] + settings.components]
                             + [("unit", "I25")] + since),
-        "item_weights": (ds["item_weights"], [("geo", ea)] + geo_c + [(dim, c) for c in codes]),
+        "item_weights": (ds["item_weights"], [("geo", ea)] + geo_c
+                         + [(dim, c) for c in codes + cfg.get("extra_weight_codes", [])]),
         "country_weights": (ds["country_weights"], [("statinfo", cfg["country_weights_statinfo"])]),
         "contributions": (ds["contributions"], [("geo", ea)]
                           + [(dim, c) for c in settings.components + cfg["aggregates"]]),

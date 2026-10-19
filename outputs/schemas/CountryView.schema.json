@@ -1,0 +1,82 @@
+{
+  "additionalProperties": false,
+  "description": "Country contributions to euro area* headline YoY (exact, chain-linked with country weights).",
+  "properties": {
+    "dates": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Dates",
+      "type": "array"
+    },
+    "contributions": {
+      "additionalProperties": {
+        "items": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "type": "array"
+      },
+      "title": "Contributions",
+      "type": "object"
+    },
+    "yoy": {
+      "additionalProperties": {
+        "items": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "type": "array"
+      },
+      "title": "Yoy",
+      "type": "object"
+    },
+    "ea_yoy": {
+      "items": {
+        "type": "number"
+      },
+      "title": "Ea Yoy",
+      "type": "array"
+    },
+    "weights_latest": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "description": "Country weight in the euro area*, per mille",
+      "title": "Weights Latest",
+      "type": "object"
+    },
+    "weights_year": {
+      "title": "Weights Year",
+      "type": "integer"
+    },
+    "max_abs_gap_pp": {
+      "description": "max |\u03a3 country contributions \u2212 EA YoY| over the window",
+      "title": "Max Abs Gap Pp",
+      "type": "number"
+    }
+  },
+  "required": [
+    "dates",
+    "contributions",
+    "yoy",
+    "ea_yoy",
+    "weights_latest",
+    "weights_year",
+    "max_abs_gap_pp"
+  ],
+  "title": "CountryView",
+  "type": "object"
+}

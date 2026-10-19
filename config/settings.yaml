@@ -60,6 +60,9 @@ components:
 # Published aggregates kept for validation and display (not modelled directly).
 aggregates: [NRG, FOOD, TOT_X_NRG_FOOD]
 
+# Extra item weights pulled for the shock presets: CP0451 = electricity (share of ELC_GAS per country).
+extra_weight_codes: [CP0451]
+
 # Units pulled from prc_hicp_minr. I25 = index 2025=100 (2 decimals); RCH_A/RCH_M are rounded to 0.1.
 units: [I25, RCH_A, RCH_M]
 

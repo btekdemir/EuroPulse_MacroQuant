@@ -131,8 +131,10 @@ def exact_contributions(index: pd.DataFrame, weights: pd.DataFrame, items: list[
         if any(d not in index.index for d in (prev, d1, d2)) or y not in s.index or (y - 1) not in s.index:
             continue
         i_t, i_prev, i_d1, i_d2 = (index.loc[d, items] for d in (t, prev, d1, d2))
-        this_link = index.at[d1, total] * s.loc[y] * (i_t / i_d1 - 1)
-        last_link = index.at[d2, total] * s.loc[y - 1] * (i_d1 - i_prev) / i_d2
+        # An item outside the basket in a link year (no weight, e.g. a country before it joined)
+        # contributes nothing to that link, even if its index is missing.
+        this_link = (index.at[d1, total] * s.loc[y] * (i_t / i_d1 - 1)).where(s.loc[y].notna(), 0.0)
+        last_link = (index.at[d2, total] * s.loc[y - 1] * (i_d1 - i_prev) / i_d2).where(s.loc[y - 1].notna(), 0.0)
         rows[t] = 100 / index.at[prev, total] * (this_link + last_link)
     return pd.DataFrame.from_dict(rows, orient="index").reindex(columns=items).dropna(how="any")
 

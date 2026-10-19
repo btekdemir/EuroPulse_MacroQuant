@@ -158,3 +158,68 @@ It does not change after the results are in.
 - **What:** point forecast + quantiles (5/16/50/84/95) of the backtest's own errors at each horizon, over all 200 origins.
 - **Why:** model-implied bands from OLS residuals ignore parameter, model and aggregation uncertainty, and they assume symmetry. The empirical errors are skewed upwards (2021–22 under-prediction), so the fan is too. December 2026 has a 68% band of 3.5–4.4% and a 90% band of 3.2–5.1%.
 - **Rejected:** bands that exclude 2022. That would make the fan look narrower than the forecaster's actual track record.
+
+---
+
+## D16. Scope change: no Power BI pack (20 Oct 2026)
+
+- **What:** I dropped the Power BI pack.
+- **Why:** the brief allows any framework for the dashboard ("link, interactive HTML export, runnable code, or any file that lets us explore your results interactively"). I can't build or test a `.pbix` on a Mac. A single self-contained HTML file opens offline by double-click on any machine, and it is the one I can test end to end.
+- **What's kept:** the validated JSON outputs are the data layer the Power BI pack would have read. Anyone on the team could point Power BI at `outputs/*.json` later.
+
+## D17. Shock engine (`src/hicp/shocks.py`, mirrored in `dashboard/shock_engine.js`)
+
+- **Design:** a shock is a deviation of the consumer price *level* for chosen components in chosen countries, following a profile: permanent, decaying, temporary, ramp, or an estimated lag profile.
+- **Weights:** each (country, component) cell's share of the euro area\* basket at Sep 2026 prices:
+  - the country weight (`prc_hicp_cw`) × the country's price drift since December;
+  - × the component's effective weight within that country.
+
+  The 21 × 6 cells re-aggregate to the euro area effective weights within 2e−5.
+- **YoY impact:** ΔYoY_t = (1 + π_t) · (R_t / R_{t−12} − 1), with R the shocked/baseline level ratio. This is exact given the level path. A permanent shock lifts YoY for 12 months and then drops out (base effect); a test checks that.
+- **One engine, two languages:** the dashboard recomputes in the browser. `tests/test_shock_engine_parity.py` runs the JS engine in Node and requires agreement to 1e−12 on nine scenarios.
+- **Simplifications, stated in the assumptions panel:**
+  - weights held at their Sep 2026 values (no drift, no Jan 2027 reweighting);
+  - no policy or demand response.
+- **Rejected:** the naive s_i × shock. It ignores effective-weight drift: fuels are 4.0% official vs 5.2% effective.
+
+## D18. Pass-through estimates (`src/hicp/passthrough.py`)
+
+- **Fuel elasticity to Brent in EUR:** 0.31 (HAC s.e. 0.04, 2005–2026), with 66% of it in month 0. Excise duty is a fixed amount per litre, hence well below 1. This maps preset 1 (Brent +30%) to a fuel price-level shock of +8.4%.
+- **Second round, energy → core:** a distributed lag over 12 months, with month dummies and Newey-West errors.
+
+  | Regime | 12-month cumulative | 95% CI | Months |
+  |---|---|---|---|
+  | 2002–2019 | 0.016 (not significant) | −0.03 to 0.06 | 216 |
+  | 2021–2026 | 0.074 | 0.047 to 0.101 | 69 (short) |
+
+  Default is off; the toggle is labelled "estimated, uncertain". The band uses the pointwise CI bounds of the cumulative response, so it is approximate.
+- **Bug found and fixed before release:** my first version used Σγ_k Δe_{t−k}, which is the core *m/m* response, as if it were the core *level* deviation. The level is Σ_j Δe_j · C(t−j), with C the cumulative impulse response.
+
+## D19. Presets (`config/scenarios/preset_*.json`, regenerated each run from the data)
+
+1. **Oil supply shock:** Brent +30% → FUEL +8.4% via the estimated elasticity and lag profile, from Nov 2026.
+
+   Effect: +0.46pp at peak, +0.42pp on Dec 2026. If second round is on, the peak becomes +0.64pp in Oct 2027.
+2. **European gas price spike:** retail ELC_GAS +20%, ramped over 6 months to reflect regulated and fixed-term contracts.
+
+   The size is about a quarter of the 2021–22 retail rise (+75% from Jun 2021 to the Oct 2022 peak, measured in our data). This mapping is judgemental: there is no TTF series in the pipeline.
+
+   Effect: +1.07pp at peak.
+3. **France regulated electricity tariff +10%:** FR ELC_GAS +6.24%, because electricity (`CP0451`) is 62.4% of France's ELC_GAS weight in 2026. Starts Feb 2027 (the TRVE revision month).
+
+   Effect: +0.06pp.
+
+## D20. Dashboard: one offline HTML file (`dashboard/`)
+
+- **What:**
+  - Plotly is inlined from the installed Python package, with no CDN. The file is 5.2 MB and opens by double-click.
+  - Data comes only from the schema-validated outputs, which are re-validated at build time.
+  - FR/EN covers every label, tooltip and note via `i18n.json`, and a test enforces key parity. The preset rationales are English-only, and the page says so in FR mode.
+- **Design:**
+  - a validated colour-blind-safe six-slot palette, checked with the palette validator: all hard gates pass in light and dark;
+  - in light mode three slots are below 3:1 contrast, so every multi-series chart has a table view;
+  - consistent component colours;
+  - a source line on every chart;
+  - light/dark plus OS auto;
+  - works at phone width (no horizontal scroll at 375px).
+- **Verified in a browser:** five tabs, no console errors. The simulator numbers equal the Python engine's, and the FR toggle, dark mode and mobile width were all checked.
