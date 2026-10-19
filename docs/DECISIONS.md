@@ -58,3 +58,42 @@ Each entry: what was decided, why, and the alternative rejected. Numbers come fr
 - **V8 outliers:** the robust z is computed on m/m changes after removing each calendar month's median. HICP is not seasonally adjusted, so January/July sales would otherwise flag every year. 61 flags, mostly ELC_GAS in 2021–22 and NEIG sales-timing shifts. They are kept.
 - **V7 honesty:** I compared changing vs fixed composition within enlargement years. The difference is under 0.01pp, because new members weigh 0.15–0.9% and indices are published to 2 decimals. So the binding check in V7 is membership by year, not the level comparison.
 - **V9 thresholds:** warn at more than 50 days after the period's month-end, fail at more than 80. Eurostat publishes the full release about 17 days after the *next* month-end, so a correctly refreshed pipeline is at most about 47 days old. A warning means one release has been missed; a failure means two.
+
+---
+
+## D9. PRE-COMMITTED model-selection rule (written 19 Oct 2026, before any backtest was run)
+
+This entry was committed to git before any forecast model existed in the repo (see `git log`).
+It does not change after the results are in.
+
+1. **Ladder per component**, simplest first:
+   - `SM`: seasonal mean of m/m, i.e. calendar-month dummies only;
+   - `AR1`: SM + AR(1);
+   - richer: SM + AR(p ≤ 3) chosen by AIC, plus an Easter dummy for services; and for FUEL, SM +
+     the contemporaneous Weekly Oil Bulletin pump-price change.
+
+   A model moves up one rung only if it beats the model currently selected.
+2. **"Beats"** means lower MSE **and** a Diebold-Mariano test (squared-error loss, Newey-West
+   variance with h−1 lags, Harvey-Leybourne-Newbold small-sample correction) with **two-sided
+   p < 0.05**.
+3. **Loss for selection:** the squared error of the component's cumulative 3-month log change
+   (h = 3). This is the quantity that moves the Dec 2026 YoY from a Sep origin.
+4. **Selection sample:** forecast origins Jan 2010 – Dec 2019 only. Origins Jan 2020 – latest are a
+   hold-out that the rule never sees. Headline results are reported on the full period and on the
+   hold-out separately, so selection cannot flatter the reported accuracy.
+5. **Estimation window:** expanding from Jan 2001, by default. A rolling 120-month window replaces
+   it only under the same DM rule on the same selection sample.
+6. **Information set at each origin:**
+   - only index data up to the origin month;
+   - item weights for year *y* only from the Jan-*y* origin onwards (they are published with
+     January data); otherwise the latest known year's weights;
+   - pump prices only for Mondays at least 3 days before the origin's HICP release date, taken as
+     day 17 of the following month. Unknown pump prices are held flat at the last observed value.
+   - Latest-vintage HICP throughout (pseudo-real-time: revisions are small; stated as a limitation).
+7. **Headline benchmarks**, all scored at h = 1, 2, 3 on YoY:
+   - random walk on YoY (no change);
+   - seasonal mean of headline m/m;
+   - seasonal random walk of headline m/m (same month last year);
+   - direct AR(p, AIC) + seasonal dummies on headline m/m.
+
+   The bottom-up model is reported as an RMSE ratio vs the random walk, with DM p-values.
