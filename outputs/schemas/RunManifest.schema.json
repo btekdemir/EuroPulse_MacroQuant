@@ -1,0 +1,114 @@
+{
+  "$defs": {
+    "DataVintage": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "dataset": {
+          "title": "Dataset",
+          "type": "string"
+        },
+        "updated": {
+          "description": "Eurostat's own 'updated' timestamp for the dataset",
+          "title": "Updated",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        },
+        "n_values": {
+          "exclusiveMinimum": 0,
+          "title": "N Values",
+          "type": "integer"
+        },
+        "fetched_at": {
+          "title": "Fetched At",
+          "type": "string"
+        },
+        "from_cache": {
+          "title": "From Cache",
+          "type": "boolean"
+        },
+        "raw_file": {
+          "title": "Raw File",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "dataset",
+        "updated",
+        "sha256",
+        "n_values",
+        "fetched_at",
+        "from_cache",
+        "raw_file"
+      ],
+      "title": "DataVintage",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "run_at": {
+      "format": "date-time",
+      "title": "Run At",
+      "type": "string"
+    },
+    "code_version": {
+      "description": "git commit (with -dirty if the tree has changes)",
+      "title": "Code Version",
+      "type": "string"
+    },
+    "config_hash": {
+      "title": "Config Hash",
+      "type": "string"
+    },
+    "python": {
+      "title": "Python",
+      "type": "string"
+    },
+    "offline": {
+      "title": "Offline",
+      "type": "boolean"
+    },
+    "vintages": {
+      "items": {
+        "$ref": "#/$defs/DataVintage"
+      },
+      "title": "Vintages",
+      "type": "array"
+    },
+    "last_period": {
+      "title": "Last Period",
+      "type": "string"
+    },
+    "runtime_seconds": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Runtime Seconds"
+    }
+  },
+  "required": [
+    "run_at",
+    "code_version",
+    "config_hash",
+    "python",
+    "offline",
+    "vintages",
+    "last_period"
+  ],
+  "title": "RunManifest",
+  "type": "object"
+}

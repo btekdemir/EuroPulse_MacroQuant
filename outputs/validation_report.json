@@ -1,0 +1,449 @@
+{
+  "run_at": "2026-10-19T18:19:32.842102Z",
+  "last_period": "2026-09",
+  "gates": [
+    {
+      "gate": "V1",
+      "name": "Schema: columns, dtypes, units, codes",
+      "status": "pass",
+      "critical": true,
+      "message": "all tables match the expected schema",
+      "metrics": {
+        "n_index_rows": 63166,
+        "n_countries": 21,
+        "ea_flag_d": 6363,
+        "ea_flag_b": 45
+      },
+      "details": []
+    },
+    {
+      "gate": "V2",
+      "name": "Continuity: no gaps, no duplicates, common last period",
+      "status": "pass",
+      "critical": true,
+      "message": "last period 2026-09; 0 series with gaps, 0 lagging, 0 duplicate keys",
+      "metrics": {
+        "last_period": "2026-09",
+        "duplicates": 0,
+        "series_with_gaps": 0,
+        "series_lagging": 0,
+        "n_series": 157
+      },
+      "details": []
+    },
+    {
+      "gate": "V3",
+      "name": "Weights: components and countries sum to 1000 per mille",
+      "status": "pass",
+      "critical": true,
+      "message": "EA max gap 0.020 per mille; country weights max gap 0.030",
+      "metrics": {
+        "ea_max_gap_per_mille": 0.01999999999998181,
+        "country_weights_max_gap_per_mille": 0.029999999999972715,
+        "n_flags": 0,
+        "years_checked_from": 2001
+      },
+      "details": []
+    },
+    {
+      "gate": "V4",
+      "name": "Reconciliation: headline rebuilt from 6 components vs published",
+      "status": "pass",
+      "critical": true,
+      "message": "index max |err| 0.019 pts, YoY max |err| 0.030pp over 309 months",
+      "metrics": {
+        "n_months": 309,
+        "index_max_abs_err": 0.01872525283226878,
+        "index_mean_abs_err": 0.006986313955512034,
+        "yoy_max_abs_err_pp": 0.03035643962729928,
+        "yoy_mean_abs_err_pp": 0.0066126187750078416,
+        "yoy_match_published_1dp_share": 0.9320388349514563,
+        "from": "2001-01",
+        "to": "2026-09"
+      },
+      "details": [
+        {
+          "date": "2003-09",
+          "yoy_abs_err_pp": 0.0304
+        },
+        {
+          "date": "2002-04",
+          "yoy_abs_err_pp": 0.0302
+        },
+        {
+          "date": "2005-11",
+          "yoy_abs_err_pp": 0.0291
+        },
+        {
+          "date": "2001-02",
+          "yoy_abs_err_pp": 0.0288
+        },
+        {
+          "date": "2007-07",
+          "yoy_abs_err_pp": 0.0266
+        }
+      ]
+    },
+    {
+      "gate": "V5",
+      "name": "Contributions: exact chain-linked formula vs official prc_hicp_ctr",
+      "status": "pass",
+      "critical": true,
+      "message": "max |err| 0.009pp, mean 0.0027pp over 1782 observations",
+      "metrics": {
+        "n_obs": 1782,
+        "max_abs_err_pp": 0.009308181040089125,
+        "mean_abs_err_pp": 0.0026823902360634073,
+        "max_abs_err_FOOD_P": 0.006207927585623579,
+        "max_abs_err_FOOD_NP": 0.005785731597364896,
+        "max_abs_err_IGD_NNRG": 0.007543552877729148,
+        "max_abs_err_SERV": 0.009308181040089125,
+        "max_abs_err_NRG": 0.0055576727937992065,
+        "max_abs_err_FOOD": 0.006863272038016899,
+        "from": "2002-01",
+        "to": "2026-09"
+      },
+      "details": [
+        {
+          "date": "2011-05",
+          "coicop": "SERV",
+          "abs_err_pp": 0.0093
+        },
+        {
+          "date": "2009-06",
+          "coicop": "SERV",
+          "abs_err_pp": 0.0093
+        },
+        {
+          "date": "2005-03",
+          "coicop": "SERV",
+          "abs_err_pp": 0.0089
+        },
+        {
+          "date": "2020-07",
+          "coicop": "SERV",
+          "abs_err_pp": 0.0086
+        },
+        {
+          "date": "2004-05",
+          "coicop": "SERV",
+          "abs_err_pp": 0.0083
+        }
+      ]
+    },
+    {
+      "gate": "V6",
+      "name": "Countries \u2192 euro area*: 21 national indices \u00d7 country weights vs published EA",
+      "status": "pass",
+      "critical": false,
+      "message": "YoY max |err| 0.039pp, mean 0.0093pp; index max |err| 0.030 pts",
+      "metrics": {
+        "n_months": 297,
+        "yoy_max_abs_err_pp": 0.03877018520077602,
+        "yoy_mean_abs_err_pp": 0.00931101012576374,
+        "index_max_abs_err": 0.030176857510426203
+      },
+      "details": [
+        {
+          "date": "2002-08",
+          "yoy_abs_err_pp": 0.0388
+        },
+        {
+          "date": "2002-03",
+          "yoy_abs_err_pp": 0.0348
+        },
+        {
+          "date": "2008-08",
+          "yoy_abs_err_pp": 0.0308
+        },
+        {
+          "date": "2006-12",
+          "yoy_abs_err_pp": 0.029
+        },
+        {
+          "date": "2002-01",
+          "yoy_abs_err_pp": 0.0289
+        }
+      ]
+    },
+    {
+      "gate": "V7",
+      "name": "Composition: members by year; changing vs fixed composition in enlargement years",
+      "status": "pass",
+      "critical": false,
+      "message": "membership matches accession dates in all years: True; in enlargement years the changing composition tracks published EA within 0.024pp (fixed: 0.029pp)",
+      "metrics": {
+        "membership_mismatch_years": 0,
+        "enlargements_checked": 8,
+        "max_err_changing_pp": 0.0242,
+        "max_err_fixed_pp": 0.0295
+      },
+      "details": [
+        {
+          "year": 2007,
+          "new": [
+            "SI"
+          ],
+          "new_weight_per_mille": 3.35,
+          "max_err_changing_pp": 0.0207,
+          "max_err_fixed_pp": 0.0159
+        },
+        {
+          "year": 2008,
+          "new": [
+            "CY",
+            "MT"
+          ],
+          "new_weight_per_mille": 3.23,
+          "max_err_changing_pp": 0.0242,
+          "max_err_fixed_pp": 0.0295
+        },
+        {
+          "year": 2009,
+          "new": [
+            "SK"
+          ],
+          "new_weight_per_mille": 6.77,
+          "max_err_changing_pp": 0.0189,
+          "max_err_fixed_pp": 0.023
+        },
+        {
+          "year": 2011,
+          "new": [
+            "EE"
+          ],
+          "new_weight_per_mille": 1.49,
+          "max_err_changing_pp": 0.0174,
+          "max_err_fixed_pp": 0.0185
+        },
+        {
+          "year": 2014,
+          "new": [
+            "LV"
+          ],
+          "new_weight_per_mille": 2.42,
+          "max_err_changing_pp": 0.0181,
+          "max_err_fixed_pp": 0.0206
+        },
+        {
+          "year": 2015,
+          "new": [
+            "LT"
+          ],
+          "new_weight_per_mille": 4.34,
+          "max_err_changing_pp": 0.0232,
+          "max_err_fixed_pp": 0.0255
+        },
+        {
+          "year": 2023,
+          "new": [
+            "HR"
+          ],
+          "new_weight_per_mille": 7.72,
+          "max_err_changing_pp": 0.0159,
+          "max_err_fixed_pp": 0.0235
+        },
+        {
+          "year": 2026,
+          "new": [
+            "BG"
+          ],
+          "new_weight_per_mille": 8.96,
+          "max_err_changing_pp": 0.0167,
+          "max_err_fixed_pp": 0.0171
+        }
+      ]
+    },
+    {
+      "gate": "V8",
+      "name": "Outliers: robust z on seasonally-demeaned m/m (flagged, not dropped)",
+      "status": "warn",
+      "critical": false,
+      "message": "61 month-component observations beyond |z| > 5.0",
+      "metrics": {
+        "n_flags": 61,
+        "threshold": 5.0,
+        "n_flags_TOTAL": 2,
+        "n_flags_FUEL": 1,
+        "n_flags_ELC_GAS": 13,
+        "n_flags_FOOD_P": 15,
+        "n_flags_FOOD_NP": 1,
+        "n_flags_IGD_NNRG": 27,
+        "n_flags_SERV": 2
+      },
+      "details": [
+        {
+          "date": "2022-10",
+          "coicop": "ELC_GAS",
+          "robust_z": 18.0,
+          "mom_pct": 8.76
+        },
+        {
+          "date": "2022-01",
+          "coicop": "ELC_GAS",
+          "robust_z": 15.2,
+          "mom_pct": 8.35
+        },
+        {
+          "date": "2022-03",
+          "coicop": "ELC_GAS",
+          "robust_z": 13.4,
+          "mom_pct": 6.06
+        },
+        {
+          "date": "2022-12",
+          "coicop": "ELC_GAS",
+          "robust_z": -13.3,
+          "mom_pct": -5.92
+        },
+        {
+          "date": "2022-08",
+          "coicop": "ELC_GAS",
+          "robust_z": 13.1,
+          "mom_pct": 6.17
+        },
+        {
+          "date": "2021-10",
+          "coicop": "ELC_GAS",
+          "robust_z": 9.9,
+          "mom_pct": 5.08
+        },
+        {
+          "date": "2022-05",
+          "coicop": "FOOD_P",
+          "robust_z": 9.8,
+          "mom_pct": 1.59
+        },
+        {
+          "date": "2022-04",
+          "coicop": "FOOD_P",
+          "robust_z": 9.3,
+          "mom_pct": 1.57
+        },
+        {
+          "date": "2022-09",
+          "coicop": "ELC_GAS",
+          "robust_z": 9.2,
+          "mom_pct": 4.36
+        },
+        {
+          "date": "2023-01",
+          "coicop": "ELC_GAS",
+          "robust_z": -8.7,
+          "mom_pct": -2.44
+        },
+        {
+          "date": "2022-07",
+          "coicop": "FOOD_P",
+          "robust_z": 8.6,
+          "mom_pct": 1.41
+        },
+        {
+          "date": "2020-08",
+          "coicop": "IGD_NNRG",
+          "robust_z": -8.5,
+          "mom_pct": -1.62
+        },
+        {
+          "date": "2022-11",
+          "coicop": "FOOD_P",
+          "robust_z": 7.9,
+          "mom_pct": 1.35
+        },
+        {
+          "date": "2023-03",
+          "coicop": "ELC_GAS",
+          "robust_z": -7.7,
+          "mom_pct": -3.52
+        },
+        {
+          "date": "2022-06",
+          "coicop": "FOOD_P",
+          "robust_z": 7.6,
+          "mom_pct": 1.25
+        },
+        {
+          "date": "2023-01",
+          "coicop": "FOOD_P",
+          "robust_z": 7.1,
+          "mom_pct": 1.45
+        },
+        {
+          "date": "2007-10",
+          "coicop": "FOOD_P",
+          "robust_z": 7.1,
+          "mom_pct": 1.17
+        },
+        {
+          "date": "2022-03",
+          "coicop": "TOTAL",
+          "robust_z": 7.0,
+          "mom_pct": 2.4
+        },
+        {
+          "date": "2015-01",
+          "coicop": "IGD_NNRG",
+          "robust_z": -7.0,
+          "mom_pct": -3.97
+        },
+        {
+          "date": "2014-01",
+          "coicop": "IGD_NNRG",
+          "robust_z": -6.9,
+          "mom_pct": -3.95
+        },
+        {
+          "date": "2013-03",
+          "coicop": "IGD_NNRG",
+          "robust_z": 6.7,
+          "mom_pct": 3.74
+        },
+        {
+          "date": "2013-01",
+          "coicop": "IGD_NNRG",
+          "robust_z": -6.7,
+          "mom_pct": -3.9
+        },
+        {
+          "date": "2002-01",
+          "coicop": "IGD_NNRG",
+          "robust_z": 6.7,
+          "mom_pct": -0.97
+        },
+        {
+          "date": "2022-08",
+          "coicop": "FOOD_P",
+          "robust_z": 6.6,
+          "mom_pct": 1.1
+        },
+        {
+          "date": "2021-11",
+          "coicop": "ELC_GAS",
+          "robust_z": 6.6,
+          "mom_pct": 3.16
+        }
+      ]
+    },
+    {
+      "gate": "V9",
+      "name": "Freshness: last period vs today",
+      "status": "pass",
+      "critical": true,
+      "message": "last period 2026-09, 19 days after its month-end; flash beyond last final release: False",
+      "metrics": {
+        "last_period": "2026-09",
+        "days_since_period_end": 19,
+        "today": "2026-10-19",
+        "flash_ahead_of_final": "False",
+        "last_flash": "2026-09",
+        "updated_index_ea": "2026-10-16T23:00:00+0200",
+        "updated_index_countries": "2026-10-16T23:00:00+0200",
+        "updated_item_weights": "2026-10-16T23:00:00+0200",
+        "updated_country_weights": "2026-07-17T11:00:00+0200",
+        "updated_contributions": "2026-10-16T11:00:00+0200",
+        "updated_first_release": "2026-10-16T23:00:00+0200"
+      },
+      "details": []
+    }
+  ]
+}

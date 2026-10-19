@@ -1,0 +1,77 @@
+# Single source of configuration. Every dataset code below was verified against the live
+# Eurostat API on 19 Oct 2026 (see README "Data sources" for the evidence).
+
+eurostat:
+  base_url: https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data
+  timeout_seconds: 180
+  coicop_dimension: coicop18          # ECOICOP ver.2 (from the Feb 2026 releases)
+  datasets:
+    index: prc_hicp_minr              # monthly indices and rates of change
+    item_weights: prc_hicp_iw         # annual item weights, per mille of the national/EA basket
+    country_weights: prc_hicp_cw      # ver.2 country weights (legacy prc_hicp_cow stops at 2025)
+    contributions: prc_hicp_ctr       # official contributions to EA annual inflation, pp
+    first_release: prc_hicp_fpd       # flash (FLS) and first full (FIN) releases
+  start_period: "1996-01"
+
+# Euro area*, the changing-composition aggregate. Its Eurostat label is
+# "Euro area (EA11-1999, ..., EA20-2023, EA21-2026)". EA21/EA20/EA19 are fixed compositions.
+euro_area_geo: EA
+country_weights_statinfo: COWEA
+
+# EA21 members (Bulgaria from Jan 2026). Eurostat writes Greece as EL.
+countries: [AT, BE, BG, CY, DE, EE, EL, ES, FI, FR, HR, IE, IT, LT, LU, LV, MT, NL, PT, SI, SK]
+
+# Year each member entered the euro area aggregate (used by gate V7).
+accession_year:
+  AT: 1999
+  BE: 1999
+  DE: 1999
+  ES: 1999
+  FI: 1999
+  FR: 1999
+  IE: 1999
+  IT: 1999
+  LU: 1999
+  NL: 1999
+  PT: 1999
+  EL: 2001
+  SI: 2007
+  CY: 2008
+  MT: 2008
+  SK: 2009
+  EE: 2011
+  LV: 2014
+  LT: 2015
+  HR: 2023
+  BG: 2026
+
+headline: TOTAL
+
+# The six modelled components. Together they partition the basket: their weights sum to
+# 1000 per mille in every year from 2001 (verified), FUEL+ELC_GAS = NRG and FOOD_P+FOOD_NP = FOOD.
+components:
+  FUEL:     {label: "Fuels (transport & heating)", group: energy}
+  ELC_GAS:  {label: "Electricity, gas & heat", group: energy}
+  FOOD_P:   {label: "Processed food incl. alc. & tobacco", group: food}
+  FOOD_NP:  {label: "Unprocessed food", group: food}
+  IGD_NNRG: {label: "Non-energy industrial goods", group: neig}
+  SERV:     {label: "Services", group: services}
+
+# Published aggregates kept for validation and display (not modelled directly).
+aggregates: [NRG, FOOD, TOT_X_NRG_FOOD]
+
+# Units pulled from prc_hicp_minr. I25 = index 2025=100 (2 decimals); RCH_A/RCH_M are rounded to 0.1.
+units: [I25, RCH_A, RCH_M]
+
+# First month for which the six-component partition has weights (NEIG/services weights start 2001).
+chainlink_start: "2001-01"
+
+validation:
+  weight_sum_tolerance_per_mille: 0.5
+  reconciliation_index_tol: 0.05      # max abs error vs published index (index points)
+  reconciliation_yoy_tol_pp: 0.06     # max abs error vs YoY recomputed from published index
+  contributions_tol_pp: 0.05          # max abs error vs prc_hicp_ctr (published to 2 decimals)
+  countries_yoy_tol_pp: 0.10
+  outlier_robust_z: 5.0
+  freshness_warn_days: 50             # next release lands ~17 days after month-end, so normal max age is ~47 days
+  freshness_fail_days: 80
