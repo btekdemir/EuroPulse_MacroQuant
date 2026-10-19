@@ -1,0 +1,188 @@
+{
+  "$defs": {
+    "ForecastPoint": {
+      "additionalProperties": false,
+      "properties": {
+        "date": {
+          "pattern": "^\\d{4}-\\d{2}$",
+          "title": "Date",
+          "type": "string"
+        },
+        "horizon": {
+          "maximum": 3,
+          "minimum": 1,
+          "title": "Horizon",
+          "type": "integer"
+        },
+        "point": {
+          "description": "Headline HICP YoY, %",
+          "title": "Point",
+          "type": "number"
+        },
+        "quantiles": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "q05..q95: point + empirical OOS error quantiles",
+          "title": "Quantiles",
+          "type": "object"
+        },
+        "base_effect_pp": {
+          "description": "Change in YoY since the origin due to m/m a year earlier (known)",
+          "title": "Base Effect Pp",
+          "type": "number"
+        },
+        "momentum_pp": {
+          "description": "Change in YoY since the origin due to new m/m (forecast)",
+          "title": "Momentum Pp",
+          "type": "number"
+        },
+        "contributions": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "Exact contributions to headline YoY, pp",
+          "title": "Contributions",
+          "type": "object"
+        },
+        "component_yoy": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Component Yoy",
+          "type": "object"
+        },
+        "component_mom": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "Forecast 100\u00b7\u0394ln, %",
+          "title": "Component Mom",
+          "type": "object"
+        }
+      },
+      "required": [
+        "date",
+        "horizon",
+        "point",
+        "quantiles",
+        "base_effect_pp",
+        "momentum_pp",
+        "contributions",
+        "component_yoy",
+        "component_mom"
+      ],
+      "title": "ForecastPoint",
+      "type": "object"
+    },
+    "HistoryPoint": {
+      "additionalProperties": false,
+      "properties": {
+        "date": {
+          "pattern": "^\\d{4}-\\d{2}$",
+          "title": "Date",
+          "type": "string"
+        },
+        "yoy": {
+          "title": "Yoy",
+          "type": "number"
+        },
+        "contributions": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Contributions",
+          "type": "object"
+        }
+      },
+      "required": [
+        "date",
+        "yoy",
+        "contributions"
+      ],
+      "title": "HistoryPoint",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "origin": {
+      "pattern": "^\\d{4}-\\d{2}$",
+      "title": "Origin",
+      "type": "string"
+    },
+    "last_actual_yoy": {
+      "title": "Last Actual Yoy",
+      "type": "number"
+    },
+    "ecb_target": {
+      "title": "Ecb Target",
+      "type": "number"
+    },
+    "points": {
+      "items": {
+        "$ref": "#/$defs/ForecastPoint"
+      },
+      "maxItems": 3,
+      "minItems": 3,
+      "title": "Points",
+      "type": "array"
+    },
+    "history": {
+      "items": {
+        "$ref": "#/$defs/HistoryPoint"
+      },
+      "title": "History",
+      "type": "array"
+    },
+    "selected_models": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Selected Models",
+      "type": "object"
+    },
+    "effective_weights": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Effective Weights",
+      "type": "object"
+    },
+    "official_weights": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Official Weights",
+      "type": "object"
+    },
+    "pump_mom_assumed": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "title": "Pump Mom Assumed",
+      "type": "object"
+    },
+    "assumptions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Assumptions",
+      "type": "array"
+    }
+  },
+  "required": [
+    "origin",
+    "last_actual_yoy",
+    "ecb_target",
+    "points",
+    "history",
+    "selected_models",
+    "effective_weights",
+    "official_weights",
+    "pump_mom_assumed",
+    "assumptions"
+  ],
+  "title": "Forecast",
+  "type": "object"
+}

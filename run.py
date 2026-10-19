@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import math
 import platform
 import subprocess
 import sys
@@ -20,10 +21,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
 
+from hicp import backtest as bt  # noqa: E402
 from hicp.clean import clean_all  # noqa: E402
 from hicp.config import ROOT, load_settings  # noqa: E402
+from hicp.external import pull_external, pump_index  # noqa: E402
 from hicp.ingest import pull_all  # noqa: E402
-from hicp.schemas import DataVintage, RunManifest, export_json_schemas, write_json  # noqa: E402
+from hicp.outlook import build_outlook  # noqa: E402
+from hicp.schemas import (BacktestMetrics, DataVintage, Forecast, RunManifest, SelectionStep,  # noqa: E402
+                          export_json_schemas, write_json)
 from hicp.validate import run_all  # noqa: E402
 
 log = logging.getLogger("run")
@@ -49,19 +54,57 @@ def main() -> int:
     s = load_settings()
     out = s.outputs_dir
 
-    log.info("1/3 ingest (%s)", "offline" if args.offline else "live")
+    log.info("1/5 ingest Eurostat (%s)", "offline" if args.offline else "live")
     raw, pulls = pull_all(s, offline=args.offline)
+    log.info("2/5 ingest external energy data")
+    ext, ext_pulls = pull_external(s, offline=args.offline)
+    pulls += ext_pulls
 
-    log.info("2/3 clean")
+    log.info("3/5 clean")
     data = clean_all(raw, s)
     data.save(s)
 
-    log.info("3/3 validate")
+    log.info("4/5 validate")
     report = run_all(data, s, {p.name: p.updated for p in pulls})
     write_json(report, out / "validation_report.json")
     for g in report.gates:
         log.info("  %s %-4s %s", g.gate, g.status.value.upper(), g.message)
 
+    if report.blocking:
+        write_manifest(s, args, report, pulls, t0)
+        log.error("critical validation gate(s) failed: %s. Stopping before the forecast.",
+                  ", ".join(f"{g.gate} ({g.message})" for g in report.blocking))
+        return 2
+
+    log.info("5/5 backtest (walk-forward, origins from %s) and forecast", s.raw["backtest"]["first_origin"])
+    cfg = s.raw["backtest"]
+    inp = bt.make_inputs(data, s, pump_index(ext.pump))
+    res = bt.run_backtest(inp, cfg["first_origin"], *cfg["selection_sample"], rolling=cfg["rolling_window"])
+    write_json(Forecast(**build_outlook(inp, res)), out / "forecast.json")
+    write_json(BacktestMetrics(
+        rule=RULE, first_origin=cfg["first_origin"], last_origin=f"{inp.index.index.max():%Y-%m}",
+        selection_sample=tuple(cfg["selection_sample"]), selected_models=res.choice,
+        selection_log=[SelectionStep(**_nan_to_none(r)) for r in res.selection.to_dict("records")],
+        metrics=[_nan_to_none(r) for r in res.metrics.to_dict("records")]), out / "backtest_metrics.json")
+    res.headline.to_csv(out / "backtest_headline_forecasts.csv", index=False, date_format="%Y-%m")
+    for r in res.metrics[(res.metrics.model == "bottom_up") & (res.metrics["sample"] == "full")].itertuples():
+        log.info("  bottom-up h=%d: RMSE %.2fpp, ratio vs RW %.2f, DM p %.3f", r.h, r.rmse, r.rmse_ratio_vs_rw, r.dm_p)
+
+    write_manifest(s, args, report, pulls, t0)
+    log.info("validation %s; done in %.1fs", report.summary, time.perf_counter() - t0)
+    return 0
+
+
+RULE = ("Keep the simpler model (ladder SM -> AR1 -> richer) unless the richer model has lower MSE and a "
+        "Diebold-Mariano p < 0.05 (two-sided, HLN-corrected, NW h-1 lags) on the cumulative 3-month log change, "
+        "selection origins 2010-01..2019-12 only. Rolling 120m window only under the same rule.")
+
+
+def _nan_to_none(r: dict) -> dict:
+    return {k: (None if isinstance(v, float) and math.isnan(v) else v) for k, v in r.items()}
+
+
+def write_manifest(s, args, report, pulls, t0) -> None:
     manifest = RunManifest(
         run_at=datetime.now(timezone.utc), code_version=git_version(), config_hash=s.config_hash(),
         python=platform.python_version(), offline=args.offline, last_period=report.last_period,
@@ -69,15 +112,8 @@ def main() -> int:
                               n_values=p.n_values, fetched_at=p.fetched_at, from_cache=p.from_cache,
                               raw_file=str(p.path.relative_to(ROOT))) for p in pulls],
         runtime_seconds=round(time.perf_counter() - t0, 1))
-    write_json(manifest, out / "run_manifest.json")
-    export_json_schemas(out / "schemas")
-
-    if report.blocking:
-        log.error("critical validation gate(s) failed: %s. Stopping before the forecast.",
-                  ", ".join(f"{g.gate} ({g.message})" for g in report.blocking))
-        return 2
-    log.info("validation %s; done in %.1fs", report.summary, time.perf_counter() - t0)
-    return 0
+    write_json(manifest, s.outputs_dir / "run_manifest.json")
+    export_json_schemas(s.outputs_dir / "schemas")
 
 
 if __name__ == "__main__":

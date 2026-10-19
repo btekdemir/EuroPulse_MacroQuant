@@ -1,0 +1,264 @@
+{
+  "$defs": {
+    "MetricRow": {
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "h": {
+          "maximum": 3,
+          "minimum": 1,
+          "title": "H",
+          "type": "integer"
+        },
+        "sample": {
+          "title": "Sample",
+          "type": "string"
+        },
+        "n": {
+          "exclusiveMinimum": 0,
+          "title": "N",
+          "type": "integer"
+        },
+        "rmse": {
+          "minimum": 0,
+          "title": "Rmse",
+          "type": "number"
+        },
+        "mae": {
+          "minimum": 0,
+          "title": "Mae",
+          "type": "number"
+        },
+        "rmse_rw": {
+          "minimum": 0,
+          "title": "Rmse Rw",
+          "type": "number"
+        },
+        "rmse_ratio_vs_rw": {
+          "minimum": 0,
+          "title": "Rmse Ratio Vs Rw",
+          "type": "number"
+        },
+        "dm_stat": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Dm Stat"
+        },
+        "dm_p": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dm P"
+        },
+        "dm_p_vs_direct_AR": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dm P Vs Direct Ar"
+        },
+        "bias": {
+          "description": "mean(forecast \u2212 actual), pp",
+          "title": "Bias",
+          "type": "number"
+        },
+        "direction_accuracy": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Direction Accuracy",
+          "type": "number"
+        }
+      },
+      "required": [
+        "model",
+        "h",
+        "sample",
+        "n",
+        "rmse",
+        "mae",
+        "rmse_rw",
+        "rmse_ratio_vs_rw",
+        "dm_stat",
+        "bias",
+        "direction_accuracy"
+      ],
+      "title": "MetricRow",
+      "type": "object"
+    },
+    "SelectionStep": {
+      "additionalProperties": false,
+      "properties": {
+        "coicop": {
+          "title": "Coicop",
+          "type": "string"
+        },
+        "candidate": {
+          "title": "Candidate",
+          "type": "string"
+        },
+        "vs": {
+          "title": "Vs",
+          "type": "string"
+        },
+        "mse_candidate": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mse Candidate"
+        },
+        "mse_current": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mse Current"
+        },
+        "dm_stat": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dm Stat"
+        },
+        "dm_p": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dm P"
+        },
+        "accepted": {
+          "title": "Accepted",
+          "type": "boolean"
+        },
+        "n": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "N"
+        }
+      },
+      "required": [
+        "coicop",
+        "candidate",
+        "vs",
+        "accepted"
+      ],
+      "title": "SelectionStep",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "rule": {
+      "description": "The pre-committed model-selection rule (docs/DECISIONS.md D9)",
+      "title": "Rule",
+      "type": "string"
+    },
+    "first_origin": {
+      "title": "First Origin",
+      "type": "string"
+    },
+    "last_origin": {
+      "title": "Last Origin",
+      "type": "string"
+    },
+    "selection_sample": {
+      "maxItems": 2,
+      "minItems": 2,
+      "prefixItems": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "title": "Selection Sample",
+      "type": "array"
+    },
+    "selected_models": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Selected Models",
+      "type": "object"
+    },
+    "selection_log": {
+      "items": {
+        "$ref": "#/$defs/SelectionStep"
+      },
+      "title": "Selection Log",
+      "type": "array"
+    },
+    "metrics": {
+      "items": {
+        "$ref": "#/$defs/MetricRow"
+      },
+      "title": "Metrics",
+      "type": "array"
+    }
+  },
+  "required": [
+    "rule",
+    "first_origin",
+    "last_origin",
+    "selection_sample",
+    "selected_models",
+    "selection_log",
+    "metrics"
+  ],
+  "title": "BacktestMetrics",
+  "type": "object"
+}

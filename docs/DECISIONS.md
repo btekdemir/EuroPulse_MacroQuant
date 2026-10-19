@@ -97,3 +97,64 @@ It does not change after the results are in.
    - direct AR(p, AIC) + seasonal dummies on headline m/m.
 
    The bottom-up model is reported as an RMSE ratio vs the random walk, with DM p-values.
+
+---
+
+*Entries D10–D15 were written after the backtest, on 19 Oct 2026. Numbers come from `outputs/backtest_metrics.json` and `outputs/forecast.json`.*
+
+## D10. External energy data (`src/hicp/external.py`)
+
+- **What:** three public sources, none needing a key:
+  - the EC Weekly Oil Bulletin (euro area weighted pump prices with taxes: euro95, diesel, heating oil);
+  - Brent spot from FRED `DCOILBRENTEU`;
+  - the ECB EUR/USD reference rate.
+
+  The pump-price regressor is the equal-weight geometric mean of the three products. The fuel equation's coefficient absorbs the scale.
+- **Why:** fuels reprice within the month, and the bulletin is observed weekly before the HICP release. My earlier project found its value comes from this timing, not from any model sophistication.
+- **Rejected:** a Brent futures-curve bridge. I found no public, scriptable futures curve, so beyond the last bulletin I assume no change in pump prices. This is stated in the forecast assumptions. Brent in EUR is ingested for the shock engine (preset 1).
+
+## D11. Information set at each origin (verified by tests)
+
+- **Origin:** month *t*, whose full release is assumed on day 17 of *t+1*. Sep 2026 was actually released on 16 Oct.
+- **Bulletins:** known if Monday + 3 days ≤ release date. For the live forecast that means 5 and 12 Oct 2026.
+- **Weights:** year-*y* weights are used only from origin Jan *y* onwards. When the horizon crosses January, the old year's weights are used. A test checks that this differs from using the true new weights, so look-ahead would be detectable.
+- **Data:** latest-vintage HICP. The backtest is pseudo-real-time, not a real-time one with first releases. That is a limitation; HICP revisions are small.
+
+## D12. Selection outcome (applied mechanically; selection origins 2010–2019)
+
+| Component | Selected | Why |
+|---|---|---|
+| FUEL | PUMP (pump-price regression) | MSE 17.5 vs 26.6 for SM, DM p = 0.006. The rolling window did not pass (p = 0.21). |
+| ELC_GAS | SM | AR1 lower MSE but p = 0.07: rejected |
+| FOOD_P | ARP (AIC) | SM → AR1 p = 0.002 → ARP p = 0.013 |
+| FOOD_NP | SM | AR1 and ARP worse |
+| IGD_NNRG | ARP, rolling 120m | ARP vs SM p < 0.001; rolling vs expanding p < 0.001 |
+| SERV | SM, rolling 120m | ARP with Easter did not beat SM (p = 0.74); rolling vs expanding p < 0.001 |
+
+- **Reading:** a rolling window wins for NEIG and services. Their seasonal patterns (sales periods, package-holiday timing) drift over 25 years, so old seasonal means go stale. Services staying at a seasonal mean is consistent with BoG WP 363, where the richer services equation lost to simple benchmarks.
+- **Interpretation I made:** the D9 ladder has more than one candidate on the richer rung for FUEL (ARP and PUMP). Each candidate is tested against the current model, and among those that pass, the lowest-MSE one is chosen. Only PUMP passed.
+
+## D13. Seasonal random walk dropped as a separate benchmark
+
+- **Why:** rolling last year's m/m forward is algebraically the random walk on YoY: H_t · (H_{t+h−12}/H_{t−12}) / H_{t+h−12} = H_t/H_{t−12}. My first run scored it at a ratio of exactly 1.000, and I checked this before believing it. The identity is pinned by `tests/test_forecast.py::test_seasonal_rw_on_mom_is_identical_to_rw_on_yoy`.
+- **What is scored instead:** the seasonal-mean benchmark, direct (`direct_SM`) and bottom-up (`bottom_up_SM`).
+
+## D14. Headline backtest results (200 origins, 2010-01 → 2026-08)
+
+| h | RMSE (pp) | Ratio vs RW | DM p vs RW | DM p vs direct AR | Bias (pp) | Direction |
+|---|---|---|---|---|---|---|
+| 1 | 0.27 | 0.72 | 0.009 | 0.013 | −0.04 | 79% |
+| 2 | 0.49 | 0.81 | 0.057 | 0.099 | −0.09 | 70% |
+| 3 | 0.67 | 0.84 | 0.140 | 0.552 | −0.13 | 65% |
+
+- **Honest reading:**
+  - The gain over the random walk is significant at h = 1, where the pump bulletin bites. It is not significant at h = 3, the target horizon (p = 0.14), even though the RMSE is 16% lower.
+  - Over the full sample, bottom-up beats the direct AR at h = 1 but not at h = 3 (p = 0.55). This matches Hubrich (2005) and ECB WP 2501: for the euro area aggregate, bottom-up ≈ direct at 1–3 months.
+- **Where it breaks:** in 2020–2023 the h = 3 RMSE is 1.15pp with bias −0.64pp, so the model under-predicted the surge. Seasonal and AR models can't see regulated-tariff jumps or fiscal measures. ECB WP 3062 finds that even perfect commodity foresight under-predicted 2022.
+- **Hold-out (2020+, never seen by the selection rule):** the h = 1 ratio is 0.68 (p = 0.025), so the selection did not overfit 2010–2019.
+
+## D15. Fan chart = empirical out-of-sample errors
+
+- **What:** point forecast + quantiles (5/16/50/84/95) of the backtest's own errors at each horizon, over all 200 origins.
+- **Why:** model-implied bands from OLS residuals ignore parameter, model and aggregation uncertainty, and they assume symmetry. The empirical errors are skewed upwards (2021–22 under-prediction), so the fan is too. December 2026 has a 68% band of 3.5–4.4% and a 90% band of 3.2–5.1%.
+- **Rejected:** bands that exclude 2022. That would make the fan look narrower than the forecaster's actual track record.

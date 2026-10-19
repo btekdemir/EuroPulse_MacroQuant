@@ -75,3 +75,15 @@ validation:
   outlier_robust_z: 5.0
   freshness_warn_days: 50             # next release lands ~17 days after month-end, so normal max age is ~47 days
   freshness_fail_days: 80
+
+external:
+  oil_bulletin_url: "https://energy.ec.europa.eu/document/download/906e60ca-8b6a-44e7-8589-652854d2fd3f_en?filename=Weekly_Oil_Bulletin_Prices_History_maticni_4web.xlsx"
+  brent_url: "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DCOILBRENTEU"
+  eurusd_url: "https://data-api.ecb.europa.eu/service/data/EXR/D.USD.EUR.SP00.A?format=csvdata&startPeriod=2004-01-01"
+  release_day: 17        # HICP full release assumed on day 17 of the following month (Sep 2026 data: 16 Oct)
+  bulletin_lag_days: 3   # a Monday's pump price is public by Thursday
+
+backtest:
+  first_origin: "2010-01"
+  selection_sample: ["2010-01", "2019-12"]   # D9: the rule sees only these origins
+  rolling_window: 120

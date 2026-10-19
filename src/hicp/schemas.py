@@ -82,6 +82,85 @@ class RunManifest(Strict):
     runtime_seconds: float | None = None
 
 
+# --------------------------------------------------------------------------- forecast
+class ForecastPoint(Strict):
+    date: str = Field(pattern=r"^\d{4}-\d{2}$")
+    horizon: int = Field(ge=1, le=3)
+    point: float = Field(description="Headline HICP YoY, %")
+    quantiles: dict[str, float] = Field(description="q05..q95: point + empirical OOS error quantiles")
+    base_effect_pp: float = Field(description="Change in YoY since the origin due to m/m a year earlier (known)")
+    momentum_pp: float = Field(description="Change in YoY since the origin due to new m/m (forecast)")
+    contributions: dict[str, float] = Field(description="Exact contributions to headline YoY, pp")
+    component_yoy: dict[str, float]
+    component_mom: dict[str, float] = Field(description="Forecast 100·Δln, %")
+
+    @field_validator("quantiles")
+    @classmethod
+    def ordered(cls, v: dict[str, float]) -> dict[str, float]:
+        vals = [v[k] for k in sorted(v)]
+        if vals != sorted(vals):
+            raise ValueError("quantiles must be non-decreasing")
+        return v
+
+
+class HistoryPoint(Strict):
+    date: str = Field(pattern=r"^\d{4}-\d{2}$")
+    yoy: float
+    contributions: dict[str, float]
+
+
+class Forecast(Strict):
+    origin: str = Field(pattern=r"^\d{4}-\d{2}$")
+    last_actual_yoy: float
+    ecb_target: float
+    points: list[ForecastPoint] = Field(min_length=3, max_length=3)
+    history: list[HistoryPoint]
+    selected_models: dict[str, str]
+    effective_weights: dict[str, float]
+    official_weights: dict[str, float]
+    pump_mom_assumed: dict[str, float]
+    assumptions: list[str]
+
+
+# --------------------------------------------------------------------------- backtest
+class MetricRow(Strict):
+    model: str
+    h: int = Field(ge=1, le=3)
+    sample: str
+    n: int = Field(gt=0)
+    rmse: float = Field(ge=0)
+    mae: float = Field(ge=0)
+    rmse_rw: float = Field(ge=0)
+    rmse_ratio_vs_rw: float = Field(ge=0)
+    dm_stat: float | None
+    dm_p: float | None = Field(default=None, ge=0, le=1)
+    dm_p_vs_direct_AR: float | None = Field(default=None, ge=0, le=1)
+    bias: float = Field(description="mean(forecast − actual), pp")
+    direction_accuracy: float = Field(ge=0, le=1)
+
+
+class SelectionStep(Strict):
+    coicop: str
+    candidate: str
+    vs: str
+    mse_candidate: float | None = None
+    mse_current: float | None = None
+    dm_stat: float | None = None
+    dm_p: float | None = None
+    accepted: bool
+    n: int | None = None
+
+
+class BacktestMetrics(Strict):
+    rule: str = Field(description="The pre-committed model-selection rule (docs/DECISIONS.md D9)")
+    first_origin: str
+    last_origin: str
+    selection_sample: tuple[str, str]
+    selected_models: dict[str, str]
+    selection_log: list[SelectionStep]
+    metrics: list[MetricRow]
+
+
 # --------------------------------------------------------------------------- writing
 def _default(o: Any) -> Any:
     if isinstance(o, (datetime, date)):
@@ -103,6 +182,6 @@ def write_json(model: BaseModel, path: Path) -> Path:
 def export_json_schemas(folder: Path) -> None:
     """Write the JSON Schema of each output model, so consumers can validate independently."""
     folder.mkdir(parents=True, exist_ok=True)
-    for model in (ValidationReport, RunManifest):
+    for model in (ValidationReport, RunManifest, Forecast, BacktestMetrics):
         (folder / f"{model.__name__}.schema.json").write_text(
             json.dumps(model.model_json_schema(), indent=2) + "\n")

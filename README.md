@@ -1,19 +1,55 @@
 # Euro Area HICP: Bottom-up Forecast, Shock Simulation & Dashboard
 
-> Work in progress (19 Oct 2026): data, validation and chain-linking are done. Forecast, backtest,
-> shocks, dashboard and deck are next.
+> Work in progress (19 Oct 2026): data, validation, chain-linking, forecast and backtest are done.
+> Shocks, dashboard and deck are next.
+
+## Answer first
+
+**Euro area\* headline HICP, Dec 2026 (h = 3 from the Sep 2026 release): 3.8% YoY**
+(68% band 3.5–4.4%, 90% band 3.2–5.1%; Sep actual 3.8%). Path: Oct 3.7%, Nov 3.7%.
+The base effect subtracts 0.11pp by December and is already locked in; momentum adds 0.16pp.
+Fuels contribute 1.3pp (fuel prices +32% YoY) and services 1.4pp.
+Source: `outputs/forecast.json`.
 
 ## Quickstart
 
 ```bash
 python3.11 -m venv .venv && .venv/bin/pip install -r requirements.txt
-.venv/bin/python run.py            # live Eurostat pull, then clean and validate (~3 min, mostly Eurostat latency)
-.venv/bin/python run.py --offline  # replay the cached vintage (~3 s)
+.venv/bin/python run.py            # live pull → clean → validate → backtest → forecast (~4 min, mostly Eurostat latency)
+.venv/bin/python run.py --offline  # replay the cached vintages (~45 s)
 .venv/bin/python -m pytest         # tests
 ```
 
-Outputs, all schema-validated: `outputs/validation_report.json`, `outputs/run_manifest.json`,
-and JSON Schemas in `outputs/schemas/`.
+Outputs, all schema-validated:
+- `validation_report.json`
+- `forecast.json`
+- `backtest_metrics.json`
+- `run_manifest.json`
+
+All are in `outputs/`, with JSON Schemas in `outputs/schemas/`.
+
+## Method (bottom-up, as in Eurosystem practice)
+
+1. Forecast each of the six components' monthly log change. Every model has calendar-month
+   dummies; on top of that, some add AR lags, an Easter dummy, or the Weekly Oil Bulletin
+   pump-price change.
+2. Chain-link the component levels to the headline with the weights known at the origin.
+3. Take YoY against the published headline, then compute exact contributions and the split into
+   base effect and momentum.
+
+**Pre-committed model-selection rule** (committed before any backtest; `docs/DECISIONS.md` D9):
+keep the simpler model unless a richer one beats it with Diebold-Mariano p < 0.05. Selection
+uses 2010–2019 origins only; 2020 onwards is a hold-out.
+
+| h | RMSE | Ratio vs random walk | DM p | vs direct AR, p |
+|---|---|---|---|---|
+| 1 | 0.27pp | 0.72 | 0.009 | 0.013 |
+| 2 | 0.49pp | 0.81 | 0.057 | 0.099 |
+| 3 | 0.67pp | 0.84 | 0.140 | 0.552 |
+
+The model beats the random walk significantly at h = 1. At h = 3 the RMSE is lower, but not
+significantly. It under-predicted the 2021–22 surge (2020–2023 h = 3 bias −0.64pp).
+See D14.
 
 ## Data sources (verified against the live API, 19 Oct 2026)
 
@@ -26,6 +62,14 @@ Base URL: `https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/<
 | `prc_hicp_cw` | Country weights, ‰ of euro area\* | `statinfo=COWEA`, `geo` | 1996 → 2026 (BG from 2026) |
 | `prc_hicp_ctr` | Official contributions to EA annual inflation, pp | `coicop18` (NRG, FOOD, FOOD_P, FOOD_NP, IGD_NNRG, SERV) | 2002-01 → 2026-09 |
 | `prc_hicp_fpd` | Flash (`FLS`) and first full (`FIN`) releases | `release` | flash to 2026-09 |
+
+External (public, no key; last observation at the 19 Oct 2026 pull):
+
+| Source | Series | Last obs. |
+|---|---|---|
+| EC Weekly Oil Bulletin | EA weighted pump prices with taxes (euro95, diesel, heating oil), EUR/1000 l | 2026-10-12 |
+| FRED `DCOILBRENTEU` | Brent spot, USD/bbl | 2026-10-14 |
+| ECB `EXR.D.USD.EUR.SP00.A` | USD per EUR reference rate | 2026-10-19 |
 
 Not used: legacy ECOICOP ver.1 datasets (`prc_hicp_midx`, `prc_hicp_inw`, `prc_hicp_cow`). They are frozen at 2025.
 

@@ -44,3 +44,26 @@ def test_countries_rebuild_euro_area(report):
 
 def test_membership_matches_accession_dates(report):
     assert gate(report, "V7").metrics["membership_mismatch_years"] == 0
+
+
+def test_bottom_up_with_true_component_mom_reproduces_published_yoy():
+    """Feed actual component m/m into the forecast aggregation: it must give back published YoY."""
+    import numpy as np
+    import pandas as pd
+
+    from hicp import backtest as bt
+    from hicp import forecast as fc
+    from hicp.clean import CleanData
+
+    d = CleanData.load(s)
+    inp = bt.make_inputs(d, s, None)
+    head = inp.index[s.headline]
+    errs = []
+    for origin in pd.date_range("2015-01-01", "2026-06-01", freq="MS"):
+        if origin.month >= 10:  # crossing January uses last year's weights by design (no look-ahead)
+            continue
+        true = inp.y[s.components].loc[origin + pd.DateOffset(months=1):origin + pd.DateOffset(months=3)]
+        path = fc.headline_path(inp.index[s.components], true, inp.weights.loc[origin.year], head, origin)
+        pub = 100 * (head / head.shift(12) - 1)
+        errs.append(np.abs(fc.yoy_path(path, head) - pub.loc[path.index]).max())
+    assert max(errs) < 0.06
