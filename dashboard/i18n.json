@@ -190,7 +190,19 @@
   "brk_pre": "Before",
   "brk_post": "After",
   "brk_diff": "Difference",
-  "brk_reading": "Reading: 2002–2012 and 2013–2019 both show zero pass-through, so there is no 2012 break. The single-break test peaks early because the high-pass-through period (2020 on) sits at the end of a long 'after' segment. The higher pass-through is a post-2019 feature, robust to the break year (2019–2022) and to dropping the 2022–23 peak, but outside 2021–23 there are too few months to pin it down. A multiple-break (Bai-Perron) or level-dependent model is the natural next step."
+  "brk_reading": "Reading: 2002–2012 and 2013–2019 both show zero pass-through, so there is no 2012 break. The single-break test peaks early because the high-pass-through period (2020 on) sits at the end of a long 'after' segment. The higher pass-through is a post-2019 feature, robust to the break year (2019–2022) and to dropping the 2022–23 peak, but outside 2021–23 there are too few months to pin it down. A multiple-break (Bai-Perron) or level-dependent model is the natural next step.",
+  "nl_title": "Describe a scenario in words",
+  "nl_intro": "An LLM only turns your sentence into the scenario fields below. It never computes a number: the engine does, and you confirm first.",
+  "nl_go": "Interpret",
+  "nl_run": "Run this scenario",
+  "nl_confirm_title": "Is this what you meant?",
+  "nl_placeholder": "e.g. gas +40% in Germany and Italy, fading over 6 months",
+  "nl_live_off": "Live interpretation is available on the deployed site. Click an example (recorded LLM output) or use the form.",
+  "nl_busy": "Interpreting…",
+  "nl_failed": "Interpretation failed",
+  "nl_recorded": "Recorded LLM output ({model})",
+  "nl_live": "Live LLM output ({model})",
+  "nl_examples": "Examples"
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -383,6 +395,18 @@
   "brk_pre": "Avant",
   "brk_post": "Après",
   "brk_diff": "Écart",
-  "brk_reading": "Lecture : 2002–2012 et 2013–2019 montrent tous deux une transmission nulle, il n'y a donc pas de rupture en 2012. Le test à rupture unique culmine tôt parce que la période de forte transmission (à partir de 2020) se trouve à la fin d'un long segment « après ». La transmission plus forte est un phénomène post-2019, robuste à l'année de rupture (2019–2022) et à l'exclusion du pic de 2022–23, mais hors 2021–23 il y a trop peu de mois pour la mesurer précisément. Un modèle à ruptures multiples (Bai-Perron) ou dépendant du niveau des prix est la suite naturelle."
+  "brk_reading": "Lecture : 2002–2012 et 2013–2019 montrent tous deux une transmission nulle, il n'y a donc pas de rupture en 2012. Le test à rupture unique culmine tôt parce que la période de forte transmission (à partir de 2020) se trouve à la fin d'un long segment « après ». La transmission plus forte est un phénomène post-2019, robuste à l'année de rupture (2019–2022) et à l'exclusion du pic de 2022–23, mais hors 2021–23 il y a trop peu de mois pour la mesurer précisément. Un modèle à ruptures multiples (Bai-Perron) ou dépendant du niveau des prix est la suite naturelle.",
+  "nl_title": "Décrire un scénario en une phrase",
+  "nl_intro": "Un LLM transforme seulement votre phrase en champs de scénario. Il ne calcule aucun chiffre : le moteur s'en charge, après votre confirmation.",
+  "nl_go": "Interpréter",
+  "nl_run": "Lancer ce scénario",
+  "nl_confirm_title": "Est-ce bien ce que vous vouliez dire ?",
+  "nl_placeholder": "p. ex. gaz +40 % en Allemagne et en Italie, résorbé en 6 mois",
+  "nl_live_off": "L'interprétation en direct est disponible sur le site déployé. Cliquez sur un exemple (sortie LLM enregistrée) ou utilisez le formulaire.",
+  "nl_busy": "Interprétation…",
+  "nl_failed": "Échec de l'interprétation",
+  "nl_recorded": "Sortie LLM enregistrée ({model})",
+  "nl_live": "Sortie LLM en direct ({model})",
+  "nl_examples": "Exemples"
  }
 }

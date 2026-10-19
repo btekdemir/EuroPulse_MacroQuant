@@ -243,6 +243,19 @@ class ShockResult(Strict):
     peak_month: str
 
 
+class NLExample(Strict):
+    text: str
+    lang: Literal["en", "fr"]
+    scenario: Scenario
+    interpretation: list[str]
+    model: str
+
+
+class NLExamples(Strict):
+    """Recorded outputs of the natural-language builder, so the offline dashboard can show them."""
+    examples: list[NLExample]
+
+
 class ShockBasis(Strict):
     """Everything the in-browser simulator needs. The JS engine mirrors hicp.shocks.simulate."""
     origin: str

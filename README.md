@@ -75,6 +75,14 @@ dashboard. Presets, in `config/scenarios/`:
 
 Assumptions are listed in `src/hicp/shocks.py` and shown in the dashboard. See D17–D19.
 
+## Natural-language scenario builder (optional)
+
+Type "gas +40% in Germany and Italy, fading over 6 months" in the simulator. An LLM only fills a small
+schema (components, countries, the user's own numbers, the time-path phrase); Brent → fuel and every other
+conversion is deterministic code; you confirm the interpretation before the engine runs it. It never
+produces a number or a forecast. Code: `src/hicp/nl_scenario.py`; deployment (Vercel, with a spend cap):
+`deploy/README.md`; design and limits: D22. The page works without it.
+
 ## Data sources (verified against the live API, 19 Oct 2026)
 
 Base URL: `https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/<dataset>` (JSON-stat 2.0).

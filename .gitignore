@@ -6,3 +6,8 @@ data/raw/
 data/clean/
 logs/
 .DS_Store
+deploy/public/
+deploy/api/_lib/
+deploy/.vercel/
+.env
+.env.*

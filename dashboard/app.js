@@ -2,6 +2,7 @@
 (function () {
   "use strict";
   const D = JSON.parse(document.getElementById("dashboard-data").textContent);
+  const NL_EX = D.nl_examples || [];
   const F = D.forecast, B = D.backtest, V = D.validation, M = D.manifest, S = D.basis, C = D.countries;
   const COMPS = S.components;
   const SLOT = { FUEL: "--s1", ELC_GAS: "--s2", FOOD_P: "--s3", FOOD_NP: "--s4", IGD_NNRG: "--s5", SERV: "--s6" };
@@ -242,6 +243,9 @@
     });
     el("f-allea").addEventListener("change", () => { if (el("f-allea").checked) cs.querySelectorAll("input").forEach((i) => { i.checked = false; }); fromForm(); });
     ["f-size", "f-start", "f-profile", "f-param", "f-second", "f-regime"].forEach((id) => el(id).addEventListener("input", fromForm));
+    el("nl-go").addEventListener("click", nlInterpret);
+    el("nl-run").addEventListener("click", nlRun);
+    el("nl-text").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); nlInterpret(); } });
     el("sim-export").addEventListener("click", () => {
       const blob = new Blob([JSON.stringify(scenario, null, 2)], { type: "application/json" });
       const a = node("a", { href: URL.createObjectURL(blob), download: "scenario.json" });
@@ -283,6 +287,56 @@
     el("f-second").checked = scenario.second_round;
     el("f-regime").value = scenario.second_round_regime;
     paramVisibility();
+  }
+
+  // ------------------------------------------------------------------ natural-language box
+  let nlPending = null;
+  // Live calls only make sense on a deployed http(s) site. `?nl=live` forces it on for local testing.
+  const liveOk = () => /^https?:$/.test(location.protocol)
+    && (!/^(localhost|127\.0\.0\.1)$/.test(location.hostname) || /[?&]nl=live\b/.test(location.search));
+
+  function showInterpretation(res, srcLabel) {
+    nlPending = res;
+    el("nl-lines").replaceChildren(...res.interpretation.map((l) => node("li", {}, l)));
+    el("nl-src").textContent = srcLabel;
+    el("nl-confirm").hidden = false;
+  }
+
+  function renderNL() {
+    el("nl-text").placeholder = t("nl_placeholder");
+    const ex = el("nl-examples"); ex.replaceChildren();
+    NL_EX.forEach((e) => {
+      const b = node("button", { type: "button", title: e.text }, e.text.length > 46 ? e.text.slice(0, 44) + "…" : e.text);
+      b.addEventListener("click", () => {
+        el("nl-text").value = e.text;
+        showInterpretation({ scenario: e.scenario, interpretation: e.interpretation }, t("nl_recorded", { model: e.model }));
+      });
+      ex.appendChild(b);
+    });
+    if (!liveOk()) el("nl-status").textContent = t("nl_live_off");
+    else if (el("nl-status").textContent === t("nl_live_off")) el("nl-status").textContent = "";
+  }
+
+  async function nlInterpret() {
+    const text = el("nl-text").value.trim();
+    if (!text) return;
+    if (!liveOk()) { el("nl-status").textContent = t("nl_live_off"); return; }
+    el("nl-status").textContent = t("nl_busy"); el("nl-go").disabled = true; el("nl-confirm").hidden = true;
+    try {
+      const r = await fetch("/api/scenario", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) });
+      let body = {}; try { body = await r.json(); } catch (e) { /* non-JSON error page */ }
+      if (!r.ok || !body.scenario) { el("nl-status").textContent = body.error || `${t("nl_failed")} (${r.status})`; return; }
+      el("nl-status").textContent = "";
+      showInterpretation(body, t("nl_live", { model: body.model }));
+    } catch (e) { el("nl-status").textContent = t("nl_failed"); } finally { el("nl-go").disabled = false; }
+  }
+
+  function nlRun() {
+    if (!nlPending) return;
+    scenario = JSON.parse(JSON.stringify(nlPending.scenario));
+    presetIdx = -1;
+    labelForm(); toForm(); renderShock();
+    el("sim-export").scrollIntoView({ block: "nearest" });
   }
 
   function paramVisibility() {
@@ -436,7 +490,7 @@
     if (tab === "overview") renderOverview();
     if (tab === "drivers") renderDrivers();
     if (tab === "countries") renderCountries();
-    if (tab === "shocks") { labelForm(); toForm(); renderShock(); }
+    if (tab === "shocks") { labelForm(); toForm(); renderShock(); renderNL(); }
     if (tab === "model") renderModel();
   }
   function renderAll() { applyText(); renderTab(activeTab); }

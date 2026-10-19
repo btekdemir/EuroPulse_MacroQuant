@@ -91,6 +91,8 @@ input[type="number"], select { font: inherit; padding: 5px 8px; border: 1px soli
 .presets button[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
 .assume { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; font-size: 12.5px; color: var(--text-secondary); }
 .assume ul { margin: 4px 0 0; padding-left: 18px; }
+.nl-text { width: 100%; font: inherit; padding: 6px 8px; border: 1px solid var(--axis); border-radius: 6px;
+  background: var(--surface-1); color: var(--text-primary); resize: vertical; }
 .warnmsg { color: var(--critical); font-size: 12.5px; }
 .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
 footer { color: var(--text-muted); font-size: 12px; max-width: 1280px; margin: 0 auto; padding: 0 24px 24px; }
@@ -159,7 +161,17 @@ b.sig { color: var(--text-primary); }
   <section role="tabpanel" id="tab-shocks">
     <div class="grid">
       <div class="card span-4">
-        <h2 data-i18n="sim_presets"></h2><div class="presets" id="presets"></div>
+        <h2 data-i18n="nl_title"></h2>
+        <p class="note" data-i18n="nl_intro" style="margin:0 0 6px"></p>
+        <textarea id="nl-text" rows="2" maxlength="300" class="nl-text"></textarea>
+        <div class="row" style="margin-top:6px"><button class="btn" id="nl-go" type="button" data-i18n="nl_go"></button>
+          <span class="note" id="nl-status" style="margin:0" role="status"></span></div>
+        <div class="presets" id="nl-examples" style="margin-top:6px"></div>
+        <div class="assume" id="nl-confirm" hidden>
+          <b data-i18n="nl_confirm_title"></b><ul id="nl-lines"></ul>
+          <div class="row" style="margin-top:6px"><button class="btn" id="nl-run" type="button" data-i18n="nl_run"></button>
+            <span class="note" id="nl-src" style="margin:0"></span></div></div>
+        <h2 style="margin-top:16px" data-i18n="sim_presets"></h2><div class="presets" id="presets"></div>
         <h2 style="margin-top:16px" data-i18n="sim_custom"></h2>
         <div class="form" id="sim-form">
           <fieldset><legend data-i18n="sim_components"></legend><div class="chips" id="f-comps"></div></fieldset>

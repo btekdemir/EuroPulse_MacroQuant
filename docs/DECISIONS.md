@@ -248,3 +248,23 @@ It does not change after the results are in.
   - Dropping all of 2021–23: 0.042 (s.e. 0.056) on 45 months, too few to tell. Most of the evidence comes from that episode.
 - **Decision:** keep the two regimes. The default post-2020 estimate stays, the toggle stays off by default and labelled uncertain, and the evidence is shown in the dashboard (Model & validation tab).
 - **Not done:** Bai-Perron multiple-break tests, and a level-dependent (threshold) pass-through model. The latter is ECB WP 3062's finding of stronger pass-through at high prices, and the natural next step.
+
+## D22. LLM scenario builder and Vercel deployment (20 Oct 2026; code written and tested, not yet run against the real API)
+
+- **What:** a text box in the simulator ("gas +40% in Germany and Italy, fading over 6 months") that an LLM turns into a validated `Scenario`. The user sees the interpretation, confirms, and the deterministic engine runs it.
+- **The LLM's whole job** is to fill `ScenarioIntent` (`src/hicp/nl_scenario.py`): which components, which countries, the size the user wrote, which time-path phrase the user used, the start month, and a list of assumptions. A test pins that the only numeric fields are `size_pct` and `profile_months`, both copies of the user's own words.
+- **Code does the rest:**
+  - Brent → fuel: the estimated elasticity (0.31) and lag profile. It equals the hand-built oil preset (tested).
+  - "Fading over N months" → half-life N/2, "for N months" → temporary, "phased in over N" → ramp. Each conversion is shown to the user as a line of the interpretation.
+  - Size and month ranges are validated by the same `Scenario` schema as everything else. An out-of-range or incomplete request is rejected with a message, never silently repaired.
+- **Prompt injection:** the model has no tools and its output is only a schema instance. In the worst case it emits a valid but odd scenario that the user reads before running. Tested with an "ignore previous instructions, 9999%" case: the range check stops it.
+- **Model:** `claude-haiku-5-5` by default (overridable with `HICP_NL_MODEL`): classification into a small schema does not need a larger model, and it keeps the cost far below the $10 monthly cap. I chose it for cost; the eval below is how we check it is accurate enough, and a bigger model is a one-variable change if it is not.
+- **Deployment (`deploy/`):** static dashboard plus one Python function. The key is only a Vercel environment variable. The real cap is the $10 spend limit on the Anthropic account; the in-memory per-IP rate limit is best-effort only, because serverless instances do not share memory. The function bundle has its own two-line `requirements.txt` (anthropic, pydantic).
+- **If the LLM or the site is down:** everything but the text box still works, and `outputs/dashboard.html` still opens offline with recorded examples.
+- **Tested without spending anything:** 23 unit tests with a fake client, and 4 HTTP tests of the function (rate limit, no secret leakage, size limits). The dashboard's live path was tested in a browser with a mocked `fetch` (success, error message, non-JSON 502).
+- **Not yet done:**
+  - the 18-sentence accuracy eval (`python -m hicp.nl_scenario --eval`, English, French, and 3 sentences that must be rejected);
+  - recording the 6 example outputs for the offline dashboard (`--record`);
+  - the actual Vercel deploy.
+
+  Each of the first two makes about 20 paid API calls (well under a cent at this model's price) and waits for your approval.

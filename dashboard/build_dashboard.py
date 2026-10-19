@@ -12,7 +12,8 @@ from pathlib import Path
 
 import plotly
 
-from hicp.schemas import BacktestMetrics, CountryView, Forecast, RunManifest, ShockBasis, ValidationReport
+from hicp.schemas import (BacktestMetrics, CountryView, Forecast, NLExamples, RunManifest, ShockBasis,
+                          ValidationReport)
 
 HERE = Path(__file__).resolve().parent
 
@@ -34,6 +35,9 @@ def build(out_dir: Path) -> Path:
     data = {}
     for key, (fname, model) in INPUTS.items():
         data[key] = model.model_validate_json((out_dir / fname).read_text()).model_dump(mode="json")
+    nl = out_dir / "nl_examples.json"  # optional: recorded outputs of the LLM builder (needs an API run)
+    data["nl_examples"] = (NLExamples.model_validate_json(nl.read_text()).model_dump(mode="json")["examples"]
+                           if nl.exists() else [])
     data["i18n"] = json.loads((HERE / "i18n.json").read_text())
     missing = set(data["i18n"]["en"]) ^ set(data["i18n"]["fr"])
     if missing:
