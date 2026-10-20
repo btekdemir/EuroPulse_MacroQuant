@@ -1163,6 +1163,62 @@
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (theme === "auto") renderAll(); });
 
   el("note-toggle").addEventListener("click", () => { const c = el("note-check"); c.hidden = !c.hidden; renderNote(); });
+  // ------------------------------------------------------------------ one-page brief (print / save as PDF)
+  // Built from what the page already shows, in the current language, always in the light theme so it prints well.
+  async function openBrief() {
+    el("brief-open").disabled = true;
+    const prevTheme = document.documentElement.getAttribute("data-theme");
+    document.documentElement.setAttribute("data-theme", "light");
+    renderOverview(); renderDrivers();
+    const img = async (id, h) => {  // without the on-screen range buttons
+      const gd = el(id), lay = Object.assign({}, gd.layout, { margin: Object.assign({}, gd.layout.margin, { t: 8 }) });
+      lay.xaxis = Object.assign({}, gd.layout.xaxis, { rangeselector: { visible: false } });
+      return Plotly.toImage({ data: gd.data, layout: lay }, { format: "png", width: 1000, height: h, scale: 2 });
+    };
+    let fan = "", contrib = "";
+    try { fan = await img("p-headline", 360); contrib = await img("p-contrib", 330); } catch (e) { /* charts optional */ }
+    if (prevTheme) document.documentElement.setAttribute("data-theme", prevTheme); else document.documentElement.removeAttribute("data-theme");
+    renderAll();
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const kpis = ["kpi-dec", "kpi-last", "kpi-ecb", "kpi-base"].map((id) => {
+      const k = el(id);
+      return `<div class="k"><div class="l">${esc(k.querySelector(".label").textContent)}</div><div class="v">${esc(k.querySelector(".value").textContent)}</div><div class="s">${esc(k.querySelector(".sub").textContent)}</div></div>`;
+    }).join("");
+    const probs = [3, 3.5, 4, 4.5, 5].map((x) => `<td>${fmt(100 * probOf(last.point, x), 0)}%</td>`).join("");
+    const m = (B.metrics || []).find((r) => r.model === "bottom_up" && r.h === 3 && r.sample === "full");
+    const n = RN && RN.notes.find((x) => x.lang === lang);
+    const note = n && n.verified && !RN.stale ? `<h2>${esc(n.title)}</h2>${n.body.split(/\n{2,}/).map((p) => `<p>${esc(p)}</p>`).join("")}` : "";
+    const vint = M.vintages.filter((v) => ["index_ea", "item_weights", "country_weights"].includes(v.name)).map((v) => `${v.dataset} ${v.updated.slice(0, 10)}`).join(" · ");
+    const html = (`<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><title>${esc(t("brief_title"))} – ${esc(monthLabel(F.origin))}</title>
+<style>@page{size:A4;margin:12mm} *{box-sizing:border-box} body{font:10.5pt/1.42 system-ui,-apple-system,"Segoe UI",sans-serif;color:#111;margin:0;background:#fff}
+.wrap{max-width:186mm;margin:0 auto;padding:6mm 0} h1{font-size:16pt;margin:0} .sub{color:#555;font-size:9pt;margin:2px 0 8px}
+h2{font-size:11pt;margin:10px 0 4px} p{margin:0 0 6px} .kp{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0}
+.k{border:1px solid #ddd;border-radius:6px;padding:6px 8px}.k .l{font-size:8pt;color:#555}.k .v{font-size:15pt;font-weight:600}.k .s{font-size:7.5pt;color:#666}
+img{width:100%;display:block} table{border-collapse:collapse;font-size:9pt} td,th{border-bottom:1px solid #e3e3e3;padding:2px 8px;text-align:right} th:first-child,td:first-child{text-align:left}
+.foot{color:#666;font-size:7.5pt;border-top:1px solid #ddd;margin-top:8px;padding-top:4px} .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media screen{body{background:#f3f3f3}.wrap{background:#fff;padding:12mm;margin:10px auto;box-shadow:0 2px 12px rgba(0,0,0,.15)}.noprint{text-align:center;margin:10px}}
+@media print{.noprint{display:none}}</style></head><body>
+<div class="wrap"><h1>${esc(t("title"))}</h1><div class="sub">${esc(t("brief_sub", { origin: monthLabel(F.origin), run: M.run_at.slice(0, 10) }))}</div>
+<div class="kp">${kpis}</div>
+<h2>${esc(t("answer_title"))}</h2><p>${esc(el("answer").textContent)}</p>
+<h2>${esc(el("wc-title").textContent)}</h2><p>${esc(el("wc-text").textContent)}</p>
+${fan ? `<img src="${fan}" alt="">` : ""}
+<div class="two"><div><h2>${esc(t("brief_risks", { date: monthLabel(last.date) }))}</h2><table><tr><th>${esc(t("brief_thr"))}</th>${[3, 3.5, 4, 4.5, 5].map((x) => `<th>${pct(x, x % 1 ? 1 : 0)}</th>`).join("")}</tr><tr><td>P(&gt;)</td>${probs}</tr></table>
+${m ? `<p style="margin-top:6px">${esc(t("brief_acc", { r: fmt(m.rmse, 2), rw: fmt(m.rmse_rw, 2), p: fmt(m.dm_p, 2), n: m.n }))}</p>` : ""}</div>
+<div>${contrib ? `<img src="${contrib}" alt="">` : ""}</div></div>
+${note}
+<div class="foot">${esc(t("brief_foot", { vint, commit: M.code_version }))}</div></div></body></html>`);
+    // Shown in an in-page preview (no pop-up to block); its own print() prints only the brief.
+    const fr = el("brief-frame");
+    fr.srcdoc = html;
+    el("brief-view").hidden = false; el("brief-open").disabled = false;
+    el("brief-print").focus();
+  }
+  el("brief-open").addEventListener("click", openBrief);
+  el("brief-print").addEventListener("click", () => el("brief-frame").contentWindow.print());
+  el("brief-close").addEventListener("click", () => { el("brief-view").hidden = true; el("brief-open").focus(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !el("brief-view").hidden) el("brief-close").click(); });
+
   // ------------------------------------------------------------------ 5. PNG / CSV for every chart
   function chartCsv(gd) {
     const rows = [["series", "x", "y"]];

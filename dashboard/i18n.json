@@ -456,7 +456,17 @@
   "wc_note": "Last month's forecast is the same models re-run as of {prev} on today's data (it equals the backtest's forecast from that origin). Contributions are exact chain-linked ones, so the components add up to the headline change apart from the small residual shown. From the next monthly run, the forecast recorded in the ledger at the time becomes the reference.",
   "rng_1y": "1Y",
   "rng_3y": "3Y",
-  "rng_all": "All"
+  "rng_all": "All",
+  "brief_button": "Brief (PDF)",
+  "brief_title": "Euro area inflation brief",
+  "brief_building": "Preparing the brief…",
+  "brief_blocked": "The browser blocked the new window. Allow pop-ups for this page and try again.",
+  "brief_print": "Print / save as PDF",
+  "brief_sub": "Euro area* HICP · data to {origin} · run {run} · one-page brief",
+  "brief_risks": "Risks: probability that {date} y/y exceeds…",
+  "brief_thr": "Threshold",
+  "brief_acc": "Accuracy three months ahead: RMSE {r} pp vs {rw} pp for a random walk (Diebold–Mariano p = {p}, {n} out-of-sample origins).",
+  "brief_foot": "Every figure is read from the pipeline's schema-validated outputs. Eurostat vintages: {vint}. Pipeline commit {commit}. Probabilities use the model's own past out-of-sample errors; in crisis periods they understate risk. Not investment advice."
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -915,6 +925,16 @@
   "wc_note": "La prévision du mois dernier est celle des mêmes modèles relancés à l’origine {prev} sur les données d’aujourd’hui (identique à la prévision du backtest depuis cette origine). Les contributions sont exactes (chaînées) : les composantes s’additionnent à la variation de l’indice global, au petit résidu près. À partir du prochain run mensuel, la prévision enregistrée dans le registre à l’époque devient la référence.",
   "rng_1y": "1 an",
   "rng_3y": "3 ans",
-  "rng_all": "Tout"
+  "rng_all": "Tout",
+  "brief_button": "Note (PDF)",
+  "brief_title": "Note sur l’inflation en zone euro",
+  "brief_building": "Préparation de la note…",
+  "brief_blocked": "Le navigateur a bloqué la nouvelle fenêtre. Autorisez les fenêtres pour cette page et réessayez.",
+  "brief_print": "Imprimer / enregistrer en PDF",
+  "brief_sub": "IPCH zone euro* · données jusqu’à {origin} · exécution {run} · note d’une page",
+  "brief_risks": "Risques : probabilité que le glissement de {date} dépasse…",
+  "brief_thr": "Seuil",
+  "brief_acc": "Précision à trois mois : RMSE {r} pt contre {rw} pt pour une marche aléatoire (Diebold–Mariano p = {p}, {n} origines hors échantillon).",
+  "brief_foot": "Chaque chiffre provient des sorties validées du pipeline. Millésimes Eurostat : {vint}. Commit {commit}. Les probabilités reposent sur les erreurs passées hors échantillon du modèle ; en période de crise elles sous-estiment le risque. Ceci n’est pas un conseil en investissement."
  }
 }
