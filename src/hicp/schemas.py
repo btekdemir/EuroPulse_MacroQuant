@@ -378,6 +378,32 @@ class ResearchNotes(Strict):
 
 
 
+
+# --------------------------------------------------------------------------- what changed (D39)
+class ChangeRow(Strict):
+    target: str
+    total_pp: float
+    by_component: dict[str, float]
+
+
+class Surprise(ChangeRow):
+    forecast: float
+    actual: float
+
+
+class Revision(ChangeRow):
+    previous: float
+    current: float
+
+
+class WhatChanged(Strict):
+    """Last month's forecast vs this month's: the surprise in the new print and the revisions, by component."""
+    previous_origin: str
+    origin: str
+    surprise: Surprise
+    revisions: list[Revision]
+    note: str
+
 # --------------------------------------------------------------------------- dashboard assistant (D34)
 class AskFacts(Strict):
     """Everything the dashboard assistant may say: numeric facts plus a short non-numeric context."""

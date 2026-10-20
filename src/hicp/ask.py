@@ -52,6 +52,7 @@ TABS = {"overview": "Overview / Synthèse", "drivers": "Drivers / Contributions"
 SECTIONS = {
     "forecast": ("overview", "kpi-dec", "headline forecast for December with its 68% and 90% bands"),
     "answer": ("overview", "answer", "one-paragraph answer: forecast, base effect, main drivers"),
+    "what_changed": ("overview", "wc-card", "what changed since last month's forecast: the surprise in the new print and the revisions, by component"),
     "research_note": ("overview", "note-card", "research note with every number verified"),
     "probability": ("overview", "t-prob", "probability that December exceeds a threshold you choose"),
     "headline_chart": ("overview", "p-headline", "headline y/y history and forecast fan chart"),
@@ -206,6 +207,20 @@ def build_ask_facts(out: Path) -> AskFacts:
             if v is not None:
                 add(f"{g}_contrib_{c}", f"Contribution of {cname} to {name} y/y, {d}, pp", v)
 
+    wc_path = out / "what_changed.json"
+    if wc_path.exists():
+        wc = json.loads(wc_path.read_text())
+        s = wc["surprise"]
+        add("wc_fc_prev", f"Forecast for {_mon(s['target'])} made at {_mon(wc['previous_origin'])}, %", s["forecast"])
+        add("wc_surprise", f"Surprise in {_mon(s['target'])}: actual minus last month's forecast, pp", s["total_pp"])
+        for c, name in COMP_NAMES.items():
+            add(f"wc_surprise_{c}", f"Part of the {_mon(s['target'])} surprise from {name}, pp", s["by_component"][c])
+        for r in wc["revisions"]:
+            key = r["target"].replace("-", "_")
+            add(f"wc_prev_{key}", f"Last month's forecast for {_mon(r['target'])}, %", r["previous"])
+            add(f"wc_rev_{key}", f"Revision to the {_mon(r['target'])} forecast since last month, pp", r["total_pp"])
+            for c, name in COMP_NAMES.items():
+                add(f"wc_rev_{key}_{c}", f"Part of the {_mon(r['target'])} revision from {name}, pp", r["by_component"][c])
     models = "; ".join(f"{COMP_NAMES[c]}: {MODEL_NAMES.get(m, m)}" for c, m in f["selected_models"].items())
     context = (
         f"Data: Eurostat HICP, euro area* = the 21 current members at every date, chain-linked bottom-up from six "

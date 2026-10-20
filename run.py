@@ -32,10 +32,10 @@ from hicp.external import pull_external, pump_index  # noqa: E402
 from hicp.ingest import pull_all  # noqa: E402
 from hicp.ask import build_ask_facts  # noqa: E402
 from hicp.export import country_view, track, write_shock_outputs  # noqa: E402
-from hicp.outlook import build_outlook  # noqa: E402
+from hicp.outlook import build_outlook, what_changed  # noqa: E402
 from hicp.passthrough import estimate_all  # noqa: E402
 from hicp.shocks import build_basis, make_presets  # noqa: E402
-from hicp.schemas import (BacktestMetrics, CalibrationReport, DataVintage, Forecast, RealtimeReport,  # noqa: E402
+from hicp.schemas import (WhatChanged, BacktestMetrics, CalibrationReport, DataVintage, Forecast, RealtimeReport,  # noqa: E402
                           Round2Report, RunManifest, SelectionStep,
                           export_json_schemas, write_json)
 from hicp.validate import run_all  # noqa: E402
@@ -118,6 +118,7 @@ def main() -> int:
 
     outlook = build_outlook(inp, res, {h: cal["live"][h]["B_errors"] for h in (1, 2, 3)} if adopt_b else None)
     write_json(Forecast(**outlook), out / "forecast.json")
+    write_json(WhatChanged(**what_changed(inp, res, outlook)), out / "what_changed.json")
     write_json(BacktestMetrics(
         rule=RULE, first_origin=cfg["first_origin"], last_origin=f"{inp.index.index.max():%Y-%m}",
         selection_sample=tuple(cfg["selection_sample"]), selected_models=res.choice,

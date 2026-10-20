@@ -138,7 +138,27 @@
 
   // ------------------------------------------------------------------ overview
   const P = F.points, last = P[P.length - 1];
+  // ------------------------------------------------------------------ what changed since last month
+  function renderChanged() {
+    const W = D.changed, s = W.surprise, rv = W.revisions;
+    el("wc-title").textContent = t("wc_title", { prev: monthLabel(W.previous_origin) });
+    const movers = (bc) => Object.entries(bc).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1])).slice(0, 2)
+      .map(([c, v]) => `${comp(c).toLowerCase()} ${sgn(v)}`).join(", ");
+    const lastRv = rv[rv.length - 1];
+    el("wc-text").textContent = t("wc_surprise", { m: monthLabel(s.target), act: pct(s.actual, 2), fc: pct(s.forecast, 2), prev: monthLabel(W.previous_origin),
+      d: sgn(s.total_pp), movers: movers(s.by_component) })
+      + (lastRv ? " " + t("wc_revision", { m: monthLabel(lastRv.target), from: pct(lastRv.previous, 2), to: pct(lastRv.current, 2), d: sgn(lastRv.total_pp), movers: movers(lastRv.by_component) }) : "")
+      + " " + t("wc_new", { m: monthLabel(last.date), v: pct(last.point, 2) });
+    const cols = [{ k: s, lab: t("wc_col_surprise", { m: monthLabel(s.target) }) }, ...rv.map((r) => ({ k: r, lab: t("wc_col_rev", { m: monthLabel(r.target) }) }))];
+    const rows = COMPS.map((c) => [comp(c), ...cols.map((x) => sgn(x.k.by_component[c]))]);
+    rows.push([t("wc_resid"), ...cols.map((x) => sgn(x.k.total_pp - COMPS.reduce((a, c) => a + x.k.by_component[c], 0)))]);
+    rows.push([t("wc_total"), ...cols.map((x) => sgn(x.k.total_pp))]);
+    table(el("tbl-wc"), [t("wc_col_comp"), ...cols.map((x) => x.lab)], rows, cols.map((_, i) => i + 1));
+    el("wc-note").textContent = t("wc_note", { prev: monthLabel(W.previous_origin) });
+  }
+
   function renderOverview() {
+    renderChanged();
     const dec = monthLabel(last.date), origin = monthLabel(F.origin);
     const kpi = (id, label, value, sub) => {
       const c = el(id); c.replaceChildren(node("div", { class: "label" }, label), node("div", { class: "value" }, value), node("div", { class: "sub" }, sub));

@@ -1,0 +1,49 @@
+{
+  "previous_origin": "2026-08",
+  "origin": "2026-09",
+  "surprise": {
+    "target": "2026-09",
+    "total_pp": 0.03781128316775462,
+    "by_component": {
+      "FUEL": -0.021252832661974308,
+      "ELC_GAS": 0.07003186575077641,
+      "FOOD_P": -0.030461997819883506,
+      "FOOD_NP": 0.05355473727767013,
+      "IGD_NNRG": -0.13127346697059372,
+      "SERV": 0.10325485462248074
+    },
+    "forecast": 3.7325826682846897,
+    "actual": 3.7703939514524443
+  },
+  "revisions": [
+    {
+      "target": "2026-10",
+      "total_pp": -0.046095310595717365,
+      "by_component": {
+        "FUEL": -0.09131435598694981,
+        "ELC_GAS": 0.07063330460177819,
+        "FOOD_P": -0.044030507229198775,
+        "FOOD_NP": 0.0536604606171997,
+        "IGD_NNRG": -0.13192454629018063,
+        "SERV": 0.10291693402244606
+      },
+      "previous": 3.750228269648992,
+      "current": 3.7041329590532746
+    },
+    {
+      "target": "2026-11",
+      "total_pp": -0.05938168892465345,
+      "by_component": {
+        "FUEL": -0.08973455706711153,
+        "ELC_GAS": 0.07099989161246617,
+        "FOOD_P": -0.058500444581362235,
+        "FOOD_NP": 0.0539304089195512,
+        "IGD_NNRG": -0.13245633276540414,
+        "SERV": 0.10241412143107431
+      },
+      "previous": 3.7360462605042777,
+      "current": 3.6766645715796242
+    }
+  ],
+  "note": "Previous forecast = the same models re-run as of 2026-08 on today's data vintage (pseudo-real-time). From the next monthly run, the forecast-ledger entry recorded at the time is the reference for the headline numbers."
+}

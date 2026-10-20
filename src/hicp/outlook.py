@@ -41,11 +41,13 @@ def fan_coverage(bu: pd.DataFrame, err_q: dict) -> list[dict]:
     return out
 
 
-def build_outlook(inp: Inputs, bt: BacktestResult, fan_errors: dict[int, list[float]] | None = None) -> dict:
-    """``fan_errors``: replace the fan's error sample per horizon (used only if D28 adopts the scaled fan)."""
+def build_outlook(inp: Inputs, bt: BacktestResult, fan_errors: dict[int, list[float]] | None = None,
+                  origin: pd.Timestamp | None = None) -> dict:
+    """``fan_errors``: replace the fan's error sample per horizon (used only if D28 adopts the scaled fan).
+    ``origin``: an earlier origin, to re-run the same machinery as of then (used by ``what_changed``)."""
     s = inp.settings
     comps = s.components
-    origin = inp.index.index.max()
+    origin = origin if origin is not None else inp.index.index.max()
     sel = pd.concat([bt.comp_fc[(bt.comp_fc.origin == origin) & (bt.comp_fc.coicop == c) & (bt.comp_fc.model == m)]
                      for c, m in bt.choice.items()])
     mom = sel.pivot(index="target", columns="coicop", values="fc")[comps]
@@ -110,3 +112,25 @@ def build_outlook(inp: Inputs, bt: BacktestResult, fan_errors: dict[int, list[fl
         "headline_index": {**{f"{t:%Y-%m}": float(v) for t, v in head_pub.loc[origin - pd.DateOffset(years=8):origin].items()},
                            **{f"{t:%Y-%m}": float(v) for t, v in path.items()}},
     }
+
+
+def what_changed(inp: Inputs, bt: BacktestResult, cur: dict) -> dict:
+    """Last month's forecast (re-run at the previous origin with the same models) against this month's:
+    the surprise in the newly published month, and the revision to the months both forecasts cover,
+    each split by component contribution (exact chain-linked contributions, so the parts add up)."""
+    comps = inp.settings.components
+    origin = pd.Timestamp(cur["origin"] + "-01")
+    prev = build_outlook(inp, bt, origin=origin - pd.DateOffset(months=1))
+    pp = {p["date"]: p for p in prev["points"]}
+    cp = {p["date"]: p for p in cur["points"]}
+    last = cur["history"][-1]
+    f0 = pp[last["date"]]
+    surprise = {"target": last["date"], "forecast": f0["point"], "actual": last["yoy"], "total_pp": last["yoy"] - f0["point"],
+                "by_component": {c: last["contributions"][c] - f0["contributions"][c] for c in comps}}
+    revisions = [{"target": d, "previous": pp[d]["point"], "current": cp[d]["point"], "total_pp": cp[d]["point"] - pp[d]["point"],
+                  "by_component": {c: cp[d]["contributions"][c] - pp[d]["contributions"][c] for c in comps}}
+                 for d in sorted(set(pp) & set(cp))]
+    return {"previous_origin": prev["origin"], "origin": cur["origin"], "surprise": surprise, "revisions": revisions,
+            "note": (f"Previous forecast = the same models re-run as of {prev['origin']} on today's data vintage "
+                     "(pseudo-real-time). From the next monthly run, the forecast-ledger entry recorded at the time is "
+                     "the reference for the headline numbers.")}

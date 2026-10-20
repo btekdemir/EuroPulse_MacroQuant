@@ -443,7 +443,17 @@
   "tm_actual": "Actual y/y",
   "tm_forecast": "Forecast made then",
   "tm_then": "then",
-  "tm_note": "Forecasts are the backtest's out-of-sample runs, using data as revised today (pseudo-real-time; D29 checks first releases). The fan uses only errors whose target month was already published at the origin, with at least 24 of them, so it is the band a forecaster could actually have drawn, without hindsight."
+  "tm_note": "Forecasts are the backtest's out-of-sample runs, using data as revised today (pseudo-real-time; D29 checks first releases). The fan uses only errors whose target month was already published at the origin, with at least 24 of them, so it is the band a forecaster could actually have drawn, without hindsight.",
+  "wc_title": "What changed since last month's forecast ({prev})",
+  "wc_surprise": "{m} printed {act} against {fc} forecast from {prev}: a surprise of {d} pp, mostly {movers}.",
+  "wc_revision": "The {m} forecast moves from {from} to {to} ({d} pp), mostly {movers}.",
+  "wc_new": "{m} enters the horizon at {v}.",
+  "wc_col_comp": "Contribution, pp",
+  "wc_col_surprise": "Surprise, {m}",
+  "wc_col_rev": "Revision, {m}",
+  "wc_resid": "Chain-link residual",
+  "wc_total": "Headline",
+  "wc_note": "Last month's forecast is the same models re-run as of {prev} on today's data (it equals the backtest's forecast from that origin). Contributions are exact chain-linked ones, so the components add up to the headline change apart from the small residual shown. From the next monthly run, the forecast recorded in the ledger at the time becomes the reference."
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -889,6 +899,16 @@
   "tm_actual": "Glissement annuel observé",
   "tm_forecast": "Prévision faite alors",
   "tm_then": "alors",
-  "tm_note": "Les prévisions sont les simulations hors échantillon du backtest, avec les données révisées d’aujourd’hui (pseudo-temps réel ; D29 vérifie les premières publications). L’éventail n’utilise que les erreurs dont le mois cible était déjà publié à l’origine, au moins 24, c’est donc l’intervalle qu’un prévisionniste aurait réellement pu tracer, sans recul."
+  "tm_note": "Les prévisions sont les simulations hors échantillon du backtest, avec les données révisées d’aujourd’hui (pseudo-temps réel ; D29 vérifie les premières publications). L’éventail n’utilise que les erreurs dont le mois cible était déjà publié à l’origine, au moins 24, c’est donc l’intervalle qu’un prévisionniste aurait réellement pu tracer, sans recul.",
+  "wc_title": "Ce qui a changé depuis la prévision du mois dernier ({prev})",
+  "wc_surprise": "{m} est sorti à {act} contre {fc} prévu en {prev} : une surprise de {d} pt, surtout {movers}.",
+  "wc_revision": "La prévision de {m} passe de {from} à {to} ({d} pt), surtout {movers}.",
+  "wc_new": "{m} entre dans l’horizon à {v}.",
+  "wc_col_comp": "Contribution, pt",
+  "wc_col_surprise": "Surprise, {m}",
+  "wc_col_rev": "Révision, {m}",
+  "wc_resid": "Résidu de chaînage",
+  "wc_total": "Indice global",
+  "wc_note": "La prévision du mois dernier est celle des mêmes modèles relancés à l’origine {prev} sur les données d’aujourd’hui (identique à la prévision du backtest depuis cette origine). Les contributions sont exactes (chaînées) : les composantes s’additionnent à la variation de l’indice global, au petit résidu près. À partir du prochain run mensuel, la prévision enregistrée dans le registre à l’époque devient la référence."
  }
 }
