@@ -516,3 +516,6 @@ Committed to git before the code that runs it. It does not change after the resu
 - **Tested:**
   - `tests/test_ask.py`: the flag passes through, and never on a "not covered" reply.
   - Browser, with stubbed APIs: Germany gas +30% gave a +0.41pp peak in the chat, equal to `simulate` on the same scenario. "Open in the simulator" showed the same peak, with DE ticked and size 30.
+- **Live check (2 questions, 4 calls):**
+  - EN, "What if gas prices rise 30% in Germany?": flagged and answered with no numbers (4 s). Interpreted (1.7 s) as electricity & gas, DE, +30%, permanent from Oct 2026, with no second round. Result: +0.41pp peak in Dec 2026 and December at 4.22% instead of 3.82%. This equals the JS figure from the browser test.
+  - TR, "Ya İspanya'da elektrik %15 düşer, İtalya'da gıda %5 artarsa ne olur?": two legs. ES electricity & gas −15%, and IT processed + unprocessed food +5%, both permanent from Oct 2026. Net +0.085pp in December, which puts December at 3.90%.
