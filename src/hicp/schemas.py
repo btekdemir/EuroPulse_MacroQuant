@@ -134,6 +134,9 @@ class Forecast(Strict):
         description="Out-of-sample errors (actual − forecast, pp) of the bottom-up model per horizon '1'..'3': "
                     "the fan and every probability are computed from these")
     fan_coverage: list[FanCoverage]
+    headline_index: dict[str, float] = Field(
+        description="Headline index (2025=100) by month: published history, then the forecast path; "
+                    "used by the dashboard's month explanations and the October-print scenario")
 
 
 # --------------------------------------------------------------------------- backtest

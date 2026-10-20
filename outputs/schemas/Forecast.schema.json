@@ -229,6 +229,14 @@
       },
       "title": "Fan Coverage",
       "type": "array"
+    },
+    "headline_index": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "description": "Headline index (2025=100) by month: published history, then the forecast path; used by the dashboard's month explanations and the October-print scenario",
+      "title": "Headline Index",
+      "type": "object"
     }
   },
   "required": [
@@ -243,7 +251,8 @@
     "pump_mom_assumed",
     "assumptions",
     "error_samples",
-    "fan_coverage"
+    "fan_coverage",
+    "headline_index"
   ],
   "title": "Forecast",
   "type": "object"

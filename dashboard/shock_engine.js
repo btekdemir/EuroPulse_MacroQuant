@@ -141,7 +141,38 @@
     return 100 * Math.expm1(Math.log1p(fuelPct / 100) / eps);
   }
 
-  const api = { simulate, profileFraction, monthsSince, probAbove, solveSize, requiredPoint, quantile, brentEquivalent };
+  // ---- month explanations and the October-print scenario (pure; mirrored in tests against Python)
+  const addMonths = (ym, k) => {
+    const [y, m] = ym.split("-").map(Number), n = y * 12 + (m - 1) + k;
+    return `${Math.floor(n / 12)}-${String((n % 12) + 1).padStart(2, "0")}`;
+  };
+  const yoyAt = (idx, ym) => 100 * (idx[ym] / idx[addMonths(ym, -12)] - 1);
+
+  // Change in y/y from month t-1 to t, split exactly into momentum (this month's m/m) and base effect
+  // (the m/m a year earlier leaving the window). Same algebra as hicp.chainlink.base_momentum with h = 1.
+  function explainMonth(idx, ym) {
+    const prev = addMonths(ym, -1);
+    const need = [ym, prev, addMonths(ym, -12), addMonths(ym, -13)];
+    if (need.some((k) => !(k in idx))) return null;
+    const mom = Math.log(idx[ym] / idx[prev]);
+    const base = Math.log(idx[addMonths(ym, -12)] / idx[addMonths(ym, -13)]);
+    const y0 = yoyAt(idx, prev), y1 = yoyAt(idx, ym), dlog = mom - base;
+    const scale = Math.abs(dlog) > 1e-12 ? (y1 - y0) / dlog : 100;
+    return { month: ym, yoy_prev: y0, yoy: y1, delta_pp: y1 - y0, momentum_pp: scale * mom, base_effect_pp: -scale * base,
+             mom_pct: 100 * (idx[ym] / idx[prev] - 1) };
+  }
+
+  // If month `first` prints `printYoy` instead of the forecast, keep the forecast's later m/m changes
+  // (the surprise persists in the price level) and recompute later y/y. Mechanical, not a re-estimate.
+  function conditionalPath(idx, first, printYoy, months) {
+    const k = (idx[addMonths(first, -12)] * (1 + printYoy / 100)) / idx[first];
+    const out = {};
+    for (const m of months) out[m] = 100 * ((idx[m] * k) / idx[addMonths(m, -12)] - 1);
+    return out;
+  }
+
+  const api = { simulate, profileFraction, monthsSince, probAbove, solveSize, requiredPoint, quantile, brentEquivalent,
+                explainMonth, conditionalPath, addMonths };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.ShockEngine = api;
 })(typeof window !== "undefined" ? window : globalThis);

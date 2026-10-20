@@ -97,6 +97,13 @@ input[type="number"], select { font: inherit; padding: 5px 8px; border: 1px soli
 .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
 footer { color: var(--text-muted); font-size: 12px; max-width: 1280px; margin: 0 auto; padding: 0 24px 24px; }
 b.sig { color: var(--text-primary); }
+.dl-bar { display: flex; gap: 6px; justify-content: flex-end; margin-top: 4px; }
+.dl-btn { font: inherit; font-size: 11.5px; padding: 2px 8px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface-2); color: var(--text-secondary); cursor: pointer; }
+.chips label, .row .chips label { display: inline-flex; white-space: nowrap; }
+#cc-chips { align-self: center; }
+.chips .chip-x { border: 0; background: none; color: var(--text-secondary); cursor: pointer; font: inherit; padding: 0 0 0 4px; }
+input[type="range"] { min-width: 160px; }
 /* ---- guided tour: never blocks on first load; a banner offers it, the Tour button restarts it */
 .tour-btn { padding: 6px 10px; font-size: 13px; }
 .tour-banner { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; padding: 8px 12px;
@@ -171,6 +178,17 @@ b.sig { color: var(--text-primary); }
       <div class="card"><h2 id="t-headline"></h2><div class="plot tall" id="p-headline"></div>
         <p class="note" data-i18n="ch_headline_note"></p><p class="src" data-src="src_eurostat"></p>
         <button class="toggle-table" data-table="tbl-headline"></button><div class="tablewrap" id="tbl-headline" hidden></div></div>
+      <div class="card span-6"><h2 data-i18n="mx_title"></h2>
+        <div class="row" style="margin:4px 0 8px"><label><span data-i18n="mx_pick"></span><select id="mx-month"></select></label>
+          <span class="note" data-i18n="mx_hint" style="margin:0"></span></div>
+        <p class="answer" id="mx-sentence"></p>
+        <div class="plot short" id="p-month"></div><p class="note" data-i18n="mx_note"></p></div>
+      <div class="card span-6"><h2 id="t-oct"></h2><p class="note" data-i18n="oct_intro" style="margin:0 0 8px"></p>
+        <div class="row"><label><span data-i18n="oct_input"></span><input type="number" id="oct-in" step="0.1"></label>
+          <label><span data-i18n="oct_slider"></span><input type="range" id="oct-range" min="2.5" max="5" step="0.05"></label>
+          <button class="btn" id="oct-reset" type="button" data-i18n="oct_reset"></button></div>
+        <p class="answer" id="oct-sentence" style="margin:10px 0 6px"></p>
+        <div class="tablewrap" id="tbl-oct"></div><p class="note" data-i18n="oct_note"></p></div>
     </div>
   </section>
   <section role="tabpanel" id="tab-drivers">
@@ -188,6 +206,9 @@ b.sig { color: var(--text-primary); }
   </section>
   <section role="tabpanel" id="tab-countries">
     <div class="grid">
+      <div class="card"><h2 data-i18n="cc_title"></h2><p class="note" data-i18n="cc_intro" style="margin:0 0 8px"></p>
+        <div class="row"><label><span data-i18n="cc_add"></span><select id="cc-add"></select></label><div class="chips" id="cc-chips"></div></div>
+        <div class="plot" id="p-ccmp"></div><p class="src" data-src="src_eurostat"></p></div>
       <div class="card span-4"><h2 id="t-cbar"></h2><div class="plot tall" id="p-cbar"></div>
         <p class="note" id="n-cbar"></p><p class="src" data-src="src_eurostat"></p></div>
       <div class="card span-8"><h2 data-i18n="ch_country_sm"></h2><div class="plot tall" id="p-csm"></div>

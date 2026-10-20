@@ -104,7 +104,7 @@
       if (!Number.isFinite(v)) return;
       thr = v;
       document.querySelectorAll("input.thr").forEach((o) => { if (o !== inp) o.value = inp.value; });
-      renderProb(); if (activeTab === "shocks") renderShock();
+      renderProb(); renderOct(); if (activeTab === "shocks") renderShock();
     }));
   }
   function renderProb() {
@@ -167,20 +167,29 @@
     // history, but the anchor is not a forecast: it is hidden from the tooltip, which lists Oct-Dec only.
     const hoverX = fx.slice(1);
     const band = (lo, hi, color, name) => [
-      { x: fx, y: qs(lo), mode: "lines", line: { width: 0 }, hoverinfo: "skip", showlegend: false },
-      { x: fx, y: qs(hi), mode: "lines", line: { width: 0 }, fill: "tonexty", fillcolor: css(color), name, hoverinfo: "skip" },
+      { x: fx, y: qs(lo), mode: "lines", line: { width: 0 }, hoverinfo: "skip", showlegend: false, meta: { csvName: `${name} (${lo})` } },
+      { x: fx, y: qs(hi), mode: "lines", line: { width: 0 }, fill: "tonexty", fillcolor: css(color), name, hoverinfo: "skip",
+        meta: { csvName: `${name} (${hi})` } },
       { x: hoverX, y: qs(hi).slice(1), customdata: qs(lo).slice(1), mode: "markers", marker: { size: 1, opacity: 0 },
-        showlegend: false, hovertemplate: `${name}: %{customdata:.1f}–%{y:.1f}%<extra></extra>` },
+        showlegend: false, hovertemplate: `${name}: %{customdata:.1f}–%{y:.1f}%<extra></extra>`, meta: { csv: false } },
     ];
+    const extra = [];
+    if (octPrint !== null) {
+      const cond = ShockEngine.conditionalPath(F.headline_index, P[0].date, octPrint, P.map((p) => p.date));
+      extra.push({ x: [toDate(F.origin), ...P.map((p) => toDate(p.date))], y: [F.last_actual_yoy, ...P.map((p) => cond[p.date])],
+        mode: "lines+markers", name: t("s_if_oct", { v: fmt(octPrint, 1) }), line: { color: css("--s2"), width: 2 },
+        marker: { size: 7, color: css("--s2") }, hovertemplate: "%{y:.2f}%" });
+    }
     plot("p-headline", [
       ...band("q05", "q95", "--band90", t("s_band90")),
       ...band("q16", "q84", "--band68", t("s_band68")),
       { x: hx, y: hy, mode: "lines", name: t("s_actual"), line: { color: css("--text-primary"), width: 2 }, hovertemplate: "%{y:.2f}%" },
-      { x: fx, y: fc, mode: "lines", line: { color: acc, width: 2, dash: "dot" }, hoverinfo: "skip", showlegend: false },
+      { x: fx, y: fc, mode: "lines", line: { color: acc, width: 2, dash: "dot" }, hoverinfo: "skip", showlegend: false, meta: { csv: false } },
       { x: hoverX, y: fc.slice(1), mode: "lines+markers", name: t("s_forecast"), line: { color: acc, width: 2, dash: "dot" },
         marker: { size: 8, color: acc, line: { color: css("--surface-1"), width: 2 } }, hovertemplate: "%{y:.2f}%" },
       { x: [hx[0], fx[fx.length - 1]], y: [F.ecb_target, F.ecb_target], mode: "lines", name: t("s_target"),
         line: { color: css("--neutral"), width: 1, dash: "dash" }, hoverinfo: "skip" },
+      ...extra,
     ], baseLayout({
       yaxis: Object.assign(baseLayout().yaxis, { ticksuffix: "%" }),
       xaxis: Object.assign(baseLayout().xaxis, { range: [`${Number(F.origin.slice(0, 4)) - 3}-01-01`, `${last.date}-20`] }),
@@ -191,6 +200,74 @@
     table(el("tbl-headline"), [t("month"), t("s_forecast"), "q05", "q16", "q84", "q95", t("s_base"), t("s_mom")],
       P.map((p) => [monthLabel(p.date), fmt(p.point, 2), fmt(p.quantiles.q05, 2), fmt(p.quantiles.q16, 2), fmt(p.quantiles.q84, 2),
         fmt(p.quantiles.q95, 2), sgn(p.base_effect_pp), sgn(p.momentum_pp)]), [1, 2, 3, 4, 5, 6, 7]);
+    if (!headlineBound) {  // Plotly's .on() adds a listener per call: bind once
+      el("p-headline").on("plotly_click", (ev) => {
+        const pt = ev.points && ev.points[0];
+        if (!pt) return;
+        const ym = String(pt.x).slice(0, 7);
+        if (MONTHS.includes(ym)) { el("mx-month").value = ym; renderMonth(); }
+      });
+      headlineBound = true;
+    }
+    renderMonth();
+    renderOct();
+  }
+
+  // ------------------------------------------------------------------ 1. one month, explained
+  let headlineBound = false;
+  const contribOf = (ym) => {
+    const h = F.history.find((x) => x.date === ym); if (h) return { c: h.contributions, y: h.yoy, kind: "actual" };
+    const p = P.find((x) => x.date === ym); if (p) return { c: p.contributions, y: p.point, kind: "fc" };
+    return null;
+  };
+  const MONTHS = [...F.history.map((h) => h.date), ...P.map((p) => p.date)];
+  function renderMonth() {
+    const sel = el("mx-month");
+    if (!sel.options.length) {
+      sel.replaceChildren(...MONTHS.map((m) => node("option", { value: m }, "")));
+      sel.value = last.date;
+    }
+    [...sel.options].forEach((o) => { o.textContent = monthLabel(o.value); });
+    const ym = sel.value, prev = ShockEngine.addMonths(ym, -1);
+    const cur = contribOf(ym), before = contribOf(prev), ex = ShockEngine.explainMonth(F.headline_index, ym);
+    if (!cur || !ex) { el("mx-sentence").textContent = ""; return; }
+    let big = null;
+    if (before) for (const c of COMPS) { const dc = cur.c[c] - before.c[c]; if (!big || Math.abs(dc) > Math.abs(big.dc)) big = { c, dc }; }
+    el("mx-sentence").textContent = t("mx_sentence", {
+      month: monthLabel(ym), y: fmt(cur.y, 2), kind: t(cur.kind === "fc" ? "mx_fc" : "mx_actual"), d: sgn(ex.delta_pp), prev: monthLabel(prev),
+      y0: fmt(ex.yoy_prev, 2), m: sgn(ex.momentum_pp), mm: sgn(ex.mom_pct, 2), b: sgn(ex.base_effect_pp),
+      comp: big ? comp(big.c) : "–", dc: big ? sgn(big.dc) : "–" });
+    const ys = COMPS.map(comp), tr = [];
+    if (before) tr.push({ type: "bar", orientation: "h", name: `${t("mx_prev_bar")} (${monthLabel(prev)})`, y: ys, x: COMPS.map((c) => before.c[c]),
+      marker: { color: css("--axis") }, hovertemplate: "%{x:.2f} " + t("pp") });
+    tr.push({ type: "bar", orientation: "h", name: `${t("mx_this_bar")} (${monthLabel(ym)})`, y: ys, x: COMPS.map((c) => cur.c[c]),
+      marker: { color: COMPS.map((c) => css(SLOT[c])) }, hovertemplate: "%{x:.2f} " + t("pp") });
+    plot("p-month", tr, baseLayout({ barmode: "group", bargap: 0.3, hovermode: "y unified", margin: { l: 10, r: 16, t: 8, b: 36 },
+      yaxis: Object.assign(baseLayout().yaxis, { autorange: "reversed" }) }));
+  }
+
+  // ------------------------------------------------------------------ 2. what if October prints differently?
+  let octPrint = null;
+  function renderOct() {
+    const first = P[0], decP = P[P.length - 1];
+    el("t-oct").textContent = t("oct_title");
+    const inp = el("oct-in"), rng = el("oct-range");
+    const v = octPrint === null ? first.point : octPrint;
+    if (document.activeElement !== inp) inp.value = v.toFixed(2);
+    if (document.activeElement !== rng) rng.value = v;
+    const months = P.map((p) => p.date);
+    const cond = ShockEngine.conditionalPath(F.headline_index, first.date, v, months);
+    const err2 = F.error_samples["2"];
+    el("oct-sentence").textContent = t("oct_sentence", { v: fmt(v, 1), d: fmt(cond[decP.date], 2), dd: sgn(cond[decP.date] - decP.point),
+      b: fmt(decP.point, 2), thr: fmt(thr, 1), p: fmt(100 * ShockEngine.probAbove(cond[decP.date], err2, thr), 0),
+      p0: fmt(100 * probOf(decP.point, thr), 0) });
+    table(el("tbl-oct"), [t("oct_col_month"), t("oct_col_base"), t("oct_col_cond", { v: fmt(v, 1) }), t("oct_col_diff")],
+      P.map((p) => [monthLabel(p.date), fmt(p.point, 2), fmt(cond[p.date], 2), sgn(cond[p.date] - p.point)]), [1, 2, 3]);
+  }
+  function setOct(v) {
+    if (!Number.isFinite(v)) return;
+    octPrint = Math.abs(v - P[0].point) < 1e-6 ? null : Math.min(8, Math.max(0, v));
+    renderOverview();
   }
 
   // ------------------------------------------------------------------ drivers
@@ -238,7 +315,37 @@
   }
 
   // ------------------------------------------------------------------ countries
+  // ------------------------------------------------------------------ 4. compare countries
+  const CC_SLOTS = ["--s1", "--s2", "--s3"];
+  const ccSel = new Map([["DE", 0], ["IT", 1], ["FR", 2]]);  // country -> colour slot: colour follows the country
+  function ccToggle(g) {
+    if (ccSel.has(g)) ccSel.delete(g);
+    else if (ccSel.size < CC_SLOTS.length) ccSel.set(g, [0, 1, 2].find((k) => ![...ccSel.values()].includes(k)));
+    renderCountries();
+  }
+  function renderCompare() {
+    const add = el("cc-add");
+    const opts = Object.keys(C.yoy).sort((a, b) => geo(a).localeCompare(geo(b), lang)).filter((g) => !ccSel.has(g));
+    add.replaceChildren(node("option", { value: "" }, t("cc_choose") + (ccSel.size >= 3 ? " " + t("cc_full") : "")),
+      ...opts.map((g) => node("option", { value: g }, geo(g))));
+    add.disabled = ccSel.size >= 3;
+    const chips = el("cc-chips"); chips.replaceChildren();
+    for (const [g, k] of ccSel) {
+      const lab = node("label");
+      const x = node("button", { type: "button", class: "chip-x", "aria-label": t("cc_remove", { c: geo(g) }) }, "×");
+      x.addEventListener("click", () => ccToggle(g));
+      lab.append(node("span", { class: "swatch", style: `background:var(${CC_SLOTS[k]})` }), document.createTextNode(geo(g)), x);
+      chips.appendChild(lab);
+    }
+    const xs = C.dates.map(toDate);
+    const tr = [{ x: xs, y: C.ea_yoy, mode: "lines", name: geo("EA"), line: { color: css("--axis"), width: 2.5 }, hovertemplate: "%{y:.1f}%" }];
+    for (const [g, k] of ccSel) tr.push({ x: xs, y: C.yoy[g], mode: "lines", name: geo(g), line: { color: css(CC_SLOTS[k]), width: 2 }, hovertemplate: "%{y:.1f}%" });
+    plot("p-ccmp", tr, baseLayout({ yaxis: Object.assign(baseLayout().yaxis, { ticksuffix: "%" }) }));
+  }
+  let cbarBound = false;
+
   function renderCountries() {
+    renderCompare();
     const n = C.dates.length - 1, date = C.dates[n];
     el("t-cbar").textContent = t("ch_country_bar", { date: monthLabel(date) });
     el("n-cbar").textContent = t("ch_country_bar_note", { gap: fmt(C.max_abs_gap_pp, 2) });
@@ -247,6 +354,14 @@
       marker: { color: css("--text-secondary") }, customdata: order.map((g) => C.yoy[g][n]),
       hovertemplate: "%{y}: %{x:.2f} " + t("pp") + " (y/y %{customdata:.1f}%)<extra></extra>" }],
     baseLayout({ hovermode: "closest", margin: { l: 10, r: 16, t: 8, b: 30 }, yaxis: Object.assign(baseLayout().yaxis, { autorange: "reversed" }) }));
+    if (!cbarBound) {
+      el("p-cbar").on("plotly_click", (ev) => {
+        const name = ev.points && ev.points[0] && ev.points[0].y;
+        const g = Object.keys(C.yoy).find((k) => geo(k) === name);
+        if (g) ccToggle(g);
+      });
+      cbarBound = true;
+    }
 
     const geos = Object.keys(C.yoy).sort((a, b) => geo(a).localeCompare(geo(b), lang));
     const cols = window.innerWidth < 700 ? 3 : 5, rows = Math.ceil(geos.length / cols);
@@ -259,7 +374,9 @@
     geos.forEach((g, k) => {
       const ax = k === 0 ? "" : String(k + 1);
       data.push({ x: xs, y: C.ea_yoy, xaxis: "x" + ax, yaxis: "y" + ax, mode: "lines", line: { color: css("--axis"), width: 1.5 }, name: geo("EA"), hovertemplate: "%{y:.1f}%" });
-      data.push({ x: xs, y: C.yoy[g], xaxis: "x" + ax, yaxis: "y" + ax, mode: "lines", line: { color: css("--text-primary"), width: 1.5 }, name: geo(g), hovertemplate: "%{y:.1f}%" });
+      const hi = ccSel.has(g);
+      data.push({ x: xs, y: C.yoy[g], xaxis: "x" + ax, yaxis: "y" + ax, mode: "lines", name: geo(g), hovertemplate: "%{y:.1f}%",
+        line: { color: hi ? css(CC_SLOTS[ccSel.get(g)]) : css("--text-primary"), width: hi ? 2.5 : 1.5 } });
       const base = baseLayout();
       // Years on every panel: a small multiple without a time axis hides which period it shows.
       const y0 = Number(C.dates[0].slice(0, 4));
@@ -268,7 +385,7 @@
         ticktext: tv.map(String), tickfont: { size: 9, color: css("--text-muted") }, ticks: "outside", ticklen: 3, tickcolor: css("--axis"),
         range: [xs[0], xs[xs.length - 1]] });
       lay["yaxis" + ax] = Object.assign({}, base.yaxis, { range: [Math.floor(lo), Math.ceil(hi)], tickfont: { size: 9, color: css("--text-muted") }, nticks: 3 });
-      ann.push({ text: `${geo(g)} <span style="color:${css("--text-muted")}">${fmt(C.yoy[g][n])}%</span>`, xref: `x${ax} domain`, yref: `y${ax} domain`,
+      ann.push({ text: `${ccSel.has(g) ? "<b>" + geo(g) + "</b>" : geo(g)} <span style="color:${css("--text-muted")}">${fmt(C.yoy[g][n])}%</span>`, xref: `x${ax} domain`, yref: `y${ax} domain`,
         x: 0, y: 1.18, xanchor: "left", showarrow: false, font: { size: 11, color: css("--text-primary") } });
     });
     lay.annotations = ann;
@@ -822,6 +939,39 @@
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (theme === "auto") renderAll(); });
 
   el("note-toggle").addEventListener("click", () => { const c = el("note-check"); c.hidden = !c.hidden; renderNote(); });
+  // ------------------------------------------------------------------ 5. PNG / CSV for every chart
+  function chartCsv(gd) {
+    const rows = [["series", "x", "y"]];
+    (gd.data || []).forEach((tr, k) => {
+      const meta = tr.meta || {};
+      if (meta.csv === false || !tr.x || !tr.y) return;
+      const name = meta.csvName || tr.name || `series ${k + 1}`;
+      const horiz = tr.orientation === "h";
+      for (let i = 0; i < tr.x.length; i++) rows.push([name, horiz ? tr.y[i] : tr.x[i], horiz ? tr.x[i] : tr.y[i]]);
+    });
+    const q = (v) => { const s = v === null || v === undefined ? "" : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+    return rows.map((r) => r.map(q).join(",")).join("\n") + "\n";
+  }
+  document.querySelectorAll(".plot").forEach((p) => {
+    const bar = node("div", { class: "dl-bar" });
+    const png = node("button", { type: "button", class: "dl-btn", "data-i18n": "dl_png" });
+    const csv = node("button", { type: "button", class: "dl-btn", "data-i18n": "dl_csv" });
+    png.addEventListener("click", () => { if (p.data) Plotly.downloadImage(p, { format: "png", filename: p.id.replace(/^p-/, "hicp-"), scale: 2 }); });
+    csv.addEventListener("click", () => {
+      if (!p.data) return;
+      const a = node("a", { href: URL.createObjectURL(new Blob([chartCsv(p)], { type: "text/csv" })), download: p.id.replace(/^p-/, "hicp-") + ".csv" });
+      document.body.appendChild(a); a.click(); a.remove();
+    });
+    bar.append(png, csv);
+    p.after(bar);
+  });
+  window.__chartCsv = chartCsv;  // exposed for the automated check only
+
+  el("mx-month").addEventListener("change", renderMonth);
+  el("oct-in").addEventListener("input", () => setOct(Number(el("oct-in").value)));
+  el("oct-range").addEventListener("input", () => setOct(Number(el("oct-range").value)));
+  el("oct-reset").addEventListener("click", () => setOct(P[0].point));
+  el("cc-add").addEventListener("change", () => { const g = el("cc-add").value; if (g) ccToggle(g); });
   bindThreshold();
   buildForm();
   if (theme !== "auto") document.documentElement.setAttribute("data-theme", theme);

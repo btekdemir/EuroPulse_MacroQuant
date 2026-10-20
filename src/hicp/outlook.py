@@ -107,4 +107,6 @@ def build_outlook(inp: Inputs, bt: BacktestResult, fan_errors: dict[int, list[fl
         "error_samples": ({str(h): [float(v) for v in fan_errors[h]] for h in range(1, H + 1)} if fan_errors else
                           {str(h): [float(v) for v in (bu[bu.h == h].actual - bu[bu.h == h].fc)] for h in range(1, H + 1)}),
         "fan_coverage": fan_coverage(bu, err_q),
+        "headline_index": {**{f"{t:%Y-%m}": float(v) for t, v in head_pub.loc[origin - pd.DateOffset(years=8):origin].items()},
+                           **{f"{t:%Y-%m}": float(v) for t, v in path.items()}},
     }

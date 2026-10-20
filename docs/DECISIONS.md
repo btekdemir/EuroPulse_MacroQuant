@@ -425,3 +425,17 @@ Committed to git before the code that runs it. It does not change after the resu
 - **The six steps:** the answer; the fan; base effect vs momentum; the shock simulator; the reverse stress test; how far to trust it (round 2, calibration, ledger). Each step switches tab, highlights its area and explains it in one or two sentences, in EN/FR.
 - **Behaviour:** Esc, the arrow keys and Tab (focus stays in the dialog) all work, and focus returns to the Tour button at the end. The choice is remembered (local storage, wrapped so a blocked storage only means the banner shows again). On phones the box is a bottom sheet.
 - **Checked in the browser:** every step is fully in view at 1024×768 and 375×812, there is no horizontal scroll, and switching language translates the open step. Only on step 2 does the box overlap its target, unavoidably, because the chart is taller than the free space; there it sits bottom-left so the fan on the right stays visible.
+
+## D32. More interactive charts (20 Oct 2026)
+
+- **One month, explained (Overview):** click any month on the headline chart, or pick it from the menu, which works with the keyboard.
+  - The panel splits the change in y/y from the previous month into momentum and base effect. It uses the same algebra as `base_momentum`, ported to the browser: `explainMonth`, which equals Python to 1e−9 (`tests/test_interactive.py`).
+  - It also shows each component's contribution in that month next to the previous month, and names the biggest mover.
+  - Example: Oct 2022, +0.68pp, with momentum +1.62 and base effect −0.94; the biggest mover is electricity & gas (+0.42).
+- **What if October prints differently? (Overview):**
+  - Type or slide October's y/y. The October surprise stays in the price level and the forecast's Nov/Dec monthly changes are kept, so Nov and Dec y/y follow arithmetically (`conditionalPath`, tested).
+  - The new path is drawn on the headline chart. P(Dec > threshold) uses the two-month-ahead errors, which is why it changes even when October equals the forecast; the sentence says so.
+  - Example: October at 4.0% instead of 3.70 puts December at 4.11% and raises P(Dec > 4%) from 36% to 66%.
+  - This is arithmetic, not a re-estimated model, and in 2021–23 surprises persisted, so it is a lower bound in such periods (stated on the card).
+- **Compare countries (Countries):** up to three countries against the euro area\*. Add them from the menu or by clicking a bar; the selected countries are highlighted in the small multiples. Colour follows the country, not its position: removing one does not repaint the others (checked).
+- **Downloads:** every chart has PNG (Plotly, 2× resolution) and CSV buttons. The CSV is in long format (series, x, y); hover-only helper traces are left out and band edges are named by quantile.
