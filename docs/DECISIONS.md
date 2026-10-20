@@ -487,4 +487,4 @@ Committed to git before the code that runs it. It does not change after the resu
   - The server accepts only ids in the map, and a country only with the country profile.
   - The page then shows a "Go to: …" button. It switches tab, opens the country, scrolls to the card and highlights it. On phones it also closes the panel.
   - A test checks that every section's element and tab exist in the page.
-  - It was checked in the browser with a stubbed answer, not yet with a live one.
+  - Live check (2 calls, after the rule was made stronger): "where can I see country based drivers" → country_profile; "Almanya'nın sürücülerini nerede görebilirim?" → country_profile with DE. Both were verified on the first attempt (6 s and 3 s).
