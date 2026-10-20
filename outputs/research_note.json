@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-10-20T00:29:01.220478Z",
+  "generated_at": "2026-10-20T21:22:42.328974Z",
   "model": "claude-opus-5-5",
   "origin": "2026-09",
-  "facts_hash": "b2956d34d1814106",
+  "facts_hash": "385aab0ff05d2805",
   "facts": [
     {
       "id": "last_actual",
@@ -257,24 +257,17 @@
     {
       "id": "ledger_entries",
       "label": "Forecast runs recorded in the ledger",
-      "value": 1.0
+      "value": 2.0
     }
   ],
   "notes": [
     {
       "lang": "en",
-      "title": "Euro area inflation: headline seen near 3.8% in December, with risks skewed higher",
-      "body": "We forecast euro area headline HICP inflation at 3.8% y/y in December 2026, little changed from 3.77% in September (+0.05 pp). A favourable base effect of -0.11 pp is more than offset by price momentum of 0.16 pp. Services (1.4 pp) and fuels (1.3 pp) are the largest contributors, with fuel prices up 32.3% y/y. The forecast stands 1.8 pp above the ECB's 2% target.\n\nThe 68% band spans 3.5% to 4.4%, and the 90% band reaches 5.1% at the upper end. We see a 97% probability that inflation exceeds 3% and an 82% probability that it exceeds 3.5%. The odds of a reading above 4% are 36%, falling to 6% for above 5%.\n\nAt the one-month horizon the model beats a random walk (RMSE 0.27 pp vs 0.37 pp), but at three months the gain is not statistically significant (p = 0.14). The main limitation: in 2020-2023 only 31% of outcomes fell inside the 68% band, as forecasts ran too low.",
+      "title": "Euro area inflation: headline seen near 3.8% by December, with services and fuels the main drivers",
+      "body": "Euro area headline HICP inflation stood at 3.77% in September. Our bottom-up forecast sees it at 3.7% in October and November before edging up to 3.8% in December. A favourable base effect of -0.11 pp is more than offset by forecast momentum of 0.16 pp. Services (1.4 pp) and fuels (1.3 pp) are the largest contributors in December, with fuel prices up 32.3% y/y.\n\nRisks are skewed towards persistence above the ECB's 2% target. We see a 97% probability that December inflation exceeds 3%, 36% that it exceeds 4% and 6% that it exceeds 5%. The 68% band spans 3.5% to 4.4%. A European gas price spike scenario would add up to 1.1 pp to headline inflation at peak.\n\nAt the three-month horizon, the model's RMSE of 0.67 pp compares with 0.80 pp for a random walk, though the gain is not statistically significant (p-value 0.14). The main limitation is crisis performance: in 2020-2023 forecasts underestimated inflation by 0.64 pp on average, and only 31% of outcomes fell within the 68% band.",
       "verified": true,
       "attempts": 1,
       "numbers": [
-        {
-          "token": "3.8",
-          "fact_id": "forecast_h3",
-          "fact_label": "Forecast headline y/y, 2026-12 (h=3), %",
-          "fact_value": 3.8157125210701803,
-          "ok": true
-        },
         {
           "token": "3.77",
           "fact_id": "last_actual",
@@ -283,10 +276,17 @@
           "ok": true
         },
         {
-          "token": "0.05",
-          "fact_id": "vs_last_pp",
-          "fact_label": "Change in y/y from 2026-09 to 2026-12, pp",
-          "fact_value": 0.04531856961773606,
+          "token": "3.7",
+          "fact_id": "forecast_h1",
+          "fact_label": "Forecast headline y/y, 2026-10 (h=1), %",
+          "fact_value": 3.7041329590532746,
+          "ok": true
+        },
+        {
+          "token": "3.8",
+          "fact_id": "forecast_h3",
+          "fact_label": "Forecast headline y/y, 2026-12 (h=3), %",
+          "fact_value": 3.8157125210701803,
           "ok": true
         },
         {
@@ -325,17 +325,52 @@
           "ok": true
         },
         {
-          "token": "1.8",
-          "fact_id": "vs_target_pp",
-          "fact_label": "Forecast 2026-12 minus ECB target, pp",
-          "fact_value": 1.8157125210701803,
-          "ok": true
-        },
-        {
           "token": "2",
           "fact_id": "ecb_target",
           "fact_label": "ECB inflation target, %",
           "fact_value": 2.0,
+          "ok": true
+        },
+        {
+          "token": "97",
+          "fact_id": "p_above_3",
+          "fact_label": "Probability that 2026-12 headline y/y exceeds 3%, %",
+          "fact_value": 96.96969696969697,
+          "ok": true
+        },
+        {
+          "token": "3",
+          "fact_id": "threshold_3",
+          "fact_label": "Threshold 3% y/y used in the probability statements, %",
+          "fact_value": 3.0,
+          "ok": true
+        },
+        {
+          "token": "36",
+          "fact_id": "p_above_4",
+          "fact_label": "Probability that 2026-12 headline y/y exceeds 4%, %",
+          "fact_value": 35.858585858585855,
+          "ok": true
+        },
+        {
+          "token": "4",
+          "fact_id": "threshold_4",
+          "fact_label": "Threshold 4% y/y used in the probability statements, %",
+          "fact_value": 4.0,
+          "ok": true
+        },
+        {
+          "token": "6",
+          "fact_id": "p_above_5",
+          "fact_label": "Probability that 2026-12 headline y/y exceeds 5%, %",
+          "fact_value": 6.0606060606060606,
+          "ok": true
+        },
+        {
+          "token": "5",
+          "fact_id": "threshold_5",
+          "fact_label": "Threshold 5% y/y used in the probability statements, %",
+          "fact_value": 5.0,
           "ok": true
         },
         {
@@ -360,87 +395,24 @@
           "ok": true
         },
         {
-          "token": "90",
-          "fact_id": "band90_level",
-          "fact_label": "Nominal coverage of the outer forecast band, %",
-          "fact_value": 90.0,
+          "token": "1.1",
+          "fact_id": "preset_1_peak",
+          "fact_label": "Peak impact on headline y/y of the scenario 'European gas price spike', pp",
+          "fact_value": 1.0665997280786774,
           "ok": true
         },
         {
-          "token": "5.1",
-          "fact_id": "band90_hi",
-          "fact_label": "90% band upper end, 2026-12, %",
-          "fact_value": 5.118500656707064,
+          "token": "0.67",
+          "fact_id": "rmse_h3",
+          "fact_label": "Bottom-up RMSE, h=3, pp",
+          "fact_value": 0.6706348302328763,
           "ok": true
         },
         {
-          "token": "97",
-          "fact_id": "p_above_3",
-          "fact_label": "Probability that 2026-12 headline y/y exceeds 3%, %",
-          "fact_value": 96.96969696969697,
-          "ok": true
-        },
-        {
-          "token": "3",
-          "fact_id": "threshold_3",
-          "fact_label": "Threshold 3% y/y used in the probability statements, %",
-          "fact_value": 3.0,
-          "ok": true
-        },
-        {
-          "token": "82",
-          "fact_id": "p_above_3_5",
-          "fact_label": "Probability that 2026-12 headline y/y exceeds 3.5%, %",
-          "fact_value": 81.81818181818183,
-          "ok": true
-        },
-        {
-          "token": "3.5",
-          "fact_id": "band68_lo",
-          "fact_label": "68% band lower end, 2026-12, %",
-          "fact_value": 3.463226529760197,
-          "ok": true
-        },
-        {
-          "token": "4",
-          "fact_id": "threshold_4",
-          "fact_label": "Threshold 4% y/y used in the probability statements, %",
-          "fact_value": 4.0,
-          "ok": true
-        },
-        {
-          "token": "36",
-          "fact_id": "p_above_4",
-          "fact_label": "Probability that 2026-12 headline y/y exceeds 4%, %",
-          "fact_value": 35.858585858585855,
-          "ok": true
-        },
-        {
-          "token": "6",
-          "fact_id": "p_above_5",
-          "fact_label": "Probability that 2026-12 headline y/y exceeds 5%, %",
-          "fact_value": 6.0606060606060606,
-          "ok": true
-        },
-        {
-          "token": "5",
-          "fact_id": "threshold_5",
-          "fact_label": "Threshold 5% y/y used in the probability statements, %",
-          "fact_value": 5.0,
-          "ok": true
-        },
-        {
-          "token": "0.27",
-          "fact_id": "rmse_h1",
-          "fact_label": "Bottom-up RMSE, h=1, pp",
-          "fact_value": 0.26661220438073946,
-          "ok": true
-        },
-        {
-          "token": "0.37",
-          "fact_id": "rmse_rw_h1",
-          "fact_label": "Random-walk RMSE, h=1, pp",
-          "fact_value": 0.36951832568269877,
+          "token": "0.80",
+          "fact_id": "rmse_rw_h3",
+          "fact_label": "Random-walk RMSE, h=3, pp",
+          "fact_value": 0.8006115424946919,
           "ok": true
         },
         {
@@ -448,6 +420,13 @@
           "fact_id": "dm_p_h3",
           "fact_label": "Diebold-Mariano p-value vs random walk, h=3",
           "fact_value": 0.1395167237709563,
+          "ok": true
+        },
+        {
+          "token": "0.64",
+          "fact_id": "bias_crisis_h3",
+          "fact_label": "Mean forecast error 2020-2023, h=3, pp (forecast minus actual)",
+          "fact_value": -0.6352752227152075,
           "ok": true
         },
         {
@@ -469,13 +448,13 @@
     },
     {
       "lang": "fr",
-      "title": "Zone euro : l'inflation attendue \u00e0 3,82 % en d\u00e9cembre 2026",
-      "body": "Notre mod\u00e8le bottom-up projette une inflation globale (IPCH) de la zone euro \u00e0 3,82 % en glissement annuel en d\u00e9cembre 2026, contre 3,77 % en septembre, soit une hausse de 0,05 pp. Un effet de base favorable (-0,11 pp) est plus que compens\u00e9 par la dynamique des prix (0,16 pp). Les services (1,42 pp) et les carburants (1,3 pp) apportent les principales contributions.\n\nLa probabilit\u00e9 d'un taux sup\u00e9rieur \u00e0 3,5 % est estim\u00e9e \u00e0 81,8 %, celle d'un d\u00e9passement de 4 % \u00e0 35,9 % et celle d'un passage au-del\u00e0 de 5 % \u00e0 6,1 %. La bande \u00e0 68 % s'\u00e9tend de 3,46 % \u00e0 4,35 %, la distribution pr\u00e9sentant une asym\u00e9trie haussi\u00e8re li\u00e9e \u00e0 l'\u00e9nergie.\n\n\u00c0 l'horizon de trois mois, le mod\u00e8le r\u00e9duit l'erreur quadratique moyenne par rapport \u00e0 une marche al\u00e9atoire (ratio de 0,84), mais l'\u00e9cart n'est pas statistiquement significatif (p = 0,14). Principale limite : sur 2020-2023, il a sous-estim\u00e9 l'inflation de 0,64 pp en moyenne et seuls 31,25 % des r\u00e9alisations se situaient dans la bande \u00e0 68 %.",
+      "title": "Zone euro : l'inflation attendue \u00e0 3,8 % en d\u00e9cembre 2026",
+      "body": "Nous pr\u00e9voyons une inflation globale de 3,8 % sur un an en d\u00e9cembre 2026, contre 3,77 % en septembre, soit une quasi-stabilit\u00e9 (+0,05 pp). Un effet de base favorable (-0,11 pp) est plus que compens\u00e9 par la dynamique des prix (+0,16 pp). Les services (1,42 pp) et les carburants (1,3 pp), dont les prix progressent de 32,3 % sur un an, sont les principaux contributeurs. L'\u00e9cart \u00e0 la cible de la BCE (2 %) resterait de 1,82 pp.\n\nLa probabilit\u00e9 d'un d\u00e9passement de 3 % est estim\u00e9e \u00e0 97 %, celle de 4 % \u00e0 36 % et celle de 5 % \u00e0 6 %. La bande \u00e0 90 % s'\u00e9tend de 3,15 % \u00e0 5,12 %, ce qui traduit une asym\u00e9trie haussi\u00e8re. Un choc sur les prix du gaz europ\u00e9en ajouterait jusqu'\u00e0 1,07 pp.\n\n\u00c0 un mois, le mod\u00e8le surpasse la marche al\u00e9atoire (ratio de RMSE de 0,72) ; \u00e0 trois mois, le gain (0,84) n'est pas statistiquement significatif. Principale limite : sur 2020-2023, seules 31 % des r\u00e9alisations se situaient dans la bande \u00e0 68 %, les pr\u00e9visions ayant sous-estim\u00e9 l'inflation.",
       "verified": true,
       "attempts": 2,
       "numbers": [
         {
-          "token": "3,82",
+          "token": "3,8",
           "fact_id": "forecast_h3",
           "fact_label": "Forecast headline y/y, 2026-12 (h=3), %",
           "fact_value": 3.8157125210701803,
@@ -524,17 +503,38 @@
           "ok": true
         },
         {
-          "token": "3,5",
-          "fact_id": "threshold_3_5",
-          "fact_label": "Threshold 3.5% y/y used in the probability statements, %",
-          "fact_value": 3.5,
+          "token": "32,3",
+          "fact_id": "fuel_yoy",
+          "fact_label": "Fuel prices y/y, 2026-12, %",
+          "fact_value": 32.3235535779137,
           "ok": true
         },
         {
-          "token": "81,8",
-          "fact_id": "p_above_3_5",
-          "fact_label": "Probability that 2026-12 headline y/y exceeds 3.5%, %",
-          "fact_value": 81.81818181818183,
+          "token": "2",
+          "fact_id": "ecb_target",
+          "fact_label": "ECB inflation target, %",
+          "fact_value": 2.0,
+          "ok": true
+        },
+        {
+          "token": "1,82",
+          "fact_id": "vs_target_pp",
+          "fact_label": "Forecast 2026-12 minus ECB target, pp",
+          "fact_value": 1.8157125210701803,
+          "ok": true
+        },
+        {
+          "token": "3",
+          "fact_id": "threshold_3",
+          "fact_label": "Threshold 3% y/y used in the probability statements, %",
+          "fact_value": 3.0,
+          "ok": true
+        },
+        {
+          "token": "97",
+          "fact_id": "p_above_3",
+          "fact_label": "Probability that 2026-12 headline y/y exceeds 3%, %",
+          "fact_value": 96.96969696969697,
           "ok": true
         },
         {
@@ -545,7 +545,7 @@
           "ok": true
         },
         {
-          "token": "35,9",
+          "token": "36",
           "fact_id": "p_above_4",
           "fact_label": "Probability that 2026-12 headline y/y exceeds 4%, %",
           "fact_value": 35.858585858585855,
@@ -559,31 +559,45 @@
           "ok": true
         },
         {
-          "token": "6,1",
+          "token": "6",
           "fact_id": "p_above_5",
           "fact_label": "Probability that 2026-12 headline y/y exceeds 5%, %",
           "fact_value": 6.0606060606060606,
           "ok": true
         },
         {
-          "token": "68",
-          "fact_id": "band68_level",
-          "fact_label": "Nominal coverage of the inner forecast band, %",
-          "fact_value": 68.0,
+          "token": "90",
+          "fact_id": "band90_level",
+          "fact_label": "Nominal coverage of the outer forecast band, %",
+          "fact_value": 90.0,
           "ok": true
         },
         {
-          "token": "3,46",
-          "fact_id": "band68_lo",
-          "fact_label": "68% band lower end, 2026-12, %",
-          "fact_value": 3.463226529760197,
+          "token": "3,15",
+          "fact_id": "band90_lo",
+          "fact_label": "90% band lower end, 2026-12, %",
+          "fact_value": 3.1520208222569064,
           "ok": true
         },
         {
-          "token": "4,35",
-          "fact_id": "band68_hi",
-          "fact_label": "68% band upper end, 2026-12, %",
-          "fact_value": 4.351752306417733,
+          "token": "5,12",
+          "fact_id": "band90_hi",
+          "fact_label": "90% band upper end, 2026-12, %",
+          "fact_value": 5.118500656707064,
+          "ok": true
+        },
+        {
+          "token": "1,07",
+          "fact_id": "preset_1_peak",
+          "fact_label": "Peak impact on headline y/y of the scenario 'European gas price spike', pp",
+          "fact_value": 1.0665997280786774,
+          "ok": true
+        },
+        {
+          "token": "0,72",
+          "fact_id": "ratio_h1",
+          "fact_label": "RMSE ratio vs random walk, h=1",
+          "fact_value": 0.7215128069444555,
           "ok": true
         },
         {
@@ -594,21 +608,7 @@
           "ok": true
         },
         {
-          "token": "0,14",
-          "fact_id": "dm_p_h3",
-          "fact_label": "Diebold-Mariano p-value vs random walk, h=3",
-          "fact_value": 0.1395167237709563,
-          "ok": true
-        },
-        {
-          "token": "0,64",
-          "fact_id": "bias_crisis_h3",
-          "fact_label": "Mean forecast error 2020-2023, h=3, pp (forecast minus actual)",
-          "fact_value": -0.6352752227152075,
-          "ok": true
-        },
-        {
-          "token": "31,25",
+          "token": "31",
           "fact_id": "coverage_crisis_68",
           "fact_label": "Share of 2020-2023 outcomes inside the 68% band (h=3), %",
           "fact_value": 31.25,
