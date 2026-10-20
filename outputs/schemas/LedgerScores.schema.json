@@ -1,0 +1,191 @@
+{
+  "$defs": {
+    "LedgerScoreRow": {
+      "additionalProperties": false,
+      "properties": {
+        "seq": {
+          "title": "Seq",
+          "type": "integer"
+        },
+        "recorded_at": {
+          "format": "date-time",
+          "title": "Recorded At",
+          "type": "string"
+        },
+        "code_version": {
+          "title": "Code Version",
+          "type": "string"
+        },
+        "origin": {
+          "title": "Origin",
+          "type": "string"
+        },
+        "target": {
+          "title": "Target",
+          "type": "string"
+        },
+        "h": {
+          "title": "H",
+          "type": "integer"
+        },
+        "point": {
+          "title": "Point",
+          "type": "number"
+        },
+        "q16": {
+          "title": "Q16",
+          "type": "number"
+        },
+        "q84": {
+          "title": "Q84",
+          "type": "number"
+        },
+        "q05": {
+          "title": "Q05",
+          "type": "number"
+        },
+        "q95": {
+          "title": "Q95",
+          "type": "number"
+        },
+        "random_walk": {
+          "title": "Random Walk",
+          "type": "number"
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "flash",
+            "final"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "observed": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "observed \u2212 forecast, pp",
+          "title": "Error"
+        },
+        "random_walk_error": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Random Walk Error"
+        },
+        "in68": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "In68"
+        },
+        "in90": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "In90"
+        }
+      },
+      "required": [
+        "seq",
+        "recorded_at",
+        "code_version",
+        "origin",
+        "target",
+        "h",
+        "point",
+        "q16",
+        "q84",
+        "q05",
+        "q95",
+        "random_walk",
+        "status"
+      ],
+      "title": "LedgerScoreRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "verified": {
+      "description": "Hash chain intact: no entry altered, removed or reordered",
+      "title": "Verified",
+      "type": "boolean"
+    },
+    "problems": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Problems",
+      "type": "array"
+    },
+    "n_entries": {
+      "title": "N Entries",
+      "type": "integer"
+    },
+    "head_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Head Hash"
+    },
+    "rows": {
+      "items": {
+        "$ref": "#/$defs/LedgerScoreRow"
+      },
+      "title": "Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "verified",
+    "problems",
+    "n_entries",
+    "head_hash",
+    "rows"
+  ],
+  "title": "LedgerScores",
+  "type": "object"
+}

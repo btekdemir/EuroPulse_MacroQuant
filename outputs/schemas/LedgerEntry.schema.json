@@ -1,0 +1,133 @@
+{
+  "$defs": {
+    "LedgerForecast": {
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "pattern": "^\\d{4}-\\d{2}$",
+          "title": "Target",
+          "type": "string"
+        },
+        "h": {
+          "maximum": 3,
+          "minimum": 1,
+          "title": "H",
+          "type": "integer"
+        },
+        "point": {
+          "title": "Point",
+          "type": "number"
+        },
+        "q05": {
+          "title": "Q05",
+          "type": "number"
+        },
+        "q16": {
+          "title": "Q16",
+          "type": "number"
+        },
+        "q84": {
+          "title": "Q84",
+          "type": "number"
+        },
+        "q95": {
+          "title": "Q95",
+          "type": "number"
+        }
+      },
+      "required": [
+        "target",
+        "h",
+        "point",
+        "q05",
+        "q16",
+        "q84",
+        "q95"
+      ],
+      "title": "LedgerForecast",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One recorded forecast. ``entry_hash`` covers every other field, including ``prev_hash``.",
+  "properties": {
+    "seq": {
+      "minimum": 1,
+      "title": "Seq",
+      "type": "integer"
+    },
+    "prev_hash": {
+      "pattern": "^([0-9a-f]{64}|GENESIS)$",
+      "title": "Prev Hash",
+      "type": "string"
+    },
+    "run_at": {
+      "format": "date-time",
+      "title": "Run At",
+      "type": "string"
+    },
+    "code_version": {
+      "description": "git commit of the code that produced the forecast",
+      "title": "Code Version",
+      "type": "string"
+    },
+    "config_hash": {
+      "title": "Config Hash",
+      "type": "string"
+    },
+    "origin": {
+      "pattern": "^\\d{4}-\\d{2}$",
+      "title": "Origin",
+      "type": "string"
+    },
+    "last_actual_yoy": {
+      "description": "Last published y/y at the origin = the random-walk forecast",
+      "title": "Last Actual Yoy",
+      "type": "number"
+    },
+    "forecasts": {
+      "items": {
+        "$ref": "#/$defs/LedgerForecast"
+      },
+      "maxItems": 3,
+      "minItems": 3,
+      "title": "Forecasts",
+      "type": "array"
+    },
+    "selected_models": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Selected Models",
+      "type": "object"
+    },
+    "data_vintages": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "dataset name -> sha256 of the raw pull",
+      "title": "Data Vintages",
+      "type": "object"
+    },
+    "entry_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Entry Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "seq",
+    "prev_hash",
+    "run_at",
+    "code_version",
+    "config_hash",
+    "origin",
+    "last_actual_yoy",
+    "forecasts",
+    "selected_models",
+    "data_vintages",
+    "entry_hash"
+  ],
+  "title": "LedgerEntry",
+  "type": "object"
+}

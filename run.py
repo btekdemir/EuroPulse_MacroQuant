@@ -107,19 +107,6 @@ def main() -> int:
     for r in res.metrics[(res.metrics.model == "bottom_up") & (res.metrics["sample"] == "full")].itertuples():
         log.info("  bottom-up h=%d: RMSE %.2fpp, ratio vs RW %.2f, DM p %.3f", r.h, r.rmse, r.rmse_ratio_vs_rw, r.dm_p)
 
-    log.info("6/6 shocks, countries and dashboard data")
-    pt = estimate_all(inp.index, ext.brent_eur)
-    presets = make_presets(data, s, pt, inp.index.index.max())
-    basis = build_basis(data, s, outlook, pt, presets)
-    for r in write_shock_outputs(basis, out):
-        log.info("  preset %-42s peak %+.2fpp in %s", r.scenario.name, r.peak_pp, r.peak_month)
-    write_json(country_view(data, s), out / "countries.json")
-    try:
-        from dashboard.build_dashboard import build
-        log.info("  dashboard -> %s", build(out).relative_to(ROOT))
-    except ImportError:
-        log.warning("  dashboard builder not available")
-
     log.info("forecast ledger")
     code_version = git_version().removesuffix("-dirty")
     entry, why = ledger.record(outlook, {p.name: p.sha256 for p in pulls}, code_version, s.config_hash(), tree_is_dirty())
@@ -132,6 +119,19 @@ def main() -> int:
         done = [r for r in scores.rows if r.status != "pending"]
         log.info("  chain intact (%d entries); %d forecasts scored, %d pending", scores.n_entries, len(done),
                  len(scores.rows) - len(done))
+
+    log.info("6/6 shocks, countries and dashboard data")
+    pt = estimate_all(inp.index, ext.brent_eur)
+    presets = make_presets(data, s, pt, inp.index.index.max())
+    basis = build_basis(data, s, outlook, pt, presets)
+    for r in write_shock_outputs(basis, out):
+        log.info("  preset %-42s peak %+.2fpp in %s", r.scenario.name, r.peak_pp, r.peak_month)
+    write_json(country_view(data, s), out / "countries.json")
+    try:
+        from dashboard.build_dashboard import build
+        log.info("  dashboard -> %s", build(out).relative_to(ROOT))
+    except ImportError:
+        log.warning("  dashboard builder not available")
 
     write_manifest(s, args, report, pulls, t0)
     log.info("validation %s; done in %.1fs", report.summary, time.perf_counter() - t0)
