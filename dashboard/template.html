@@ -132,6 +132,12 @@ b.sig { color: var(--text-primary); }
       <div class="card span-3 kpi" id="kpi-ecb"></div>
       <div class="card span-3 kpi" id="kpi-base"></div>
       <div class="card"><h2 data-i18n="answer_title"></h2><p class="answer" id="answer"></p></div>
+      <div class="card"><h2 id="t-prob"></h2>
+        <div class="row" style="margin:6px 0 10px"><label><span data-i18n="prob_threshold"></span>
+          <input type="number" class="thr" step="0.1" value="4.0"></label></div>
+        <p class="answer" id="prob-sentence"></p>
+        <div class="tablewrap" id="tbl-prob"></div>
+        <p class="note" id="n-prob"></p></div>
       <div class="card"><h2 id="t-headline"></h2><div class="plot tall" id="p-headline"></div>
         <p class="note" data-i18n="ch_headline_note"></p><p class="src" data-src="src_eurostat"></p>
         <button class="toggle-table" data-table="tbl-headline"></button><div class="tablewrap" id="tbl-headline" hidden></div></div>
@@ -198,10 +204,25 @@ b.sig { color: var(--text-primary); }
         </div>
       </div>
       <div class="card span-8">
+        <div class="row" style="margin-bottom:8px"><label><span data-i18n="prob_threshold"></span>
+          <input type="number" class="thr" step="0.1" value="4.0"></label></div>
         <div class="grid" style="gap:12px">
-          <div class="span-4 kpi" style="grid-column: span 4" id="k-peak"></div>
-          <div class="span-4 kpi" style="grid-column: span 4" id="k-dec"></div>
-          <div class="span-4 kpi" style="grid-column: span 4" id="k-shocked"></div>
+          <div class="kpi" style="grid-column: span 3" id="k-peak"></div>
+          <div class="kpi" style="grid-column: span 3" id="k-dec"></div>
+          <div class="kpi" style="grid-column: span 3" id="k-shocked"></div>
+          <div class="kpi" style="grid-column: span 3" id="k-prob"></div>
+        </div>
+        <div class="assume" id="rev-card" style="margin:10px 0">
+          <b data-i18n="rev_title"></b>
+          <p class="note" data-i18n="rev_intro" style="margin:2px 0 6px"></p>
+          <div class="row">
+            <label><span data-i18n="rev_mode"></span><select id="rev-mode"></select></label>
+            <label><span data-i18n="rev_month"></span><select id="rev-month"></select></label>
+            <label id="w-rev-y"><span data-i18n="rev_target"></span><input type="number" id="rev-y" step="0.1" value="3.0"></label>
+            <label id="w-rev-p" hidden><span data-i18n="rev_prob"></span><input type="number" id="rev-p" step="5" min="1" max="99" value="50"></label>
+          </div>
+          <p class="answer" id="rev-out" style="margin:8px 0 4px" role="status"></p>
+          <button class="btn" id="rev-apply" type="button" hidden data-i18n="rev_apply"></button>
         </div>
         <h2 style="margin-top:12px" data-i18n="ch_shock"></h2><div class="plot" id="p-shock"></div>
         <p class="note" data-i18n="ch_shock_note"></p><p class="src" data-src="src_shock"></p>
@@ -229,6 +250,8 @@ b.sig { color: var(--text-primary); }
           <div class="span-6"><h2 data-i18n="brk_sens_title"></h2><div class="tablewrap" id="tbl-brk-sens"></div></div>
         </div>
         <p class="note" data-i18n="brk_reading"></p><p class="src" data-src="src_eurostat"></p></div>
+      <div class="card"><h2 data-i18n="cov_title"></h2><p class="note" data-i18n="cov_note"></p>
+        <div class="tablewrap" id="tbl-cov"></div></div>
       <div class="card span-6"><h2 data-i18n="sel_title"></h2><p class="note" data-i18n="sel_rule"></p><div class="tablewrap" id="tbl-sel"></div></div>
       <div class="card span-6"><h2 data-i18n="val_title"></h2><div class="tablewrap" id="tbl-val"></div></div>
       <div class="card span-6"><h2 data-i18n="vin_title"></h2><div class="tablewrap" id="tbl-vin"></div></div>

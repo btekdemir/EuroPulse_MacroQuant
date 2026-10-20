@@ -147,6 +147,56 @@ def simulate(sc: Scenario, basis: ShockBasis) -> ShockResult:
                        peak_pp=d_tot[k], peak_month=basis.months[k], leg_first_round_pp=per_leg)
 
 
+# --------------------------------------------------------------------------- reverse stress test
+SOLVER_ITERATIONS = 80          # fixed, so the JS mirror performs exactly the same operations
+SIZE_LOW, SIZE_HIGH = -49.9, 199.9  # the Scenario schema's supported range for a level shock, %
+
+
+def required_point(threshold: float, errors: list[float], p: float) -> float:
+    """The point forecast at which P(outcome > threshold) equals p, from the empirical error sample:
+    p* = threshold − quantile_{1−p}(errors). Mirrors ``requiredPoint`` in dashboard/shock_engine.js."""
+    return float(threshold - np.quantile(np.asarray(errors, dtype=float), 1 - p))
+
+
+def solve_size(sc: Scenario, basis: ShockBasis, leg_idx: int, month: str, target_yoy: float) -> dict:
+    """Size (% on the price level) of leg ``leg_idx`` that makes the shocked headline y/y in ``month``
+    equal ``target_yoy``, other legs unchanged.
+
+    The y/y impact is strictly increasing in the size of a leg that has weight and has started by
+    ``month``, so bisection over the supported range finds it. If the target lies outside what the
+    range can reach (or the leg has no effect in that month), ``feasible`` is False and the reachable
+    interval is returned instead. Same algorithm and iteration count as the browser's ``solveSize``."""
+    t = basis.months.index(month)
+    if basis.baseline_yoy[t] is None:
+        raise ValueError(f"no baseline forecast for {month}")
+
+    def at(size: float) -> float:
+        legs = [lg.model_copy(update={"size_pct": size}) if k == leg_idx else lg for k, lg in enumerate(sc.legs)]
+        return simulate(sc.model_copy(update={"legs": legs}), basis).shocked_yoy[t]
+
+    y_lo, y_hi = at(SIZE_LOW), at(SIZE_HIGH)
+    out = {"month": month, "target_yoy": target_yoy, "reach_low": y_lo, "reach_high": y_hi}
+    if y_hi - y_lo < 1e-9:
+        return out | {"feasible": False, "reason": "no_effect", "size_pct": None}
+    if not (y_lo <= target_yoy <= y_hi):
+        return out | {"feasible": False, "reason": "out_of_range", "size_pct": None}
+    lo, hi = SIZE_LOW, SIZE_HIGH
+    for _ in range(SOLVER_ITERATIONS):
+        mid = (lo + hi) / 2
+        if at(mid) < target_yoy:
+            lo = mid
+        else:
+            hi = mid
+    size = (lo + hi) / 2
+    return out | {"feasible": True, "reason": None, "size_pct": size, "achieved": at(size)}
+
+
+def brent_equivalent(fuel_pct: float, basis: ShockBasis) -> float:
+    """Inverse of nl_scenario.fuel_from_brent: the Brent change (%) that moves fuel prices by ``fuel_pct``."""
+    eps = float(basis.fuel_brent_elasticity["total"])
+    return 100 * math.expm1(math.log1p(fuel_pct / 100) / eps)
+
+
 # --------------------------------------------------------------------------- basis
 def weight_matrix(d: CleanData, s: Settings, origin: pd.Timestamp) -> dict[str, dict[str, float]]:
     comps = s.components

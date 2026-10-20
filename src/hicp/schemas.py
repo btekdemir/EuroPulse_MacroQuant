@@ -109,6 +109,16 @@ class HistoryPoint(Strict):
     contributions: dict[str, float]
 
 
+class FanCoverage(Strict):
+    """How often actual outcomes fell inside the fan, by period. The fan uses full-sample error quantiles,
+    so this is in-sample calibration: it shows where the fixed-width fan is too wide or too narrow."""
+    sample: str
+    h: int = Field(ge=1, le=3)
+    n: int = Field(gt=0)
+    in68: float = Field(ge=0, le=1)
+    in90: float = Field(ge=0, le=1)
+
+
 class Forecast(Strict):
     origin: str = Field(pattern=r"^\d{4}-\d{2}$")
     last_actual_yoy: float
@@ -120,6 +130,10 @@ class Forecast(Strict):
     official_weights: dict[str, float]
     pump_mom_assumed: dict[str, float]
     assumptions: list[str]
+    error_samples: dict[str, list[float]] = Field(
+        description="Out-of-sample errors (actual − forecast, pp) of the bottom-up model per horizon '1'..'3': "
+                    "the fan and every probability are computed from these")
+    fan_coverage: list[FanCoverage]
 
 
 # --------------------------------------------------------------------------- backtest

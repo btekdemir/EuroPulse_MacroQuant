@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-10-19T23:57:33.041287Z",
+  "run_at": "2026-10-20T00:18:11.280780Z",
   "last_period": "2026-09",
   "gates": [
     {
@@ -429,11 +429,11 @@
       "name": "Freshness: last period vs today",
       "status": "pass",
       "critical": true,
-      "message": "last period 2026-09, 19 days after its month-end; flash beyond last final release: False",
+      "message": "last period 2026-09, 20 days after its month-end; flash beyond last final release: False",
       "metrics": {
         "last_period": "2026-09",
-        "days_since_period_end": 19,
-        "today": "2026-10-19",
+        "days_since_period_end": 20,
+        "today": "2026-10-20",
         "flash_ahead_of_final": "False",
         "last_flash": "2026-09",
         "updated_index_ea": "2026-10-16T23:00:00+0200",

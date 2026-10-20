@@ -1,5 +1,47 @@
 {
   "$defs": {
+    "FanCoverage": {
+      "additionalProperties": false,
+      "description": "How often actual outcomes fell inside the fan, by period. The fan uses full-sample error quantiles,\nso this is in-sample calibration: it shows where the fixed-width fan is too wide or too narrow.",
+      "properties": {
+        "sample": {
+          "title": "Sample",
+          "type": "string"
+        },
+        "h": {
+          "maximum": 3,
+          "minimum": 1,
+          "title": "H",
+          "type": "integer"
+        },
+        "n": {
+          "exclusiveMinimum": 0,
+          "title": "N",
+          "type": "integer"
+        },
+        "in68": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "In68",
+          "type": "number"
+        },
+        "in90": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "In90",
+          "type": "number"
+        }
+      },
+      "required": [
+        "sample",
+        "h",
+        "n",
+        "in68",
+        "in90"
+      ],
+      "title": "FanCoverage",
+      "type": "object"
+    },
     "ForecastPoint": {
       "additionalProperties": false,
       "properties": {
@@ -169,6 +211,24 @@
       },
       "title": "Assumptions",
       "type": "array"
+    },
+    "error_samples": {
+      "additionalProperties": {
+        "items": {
+          "type": "number"
+        },
+        "type": "array"
+      },
+      "description": "Out-of-sample errors (actual \u2212 forecast, pp) of the bottom-up model per horizon '1'..'3': the fan and every probability are computed from these",
+      "title": "Error Samples",
+      "type": "object"
+    },
+    "fan_coverage": {
+      "items": {
+        "$ref": "#/$defs/FanCoverage"
+      },
+      "title": "Fan Coverage",
+      "type": "array"
     }
   },
   "required": [
@@ -181,7 +241,9 @@
     "effective_weights",
     "official_weights",
     "pump_mom_assumed",
-    "assumptions"
+    "assumptions",
+    "error_samples",
+    "fan_coverage"
   ],
   "title": "Forecast",
   "type": "object"

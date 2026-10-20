@@ -93,6 +93,28 @@
     el("footer").textContent = t("footer", { vintage: idx.slice(0, 10), commit: M.code_version, run: M.run_at.slice(0, 16).replace("T", " ") + " UTC" });
   }
 
+  // ------------------------------------------------------------------ probabilities (shared threshold)
+  let thr = 4.0;
+  const ERR3 = F.error_samples["3"];
+  const probOf = (point, x) => ShockEngine.probAbove(point, ERR3, x);
+  function bindThreshold() {
+    document.querySelectorAll("input.thr").forEach((inp) => inp.addEventListener("input", () => {
+      const v = Number(inp.value);
+      if (!Number.isFinite(v)) return;
+      thr = v;
+      document.querySelectorAll("input.thr").forEach((o) => { if (o !== inp) o.value = inp.value; });
+      renderProb(); if (activeTab === "shocks") renderShock();
+    }));
+  }
+  function renderProb() {
+    const dec = monthLabel(last.date);
+    el("t-prob").textContent = t("prob_title", { date: dec });
+    el("prob-sentence").textContent = t("prob_sentence", { date: dec, thr: fmt(thr, 1), p: fmt(100 * probOf(last.point, thr), 0) });
+    el("n-prob").textContent = t("prob_note", { n: ERR3.length });
+    table(el("tbl-prob"), [t("prob_col_thr"), t("prob_col_p")],
+      [2, 3, 3.5, 4, 4.5, 5].map((x) => [fmt(x, 1) + "%", fmt(100 * probOf(last.point, x), 0) + "%"]), [1]);
+  }
+
   // ------------------------------------------------------------------ overview
   const P = F.points, last = P[P.length - 1];
   function renderOverview() {
@@ -112,6 +134,7 @@
       mom: sgn(last.momentum_pp), serv: fmt(last.contributions.SERV, 1), fuel: fmt(last.contributions.FUEL, 1),
     });
     el("t-headline").textContent = t("ch_headline");
+    renderProb();
 
     const hx = F.history.map((h) => toDate(h.date)), hy = F.history.map((h) => h.yoy);
     const fx = [toDate(F.origin), ...P.map((p) => toDate(p.date))];
@@ -263,6 +286,11 @@
       if (scenario.legs.length <= 1) return;
       scenario.legs.splice(activeLeg, 1); activeLeg = Math.min(activeLeg, scenario.legs.length - 1); markCustom(); refreshAll();
     });
+    ["rev-mode", "rev-month", "rev-y", "rev-p"].forEach((id) => el(id).addEventListener("input", renderReverse));
+    el("rev-apply").addEventListener("click", () => {
+      if (revSolved === null) return;
+      activeShock().size_pct = Math.round(revSolved * 1000) / 1000; markCustom(); refreshAll();
+    });
     el("nl-go").addEventListener("click", nlInterpret);
     el("nl-run").addEventListener("click", nlRun);
     el("nl-text").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); nlInterpret(); } });
@@ -325,6 +353,49 @@
     el("f-second").checked = scenario.second_round;
     el("f-regime").value = scenario.second_round_regime;
     paramVisibility();
+  }
+
+  // ------------------------------------------------------------------ reverse stress test
+  let revSolved = null;
+  const gasRise2122 = (() => {  // judgemental yardstick quoted in preset 2's rationale: +75% retail energy, Jun 2021 -> Oct 2022
+    const m = /(\d+)% from Jun 2021/.exec((S.presets[1] || {}).rationale || ""); return m ? Number(m[1]) : null;
+  })();
+  function renderReverse() {
+    const mode = el("rev-mode"), month = el("rev-month");
+    if (!mode.options.length) {
+      mode.replaceChildren(node("option", { value: "yoy" }, ""), node("option", { value: "prob" }, ""));
+      month.replaceChildren(...S.months.filter((m, i) => S.baseline_yoy[i] !== null).map((m) => node("option", { value: m }, "")));
+      month.value = last.date;
+    }
+    mode.options[0].textContent = t("rev_mode_yoy"); mode.options[1].textContent = t("rev_mode_prob");
+    [...month.options].forEach((o) => { o.textContent = monthLabel(o.value); });
+    el("w-rev-y").hidden = mode.value !== "yoy"; el("w-rev-p").hidden = mode.value !== "prob";
+    const lg = activeShock(), m = month.value;
+    let target, goal;
+    if (mode.value === "yoy") { target = Number(el("rev-y").value); goal = t("rev_goal_yoy", { month: monthLabel(m), y: fmt(target, 1) }); }
+    else {
+      const q = Math.min(0.99, Math.max(0.01, Number(el("rev-p").value) / 100));
+      target = ShockEngine.requiredPoint(thr, ERR3, q);
+      goal = t("rev_goal_prob", { month: monthLabel(m), thr: fmt(thr, 1), p: fmt(100 * q, 0) });
+    }
+    const out = el("rev-out"), apply = el("rev-apply");
+    revSolved = null; apply.hidden = true;
+    if (!Number.isFinite(target) || lg.components.length === 0) { out.textContent = ""; return; }
+    const r = ShockEngine.solveSize(scenario, S, activeLeg, m, target);
+    const baseNote = t("rev_baseline_note", { b: fmt(S.baseline_yoy[S.months.indexOf(m)], 2) });
+    if (!r.feasible) {
+      out.textContent = r.reason === "no_effect" ? t("rev_none", { month: monthLabel(m) })
+        : t("rev_range", { lo: fmt(-49.9, 0), hi: fmt(199.9, 0), month: monthLabel(m), ylo: fmt(r.reach_low, 2), yhi: fmt(r.reach_high, 2) }) + baseNote;
+      return;
+    }
+    let extra = "";
+    if (lg.profile.kind === "custom" && lg.components.length === 1 && lg.components[0] === "FUEL") extra += t("rev_brent", { b: sgn(ShockEngine.brentEquivalent(r.size_pct, S), 0) });
+    if (gasRise2122 && lg.components.every((c) => c === "ELC_GAS")) extra += t("rev_scale", { x: fmt(Math.abs(r.size_pct) / gasRise2122, 2) });
+    const inPlace = ShockEngine.profileFraction(lg.profile, ShockEngine.monthsSince(lg.start, m));
+    if (inPlace < 0.995) extra += t("rev_partial", { month: monthLabel(m), f: fmt(100 * inPlace, 0) });
+    out.textContent = t("rev_ok", { goal, n: activeLeg + 1, what: legLabel(lg).split(" · ").slice(0, 2).join(" · "), size: sgn(r.size_pct, 1), extra }) + baseNote
+      + (mode.value === "prob" ? " " + t("rev_prob_point", { pt: fmt(target, 2) }) : "");
+    revSolved = r.size_pct; apply.hidden = false;
   }
 
   // ------------------------------------------------------------------ natural-language box
@@ -421,12 +492,14 @@
     const r = none ? null : ShockEngine.simulate(scenario, S);
     const kpi = (id, label, value, sub) => el(id).replaceChildren(node("div", { class: "label" }, label), node("div", { class: "value" }, value), node("div", { class: "sub" }, sub || ""));
     const decIdx = S.months.indexOf(last.date);
-    if (!r) { ["k-peak", "k-dec", "k-shocked"].forEach((id) => kpi(id, "", "–")); Plotly.purge(el("p-shock")); Plotly.purge(el("p-shockpath")); return; }
+    if (!r) { ["k-peak", "k-dec", "k-shocked", "k-prob"].forEach((id) => kpi(id, "", "–")); Plotly.purge(el("p-shock")); Plotly.purge(el("p-shockpath")); return; }
     kpi("k-peak", t("sim_peak"), sgn(r.peak_pp) + " " + t("pp"), monthLabel(r.peak_month));
     kpi("k-dec", t("sim_dec", { date: monthLabel(last.date) }), sgn(r.delta_yoy_pp[decIdx]) + " " + t("pp"),
       scenario.second_round ? `${t("s_first")} ${sgn(r.delta_first_round_pp[decIdx])} · ${t("s_second")} ${sgn(r.delta_second_round_pp[decIdx])}`
         : scenario.legs.length > 1 ? t("sim_n_shocks", { n: scenario.legs.length }) : t("s_first"));
     kpi("k-shocked", t("sim_shocked", { date: monthLabel(last.date) }), pct(r.shocked_yoy[decIdx]), `${t("s_baseline")}: ${pct(last.point)}`);
+    kpi("k-prob", t("k_prob", { date: monthLabel(last.date), thr: fmt(thr, 1) }), fmt(100 * probOf(r.shocked_yoy[decIdx], thr), 0) + "%",
+      `${t("k_prob_sub", { b: fmt(100 * probOf(last.point, thr), 0) })} · ${t("prob_shock_note")}`);
 
     const xs = r.months.map(toDate);
     const multi = scenario.legs.length > 1;
@@ -470,6 +543,7 @@
           return [`${k + 1}. ${legLabel(lg)}`, sgn(pk, 3), sgn(arr[decIdx], 3)];
         }), [1, 2]);
     }
+    renderReverse();
     table(el("tbl-shock"), [t("month"), t("impact"), t("first_round"), t("second_round")],
       r.months.map((m, i) => [monthLabel(m), sgn(r.delta_yoy_pp[i], 3), sgn(r.delta_first_round_pp[i], 3), sgn(r.delta_second_round_pp[i], 3)]), [1, 2, 3]);
   }
@@ -506,6 +580,8 @@
     ], baseLayout({ yaxis: Object.assign(baseLayout().yaxis, { ticksuffix: "%" }) }));
 
     renderBreak();
+    table(el("tbl-cov"), [t("cov_sample"), "h", "n", t("cov_in68"), t("cov_in90")],
+      F.fan_coverage.filter((c) => c.h === 3).map((c) => [t("sample_" + c.sample), String(c.h), String(c.n), fmt(100 * c.in68, 0) + "%", fmt(100 * c.in90, 0) + "%"]), [1, 2, 3, 4]);
     table(el("tbl-sel"), [t("sel_component"), t("sel_candidate"), t("sel_vs"), t("sel_p"), t("sel_accepted")],
       B.selection_log.map((s) => {
         const sel = s.candidate === "SELECTED";
@@ -575,6 +651,7 @@
   el("bt-sample").addEventListener("change", renderModel);
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (theme === "auto") renderAll(); });
 
+  bindThreshold();
   buildForm();
   if (theme !== "auto") document.documentElement.setAttribute("data-theme", theme);
   renderAll();

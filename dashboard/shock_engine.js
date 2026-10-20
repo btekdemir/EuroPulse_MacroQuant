@@ -98,7 +98,50 @@
     };
   }
 
-  const api = { simulate, profileFraction, monthsSince };
+  // P(outcome > threshold) from the empirical error sample: share of past errors e with point + e > threshold.
+  // Mirrors hicp.outlook.prob_above.
+  function probAbove(point, errors, threshold) {
+    let n = 0;
+    for (const e of errors) if (point + e > threshold) n++;
+    return errors.length ? n / errors.length : NaN;
+  }
+
+  // ---- reverse stress test. Mirrors hicp.shocks.solve_size / required_point (same bisection, same iterations).
+  const SOLVER_ITERATIONS = 80, SIZE_LOW = -49.9, SIZE_HIGH = 199.9;
+
+  // Linear-interpolation quantile, identical to numpy.quantile's default.
+  function quantile(values, q) {
+    const v = [...values].sort((a, b) => a - b);
+    const pos = (v.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos);
+    return v[lo] + (v[hi] - v[lo]) * (pos - lo);
+  }
+  function requiredPoint(threshold, errors, p) { return threshold - quantile(errors, 1 - p); }
+
+  function solveSize(sc, basis, legIdx, month, targetYoy) {
+    const t = basis.months.indexOf(month);
+    const at = (size) => {
+      const legs = sc.legs.map((lg, k) => (k === legIdx ? Object.assign({}, lg, { size_pct: size }) : lg));
+      return simulate(Object.assign({}, sc, { legs }), basis).shocked_yoy[t];
+    };
+    const yLo = at(SIZE_LOW), yHi = at(SIZE_HIGH);
+    const out = { month, target_yoy: targetYoy, reach_low: yLo, reach_high: yHi };
+    if (yHi - yLo < 1e-9) return Object.assign(out, { feasible: false, reason: "no_effect", size_pct: null });
+    if (!(yLo <= targetYoy && targetYoy <= yHi)) return Object.assign(out, { feasible: false, reason: "out_of_range", size_pct: null });
+    let lo = SIZE_LOW, hi = SIZE_HIGH;
+    for (let i = 0; i < SOLVER_ITERATIONS; i++) {
+      const mid = (lo + hi) / 2;
+      if (at(mid) < targetYoy) lo = mid; else hi = mid;
+    }
+    const size = (lo + hi) / 2;
+    return Object.assign(out, { feasible: true, reason: null, size_pct: size, achieved: at(size) });
+  }
+
+  function brentEquivalent(fuelPct, basis) {
+    const eps = basis.fuel_brent_elasticity.total;
+    return 100 * Math.expm1(Math.log1p(fuelPct / 100) / eps);
+  }
+
+  const api = { simulate, profileFraction, monthsSince, probAbove, solveSize, requiredPoint, quantile, brentEquivalent };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.ShockEngine = api;
 })(typeof window !== "undefined" ? window : globalThis);

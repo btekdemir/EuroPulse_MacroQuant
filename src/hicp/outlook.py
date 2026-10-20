@@ -16,6 +16,29 @@ from hicp.chainlink import base_momentum, effective_weights, exact_contributions
 from hicp.external import release_date
 
 QUANTILES = (0.05, 0.16, 0.5, 0.84, 0.95)
+COVERAGE_SAMPLES = {"2010-2019": ("2010-01", "2019-12"), "2020-2023": ("2020-01", "2023-12"),
+                    "2024-now": ("2024-01", "2100-12"), "full": ("1900-01", "2100-12")}
+
+
+def prob_above(point: float, errors: list[float], threshold: float) -> float:
+    """P(outcome > threshold) = share of past errors e with point + e > threshold (empirical, no distribution assumed)."""
+    return float(np.mean([point + e > threshold for e in errors]))
+
+
+def fan_coverage(bu: pd.DataFrame, err_q: dict) -> list[dict]:
+    out = []
+    for h in range(1, H + 1):
+        g = bu[bu.h == h]
+        e = g.actual - g.fc
+        q = err_q[h]
+        for name, (a, b) in COVERAGE_SAMPLES.items():
+            m = (g.origin >= pd.Timestamp(a)) & (g.origin <= pd.Timestamp(b))
+            x = e[m]
+            if len(x):
+                out.append({"sample": name, "h": h, "n": int(len(x)),
+                            "in68": float(((x >= q[0.16]) & (x <= q[0.84])).mean()),
+                            "in90": float(((x >= q[0.05]) & (x <= q[0.95])).mean())})
+    return out
 
 
 def build_outlook(inp: Inputs, bt: BacktestResult) -> dict:
@@ -78,4 +101,6 @@ def build_outlook(inp: Inputs, bt: BacktestResult) -> dict:
         "official_weights": {c: float(w.at[origin.year, c] / 1000) for c in comps},
         "pump_mom_assumed": {f"{t:%Y-%m}": float(pump[t]) for t in mom.index} if pump is not None else {},
         "assumptions": assumptions,
+        "error_samples": {str(h): [float(v) for v in (bu[bu.h == h].actual - bu[bu.h == h].fc)] for h in range(1, H + 1)},
+        "fan_coverage": fan_coverage(bu, err_q),
     }
