@@ -1069,18 +1069,31 @@
 
   // ------------------------------------------------------------------ guided tour
   // Never opens by itself: a one-line banner offers it on the first visit, the Tour button restarts it.
-  const TOUR = [
-    { tab: "overview", sel: "#answer" },
-    { tab: "overview", sel: "#p-headline", corner: "left" },  // the fan sits at the right of the chart
-    { tab: "drivers", sel: "#p-basemom" },
-    { tab: "shocks", sel: "#sim-form" },
-    { tab: "shocks", sel: "#rev-card", self: true },
-    { tab: "model", sel: "#tbl-r2" },
+  // Every feature, in reading order. Steps with `when` appear only where that feature is available.
+  const TOUR_ALL = [
+    { key: "answer", tab: "overview", sel: "#answer" },
+    { key: "changed", tab: "overview", sel: "#wc-card", self: true },
+    { key: "fan", tab: "overview", sel: "#p-headline", corner: "left" },  // the fan sits at the right of the chart
+    { key: "month", tab: "overview", sel: "#mx-month" },
+    { key: "october", tab: "overview", sel: "#oct-in" },
+    { key: "drivers", tab: "drivers", sel: "#p-contrib" },
+    { key: "basemom", tab: "drivers", sel: "#p-basemom" },
+    { key: "countries", tab: "countries", sel: "#p-csm" },
+    { key: "profile", tab: "countries", sel: "#cp-summary", self: true },  // the whole card is taller than the screen
+    { key: "shock", tab: "shocks", sel: "#sim-form" },
+    { key: "reverse", tab: "shocks", sel: "#rev-card", self: true },
+    { key: "heat", tab: "shocks", sel: "#hm-card", self: true },
+    { key: "timemachine", tab: "model", sel: "#tm-card", self: true },
+    { key: "trust", tab: "model", sel: "#tbl-r2" },
+    { key: "ask", tab: "overview", sel: "#ask-open", self: true, when: () => !el("ask-open").hidden },
+    { key: "brief", tab: "overview", sel: "#brief-open", self: true },
   ];
+  let TOUR = TOUR_ALL;
   let tourIdx = -1, tourEl = null;
   const tourTarget = (s) => { const e = document.querySelector(s.sel); return s.self ? e : (e.closest(".card") || e); };
 
   function tourShow(i) {
+    if (i === 0 || tourIdx < 0) TOUR = TOUR_ALL.filter((s) => !s.when || s.when());
     tourIdx = i;
     const s = TOUR[i];
     if (activeTab !== s.tab) showTab(s.tab);
@@ -1088,8 +1101,8 @@
     tourEl = tourTarget(s);
     tourEl.classList.add("tour-target");
     el("tour-step").textContent = t("tour_step", { i: i + 1, n: TOUR.length });
-    el("tour-title").textContent = t(`tour_${i + 1}_t`);
-    el("tour-body").textContent = t(`tour_${i + 1}_b`);
+    el("tour-title").textContent = t(`tour_${s.key}_t`);
+    el("tour-body").textContent = t(`tour_${s.key}_b`);
     el("tour-back").disabled = i === 0;
     el("tour-next").textContent = i === TOUR.length - 1 ? t("tour_done") : t("tour_next");
     el("tour-shade").hidden = false;
