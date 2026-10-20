@@ -254,20 +254,25 @@
     let lo = Infinity, hi = -Infinity;
     for (const g of geos) for (const v of C.yoy[g]) if (v !== null) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
     const data = [], ann = [];
-    const lay = baseLayout({ grid: { rows, columns: cols, pattern: "independent", xgap: 0.08, ygap: 0.35 }, showlegend: false,
+    const lay = baseLayout({ grid: { rows, columns: cols, pattern: "independent", xgap: 0.08, ygap: 0.42 }, showlegend: false,
       hovermode: "x", margin: { l: 30, r: 8, t: 18, b: 20 } });
     geos.forEach((g, k) => {
       const ax = k === 0 ? "" : String(k + 1);
       data.push({ x: xs, y: C.ea_yoy, xaxis: "x" + ax, yaxis: "y" + ax, mode: "lines", line: { color: css("--axis"), width: 1.5 }, name: geo("EA"), hovertemplate: "%{y:.1f}%" });
       data.push({ x: xs, y: C.yoy[g], xaxis: "x" + ax, yaxis: "y" + ax, mode: "lines", line: { color: css("--text-primary"), width: 1.5 }, name: geo(g), hovertemplate: "%{y:.1f}%" });
       const base = baseLayout();
-      lay["xaxis" + ax] = Object.assign({}, base.xaxis, { showticklabels: false, showgrid: false });
+      // Years on every panel: a small multiple without a time axis hides which period it shows.
+      const y0 = Number(C.dates[0].slice(0, 4));
+      const tv = [y0 + 1, y0 + 3, y0 + 5].filter((y) => y <= Number(C.dates[n].slice(0, 4)));
+      lay["xaxis" + ax] = Object.assign({}, base.xaxis, { showgrid: false, tickmode: "array", tickvals: tv.map((y) => `${y}-01-01`),
+        ticktext: tv.map(String), tickfont: { size: 9, color: css("--text-muted") }, ticks: "outside", ticklen: 3, tickcolor: css("--axis"),
+        range: [xs[0], xs[xs.length - 1]] });
       lay["yaxis" + ax] = Object.assign({}, base.yaxis, { range: [Math.floor(lo), Math.ceil(hi)], tickfont: { size: 9, color: css("--text-muted") }, nticks: 3 });
       ann.push({ text: `${geo(g)} <span style="color:${css("--text-muted")}">${fmt(C.yoy[g][n])}%</span>`, xref: `x${ax} domain`, yref: `y${ax} domain`,
         x: 0, y: 1.18, xanchor: "left", showarrow: false, font: { size: 11, color: css("--text-primary") } });
     });
     lay.annotations = ann;
-    el("p-csm").style.height = (rows * 120 + 40) + "px";
+    el("p-csm").style.height = (rows * 140 + 50) + "px";
     plot("p-csm", data, lay);
   }
 
