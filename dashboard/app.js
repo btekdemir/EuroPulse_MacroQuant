@@ -1211,6 +1211,9 @@
   // Built from what the page already shows, in the current language, always in the light theme so it prints well.
   async function openBrief() {
     el("brief-open").disabled = true;
+    try { await buildBrief(); } finally { el("brief-open").disabled = false; }
+  }
+  async function buildBrief() {
     const prevTheme = document.documentElement.getAttribute("data-theme");
     document.documentElement.setAttribute("data-theme", "light");
     renderOverview(); renderDrivers();
@@ -1255,7 +1258,7 @@ ${note}
     // Shown in an in-page preview (no pop-up to block); its own print() prints only the brief.
     const fr = el("brief-frame");
     fr.srcdoc = html;
-    el("brief-view").hidden = false; el("brief-open").disabled = false;
+    el("brief-view").hidden = false;
     el("brief-print").focus();
   }
   el("brief-open").addEventListener("click", openBrief);
@@ -1422,10 +1425,10 @@ ${note}
   }
 
   // A preset needs no interpreter: the page already has it.
-  const presetIn = (q) => {
-    const s = q.toLowerCase();
-    return S.presets.findIndex((p) => s.includes(p.name.split("(")[0].trim().toLowerCase()));
-  };
+  const presetBase = (k) => S.presets[k].name.split("(")[0].trim().toLowerCase();
+  const presetIn = (q) => { const s = q.toLowerCase(); return S.presets.findIndex((_, k) => s.includes(presetBase(k))); };
+  // The preset as it stands fits only if the question adds no number of its own once the preset's name is removed.
+  const presetAsIs = (q, k) => !/\d/.test(q.toLowerCase().replace(S.presets[k].name.toLowerCase(), "").replace(presetBase(k), ""));
 
   function askScenarioResult(sc, interpretation, meta) {
     const res = ShockEngine.simulate(sc, S), k = S.months.indexOf(last.date);
@@ -1503,11 +1506,13 @@ ${note}
 
   async function askSend(q, extra) {
     q = (q || el("ask-text").value).trim();
-    if (!q || askBusy) return;
+    if (!q) return;
+    if (askBusy) { el("ask-status").textContent = t("ask_wait"); return; }  // e.g. a second Explain click
     askBusy = true; el("ask-go").disabled = true; el("ask-text").value = "";
     askLog(node("div", { class: "ask-msg user" }, q));
     el("ask-suggest").hidden = true;  // the examples have done their job; give the answers the room
-    if (askPendingWhatIf && !extra && q.length <= 80 && /\d/.test(q)) {  // a short answer with a number: the missing piece
+    // Only a bare fragment completes it ("+40%", "40 % for six months"), not a new question that happens to hold a digit.
+    if (askPendingWhatIf && !extra && q.length <= 40 && !q.includes("?") && /^[\s+\-−%]*\d/.test(q)) {
       const whole = `${askPendingWhatIf} ${q}`;
       askPendingWhatIf = null;
       try { await askScenario(whole); } finally { askBusy = false; el("ask-go").disabled = false; }
@@ -1524,8 +1529,10 @@ ${note}
       if (!body.verified) { askLog(node("div", { class: "ask-msg bot muted" }, t("ask_unverified"))); return; }
       askLog(askAnswerNode(body));
       askHist.push({ role: "user", content: q }, { role: "assistant", content: body.answer });
-      if (body.scenario_request || (!body.answerable && presetIn(q) >= 0)) {  // a bare preset name is a what-if too
-        const k = Number.isInteger(body.preset) && S.presets[body.preset] ? body.preset : presetIn(q);
+      const named = presetIn(q), bare = named >= 0 && q.length <= presetBase(named).length + 12;
+      if (body.scenario_request || (!body.answerable && bare)) {  // a bare preset name is a what-if too
+        const k0 = Number.isInteger(body.preset) && S.presets[body.preset] ? body.preset : named;
+        const k = k0 >= 0 && presetAsIs(q, k0) ? k0 : -1;  // any other number (a size, a date) goes to the interpreter
         if (k >= 0) {
           const pre = S.presets[k];
           askScenarioResult(JSON.parse(JSON.stringify(pre)), [t("ask_sc_preset", { name: pre.name }), pre.rationale], t("ask_sc_meta_preset"));

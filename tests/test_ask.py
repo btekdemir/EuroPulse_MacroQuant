@@ -204,3 +204,10 @@ def test_preset_reference_is_resolved_and_bounded(doc):
         r = answer("q", doc, client=FakeClient(draft("x", scenario=True, preset=bad)), model="m")
         assert r["preset"] is None
     assert answer("q", doc, client=FakeClient(draft("x", preset=0)), model="m")["preset"] is None  # not a what-if
+
+
+def test_small_values_may_keep_three_decimals(doc):
+    small = next(x for x in doc.facts if 0.001 < abs(x.value) < 0.1 and "p-value" in x.label)
+    tok = f"{abs(small.value):.3f}"
+    r = answer("q", doc, client=FakeClient(draft(f"p = {tok}.", (tok, small.id))), model="m")
+    assert r["verified"] and r["attempts"] == 1

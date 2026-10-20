@@ -562,7 +562,7 @@ Committed to git before the code that runs it. It does not change after the resu
   - Each is split by component using exact chain-linked contributions, with the small chain-link residual shown.
 - **Last month's forecast:** `build_outlook(origin=previous)` re-runs the same machinery as of the previous origin. Its headline numbers equal the backtest's forecasts from that origin to 1e−9 (`tests/test_outlook_changed.py`).
   - It uses today's data vintage (pseudo-real-time), and the card says so.
-  - The ledger only stores headline points, so it cannot give the component split. From the next monthly run, the ledger entry recorded at the time is the reference for the headline.
+  - The ledger only stores headline points, so it cannot give the component split. The ledger keeps the headline forecast as recorded at the time, for checking data revisions. (A first draft promised an automatic switch to the ledger; that was not implemented, so the claim was removed after code review.)
 - **Result (Sep 2026 run):** September printed 3.77% against 3.73% forecast in August, a surprise of +0.04pp (non-energy industrial goods −0.13, services +0.10). November was revised from 3.74% to 3.68%.
 - The assistant's fact sheet includes these numbers (`wc_*`), and the section map includes the card.
 

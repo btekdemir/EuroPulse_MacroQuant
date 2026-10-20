@@ -441,7 +441,7 @@
   "wc_col_rev": "Revision, {m}",
   "wc_resid": "Chain-link residual",
   "wc_total": "Headline",
-  "wc_note": "Last month's forecast is the same models re-run as of {prev} on today's data (it equals the backtest's forecast from that origin). Contributions are exact chain-linked ones, so the components add up to the headline change apart from the small residual shown. From the next monthly run, the forecast recorded in the ledger at the time becomes the reference.",
+  "wc_note": "Last month's forecast is the same models re-run as of {prev} on today's data (it equals the backtest's forecast from that origin). Contributions are exact chain-linked ones, so the components add up to the headline change apart from the small residual shown. The ledger (Model & validation) keeps the headline forecast as recorded at the time, so data revisions can be checked there.",
   "rng_1y": "1Y",
   "rng_3y": "3Y",
   "rng_all": "All",
@@ -537,7 +537,8 @@
   "tour_core_t": "Core inflation, honestly",
   "tour_core_b": "Core (excluding energy and food) built from the same goods and services forecasts, with its own backtest. A random walk beats it; the card says so instead of hiding it.",
   "demo_core_t": "Core inflation",
-  "demo_core_n": "Core is a by-product of the goods and services forecasts. Point at the table: the random walk wins for core. Core is persistent and the models were chosen for the headline; I did not re-select after seeing this, which would be overfitting."
+  "demo_core_n": "Core is a by-product of the goods and services forecasts. Point at the table: the random walk wins for core. Core is persistent and the models were chosen for the headline; I did not re-select after seeing this, which would be overfitting.",
+  "ask_wait": "Still answering the previous question; ask again in a moment."
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -981,7 +982,7 @@
   "wc_col_rev": "Révision, {m}",
   "wc_resid": "Résidu de chaînage",
   "wc_total": "Indice global",
-  "wc_note": "La prévision du mois dernier est celle des mêmes modèles relancés à l’origine {prev} sur les données d’aujourd’hui (identique à la prévision du backtest depuis cette origine). Les contributions sont exactes (chaînées) : les composantes s’additionnent à la variation de l’indice global, au petit résidu près. À partir du prochain run mensuel, la prévision enregistrée dans le registre à l’époque devient la référence.",
+  "wc_note": "La prévision du mois dernier est celle des mêmes modèles relancés à l’origine {prev} sur les données d’aujourd’hui (identique à la prévision du backtest depuis cette origine). Les contributions sont exactes (chaînées) : les composantes s’additionnent à la variation de l’indice global, au petit résidu près. Le registre (Modèle et validation) conserve la prévision globale telle qu’enregistrée à l’époque, pour vérifier les révisions de données.",
   "rng_1y": "1 an",
   "rng_3y": "3 ans",
   "rng_all": "Tout",
@@ -1077,6 +1078,7 @@
   "tour_core_t": "L’inflation sous-jacente, honnêtement",
   "tour_core_b": "La sous-jacente (hors énergie et alimentation) construite à partir des mêmes prévisions biens et services, avec son propre backtest. Une marche aléatoire la bat ; la carte le dit au lieu de le cacher.",
   "demo_core_t": "Inflation sous-jacente",
-  "demo_core_n": "La sous-jacente est un sous-produit des prévisions biens et services. Montrer le tableau : la marche aléatoire gagne pour la sous-jacente. Elle est persistante et les modèles ont été choisis pour l’indice global ; je n’ai pas re-sélectionné après coup, ce serait du surapprentissage."
+  "demo_core_n": "La sous-jacente est un sous-produit des prévisions biens et services. Montrer le tableau : la marche aléatoire gagne pour la sous-jacente. Elle est persistante et les modèles ont été choisis pour l’indice global ; je n’ai pas re-sélectionné après coup, ce serait du surapprentissage.",
+  "ask_wait": "Réponse précédente en cours ; reposez la question dans un instant."
  }
 }

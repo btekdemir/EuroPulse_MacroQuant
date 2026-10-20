@@ -191,7 +191,8 @@
     if (legs.length < 1 || legs.length > 6) return { error: "legs" };
     const clean = [];
     for (const lg of legs) {
-      const p = lg && lg.profile;
+      if (!lg || typeof lg !== "object") return { error: "leg" };
+      const p = lg.profile;
       const okComps = Array.isArray(lg.components) && lg.components.length > 0 && uniq(lg.components) && lg.components.every((c) => basis.components.includes(c));
       const okCountries = Array.isArray(lg.countries) && uniq(lg.countries) && lg.countries.every((g) => basis.countries.includes(g));
       const okSize = typeof lg.size_pct === "number" && lg.size_pct > -50 && lg.size_pct < 200;
@@ -199,7 +200,7 @@
       const okProf = p && KINDS.includes(p.kind)
         && (p.kind !== "decaying" || (typeof p.half_life_months === "number" && p.half_life_months > 0))
         && (!["temporary", "ramp"].includes(p.kind) || (Number.isInteger(p.months) && p.months >= 1 && p.months <= 24))
-        && (p.kind !== "custom" || (Array.isArray(p.fractions) && p.fractions.length > 0 && p.fractions.length <= 60 && p.fractions.every((f) => typeof f === "number" && Number.isFinite(f))));
+        && (p.kind !== "custom" || (Array.isArray(p.fractions) && p.fractions.length > 0 && p.fractions.length <= 60 && p.fractions.every((f) => typeof f === "number" && f >= -1 && f <= 2)));  // bounded: size limits must still hold
       if (!(okComps && okCountries && okSize && okStart && okProf)) return { error: "leg" };
       const prof = { kind: p.kind };
       if (p.kind === "decaying") prof.half_life_months = p.half_life_months;

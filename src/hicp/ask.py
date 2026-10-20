@@ -338,8 +338,9 @@ def answer(question: str, doc: AskFacts, client=None, model: str | None = None, 
             problems = ["The output could not be parsed as the required structure."]
         else:
             nums, problems = verify(draft.answer, draft.citations, facts)
-            problems += [f"'{n.token}' has more than two decimals; round it" for n in nums
-                         if n.ok and len(n.token.replace(",", ".").split(".")[-1]) > 2 and ("." in n.token or "," in n.token)]
+            problems += [f"'{n.token}' has more than two decimals; round it" for n in nums  # small values (p-values) may keep 3
+                         if n.ok and ("." in n.token or "," in n.token) and len(n.token.replace(",", ".").split(".")[-1]) > 2
+                         and abs(n.fact_value) >= 0.1]
             if not problems:
                 return {"answerable": draft.answerable, "verified": True, "answer": draft.answer,
                         "goto": resolve_goto(draft.goto, draft.goto_country),

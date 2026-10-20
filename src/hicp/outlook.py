@@ -132,5 +132,5 @@ def what_changed(inp: Inputs, bt: BacktestResult, cur: dict) -> dict:
                  for d in sorted(set(pp) & set(cp))]
     return {"previous_origin": prev["origin"], "origin": cur["origin"], "surprise": surprise, "revisions": revisions,
             "note": (f"Previous forecast = the same models re-run as of {prev['origin']} on today's data vintage "
-                     "(pseudo-real-time). From the next monthly run, the forecast-ledger entry recorded at the time is "
-                     "the reference for the headline numbers.")}
+                     "(pseudo-real-time). The forecast ledger keeps the headline numbers as recorded at the time, so "
+                     "data revisions since then can be checked there.")}

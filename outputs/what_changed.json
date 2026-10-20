@@ -45,5 +45,5 @@
       "current": 3.6766645715796242
     }
   ],
-  "note": "Previous forecast = the same models re-run as of 2026-08 on today's data vintage (pseudo-real-time). From the next monthly run, the forecast-ledger entry recorded at the time is the reference for the headline numbers."
+  "note": "Previous forecast = the same models re-run as of 2026-08 on today's data vintage (pseudo-real-time). The forecast ledger keeps the headline numbers as recorded at the time, so data revisions since then can be checked there."
 }

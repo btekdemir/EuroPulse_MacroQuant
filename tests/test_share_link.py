@@ -50,6 +50,8 @@ def test_unicode_survives():
     lambda s: s["legs"][0].update(profile={"kind": "temporary", "months": 99}),
     lambda s: s.update(legs=[]),
     lambda s: s.update(legs=s["legs"] * 7),
+    lambda s: s.update(legs=[None]),  # used to throw during page start-up (code review)
+    lambda s: s["legs"][0].update(profile={"kind": "custom", "fractions": [1000]}),  # would bypass the size limit
 ])
 def test_bad_links_are_rejected(mutate):
     sc = ShockBasis.model_validate_json(BASIS.read_text()).presets[0].model_dump(mode="json")
