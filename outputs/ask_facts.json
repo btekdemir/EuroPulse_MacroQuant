@@ -1,0 +1,2472 @@
+{
+  "origin": "2026-09",
+  "facts_hash": "d14253ad2d68796f",
+  "context": "Data: Eurostat HICP, euro area* = the 21 current members at every date, chain-linked bottom-up from six components. Last published month: Sep 2026. The forecast covers the next three months.\nSelected component models (pre-committed rule: keep the simpler model unless a richer one is significantly better, Diebold-Mariano test, chosen on 2010-2019 origins): fuels: Weekly Oil Bulletin pump prices; electricity and gas: seasonal mean of monthly changes; processed food: AR(p) chosen by AIC; unprocessed food: seasonal mean of monthly changes; non-energy industrial goods: AR(p), rolling 120-month window; services: seasonal mean, rolling 120-month window.\nBase effect = the part of the change in y/y that comes from the monthly change a year earlier dropping out; it is known in advance. Momentum = the part from new monthly price changes.\nThe bands are empirical quantiles of the model's own past out-of-sample errors, not model-implied.\nThe shock simulator moves price levels per country and component; second-round effects are an estimated distributed lag. Actuals are final Eurostat releases; flash estimates are used only in the real-time check.\nNot modelled: country forecasts (only the euro area* headline is forecast and backtested), core inflation as a target, ECB policy decisions, anything after the three-month horizon.\nItaly: its published total differs from the weighted sum of its components by up to about a tenth of a point; the cause is not identified.",
+  "facts": [
+    {
+      "id": "last_actual",
+      "label": "Euro area* headline HICP y/y, last published (2026-09), %",
+      "value": 3.7703939514524443
+    },
+    {
+      "id": "forecast_h1",
+      "label": "Forecast headline y/y, 2026-10 (h=1), %",
+      "value": 3.7041329590532746
+    },
+    {
+      "id": "forecast_h2",
+      "label": "Forecast headline y/y, 2026-11 (h=2), %",
+      "value": 3.6766645715796242
+    },
+    {
+      "id": "forecast_h3",
+      "label": "Forecast headline y/y, 2026-12 (h=3), %",
+      "value": 3.8157125210701803
+    },
+    {
+      "id": "band68_lo",
+      "label": "68% band lower end, 2026-12, %",
+      "value": 3.463226529760197
+    },
+    {
+      "id": "band68_hi",
+      "label": "68% band upper end, 2026-12, %",
+      "value": 4.351752306417733
+    },
+    {
+      "id": "band90_lo",
+      "label": "90% band lower end, 2026-12, %",
+      "value": 3.1520208222569064
+    },
+    {
+      "id": "band90_hi",
+      "label": "90% band upper end, 2026-12, %",
+      "value": 5.118500656707064
+    },
+    {
+      "id": "ecb_target",
+      "label": "ECB inflation target, %",
+      "value": 2.0
+    },
+    {
+      "id": "vs_last_pp",
+      "label": "Change in y/y from 2026-09 to 2026-12, pp",
+      "value": 0.04531856961773606
+    },
+    {
+      "id": "vs_target_pp",
+      "label": "Forecast 2026-12 minus ECB target, pp",
+      "value": 1.8157125210701803
+    },
+    {
+      "id": "base_effect_pp",
+      "label": "Base effect on the change in y/y to 2026-12, pp (known today)",
+      "value": -0.11351963025321574
+    },
+    {
+      "id": "momentum_pp",
+      "label": "Momentum effect on the change in y/y to 2026-12, pp (forecast)",
+      "value": 0.1588381998709518
+    },
+    {
+      "id": "contrib_FUEL",
+      "label": "Contribution of fuels to 2026-12 headline y/y, pp",
+      "value": 1.304255386868818
+    },
+    {
+      "id": "contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to 2026-12 headline y/y, pp",
+      "value": 0.40552000208288713
+    },
+    {
+      "id": "contrib_FOOD_P",
+      "label": "Contribution of processed food to 2026-12 headline y/y, pp",
+      "value": 0.06695049168929187
+    },
+    {
+      "id": "contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to 2026-12 headline y/y, pp",
+      "value": 0.1983852515294173
+    },
+    {
+      "id": "contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to 2026-12 headline y/y, pp",
+      "value": 0.4315503120179993
+    },
+    {
+      "id": "contrib_SERV",
+      "label": "Contribution of services to 2026-12 headline y/y, pp",
+      "value": 1.41685084749573
+    },
+    {
+      "id": "fuel_yoy",
+      "label": "Fuel prices y/y, 2026-12, %",
+      "value": 32.3235535779137
+    },
+    {
+      "id": "band68_level",
+      "label": "Nominal coverage of the inner forecast band, %",
+      "value": 68.0
+    },
+    {
+      "id": "band90_level",
+      "label": "Nominal coverage of the outer forecast band, %",
+      "value": 90.0
+    },
+    {
+      "id": "threshold_3",
+      "label": "Threshold 3% y/y used in the probability statements, %",
+      "value": 3.0
+    },
+    {
+      "id": "p_above_3",
+      "label": "Probability that 2026-12 headline y/y exceeds 3%, %",
+      "value": 96.96969696969697
+    },
+    {
+      "id": "threshold_3_5",
+      "label": "Threshold 3.5% y/y used in the probability statements, %",
+      "value": 3.5
+    },
+    {
+      "id": "p_above_3_5",
+      "label": "Probability that 2026-12 headline y/y exceeds 3.5%, %",
+      "value": 81.81818181818183
+    },
+    {
+      "id": "threshold_4",
+      "label": "Threshold 4% y/y used in the probability statements, %",
+      "value": 4.0
+    },
+    {
+      "id": "p_above_4",
+      "label": "Probability that 2026-12 headline y/y exceeds 4%, %",
+      "value": 35.858585858585855
+    },
+    {
+      "id": "threshold_4_5",
+      "label": "Threshold 4.5% y/y used in the probability statements, %",
+      "value": 4.5
+    },
+    {
+      "id": "p_above_4_5",
+      "label": "Probability that 2026-12 headline y/y exceeds 4.5%, %",
+      "value": 12.121212121212121
+    },
+    {
+      "id": "threshold_5",
+      "label": "Threshold 5% y/y used in the probability statements, %",
+      "value": 5.0
+    },
+    {
+      "id": "p_above_5",
+      "label": "Probability that 2026-12 headline y/y exceeds 5%, %",
+      "value": 6.0606060606060606
+    },
+    {
+      "id": "rmse_h1",
+      "label": "Bottom-up RMSE, h=1, pp",
+      "value": 0.26661220438073946
+    },
+    {
+      "id": "rmse_rw_h1",
+      "label": "Random-walk RMSE, h=1, pp",
+      "value": 0.36951832568269877
+    },
+    {
+      "id": "ratio_h1",
+      "label": "RMSE ratio vs random walk, h=1",
+      "value": 0.7215128069444555
+    },
+    {
+      "id": "dm_p_h1",
+      "label": "Diebold-Mariano p-value vs random walk, h=1",
+      "value": 0.009171788700222555
+    },
+    {
+      "id": "rmse_h3",
+      "label": "Bottom-up RMSE, h=3, pp",
+      "value": 0.6706348302328763
+    },
+    {
+      "id": "rmse_rw_h3",
+      "label": "Random-walk RMSE, h=3, pp",
+      "value": 0.8006115424946919
+    },
+    {
+      "id": "ratio_h3",
+      "label": "RMSE ratio vs random walk, h=3",
+      "value": 0.8376532121223104
+    },
+    {
+      "id": "dm_p_h3",
+      "label": "Diebold-Mariano p-value vs random walk, h=3",
+      "value": 0.1395167237709563
+    },
+    {
+      "id": "n_origins",
+      "label": "Number of out-of-sample forecast origins (h=3)",
+      "value": 198.0
+    },
+    {
+      "id": "bias_crisis_h3",
+      "label": "Mean forecast error 2020-2023, h=3, pp (forecast minus actual)",
+      "value": -0.6352752227152075
+    },
+    {
+      "id": "coverage_calm_68",
+      "label": "Share of 2010-2019 outcomes inside the 68% band (h=3), %",
+      "value": 78.33333333333333
+    },
+    {
+      "id": "coverage_crisis_68",
+      "label": "Share of 2020-2023 outcomes inside the 68% band (h=3), %",
+      "value": 31.25
+    },
+    {
+      "id": "preset_0_peak",
+      "label": "Peak impact on headline y/y of the scenario 'Oil supply shock (Brent +30%)', pp",
+      "value": 0.45520799651608645
+    },
+    {
+      "id": "preset_1_peak",
+      "label": "Peak impact on headline y/y of the scenario 'European gas price spike', pp",
+      "value": 1.0665997280786774
+    },
+    {
+      "id": "preset_2_peak",
+      "label": "Peak impact on headline y/y of the scenario 'France regulated electricity tariff +10%', pp",
+      "value": 0.05775490277852868
+    },
+    {
+      "id": "brent_elasticity",
+      "label": "Estimated pass-through of Brent (EUR) to fuel consumer prices",
+      "value": 0.30703644656928797
+    },
+    {
+      "id": "horizon_months",
+      "label": "Forecast horizon, months",
+      "value": 3.0
+    },
+    {
+      "id": "n_components",
+      "label": "Number of modelled components",
+      "value": 6.0
+    },
+    {
+      "id": "ledger_entries",
+      "label": "Forecast runs recorded in the ledger",
+      "value": 2.0
+    },
+    {
+      "id": "contrib_FUEL_h1",
+      "label": "Forecast contribution of fuels to headline y/y, Oct 2026, pp",
+      "value": 1.3259002828394986
+    },
+    {
+      "id": "comp_yoy_FUEL_h1",
+      "label": "Forecast fuels y/y, Oct 2026, %",
+      "value": 32.87155525633138
+    },
+    {
+      "id": "contrib_ELC_GAS_h1",
+      "label": "Forecast contribution of electricity and gas to headline y/y, Oct 2026, pp",
+      "value": 0.40261437129519473
+    },
+    {
+      "id": "comp_yoy_ELC_GAS_h1",
+      "label": "Forecast electricity and gas y/y, Oct 2026, %",
+      "value": 8.099246292682881
+    },
+    {
+      "id": "contrib_FOOD_P_h1",
+      "label": "Forecast contribution of processed food to headline y/y, Oct 2026, pp",
+      "value": 0.04402725845201961
+    },
+    {
+      "id": "comp_yoy_FOOD_P_h1",
+      "label": "Forecast processed food y/y, Oct 2026, %",
+      "value": 0.3243679387215703
+    },
+    {
+      "id": "contrib_FOOD_NP_h1",
+      "label": "Forecast contribution of unprocessed food to headline y/y, Oct 2026, pp",
+      "value": 0.20532868900093146
+    },
+    {
+      "id": "comp_yoy_FOOD_NP_h1",
+      "label": "Forecast unprocessed food y/y, Oct 2026, %",
+      "value": 4.011958272080518
+    },
+    {
+      "id": "contrib_IGD_NNRG_h1",
+      "label": "Forecast contribution of non-energy industrial goods to headline y/y, Oct 2026, pp",
+      "value": 0.3351383442538935
+    },
+    {
+      "id": "comp_yoy_IGD_NNRG_h1",
+      "label": "Forecast non-energy industrial goods y/y, Oct 2026, %",
+      "value": 1.3229413065817042
+    },
+    {
+      "id": "contrib_SERV_h1",
+      "label": "Forecast contribution of services to headline y/y, Oct 2026, pp",
+      "value": 1.3985081908977022
+    },
+    {
+      "id": "comp_yoy_SERV_h1",
+      "label": "Forecast services y/y, Oct 2026, %",
+      "value": 2.986811867106276
+    },
+    {
+      "id": "band_q05_h1",
+      "label": "Forecast band 5% quantile, Oct 2026, %",
+      "value": 3.3444838310990805
+    },
+    {
+      "id": "band_q16_h1",
+      "label": "Forecast band 16% quantile, Oct 2026, %",
+      "value": 3.521319362100858
+    },
+    {
+      "id": "band_q84_h1",
+      "label": "Forecast band 84% quantile, Oct 2026, %",
+      "value": 3.9254453370594753
+    },
+    {
+      "id": "band_q95_h1",
+      "label": "Forecast band 95% quantile, Oct 2026, %",
+      "value": 4.18696782258293
+    },
+    {
+      "id": "base_effect_h1",
+      "label": "Base effect on the change in y/y from Sep 2026 to Oct 2026, pp",
+      "value": -0.22679326517228954
+    },
+    {
+      "id": "momentum_h1",
+      "label": "Momentum on the change in y/y from Sep 2026 to Oct 2026, pp",
+      "value": 0.16053227277311982
+    },
+    {
+      "id": "contrib_FUEL_h2",
+      "label": "Forecast contribution of fuels to headline y/y, Nov 2026, pp",
+      "value": 1.2372408987163177
+    },
+    {
+      "id": "comp_yoy_FUEL_h2",
+      "label": "Forecast fuels y/y, Nov 2026, %",
+      "value": 30.048259640466046
+    },
+    {
+      "id": "contrib_ELC_GAS_h2",
+      "label": "Forecast contribution of electricity and gas to headline y/y, Nov 2026, pp",
+      "value": 0.41269769158494
+    },
+    {
+      "id": "comp_yoy_ELC_GAS_h2",
+      "label": "Forecast electricity and gas y/y, Nov 2026, %",
+      "value": 8.27075594825406
+    },
+    {
+      "id": "contrib_FOOD_P_h2",
+      "label": "Forecast contribution of processed food to headline y/y, Nov 2026, pp",
+      "value": 0.04487870837085922
+    },
+    {
+      "id": "comp_yoy_FOOD_P_h2",
+      "label": "Forecast processed food y/y, Nov 2026, %",
+      "value": 0.3302901973597949
+    },
+    {
+      "id": "contrib_FOOD_NP_h2",
+      "label": "Forecast contribution of unprocessed food to headline y/y, Nov 2026, pp",
+      "value": 0.20736386329702414
+    },
+    {
+      "id": "comp_yoy_FOOD_NP_h2",
+      "label": "Forecast unprocessed food y/y, Nov 2026, %",
+      "value": 4.037145001710174
+    },
+    {
+      "id": "contrib_IGD_NNRG_h2",
+      "label": "Forecast contribution of non-energy industrial goods to headline y/y, Nov 2026, pp",
+      "value": 0.38776932566721245
+    },
+    {
+      "id": "comp_yoy_IGD_NNRG_h2",
+      "label": "Forecast non-energy industrial goods y/y, Nov 2026, %",
+      "value": 1.5288026590475567
+    },
+    {
+      "id": "contrib_SERV_h2",
+      "label": "Forecast contribution of services to headline y/y, Nov 2026, pp",
+      "value": 1.3972764242671518
+    },
+    {
+      "id": "comp_yoy_SERV_h2",
+      "label": "Forecast services y/y, Nov 2026, %",
+      "value": 3.0045972012423094
+    },
+    {
+      "id": "band_q05_h2",
+      "label": "Forecast band 5% quantile, Nov 2026, %",
+      "value": 3.152478269432896
+    },
+    {
+      "id": "band_q16_h2",
+      "label": "Forecast band 16% quantile, Nov 2026, %",
+      "value": 3.3881248887549793
+    },
+    {
+      "id": "band_q84_h2",
+      "label": "Forecast band 84% quantile, Nov 2026, %",
+      "value": 4.124761395069947
+    },
+    {
+      "id": "band_q95_h2",
+      "label": "Forecast band 95% quantile, Nov 2026, %",
+      "value": 4.729519928277204
+    },
+    {
+      "id": "base_effect_h2",
+      "label": "Base effect on the change in y/y from Sep 2026 to Nov 2026, pp",
+      "value": 0.07225602674878594
+    },
+    {
+      "id": "momentum_h2",
+      "label": "Momentum on the change in y/y from Sep 2026 to Nov 2026, pp",
+      "value": -0.16598540662160596
+    },
+    {
+      "id": "contrib_FUEL_h3",
+      "label": "Forecast contribution of fuels to headline y/y, Dec 2026, pp",
+      "value": 1.304255386868818
+    },
+    {
+      "id": "comp_yoy_FUEL_h3",
+      "label": "Forecast fuels y/y, Dec 2026, %",
+      "value": 32.3235535779137
+    },
+    {
+      "id": "contrib_ELC_GAS_h3",
+      "label": "Forecast contribution of electricity and gas to headline y/y, Dec 2026, pp",
+      "value": 0.40552000208288713
+    },
+    {
+      "id": "comp_yoy_ELC_GAS_h3",
+      "label": "Forecast electricity and gas y/y, Dec 2026, %",
+      "value": 8.12502508681401
+    },
+    {
+      "id": "contrib_FOOD_P_h3",
+      "label": "Forecast contribution of processed food to headline y/y, Dec 2026, pp",
+      "value": 0.06695049168929187
+    },
+    {
+      "id": "comp_yoy_FOOD_P_h3",
+      "label": "Forecast processed food y/y, Dec 2026, %",
+      "value": 0.48532433265162656
+    },
+    {
+      "id": "contrib_FOOD_NP_h3",
+      "label": "Forecast contribution of unprocessed food to headline y/y, Dec 2026, pp",
+      "value": 0.1983852515294173
+    },
+    {
+      "id": "comp_yoy_FOOD_NP_h3",
+      "label": "Forecast unprocessed food y/y, Dec 2026, %",
+      "value": 3.859635243762982
+    },
+    {
+      "id": "contrib_IGD_NNRG_h3",
+      "label": "Forecast contribution of non-energy industrial goods to headline y/y, Dec 2026, pp",
+      "value": 0.4315503120179993
+    },
+    {
+      "id": "comp_yoy_IGD_NNRG_h3",
+      "label": "Forecast non-energy industrial goods y/y, Dec 2026, %",
+      "value": 1.7114146257058982
+    },
+    {
+      "id": "contrib_SERV_h3",
+      "label": "Forecast contribution of services to headline y/y, Dec 2026, pp",
+      "value": 1.41685084749573
+    },
+    {
+      "id": "comp_yoy_SERV_h3",
+      "label": "Forecast services y/y, Dec 2026, %",
+      "value": 3.025971952877282
+    },
+    {
+      "id": "band_q05_h3",
+      "label": "Forecast band 5% quantile, Dec 2026, %",
+      "value": 3.1520208222569064
+    },
+    {
+      "id": "band_q16_h3",
+      "label": "Forecast band 16% quantile, Dec 2026, %",
+      "value": 3.463226529760197
+    },
+    {
+      "id": "band_q84_h3",
+      "label": "Forecast band 84% quantile, Dec 2026, %",
+      "value": 4.351752306417733
+    },
+    {
+      "id": "band_q95_h3",
+      "label": "Forecast band 95% quantile, Dec 2026, %",
+      "value": 5.118500656707064
+    },
+    {
+      "id": "base_effect_h3",
+      "label": "Base effect on the change in y/y from Sep 2026 to Dec 2026, pp",
+      "value": -0.11351963025321574
+    },
+    {
+      "id": "momentum_h3",
+      "label": "Momentum on the change in y/y from Sep 2026 to Dec 2026, pp",
+      "value": 0.1588381998709518
+    },
+    {
+      "id": "weight_eff_FUEL",
+      "label": "Effective weight of fuels in the euro area* basket at today's prices, %",
+      "value": 5.226289622218274
+    },
+    {
+      "id": "weight_off_FUEL",
+      "label": "Official 2026 weight of fuels, per mille",
+      "value": 40.35
+    },
+    {
+      "id": "weight_eff_ELC_GAS",
+      "label": "Effective weight of electricity and gas in the euro area* basket at today's prices, %",
+      "value": 5.136955474990713
+    },
+    {
+      "id": "weight_off_ELC_GAS",
+      "label": "Official 2026 weight of electricity and gas, per mille",
+      "value": 49.91
+    },
+    {
+      "id": "weight_eff_FOOD_P",
+      "label": "Effective weight of processed food in the euro area* basket at today's prices, %",
+      "value": 13.374930533563342
+    },
+    {
+      "id": "weight_off_FOOD_P",
+      "label": "Official 2026 weight of processed food, per mille",
+      "value": 137.95
+    },
+    {
+      "id": "weight_eff_FOOD_NP",
+      "label": "Effective weight of unprocessed food in the euro area* basket at today's prices, %",
+      "value": 5.094154825892173
+    },
+    {
+      "id": "weight_off_FOOD_NP",
+      "label": "Official 2026 weight of unprocessed food, per mille",
+      "value": 51.4
+    },
+    {
+      "id": "weight_eff_IGD_NNRG",
+      "label": "Effective weight of non-energy industrial goods in the euro area* basket at today's prices, %",
+      "value": 24.558525354399336
+    },
+    {
+      "id": "weight_off_IGD_NNRG",
+      "label": "Official 2026 weight of non-energy industrial goods, per mille",
+      "value": 252.16
+    },
+    {
+      "id": "weight_eff_SERV",
+      "label": "Effective weight of services in the euro area* basket at today's prices, %",
+      "value": 46.60914418893617
+    },
+    {
+      "id": "weight_off_SERV",
+      "label": "Official 2026 weight of services, per mille",
+      "value": 468.23
+    },
+    {
+      "id": "ea_yoy_2024_10",
+      "label": "Euro area* headline y/y, Oct 2024, %",
+      "value": 2.0055825493642043
+    },
+    {
+      "id": "ea_dyoy_2024_10",
+      "label": "Change in euro area* y/y from the previous month to Oct 2024, pp",
+      "value": 0.25682427121851426
+    },
+    {
+      "id": "ea_mom_2024_10",
+      "label": "Momentum part of that change, Oct 2024, pp",
+      "value": 0.3516574009031035
+    },
+    {
+      "id": "ea_base_2024_10",
+      "label": "Base-effect part of that change, Oct 2024, pp",
+      "value": -0.09483312968458923
+    },
+    {
+      "id": "ea_yoy_2024_11",
+      "label": "Euro area* headline y/y, Nov 2024, %",
+      "value": 2.2455556710676783
+    },
+    {
+      "id": "ea_dyoy_2024_11",
+      "label": "Change in euro area* y/y from the previous month to Nov 2024, pp",
+      "value": 0.23997312170347396
+    },
+    {
+      "id": "ea_mom_2024_11",
+      "label": "Momentum part of that change, Nov 2024, pp",
+      "value": -0.33174495802895204
+    },
+    {
+      "id": "ea_base_2024_11",
+      "label": "Base-effect part of that change, Nov 2024, pp",
+      "value": 0.5717180797324259
+    },
+    {
+      "id": "ea_yoy_2024_12",
+      "label": "Euro area* headline y/y, Dec 2024, %",
+      "value": 2.4286455630513792
+    },
+    {
+      "id": "ea_dyoy_2024_12",
+      "label": "Change in euro area* y/y from the previous month to Dec 2024, pp",
+      "value": 0.18308989198370096
+    },
+    {
+      "id": "ea_mom_2024_12",
+      "label": "Momentum part of that change, Dec 2024, pp",
+      "value": 0.35317336035645364
+    },
+    {
+      "id": "ea_base_2024_12",
+      "label": "Base-effect part of that change, Dec 2024, pp",
+      "value": -0.17008346837275268
+    },
+    {
+      "id": "ea_yoy_2025_01",
+      "label": "Euro area* headline y/y, Jan 2025, %",
+      "value": 2.5208333333333277
+    },
+    {
+      "id": "ea_dyoy_2025_01",
+      "label": "Change in euro area* y/y from the previous month to Jan 2025, pp",
+      "value": 0.09218777028194847
+    },
+    {
+      "id": "ea_mom_2025_01",
+      "label": "Momentum part of that change, Jan 2025, pp",
+      "value": -0.28073862401645944
+    },
+    {
+      "id": "ea_base_2025_01",
+      "label": "Base-effect part of that change, Jan 2025, pp",
+      "value": 0.3729263942984079
+    },
+    {
+      "id": "ea_yoy_2025_02",
+      "label": "Euro area* headline y/y, Feb 2025, %",
+      "value": 2.3188405797101463
+    },
+    {
+      "id": "ea_dyoy_2025_02",
+      "label": "Change in euro area* y/y from the previous month to Feb 2025, pp",
+      "value": -0.20199275362318136
+    },
+    {
+      "id": "ea_mom_2025_02",
+      "label": "Momentum part of that change, Feb 2025, pp",
+      "value": 0.4361389291473483
+    },
+    {
+      "id": "ea_base_2025_02",
+      "label": "Base-effect part of that change, Feb 2025, pp",
+      "value": -0.6381316827705297
+    },
+    {
+      "id": "ea_yoy_2025_03",
+      "label": "Euro area* headline y/y, Mar 2025, %",
+      "value": 2.17815678619131
+    },
+    {
+      "id": "ea_dyoy_2025_03",
+      "label": "Change in euro area* y/y from the previous month to Mar 2025, pp",
+      "value": -0.14068379351883653
+    },
+    {
+      "id": "ea_mom_2025_03",
+      "label": "Momentum part of that change, Mar 2025, pp",
+      "value": 0.6290964860762157
+    },
+    {
+      "id": "ea_base_2025_03",
+      "label": "Base-effect part of that change, Mar 2025, pp",
+      "value": -0.7697802795950522
+    },
+    {
+      "id": "ea_yoy_2025_04",
+      "label": "Euro area* headline y/y, Apr 2025, %",
+      "value": 2.1656961896005855
+    },
+    {
+      "id": "ea_dyoy_2025_04",
+      "label": "Change in euro area* y/y from the previous month to Apr 2025, pp",
+      "value": -0.012460596590724293
+    },
+    {
+      "id": "ea_mom_2025_04",
+      "label": "Momentum part of that change, Apr 2025, pp",
+      "value": 0.573713316944793
+    },
+    {
+      "id": "ea_base_2025_04",
+      "label": "Base-effect part of that change, Apr 2025, pp",
+      "value": -0.5861739135355173
+    },
+    {
+      "id": "ea_yoy_2025_05",
+      "label": "Euro area* headline y/y, May 2025, %",
+      "value": 1.8960244648318136
+    },
+    {
+      "id": "ea_dyoy_2025_05",
+      "label": "Change in euro area* y/y from the previous month to May 2025, pp",
+      "value": -0.2696717247687719
+    },
+    {
+      "id": "ea_mom_2025_05",
+      "label": "Momentum part of that change, May 2025, pp",
+      "value": -0.05102305498693551
+    },
+    {
+      "id": "ea_base_2025_05",
+      "label": "Base-effect part of that change, May 2025, pp",
+      "value": -0.2186486697818364
+    },
+    {
+      "id": "ea_yoy_2025_06",
+      "label": "Euro area* headline y/y, Jun 2025, %",
+      "value": 1.9835215135795004
+    },
+    {
+      "id": "ea_dyoy_2025_06",
+      "label": "Change in euro area* y/y from the previous month to Jun 2025, pp",
+      "value": 0.08749704874768671
+    },
+    {
+      "id": "ea_mom_2025_06",
+      "label": "Momentum part of that change, Jun 2025, pp",
+      "value": 0.30548349720656476
+    },
+    {
+      "id": "ea_base_2025_06",
+      "label": "Base-effect part of that change, Jun 2025, pp",
+      "value": -0.21798644845887807
+    },
+    {
+      "id": "ea_yoy_2025_07",
+      "label": "Euro area* headline y/y, Jul 2025, %",
+      "value": 2.0347949944043098
+    },
+    {
+      "id": "ea_dyoy_2025_07",
+      "label": "Change in euro area* y/y from the previous month to Jul 2025, pp",
+      "value": 0.051273480824809425
+    },
+    {
+      "id": "ea_mom_2025_07",
+      "label": "Momentum part of that change, Jul 2025, pp",
+      "value": 0.030518820304323204
+    },
+    {
+      "id": "ea_base_2025_07",
+      "label": "Base-effect part of that change, Jul 2025, pp",
+      "value": 0.020754660520486218
+    },
+    {
+      "id": "ea_yoy_2025_08",
+      "label": "Euro area* headline y/y, Aug 2025, %",
+      "value": 2.042267831741529
+    },
+    {
+      "id": "ea_dyoy_2025_08",
+      "label": "Change in euro area* y/y from the previous month to Aug 2025, pp",
+      "value": 0.00747283733721904
+    },
+    {
+      "id": "ea_mom_2025_08",
+      "label": "Momentum part of that change, Aug 2025, pp",
+      "value": 0.14234153754496875
+    },
+    {
+      "id": "ea_base_2025_08",
+      "label": "Base-effect part of that change, Aug 2025, pp",
+      "value": -0.13486870020774971
+    },
+    {
+      "id": "ea_yoy_2025_09",
+      "label": "Euro area* headline y/y, Sep 2025, %",
+      "value": 2.2271941421743158
+    },
+    {
+      "id": "ea_dyoy_2025_09",
+      "label": "Change in euro area* y/y from the previous month to Sep 2025, pp",
+      "value": 0.18492631043278696
+    },
+    {
+      "id": "ea_mom_2025_09",
+      "label": "Momentum part of that change, Sep 2025, pp",
+      "value": 0.091486677205447
+    },
+    {
+      "id": "ea_base_2025_09",
+      "label": "Base-effect part of that change, Sep 2025, pp",
+      "value": 0.09343963322733997
+    },
+    {
+      "id": "ea_yoy_2025_10",
+      "label": "Euro area* headline y/y, Oct 2025, %",
+      "value": 2.0979020979020824
+    },
+    {
+      "id": "ea_dyoy_2025_10",
+      "label": "Change in euro area* y/y from the previous month to Oct 2025, pp",
+      "value": -0.1292920442722334
+    },
+    {
+      "id": "ea_mom_2025_10",
+      "label": "Momentum part of that change, Oct 2025, pp",
+      "value": 0.223350556878495
+    },
+    {
+      "id": "ea_base_2025_10",
+      "label": "Base-effect part of that change, Oct 2025, pp",
+      "value": -0.35264260115072843
+    },
+    {
+      "id": "ea_yoy_2025_11",
+      "label": "Euro area* headline y/y, Nov 2025, %",
+      "value": 2.135231316725994
+    },
+    {
+      "id": "ea_dyoy_2025_11",
+      "label": "Change in euro area* y/y from the previous month to Nov 2025, pp",
+      "value": 0.0373292188239116
+    },
+    {
+      "id": "ea_mom_2025_11",
+      "label": "Momentum part of that change, Nov 2025, pp",
+      "value": -0.2943866447132132
+    },
+    {
+      "id": "ea_base_2025_11",
+      "label": "Base-effect part of that change, Nov 2025, pp",
+      "value": 0.3317158635371248
+    },
+    {
+      "id": "ea_yoy_2025_12",
+      "label": "Euro area* headline y/y, Dec 2025, %",
+      "value": 1.9657513425878959
+    },
+    {
+      "id": "ea_dyoy_2025_12",
+      "label": "Change in euro area* y/y from the previous month to Dec 2025, pp",
+      "value": -0.16947997413809812
+    },
+    {
+      "id": "ea_mom_2025_12",
+      "label": "Momentum part of that change, Dec 2025, pp",
+      "value": 0.18270428808346753
+    },
+    {
+      "id": "ea_base_2025_12",
+      "label": "Base-effect part of that change, Dec 2025, pp",
+      "value": -0.3521842622215656
+    },
+    {
+      "id": "ea_yoy_2026_01",
+      "label": "Euro area* headline y/y, Jan 2026, %",
+      "value": 1.6764885185937661
+    },
+    {
+      "id": "ea_dyoy_2026_01",
+      "label": "Change in euro area* y/y from the previous month to Jan 2026, pp",
+      "value": -0.2892628239941297
+    },
+    {
+      "id": "ea_mom_2026_01",
+      "label": "Momentum part of that change, Jan 2026, pp",
+      "value": -0.5682106306614371
+    },
+    {
+      "id": "ea_base_2026_01",
+      "label": "Base-effect part of that change, Jan 2026, pp",
+      "value": 0.2789478066673074
+    },
+    {
+      "id": "ea_yoy_2026_02",
+      "label": "Euro area* headline y/y, Feb 2026, %",
+      "value": 1.8919465803318491
+    },
+    {
+      "id": "ea_dyoy_2026_02",
+      "label": "Change in euro area* y/y from the previous month to Feb 2026, pp",
+      "value": 0.21545806173808302
+    },
+    {
+      "id": "ea_mom_2026_02",
+      "label": "Momentum part of that change, Feb 2026, pp",
+      "value": 0.6488902832472949
+    },
+    {
+      "id": "ea_base_2026_02",
+      "label": "Base-effect part of that change, Feb 2026, pp",
+      "value": -0.43343222150921196
+    },
+    {
+      "id": "ea_yoy_2026_03",
+      "label": "Euro area* headline y/y, Mar 2026, %",
+      "value": 2.554047259929604
+    },
+    {
+      "id": "ea_dyoy_2026_03",
+      "label": "Change in euro area* y/y from the previous month to Mar 2026, pp",
+      "value": 0.6621006795977546
+    },
+    {
+      "id": "ea_mom_2026_03",
+      "label": "Momentum part of that change, Mar 2026, pp",
+      "value": 1.291038163386762
+    },
+    {
+      "id": "ea_base_2026_03",
+      "label": "Base-effect part of that change, Mar 2026, pp",
+      "value": -0.6289374837890074
+    },
+    {
+      "id": "ea_yoy_2026_04",
+      "label": "Euro area* headline y/y, Apr 2026, %",
+      "value": 3.029697030296963
+    },
+    {
+      "id": "ea_dyoy_2026_04",
+      "label": "Change in euro area* y/y from the previous month to Apr 2026, pp",
+      "value": 0.475649770367359
+    },
+    {
+      "id": "ea_mom_2026_04",
+      "label": "Momentum part of that change, Apr 2026, pp",
+      "value": 1.052843161897942
+    },
+    {
+      "id": "ea_base_2026_04",
+      "label": "Base-effect part of that change, Apr 2026, pp",
+      "value": -0.577193391530583
+    },
+    {
+      "id": "ea_yoy_2026_05",
+      "label": "Euro area* headline y/y, May 2026, %",
+      "value": 3.171268507402969
+    },
+    {
+      "id": "ea_dyoy_2026_05",
+      "label": "Change in euro area* y/y from the previous month to May 2026, pp",
+      "value": 0.14157147710600615
+    },
+    {
+      "id": "ea_mom_2026_05",
+      "label": "Momentum part of that change, May 2026, pp",
+      "value": 0.09001350905196845
+    },
+    {
+      "id": "ea_base_2026_05",
+      "label": "Base-effect part of that change, May 2026, pp",
+      "value": 0.051557968054037714
+    },
+    {
+      "id": "ea_yoy_2026_06",
+      "label": "Euro area* headline y/y, Jun 2026, %",
+      "value": 2.752842609216022
+    },
+    {
+      "id": "ea_dyoy_2026_06",
+      "label": "Change in euro area* y/y from the previous month to Jun 2026, pp",
+      "value": -0.4184258981869471
+    },
+    {
+      "id": "ea_mom_2026_06",
+      "label": "Momentum part of that change, Jun 2026, pp",
+      "value": -0.10987932669393775
+    },
+    {
+      "id": "ea_base_2026_06",
+      "label": "Base-effect part of that change, Jun 2026, pp",
+      "value": -0.30854657149300935
+    },
+    {
+      "id": "ea_yoy_2026_07",
+      "label": "Euro area* headline y/y, Jul 2026, %",
+      "value": 2.9414697377604826
+    },
+    {
+      "id": "ea_dyoy_2026_07",
+      "label": "Change in euro area* y/y from the previous month to Jul 2026, pp",
+      "value": 0.18862712854446073
+    },
+    {
+      "id": "ea_mom_2026_07",
+      "label": "Momentum part of that change, Jul 2026, pp",
+      "value": 0.21939665079166418
+    },
+    {
+      "id": "ea_base_2026_07",
+      "label": "Base-effect part of that change, Jul 2026, pp",
+      "value": -0.03076952224720346
+    },
+    {
+      "id": "ea_yoy_2026_08",
+      "label": "Euro area* headline y/y, Aug 2026, %",
+      "value": 3.2460420193169304
+    },
+    {
+      "id": "ea_dyoy_2026_08",
+      "label": "Change in euro area* y/y from the previous month to Aug 2026, pp",
+      "value": 0.3045722815564478
+    },
+    {
+      "id": "ea_mom_2026_08",
+      "label": "Momentum part of that change, Aug 2026, pp",
+      "value": 0.4483857298007014
+    },
+    {
+      "id": "ea_base_2026_08",
+      "label": "Base-effect part of that change, Aug 2026, pp",
+      "value": -0.1438134482442536
+    },
+    {
+      "id": "ea_yoy_2026_09",
+      "label": "Euro area* headline y/y, Sep 2026, %",
+      "value": 3.7703939514524443
+    },
+    {
+      "id": "ea_dyoy_2026_09",
+      "label": "Change in euro area* y/y from the previous month to Sep 2026, pp",
+      "value": 0.5243519321355139
+    },
+    {
+      "id": "ea_mom_2026_09",
+      "label": "Momentum part of that change, Sep 2026, pp",
+      "value": 0.6170687305387269
+    },
+    {
+      "id": "ea_base_2026_09",
+      "label": "Base-effect part of that change, Sep 2026, pp",
+      "value": -0.09271679840321302
+    },
+    {
+      "id": "contrib_FUEL_last",
+      "label": "Contribution of fuels to euro area* y/y, Sep 2026, pp",
+      "value": 1.3704102632053028
+    },
+    {
+      "id": "contrib_ELC_GAS_last",
+      "label": "Contribution of electricity and gas to euro area* y/y, Sep 2026, pp",
+      "value": 0.3419907508034859
+    },
+    {
+      "id": "contrib_FOOD_P_last",
+      "label": "Contribution of processed food to euro area* y/y, Sep 2026, pp",
+      "value": 0.04898126663037868
+    },
+    {
+      "id": "contrib_FOOD_NP_last",
+      "label": "Contribution of unprocessed food to euro area* y/y, Sep 2026, pp",
+      "value": 0.20512416111187035
+    },
+    {
+      "id": "contrib_IGD_NNRG_last",
+      "label": "Contribution of non-energy industrial goods to euro area* y/y, Sep 2026, pp",
+      "value": 0.28749367587654445
+    },
+    {
+      "id": "contrib_SERV_last",
+      "label": "Contribution of services to euro area* y/y, Sep 2026, pp",
+      "value": 1.518962869218983
+    },
+    {
+      "id": "n_countries",
+      "label": "Number of euro area* member countries",
+      "value": 21.0
+    },
+    {
+      "id": "AT_yoy",
+      "label": "Austria headline y/y, Sep 2026, %",
+      "value": 3.5806902054657863
+    },
+    {
+      "id": "AT_weight",
+      "label": "Austria weight in the euro area* (2026), per mille",
+      "value": 34.05
+    },
+    {
+      "id": "AT_contrib",
+      "label": "Austria contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.1208802841116196
+    },
+    {
+      "id": "AT_rank",
+      "label": "Austria rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 7.0
+    },
+    {
+      "id": "AT_dyoy",
+      "label": "Change in Austria y/y from the previous month to Sep 2026, pp",
+      "value": 0.6471440071021961
+    },
+    {
+      "id": "AT_mom",
+      "label": "Momentum part of that change for Austria, pp",
+      "value": 0.6883478305594005
+    },
+    {
+      "id": "AT_base",
+      "label": "Base-effect part of that change for Austria, pp",
+      "value": -0.04120382345720444
+    },
+    {
+      "id": "AT_contrib_FUEL",
+      "label": "Contribution of fuels to Austria y/y, Sep 2026, pp",
+      "value": 1.1764737113828654
+    },
+    {
+      "id": "AT_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Austria y/y, Sep 2026, pp",
+      "value": 0.0070063213057312375
+    },
+    {
+      "id": "AT_contrib_FOOD_P",
+      "label": "Contribution of processed food to Austria y/y, Sep 2026, pp",
+      "value": -0.007106895707209312
+    },
+    {
+      "id": "AT_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Austria y/y, Sep 2026, pp",
+      "value": 0.11918804162860575
+    },
+    {
+      "id": "AT_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Austria y/y, Sep 2026, pp",
+      "value": 0.12853827162595613
+    },
+    {
+      "id": "AT_contrib_SERV",
+      "label": "Contribution of services to Austria y/y, Sep 2026, pp",
+      "value": 2.1522558950552853
+    },
+    {
+      "id": "BE_yoy",
+      "label": "Belgium headline y/y, Sep 2026, %",
+      "value": 4.471057884231544
+    },
+    {
+      "id": "BE_weight",
+      "label": "Belgium weight in the euro area* (2026), per mille",
+      "value": 38.56
+    },
+    {
+      "id": "BE_contrib",
+      "label": "Belgium contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.17142999789095067
+    },
+    {
+      "id": "BE_rank",
+      "label": "Belgium rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 6.0
+    },
+    {
+      "id": "BE_dyoy",
+      "label": "Change in Belgium y/y from the previous month to Sep 2026, pp",
+      "value": 0.2828366347289446
+    },
+    {
+      "id": "BE_mom",
+      "label": "Momentum part of that change for Belgium, pp",
+      "value": -0.04982072377256546
+    },
+    {
+      "id": "BE_base",
+      "label": "Base-effect part of that change for Belgium, pp",
+      "value": 0.33265735850151
+    },
+    {
+      "id": "BE_contrib_FUEL",
+      "label": "Contribution of fuels to Belgium y/y, Sep 2026, pp",
+      "value": 1.4624750280004846
+    },
+    {
+      "id": "BE_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Belgium y/y, Sep 2026, pp",
+      "value": 1.0458417142719318
+    },
+    {
+      "id": "BE_contrib_FOOD_P",
+      "label": "Contribution of processed food to Belgium y/y, Sep 2026, pp",
+      "value": 0.09999289623440974
+    },
+    {
+      "id": "BE_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Belgium y/y, Sep 2026, pp",
+      "value": -0.016900543752110076
+    },
+    {
+      "id": "BE_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Belgium y/y, Sep 2026, pp",
+      "value": 0.3943108851505987
+    },
+    {
+      "id": "BE_contrib_SERV",
+      "label": "Contribution of services to Belgium y/y, Sep 2026, pp",
+      "value": 1.4846996953233045
+    },
+    {
+      "id": "BG_yoy",
+      "label": "Bulgaria headline y/y, Sep 2026, %",
+      "value": 5.64757533426461
+    },
+    {
+      "id": "BG_weight",
+      "label": "Bulgaria weight in the euro area* (2026), per mille",
+      "value": 8.96
+    },
+    {
+      "id": "BG_contrib",
+      "label": "Bulgaria contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.043992294508469545
+    },
+    {
+      "id": "BG_rank",
+      "label": "Bulgaria rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 11.0
+    },
+    {
+      "id": "BG_dyoy",
+      "label": "Change in Bulgaria y/y from the previous month to Sep 2026, pp",
+      "value": 0.5994745706029869
+    },
+    {
+      "id": "BG_mom",
+      "label": "Momentum part of that change for Bulgaria, pp",
+      "value": -0.03979133334408121
+    },
+    {
+      "id": "BG_base",
+      "label": "Base-effect part of that change for Bulgaria, pp",
+      "value": 0.6392659039470682
+    },
+    {
+      "id": "BG_contrib_FUEL",
+      "label": "Contribution of fuels to Bulgaria y/y, Sep 2026, pp",
+      "value": 2.0885266078579328
+    },
+    {
+      "id": "BG_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Bulgaria y/y, Sep 2026, pp",
+      "value": 0.3006542248768848
+    },
+    {
+      "id": "BG_contrib_FOOD_P",
+      "label": "Contribution of processed food to Bulgaria y/y, Sep 2026, pp",
+      "value": 0.5156593081733734
+    },
+    {
+      "id": "BG_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Bulgaria y/y, Sep 2026, pp",
+      "value": 0.22087239630000424
+    },
+    {
+      "id": "BG_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Bulgaria y/y, Sep 2026, pp",
+      "value": 0.09872960839335107
+    },
+    {
+      "id": "BG_contrib_SERV",
+      "label": "Contribution of services to Bulgaria y/y, Sep 2026, pp",
+      "value": 2.431292340997669
+    },
+    {
+      "id": "CY_yoy",
+      "label": "Cyprus headline y/y, Sep 2026, %",
+      "value": 5.201226144566395
+    },
+    {
+      "id": "CY_weight",
+      "label": "Cyprus weight in the euro area* (2026), per mille",
+      "value": 2.68
+    },
+    {
+      "id": "CY_contrib",
+      "label": "Cyprus contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.014496404424149336
+    },
+    {
+      "id": "CY_rank",
+      "label": "Cyprus rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 18.0
+    },
+    {
+      "id": "CY_dyoy",
+      "label": "Change in Cyprus y/y from the previous month to Sep 2026, pp",
+      "value": 0.021001602514014728
+    },
+    {
+      "id": "CY_mom",
+      "label": "Momentum part of that change for Cyprus, pp",
+      "value": -0.40459918775278186
+    },
+    {
+      "id": "CY_base",
+      "label": "Base-effect part of that change for Cyprus, pp",
+      "value": 0.4256007902667966
+    },
+    {
+      "id": "CY_contrib_FUEL",
+      "label": "Contribution of fuels to Cyprus y/y, Sep 2026, pp",
+      "value": 1.365593475813504
+    },
+    {
+      "id": "CY_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Cyprus y/y, Sep 2026, pp",
+      "value": 0.3820540227726304
+    },
+    {
+      "id": "CY_contrib_FOOD_P",
+      "label": "Contribution of processed food to Cyprus y/y, Sep 2026, pp",
+      "value": 0.33400858368574116
+    },
+    {
+      "id": "CY_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Cyprus y/y, Sep 2026, pp",
+      "value": 0.3403041276491286
+    },
+    {
+      "id": "CY_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Cyprus y/y, Sep 2026, pp",
+      "value": -0.7445900255936794
+    },
+    {
+      "id": "CY_contrib_SERV",
+      "label": "Contribution of services to Cyprus y/y, Sep 2026, pp",
+      "value": 3.5309873853862612
+    },
+    {
+      "id": "DE_yoy",
+      "label": "Germany headline y/y, Sep 2026, %",
+      "value": 3.2588176850471884
+    },
+    {
+      "id": "DE_weight",
+      "label": "Germany weight in the euro area* (2026), per mille",
+      "value": 277.07
+    },
+    {
+      "id": "DE_contrib",
+      "label": "Germany contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.9037278908372103
+    },
+    {
+      "id": "DE_rank",
+      "label": "Germany rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 1.0
+    },
+    {
+      "id": "DE_dyoy",
+      "label": "Change in Germany y/y from the previous month to Sep 2026, pp",
+      "value": 0.3311140403549073
+    },
+    {
+      "id": "DE_mom",
+      "label": "Momentum part of that change for Germany, pp",
+      "value": 0.5669666281262477
+    },
+    {
+      "id": "DE_base",
+      "label": "Base-effect part of that change for Germany, pp",
+      "value": -0.23585258777134033
+    },
+    {
+      "id": "DE_contrib_FUEL",
+      "label": "Contribution of fuels to Germany y/y, Sep 2026, pp",
+      "value": 1.4058059308739383
+    },
+    {
+      "id": "DE_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Germany y/y, Sep 2026, pp",
+      "value": -0.21595333607218592
+    },
+    {
+      "id": "DE_contrib_FOOD_P",
+      "label": "Contribution of processed food to Germany y/y, Sep 2026, pp",
+      "value": 0.02223801465516215
+    },
+    {
+      "id": "DE_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Germany y/y, Sep 2026, pp",
+      "value": 0.15135290002027646
+    },
+    {
+      "id": "DE_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Germany y/y, Sep 2026, pp",
+      "value": 0.5718140763866104
+    },
+    {
+      "id": "DE_contrib_SERV",
+      "label": "Contribution of services to Germany y/y, Sep 2026, pp",
+      "value": 1.3283658820933741
+    },
+    {
+      "id": "EE_yoy",
+      "label": "Estonia headline y/y, Sep 2026, %",
+      "value": 3.1188118811881216
+    },
+    {
+      "id": "EE_weight",
+      "label": "Estonia weight in the euro area* (2026), per mille",
+      "value": 2.55
+    },
+    {
+      "id": "EE_contrib",
+      "label": "Estonia contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.007935257402107642
+    },
+    {
+      "id": "EE_rank",
+      "label": "Estonia rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 20.0
+    },
+    {
+      "id": "EE_dyoy",
+      "label": "Change in Estonia y/y from the previous month to Sep 2026, pp",
+      "value": 1.7873061048027772
+    },
+    {
+      "id": "EE_mom",
+      "label": "Momentum part of that change for Estonia, pp",
+      "value": 0.6399699259027225
+    },
+    {
+      "id": "EE_base",
+      "label": "Base-effect part of that change for Estonia, pp",
+      "value": 1.1473361789000545
+    },
+    {
+      "id": "EE_contrib_FUEL",
+      "label": "Contribution of fuels to Estonia y/y, Sep 2026, pp",
+      "value": 1.4198304474760404
+    },
+    {
+      "id": "EE_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Estonia y/y, Sep 2026, pp",
+      "value": 0.6847577664688299
+    },
+    {
+      "id": "EE_contrib_FOOD_P",
+      "label": "Contribution of processed food to Estonia y/y, Sep 2026, pp",
+      "value": 0.20380824848747744
+    },
+    {
+      "id": "EE_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Estonia y/y, Sep 2026, pp",
+      "value": -0.06381151296957238
+    },
+    {
+      "id": "EE_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Estonia y/y, Sep 2026, pp",
+      "value": 0.15514266284075323
+    },
+    {
+      "id": "EE_contrib_SERV",
+      "label": "Contribution of services to Estonia y/y, Sep 2026, pp",
+      "value": 0.7230494739682283
+    },
+    {
+      "id": "EL_yoy",
+      "label": "EL headline y/y, Sep 2026, %",
+      "value": 5.111947691698027
+    },
+    {
+      "id": "EL_weight",
+      "label": "EL weight in the euro area* (2026), per mille",
+      "value": 22.84
+    },
+    {
+      "id": "EL_contrib",
+      "label": "EL contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.11691548392106019
+    },
+    {
+      "id": "EL_rank",
+      "label": "EL rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 8.0
+    },
+    {
+      "id": "EL_dyoy",
+      "label": "Change in EL y/y from the previous month to Sep 2026, pp",
+      "value": 1.3964381787983315
+    },
+    {
+      "id": "EL_mom",
+      "label": "Momentum part of that change for EL, pp",
+      "value": 1.966912897829942
+    },
+    {
+      "id": "EL_base",
+      "label": "Base-effect part of that change for EL, pp",
+      "value": -0.5704747190316104
+    },
+    {
+      "id": "EL_contrib_FUEL",
+      "label": "Contribution of fuels to EL y/y, Sep 2026, pp",
+      "value": 1.4189083089766599
+    },
+    {
+      "id": "EL_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to EL y/y, Sep 2026, pp",
+      "value": 0.5849100189596301
+    },
+    {
+      "id": "EL_contrib_FOOD_P",
+      "label": "Contribution of processed food to EL y/y, Sep 2026, pp",
+      "value": -0.1085611285711272
+    },
+    {
+      "id": "EL_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to EL y/y, Sep 2026, pp",
+      "value": 0.07795218990217048
+    },
+    {
+      "id": "EL_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to EL y/y, Sep 2026, pp",
+      "value": 0.010854089776627149
+    },
+    {
+      "id": "EL_contrib_SERV",
+      "label": "Contribution of services to EL y/y, Sep 2026, pp",
+      "value": 3.129062973631972
+    },
+    {
+      "id": "ES_yoy",
+      "label": "Spain headline y/y, Sep 2026, %",
+      "value": 4.959171479784907
+    },
+    {
+      "id": "ES_weight",
+      "label": "Spain weight in the euro area* (2026), per mille",
+      "value": 119.93
+    },
+    {
+      "id": "ES_contrib",
+      "label": "Spain contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.5904466005778575
+    },
+    {
+      "id": "ES_rank",
+      "label": "Spain rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 4.0
+    },
+    {
+      "id": "ES_dyoy",
+      "label": "Change in Spain y/y from the previous month to Sep 2026, pp",
+      "value": 0.40736473193105915
+    },
+    {
+      "id": "ES_mom",
+      "label": "Momentum part of that change for Spain, pp",
+      "value": 0.6580257259538467
+    },
+    {
+      "id": "ES_base",
+      "label": "Base-effect part of that change for Spain, pp",
+      "value": -0.2506609940227875
+    },
+    {
+      "id": "ES_contrib_FUEL",
+      "label": "Contribution of fuels to Spain y/y, Sep 2026, pp",
+      "value": 1.5291355287039756
+    },
+    {
+      "id": "ES_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Spain y/y, Sep 2026, pp",
+      "value": 0.42611934978738253
+    },
+    {
+      "id": "ES_contrib_FOOD_P",
+      "label": "Contribution of processed food to Spain y/y, Sep 2026, pp",
+      "value": 0.20655922703462323
+    },
+    {
+      "id": "ES_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Spain y/y, Sep 2026, pp",
+      "value": 0.35731316990404666
+    },
+    {
+      "id": "ES_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Spain y/y, Sep 2026, pp",
+      "value": 0.30442368617844656
+    },
+    {
+      "id": "ES_contrib_SERV",
+      "label": "Contribution of services to Spain y/y, Sep 2026, pp",
+      "value": 2.1356529315563413
+    },
+    {
+      "id": "FI_yoy",
+      "label": "Finland headline y/y, Sep 2026, %",
+      "value": 2.659892408846387
+    },
+    {
+      "id": "FI_weight",
+      "label": "Finland weight in the euro area* (2026), per mille",
+      "value": 16.25
+    },
+    {
+      "id": "FI_contrib",
+      "label": "Finland contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.0432728115429859
+    },
+    {
+      "id": "FI_rank",
+      "label": "Finland rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 12.0
+    },
+    {
+      "id": "FI_dyoy",
+      "label": "Change in Finland y/y from the previous month to Sep 2026, pp",
+      "value": 0.2179388459961018
+    },
+    {
+      "id": "FI_mom",
+      "label": "Momentum part of that change for Finland, pp",
+      "value": 0.6889672009914262
+    },
+    {
+      "id": "FI_base",
+      "label": "Base-effect part of that change for Finland, pp",
+      "value": -0.4710283549953243
+    },
+    {
+      "id": "FI_contrib_FUEL",
+      "label": "Contribution of fuels to Finland y/y, Sep 2026, pp",
+      "value": 1.3113557152991973
+    },
+    {
+      "id": "FI_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Finland y/y, Sep 2026, pp",
+      "value": -0.11404184213616236
+    },
+    {
+      "id": "FI_contrib_FOOD_P",
+      "label": "Contribution of processed food to Finland y/y, Sep 2026, pp",
+      "value": 0.33432618301378103
+    },
+    {
+      "id": "FI_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Finland y/y, Sep 2026, pp",
+      "value": 0.148334040104891
+    },
+    {
+      "id": "FI_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Finland y/y, Sep 2026, pp",
+      "value": 0.2058437452947511
+    },
+    {
+      "id": "FI_contrib_SERV",
+      "label": "Contribution of services to Finland y/y, Sep 2026, pp",
+      "value": 0.7681066986791758
+    },
+    {
+      "id": "FR_yoy",
+      "label": "France headline y/y, Sep 2026, %",
+      "value": 3.4189743077076784
+    },
+    {
+      "id": "FR_weight",
+      "label": "France weight in the euro area* (2026), per mille",
+      "value": 184.1
+    },
+    {
+      "id": "FR_contrib",
+      "label": "France contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.6301880709085406
+    },
+    {
+      "id": "FR_rank",
+      "label": "France rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 3.0
+    },
+    {
+      "id": "FR_dyoy",
+      "label": "Change in France y/y from the previous month to Sep 2026, pp",
+      "value": 0.7879159496463339
+    },
+    {
+      "id": "FR_mom",
+      "label": "Momentum part of that change for France, pp",
+      "value": -0.308263338864074
+    },
+    {
+      "id": "FR_base",
+      "label": "Base-effect part of that change for France, pp",
+      "value": 1.096179288510408
+    },
+    {
+      "id": "FR_contrib_FUEL",
+      "label": "Contribution of fuels to France y/y, Sep 2026, pp",
+      "value": 1.4937578614043707
+    },
+    {
+      "id": "FR_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to France y/y, Sep 2026, pp",
+      "value": 0.3434674618763581
+    },
+    {
+      "id": "FR_contrib_FOOD_P",
+      "label": "Contribution of processed food to France y/y, Sep 2026, pp",
+      "value": 0.02730374048018191
+    },
+    {
+      "id": "FR_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to France y/y, Sep 2026, pp",
+      "value": 0.2636337565168573
+    },
+    {
+      "id": "FR_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to France y/y, Sep 2026, pp",
+      "value": 0.033153425570375386
+    },
+    {
+      "id": "FR_contrib_SERV",
+      "label": "Contribution of services to France y/y, Sep 2026, pp",
+      "value": 1.2570802663048566
+    },
+    {
+      "id": "HR_yoy",
+      "label": "Croatia headline y/y, Sep 2026, %",
+      "value": 4.334916864608074
+    },
+    {
+      "id": "HR_weight",
+      "label": "Croatia weight in the euro area* (2026), per mille",
+      "value": 8.42
+    },
+    {
+      "id": "HR_contrib",
+      "label": "Croatia contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.036531465331713545
+    },
+    {
+      "id": "HR_rank",
+      "label": "Croatia rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 13.0
+    },
+    {
+      "id": "HR_dyoy",
+      "label": "Change in Croatia y/y from the previous month to Sep 2026, pp",
+      "value": 0.6450615069381049
+    },
+    {
+      "id": "HR_mom",
+      "label": "Momentum part of that change for Croatia, pp",
+      "value": 0.039473265268100535
+    },
+    {
+      "id": "HR_base",
+      "label": "Base-effect part of that change for Croatia, pp",
+      "value": 0.6055882416700045
+    },
+    {
+      "id": "HR_contrib_FUEL",
+      "label": "Contribution of fuels to Croatia y/y, Sep 2026, pp",
+      "value": 1.5416409596392207
+    },
+    {
+      "id": "HR_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Croatia y/y, Sep 2026, pp",
+      "value": 0.7681264552780486
+    },
+    {
+      "id": "HR_contrib_FOOD_P",
+      "label": "Contribution of processed food to Croatia y/y, Sep 2026, pp",
+      "value": 0.018272400554482995
+    },
+    {
+      "id": "HR_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Croatia y/y, Sep 2026, pp",
+      "value": 0.05632665872829338
+    },
+    {
+      "id": "HR_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Croatia y/y, Sep 2026, pp",
+      "value": -0.24125132956253212
+    },
+    {
+      "id": "HR_contrib_SERV",
+      "label": "Contribution of services to Croatia y/y, Sep 2026, pp",
+      "value": 2.193754226827278
+    },
+    {
+      "id": "IE_yoy",
+      "label": "Ireland headline y/y, Sep 2026, %",
+      "value": 3.8293216630196802
+    },
+    {
+      "id": "IE_weight",
+      "label": "Ireland weight in the euro area* (2026), per mille",
+      "value": 16.97
+    },
+    {
+      "id": "IE_contrib",
+      "label": "Ireland contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.06513978488353843
+    },
+    {
+      "id": "IE_rank",
+      "label": "Ireland rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 10.0
+    },
+    {
+      "id": "IE_dyoy",
+      "label": "Change in Ireland y/y from the previous month to Sep 2026, pp",
+      "value": 0.4443703030831969
+    },
+    {
+      "id": "IE_mom",
+      "label": "Momentum part of that change for Ireland, pp",
+      "value": 0.2384740157540943
+    },
+    {
+      "id": "IE_base",
+      "label": "Base-effect part of that change for Ireland, pp",
+      "value": 0.20589628732910267
+    },
+    {
+      "id": "IE_contrib_FUEL",
+      "label": "Contribution of fuels to Ireland y/y, Sep 2026, pp",
+      "value": 1.1234193043297906
+    },
+    {
+      "id": "IE_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Ireland y/y, Sep 2026, pp",
+      "value": 0.30114902189234444
+    },
+    {
+      "id": "IE_contrib_FOOD_P",
+      "label": "Contribution of processed food to Ireland y/y, Sep 2026, pp",
+      "value": 0.09490054945575654
+    },
+    {
+      "id": "IE_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Ireland y/y, Sep 2026, pp",
+      "value": 0.03715322475397364
+    },
+    {
+      "id": "IE_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Ireland y/y, Sep 2026, pp",
+      "value": 0.19881235871266817
+    },
+    {
+      "id": "IE_contrib_SERV",
+      "label": "Contribution of services to Ireland y/y, Sep 2026, pp",
+      "value": 2.078188141380482
+    },
+    {
+      "id": "IT_yoy",
+      "label": "Italy headline y/y, Sep 2026, %",
+      "value": 4.170804369414105
+    },
+    {
+      "id": "IT_weight",
+      "label": "Italy weight in the euro area* (2026), per mille",
+      "value": 156.21
+    },
+    {
+      "id": "IT_contrib",
+      "label": "Italy contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.653289634740002
+    },
+    {
+      "id": "IT_rank",
+      "label": "Italy rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 2.0
+    },
+    {
+      "id": "IT_dyoy",
+      "label": "Change in Italy y/y from the previous month to Sep 2026, pp",
+      "value": 0.9547239674040586
+    },
+    {
+      "id": "IT_mom",
+      "label": "Momentum part of that change for Italy, pp",
+      "value": 2.1978083035861027
+    },
+    {
+      "id": "IT_base",
+      "label": "Base-effect part of that change for Italy, pp",
+      "value": -1.2430843361820443
+    },
+    {
+      "id": "IT_contrib_FUEL",
+      "label": "Contribution of fuels to Italy y/y, Sep 2026, pp",
+      "value": 1.268236469108762
+    },
+    {
+      "id": "IT_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Italy y/y, Sep 2026, pp",
+      "value": 1.2092428720251054
+    },
+    {
+      "id": "IT_contrib_FOOD_P",
+      "label": "Contribution of processed food to Italy y/y, Sep 2026, pp",
+      "value": 0.02705704905620465
+    },
+    {
+      "id": "IT_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Italy y/y, Sep 2026, pp",
+      "value": 0.36811458204966124
+    },
+    {
+      "id": "IT_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Italy y/y, Sep 2026, pp",
+      "value": 0.15309550748647008
+    },
+    {
+      "id": "IT_contrib_SERV",
+      "label": "Contribution of services to Italy y/y, Sep 2026, pp",
+      "value": 1.0514726082513162
+    },
+    {
+      "id": "LT_yoy",
+      "label": "Lithuania headline y/y, Sep 2026, %",
+      "value": 6.085395051875508
+    },
+    {
+      "id": "LT_weight",
+      "label": "Lithuania weight in the euro area* (2026), per mille",
+      "value": 5.83
+    },
+    {
+      "id": "LT_contrib",
+      "label": "Lithuania contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.03547193257132729
+    },
+    {
+      "id": "LT_rank",
+      "label": "Lithuania rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 14.0
+    },
+    {
+      "id": "LT_dyoy",
+      "label": "Change in Lithuania y/y from the previous month to Sep 2026, pp",
+      "value": 0.4853149076158303
+    },
+    {
+      "id": "LT_mom",
+      "label": "Momentum part of that change for Lithuania, pp",
+      "value": 0.9297209579425245
+    },
+    {
+      "id": "LT_base",
+      "label": "Base-effect part of that change for Lithuania, pp",
+      "value": -0.4444060503266942
+    },
+    {
+      "id": "LT_contrib_FUEL",
+      "label": "Contribution of fuels to Lithuania y/y, Sep 2026, pp",
+      "value": 2.285073389280565
+    },
+    {
+      "id": "LT_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Lithuania y/y, Sep 2026, pp",
+      "value": 1.315410685292005
+    },
+    {
+      "id": "LT_contrib_FOOD_P",
+      "label": "Contribution of processed food to Lithuania y/y, Sep 2026, pp",
+      "value": 0.3453024392800765
+    },
+    {
+      "id": "LT_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Lithuania y/y, Sep 2026, pp",
+      "value": -0.20944251917356682
+    },
+    {
+      "id": "LT_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Lithuania y/y, Sep 2026, pp",
+      "value": 0.24935594640473097
+    },
+    {
+      "id": "LT_contrib_SERV",
+      "label": "Contribution of services to Lithuania y/y, Sep 2026, pp",
+      "value": 2.0990673220789677
+    },
+    {
+      "id": "LU_yoy",
+      "label": "Luxembourg headline y/y, Sep 2026, %",
+      "value": 5.169852431415278
+    },
+    {
+      "id": "LU_weight",
+      "label": "Luxembourg weight in the euro area* (2026), per mille",
+      "value": 3.66
+    },
+    {
+      "id": "LU_contrib",
+      "label": "Luxembourg contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.018989192243839156
+    },
+    {
+      "id": "LU_rank",
+      "label": "Luxembourg rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 16.0
+    },
+    {
+      "id": "LU_dyoy",
+      "label": "Change in Luxembourg y/y from the previous month to Sep 2026, pp",
+      "value": 1.1837001069840314
+    },
+    {
+      "id": "LU_mom",
+      "label": "Momentum part of that change for Luxembourg, pp",
+      "value": 1.0491428046880908
+    },
+    {
+      "id": "LU_base",
+      "label": "Base-effect part of that change for Luxembourg, pp",
+      "value": 0.13455730229594065
+    },
+    {
+      "id": "LU_contrib_FUEL",
+      "label": "Contribution of fuels to Luxembourg y/y, Sep 2026, pp",
+      "value": 3.343384876456862
+    },
+    {
+      "id": "LU_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Luxembourg y/y, Sep 2026, pp",
+      "value": -0.488678258292596
+    },
+    {
+      "id": "LU_contrib_FOOD_P",
+      "label": "Contribution of processed food to Luxembourg y/y, Sep 2026, pp",
+      "value": 0.7507346586126085
+    },
+    {
+      "id": "LU_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Luxembourg y/y, Sep 2026, pp",
+      "value": 0.11849055518712658
+    },
+    {
+      "id": "LU_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Luxembourg y/y, Sep 2026, pp",
+      "value": 0.19012310761763654
+    },
+    {
+      "id": "LU_contrib_SERV",
+      "label": "Contribution of services to Luxembourg y/y, Sep 2026, pp",
+      "value": 1.2521437705534573
+    },
+    {
+      "id": "LV_yoy",
+      "label": "Latvia headline y/y, Sep 2026, %",
+      "value": 3.0113297555158125
+    },
+    {
+      "id": "LV_weight",
+      "label": "Latvia weight in the euro area* (2026), per mille",
+      "value": 3.06
+    },
+    {
+      "id": "LV_contrib",
+      "label": "Latvia contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.009231647876371445
+    },
+    {
+      "id": "LV_rank",
+      "label": "Latvia rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 19.0
+    },
+    {
+      "id": "LV_dyoy",
+      "label": "Change in Latvia y/y from the previous month to Sep 2026, pp",
+      "value": 0.03590931567103439
+    },
+    {
+      "id": "LV_mom",
+      "label": "Momentum part of that change for Latvia, pp",
+      "value": 0.1690617247202332
+    },
+    {
+      "id": "LV_base",
+      "label": "Base-effect part of that change for Latvia, pp",
+      "value": -0.1331524090491988
+    },
+    {
+      "id": "LV_contrib_FUEL",
+      "label": "Contribution of fuels to Latvia y/y, Sep 2026, pp",
+      "value": 1.4472944646196746
+    },
+    {
+      "id": "LV_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Latvia y/y, Sep 2026, pp",
+      "value": 0.8644038449118033
+    },
+    {
+      "id": "LV_contrib_FOOD_P",
+      "label": "Contribution of processed food to Latvia y/y, Sep 2026, pp",
+      "value": -0.6616920722998643
+    },
+    {
+      "id": "LV_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Latvia y/y, Sep 2026, pp",
+      "value": -0.2918212422938174
+    },
+    {
+      "id": "LV_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Latvia y/y, Sep 2026, pp",
+      "value": 0.2865693043678755
+    },
+    {
+      "id": "LV_contrib_SERV",
+      "label": "Contribution of services to Latvia y/y, Sep 2026, pp",
+      "value": 1.3745123349189048
+    },
+    {
+      "id": "MT_yoy",
+      "label": "Malta headline y/y, Sep 2026, %",
+      "value": 2.367267413541141
+    },
+    {
+      "id": "MT_weight",
+      "label": "Malta weight in the euro area* (2026), per mille",
+      "value": 1.6
+    },
+    {
+      "id": "MT_contrib",
+      "label": "Malta contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.004218111697585019
+    },
+    {
+      "id": "MT_rank",
+      "label": "Malta rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 21.0
+    },
+    {
+      "id": "MT_dyoy",
+      "label": "Change in Malta y/y from the previous month to Sep 2026, pp",
+      "value": 0.41534433661807313
+    },
+    {
+      "id": "MT_mom",
+      "label": "Momentum part of that change for Malta, pp",
+      "value": -0.9194461362424762
+    },
+    {
+      "id": "MT_base",
+      "label": "Base-effect part of that change for Malta, pp",
+      "value": 1.3347904728605493
+    },
+    {
+      "id": "MT_contrib_FUEL",
+      "label": "Contribution of fuels to Malta y/y, Sep 2026, pp",
+      "value": 0.0
+    },
+    {
+      "id": "MT_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Malta y/y, Sep 2026, pp",
+      "value": 0.0
+    },
+    {
+      "id": "MT_contrib_FOOD_P",
+      "label": "Contribution of processed food to Malta y/y, Sep 2026, pp",
+      "value": 0.2533203714230364
+    },
+    {
+      "id": "MT_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Malta y/y, Sep 2026, pp",
+      "value": 0.24001412150999726
+    },
+    {
+      "id": "MT_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Malta y/y, Sep 2026, pp",
+      "value": 0.1981256022364666
+    },
+    {
+      "id": "MT_contrib_SERV",
+      "label": "Contribution of services to Malta y/y, Sep 2026, pp",
+      "value": 1.6742115226114318
+    },
+    {
+      "id": "NL_yoy",
+      "label": "Netherlands headline y/y, Sep 2026, %",
+      "value": 3.0453328042852723
+    },
+    {
+      "id": "NL_weight",
+      "label": "Netherlands weight in the euro area* (2026), per mille",
+      "value": 58.22
+    },
+    {
+      "id": "NL_contrib",
+      "label": "Netherlands contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.17767902900666005
+    },
+    {
+      "id": "NL_rank",
+      "label": "Netherlands rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 5.0
+    },
+    {
+      "id": "NL_dyoy",
+      "label": "Change in Netherlands y/y from the previous month to Sep 2026, pp",
+      "value": 0.24833735063831686
+    },
+    {
+      "id": "NL_mom",
+      "label": "Momentum part of that change for Netherlands, pp",
+      "value": -0.12871948231581073
+    },
+    {
+      "id": "NL_base",
+      "label": "Base-effect part of that change for Netherlands, pp",
+      "value": 0.37705683295412756
+    },
+    {
+      "id": "NL_contrib_FUEL",
+      "label": "Contribution of fuels to Netherlands y/y, Sep 2026, pp",
+      "value": 0.8370865406177745
+    },
+    {
+      "id": "NL_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Netherlands y/y, Sep 2026, pp",
+      "value": 0.1739187645441231
+    },
+    {
+      "id": "NL_contrib_FOOD_P",
+      "label": "Contribution of processed food to Netherlands y/y, Sep 2026, pp",
+      "value": -0.17204192551745198
+    },
+    {
+      "id": "NL_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Netherlands y/y, Sep 2026, pp",
+      "value": -0.02207552087279779
+    },
+    {
+      "id": "NL_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Netherlands y/y, Sep 2026, pp",
+      "value": 0.44390717042477024
+    },
+    {
+      "id": "NL_contrib_SERV",
+      "label": "Contribution of services to Netherlands y/y, Sep 2026, pp",
+      "value": 1.7791106809384527
+    },
+    {
+      "id": "PT_yoy",
+      "label": "Portugal headline y/y, Sep 2026, %",
+      "value": 3.6266876909431423
+    },
+    {
+      "id": "PT_weight",
+      "label": "Portugal weight in the euro area* (2026), per mille",
+      "value": 26.01
+    },
+    {
+      "id": "PT_contrib",
+      "label": "Portugal contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.09593114985989508
+    },
+    {
+      "id": "PT_rank",
+      "label": "Portugal rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 9.0
+    },
+    {
+      "id": "PT_dyoy",
+      "label": "Change in Portugal y/y from the previous month to Sep 2026, pp",
+      "value": 0.07444888497301072
+    },
+    {
+      "id": "PT_mom",
+      "label": "Momentum part of that change for Portugal, pp",
+      "value": 1.0694733698272316
+    },
+    {
+      "id": "PT_base",
+      "label": "Base-effect part of that change for Portugal, pp",
+      "value": -0.995024484854221
+    },
+    {
+      "id": "PT_contrib_FUEL",
+      "label": "Contribution of fuels to Portugal y/y, Sep 2026, pp",
+      "value": 1.0032116446882506
+    },
+    {
+      "id": "PT_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Portugal y/y, Sep 2026, pp",
+      "value": 0.022228867249252923
+    },
+    {
+      "id": "PT_contrib_FOOD_P",
+      "label": "Contribution of processed food to Portugal y/y, Sep 2026, pp",
+      "value": 0.26788832684894454
+    },
+    {
+      "id": "PT_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Portugal y/y, Sep 2026, pp",
+      "value": 0.26567554369232715
+    },
+    {
+      "id": "PT_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Portugal y/y, Sep 2026, pp",
+      "value": 0.10063788432591478
+    },
+    {
+      "id": "PT_contrib_SERV",
+      "label": "Contribution of services to Portugal y/y, Sep 2026, pp",
+      "value": 1.9744689746291226
+    },
+    {
+      "id": "SI_yoy",
+      "label": "Slovenia headline y/y, Sep 2026, %",
+      "value": 3.6739152020653476
+    },
+    {
+      "id": "SI_weight",
+      "label": "Slovenia weight in the euro area* (2026), per mille",
+      "value": 4.48
+    },
+    {
+      "id": "SI_contrib",
+      "label": "Slovenia contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.016452637304252483
+    },
+    {
+      "id": "SI_rank",
+      "label": "Slovenia rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 17.0
+    },
+    {
+      "id": "SI_dyoy",
+      "label": "Change in Slovenia y/y from the previous month to Sep 2026, pp",
+      "value": 0.3081487207309497
+    },
+    {
+      "id": "SI_mom",
+      "label": "Momentum part of that change for Slovenia, pp",
+      "value": 0.2978702354519401
+    },
+    {
+      "id": "SI_base",
+      "label": "Base-effect part of that change for Slovenia, pp",
+      "value": 0.010278485279009592
+    },
+    {
+      "id": "SI_contrib_FUEL",
+      "label": "Contribution of fuels to Slovenia y/y, Sep 2026, pp",
+      "value": 1.6653242319734964
+    },
+    {
+      "id": "SI_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Slovenia y/y, Sep 2026, pp",
+      "value": 0.37702083906119904
+    },
+    {
+      "id": "SI_contrib_FOOD_P",
+      "label": "Contribution of processed food to Slovenia y/y, Sep 2026, pp",
+      "value": -0.035760268906000696
+    },
+    {
+      "id": "SI_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Slovenia y/y, Sep 2026, pp",
+      "value": 0.1812999203573487
+    },
+    {
+      "id": "SI_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Slovenia y/y, Sep 2026, pp",
+      "value": 0.011587078513672617
+    },
+    {
+      "id": "SI_contrib_SERV",
+      "label": "Contribution of services to Slovenia y/y, Sep 2026, pp",
+      "value": 1.477510842996716
+    },
+    {
+      "id": "SK_yoy",
+      "label": "Slovakia headline y/y, Sep 2026, %",
+      "value": 2.978850163836766
+    },
+    {
+      "id": "SK_weight",
+      "label": "Slovakia weight in the euro area* (2026), per mille",
+      "value": 8.53
+    },
+    {
+      "id": "SK_contrib",
+      "label": "Slovakia contribution to euro area* y/y, Sep 2026, pp",
+      "value": 0.025447361009935165
+    },
+    {
+      "id": "SK_rank",
+      "label": "Slovakia rank by contribution to euro area* y/y, Sep 2026 (1 = largest)",
+      "value": 15.0
+    },
+    {
+      "id": "SK_dyoy",
+      "label": "Change in Slovakia y/y from the previous month to Sep 2026, pp",
+      "value": -0.09547079925147361
+    },
+    {
+      "id": "SK_mom",
+      "label": "Momentum part of that change for Slovakia, pp",
+      "value": 0.10933312107069512
+    },
+    {
+      "id": "SK_base",
+      "label": "Base-effect part of that change for Slovakia, pp",
+      "value": -0.20480392032216874
+    },
+    {
+      "id": "SK_contrib_FUEL",
+      "label": "Contribution of fuels to Slovakia y/y, Sep 2026, pp",
+      "value": 0.6488761572427331
+    },
+    {
+      "id": "SK_contrib_ELC_GAS",
+      "label": "Contribution of electricity and gas to Slovakia y/y, Sep 2026, pp",
+      "value": 0.9893722682975419
+    },
+    {
+      "id": "SK_contrib_FOOD_P",
+      "label": "Contribution of processed food to Slovakia y/y, Sep 2026, pp",
+      "value": -0.4701519279285511
+    },
+    {
+      "id": "SK_contrib_FOOD_NP",
+      "label": "Contribution of unprocessed food to Slovakia y/y, Sep 2026, pp",
+      "value": -0.16352935968193355
+    },
+    {
+      "id": "SK_contrib_IGD_NNRG",
+      "label": "Contribution of non-energy industrial goods to Slovakia y/y, Sep 2026, pp",
+      "value": 0.7170006353172117
+    },
+    {
+      "id": "SK_contrib_SERV",
+      "label": "Contribution of services to Slovakia y/y, Sep 2026, pp",
+      "value": 1.2561364221540317
+    }
+  ]
+}

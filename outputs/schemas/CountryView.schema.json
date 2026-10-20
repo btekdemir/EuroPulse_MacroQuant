@@ -1,4 +1,50 @@
 {
+  "$defs": {
+    "CountryProfile": {
+      "additionalProperties": false,
+      "description": "One country's own drivers: exact chain-linked contributions of the six components to its y/y.",
+      "properties": {
+        "contributions": {
+          "additionalProperties": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "array"
+          },
+          "description": "component -> pp per month in CountryView.dates",
+          "title": "Contributions",
+          "type": "object"
+        },
+        "max_abs_gap_pp": {
+          "description": "max |\u03a3 contributions \u2212 published y/y| over the window",
+          "title": "Max Abs Gap Pp",
+          "type": "number"
+        },
+        "index": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "headline index (2025=100) by month, last 8 years",
+          "title": "Index",
+          "type": "object"
+        }
+      },
+      "required": [
+        "contributions",
+        "max_abs_gap_pp",
+        "index"
+      ],
+      "title": "CountryProfile",
+      "type": "object"
+    }
+  },
   "additionalProperties": false,
   "description": "Country contributions to euro area* headline YoY (exact, chain-linked with country weights).",
   "properties": {
@@ -66,6 +112,13 @@
       "description": "max |\u03a3 country contributions \u2212 EA YoY| over the window",
       "title": "Max Abs Gap Pp",
       "type": "number"
+    },
+    "profiles": {
+      "additionalProperties": {
+        "$ref": "#/$defs/CountryProfile"
+      },
+      "title": "Profiles",
+      "type": "object"
     }
   },
   "required": [
@@ -75,7 +128,8 @@
     "ea_yoy",
     "weights_latest",
     "weights_year",
-    "max_abs_gap_pp"
+    "max_abs_gap_pp",
+    "profiles"
   ],
   "title": "CountryView",
   "type": "object"
