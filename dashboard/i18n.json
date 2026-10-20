@@ -365,7 +365,22 @@
   "cc_remove": "Remove {c}",
   "cc_full": "(three selected: remove one first)",
   "dl_png": "PNG",
-  "dl_csv": "CSV"
+  "dl_csv": "CSV",
+  "cp_title": "Country profile: {c}",
+  "cp_pick": "Country",
+  "cp_hint": "or click a country's panel above",
+  "cp_summary": "{c}: {y}% y/y in {m}, {d} pp vs {prev} (momentum {mo} pp, base effect {b} pp). Weight in the euro area*: {w}‰ ({yr}). Contribution to euro area* y/y: {ct} pp, rank {r} of {n}.",
+  "cp_warn": "Caution for {c}: its component contributions add up to its y/y only within {g} pp (other countries: within 0.02). Its published headline is not exactly the weighted sum of its published components; the cause is not identified here (possibly how seasonal items are weighted within the year). The chart is indicative.",
+  "cp_drivers": "Drivers: contributions to the country's own y/y, pp",
+  "cp_drivers_note": "Exact chain-linked contributions with the country's own item weights; they add up to its y/y within {g} pp. Line: the country's y/y.",
+  "cp_basket": "Basket: share at today's prices, %",
+  "cp_basket_note": "Effective weights (official weight × relative price drift since December), the country vs the euro area* (grey).",
+  "cp_sens_title": "What a shock in this country does to euro area* inflation",
+  "cp_comp": "Component",
+  "cp_share": "Share of the euro area* basket, %",
+  "cp_impact": "Euro area* y/y impact of +10%, pp",
+  "cp_sens_note": "First-round impact in the first month of a permanent +10% price-level shock to that component in this country only, from the shock engine. Use the Shock simulator for other sizes and profiles.",
+  "cp_limits": "No country forecast here: the forecasting model covers the euro area* only. Eurostat publishes official component contributions for the euro area only, so these country contributions are checked by their sum, not against an official figure."
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -733,6 +748,21 @@
   "cc_remove": "Retirer {c}",
   "cc_full": "(trois sélectionnés : retirez-en un d'abord)",
   "dl_png": "PNG",
-  "dl_csv": "CSV"
+  "dl_csv": "CSV",
+  "cp_title": "Profil pays : {c}",
+  "cp_pick": "Pays",
+  "cp_hint": "ou cliquez sur le graphique d'un pays ci-dessus",
+  "cp_summary": "{c} : {y} % sur un an en {m}, {d} pt par rapport à {prev} (dynamique {mo} pt, effet de base {b} pt). Poids dans la zone euro* : {w} ‰ ({yr}). Contribution à l'inflation de la zone euro* : {ct} pt, rang {r} sur {n}.",
+  "cp_warn": "Attention pour {c} : la somme des contributions des composantes ne retrouve son inflation sur un an qu'à {g} pt près (autres pays : 0,02). Son indice global publié n'est pas exactement la somme pondérée de ses composantes publiées ; la cause n'est pas identifiée ici (peut-être la pondération des produits saisonniers au cours de l'année). Le graphique est indicatif.",
+  "cp_drivers": "Contributions à l'inflation du pays, pt",
+  "cp_drivers_note": "Contributions exactes en indice chaîné avec les pondérations du pays ; elles s'additionnent à son inflation sur un an à {g} pt près. Courbe : inflation du pays sur un an.",
+  "cp_basket": "Panier : part aux prix actuels, %",
+  "cp_basket_note": "Pondérations effectives (pondération officielle × évolution relative des prix depuis décembre), pays contre zone euro* (gris).",
+  "cp_sens_title": "Effet d'un choc dans ce pays sur l'inflation de la zone euro*",
+  "cp_comp": "Composante",
+  "cp_share": "Part du panier de la zone euro*, %",
+  "cp_impact": "Impact de +10 % sur l'inflation de la zone euro*, pt",
+  "cp_sens_note": "Impact de premier tour, le premier mois, d'un choc permanent de +10 % sur le niveau des prix de cette composante dans ce pays seulement, calculé par le moteur de chocs. Le simulateur permet d'autres tailles et profils.",
+  "cp_limits": "Pas de prévision par pays ici : le modèle de prévision couvre la zone euro* seulement. Eurostat ne publie des contributions officielles par composante que pour la zone euro : ces contributions par pays sont vérifiées par leur somme, pas par un chiffre officiel."
  }
 }

@@ -188,6 +188,13 @@ class BacktestMetrics(Strict):
     track: list[TrackPoint] = Field(description="Out-of-sample headline YoY forecasts vs actual")
 
 
+class CountryProfile(Strict):
+    """One country's own drivers: exact chain-linked contributions of the six components to its y/y."""
+    contributions: dict[str, list[float | None]] = Field(description="component -> pp per month in CountryView.dates")
+    max_abs_gap_pp: float = Field(description="max |Σ contributions − published y/y| over the window")
+    index: dict[str, float] = Field(description="headline index (2025=100) by month, last 8 years")
+
+
 class CountryView(Strict):
     """Country contributions to euro area* headline YoY (exact, chain-linked with country weights)."""
     dates: list[str]
@@ -197,6 +204,7 @@ class CountryView(Strict):
     weights_latest: dict[str, float] = Field(description="Country weight in the euro area*, per mille")
     weights_year: int
     max_abs_gap_pp: float = Field(description="max |Σ country contributions − EA YoY| over the window")
+    profiles: dict[str, CountryProfile]
 
 
 # --------------------------------------------------------------------------- round 2 (D27)

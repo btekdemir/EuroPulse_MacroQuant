@@ -439,3 +439,13 @@ Committed to git before the code that runs it. It does not change after the resu
   - This is arithmetic, not a re-estimated model, and in 2021–23 surprises persisted, so it is a lower bound in such periods (stated on the card).
 - **Compare countries (Countries):** up to three countries against the euro area\*. Add them from the menu or by clicking a bar; the selected countries are highlighted in the small multiples. Colour follows the country, not its position: removing one does not repaint the others (checked).
 - **Downloads:** every chart has PNG (Plotly, 2× resolution) and CSV buttons. The CSV is in long format (series, x, y); hover-only helper traces are left out and band edges are named by quantile.
+
+## D33. Country profile (20 Oct 2026)
+
+- **What:** click a country's small multiple, or pick it from the menu, and a profile card opens below. It has five parts:
+  - a one-line summary: y/y, the change from last month split into momentum and base effect (the same `explainMonth` algebra as the euro area), the country's weight and its contribution rank;
+  - the country's own component contributions over the last 36 months, with its y/y line;
+  - its basket at today's prices (effective weights) next to the euro area\*;
+  - the euro area\* impact of a +10% permanent shock to each component in that country only, from the same shock engine as the simulator.
+- **Not included:** a country forecast. The backtest and the model choice (D9) are for the euro area\* headline only. A country forecast would not have been tested, so it is not shown.
+- **Italy finding:** each country's exact contributions add up to its published y/y within 0.02pp, except Italy, which is off by up to 0.12pp. Italy's published TOTAL is not the weighted chain-link of its published components. Other countries reproduce their totals to about 0.01 index points; Italy is off by about 0.10. The cause is not identified; seasonal-item treatment is a guess, not verified. The card warns whenever the gap is above 0.02pp, and `tests/test_country_profiles.py` pins the gap so that a change in the data shows up.

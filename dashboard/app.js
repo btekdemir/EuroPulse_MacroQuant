@@ -342,7 +342,46 @@
     for (const [g, k] of ccSel) tr.push({ x: xs, y: C.yoy[g], mode: "lines", name: geo(g), line: { color: css(CC_SLOTS[k]), width: 2 }, hovertemplate: "%{y:.1f}%" });
     plot("p-ccmp", tr, baseLayout({ yaxis: Object.assign(baseLayout().yaxis, { ticksuffix: "%" }) }));
   }
-  let cbarBound = false;
+  let cbarBound = false, csmBound = false, smGeos = [], cpGeo = "DE";
+
+  // ------------------------------------------------------------------ country profile
+  function renderProfile() {
+    const sel = el("cp-country");
+    const order = Object.keys(C.profiles).sort((a, b) => geo(a).localeCompare(geo(b), lang));
+    sel.replaceChildren(...order.map((g) => node("option", { value: g }, geo(g))));
+    sel.value = cpGeo;
+    const g = cpGeo, prof = C.profiles[g], n = C.dates.length - 1, m = C.dates[n], prev = ShockEngine.addMonths(m, -1);
+    el("cp-title").textContent = t("cp_title", { c: geo(g) });
+    const ex = ShockEngine.explainMonth(prof.index, m);
+    const ranked = Object.keys(C.contributions).sort((a, b) => (C.contributions[b][n] || 0) - (C.contributions[a][n] || 0));
+    el("cp-summary").textContent = t("cp_summary", { c: geo(g), y: fmt(C.yoy[g][n], 1), m: monthLabel(m), d: ex ? sgn(ex.delta_pp) : "–",
+      prev: monthLabel(prev), mo: ex ? sgn(ex.momentum_pp) : "–", b: ex ? sgn(ex.base_effect_pp) : "–",
+      w: fmt(C.weights_latest[g] || 0, 1), yr: C.weights_year, ct: fmt(C.contributions[g][n] || 0, 2), r: ranked.indexOf(g) + 1, n: ranked.length });
+    const warn = el("cp-warn");
+    warn.hidden = prof.max_abs_gap_pp <= 0.02;
+    warn.textContent = warn.hidden ? "" : t("cp_warn", { c: geo(g), g: fmt(prof.max_abs_gap_pp, 2) });
+
+    const k0 = Math.max(0, C.dates.length - 36), xs = C.dates.slice(k0).map(toDate);
+    const tr = COMPS.map((c) => ({ type: "bar", name: comp(c), x: xs, y: prof.contributions[c].slice(k0),
+      marker: { color: css(SLOT[c]), line: { color: css("--surface-1"), width: 1 } }, hovertemplate: "%{y:.2f} " + t("pp") }));
+    tr.push({ type: "scatter", mode: "lines", name: geo(g) + " (% y/y)", x: xs, y: C.yoy[g].slice(k0), line: { color: css("--text-primary"), width: 2 }, hovertemplate: "%{y:.2f}%" });
+    plot("p-cp-drivers", tr, baseLayout({ barmode: "relative", bargap: 0.25 }));
+    el("cp-drivers-note").textContent = t("cp_drivers_note", { g: fmt(prof.max_abs_gap_pp, 2) });
+
+    const W = S.weight_matrix[g], tot = COMPS.reduce((a, c) => a + W[c], 0);
+    plot("p-cp-basket", [
+      { type: "bar", orientation: "h", name: geo("EA"), y: COMPS.map(comp), x: COMPS.map((c) => 100 * S.ea_effective_weights[c]), marker: { color: css("--axis") }, hovertemplate: "%{x:.1f}%" },
+      { type: "bar", orientation: "h", name: geo(g), y: COMPS.map(comp), x: COMPS.map((c) => 100 * W[c] / tot), marker: { color: css("--text-secondary") }, hovertemplate: "%{x:.1f}%" },
+    ], baseLayout({ barmode: "group", bargap: 0.3, hovermode: "y unified", margin: { l: 10, r: 16, t: 8, b: 36 },
+      yaxis: Object.assign(baseLayout().yaxis, { autorange: "reversed" }), xaxis: Object.assign(baseLayout().xaxis, { ticksuffix: "%", nticks: 4 }) }));
+
+    table(el("tbl-cp-sens"), [t("cp_comp"), t("cp_share"), t("cp_impact")], COMPS.map((c) => {
+      const sc = { name: "profile", legs: [{ components: [c], countries: [g], size_pct: 10, profile: { kind: "permanent" }, start: S.months[0] }],
+        second_round: false, second_round_regime: "post2020" };
+      const r = ShockEngine.simulate(sc, S);
+      return [comp(c), fmt(100 * W[c], 2), sgn(r.delta_yoy_pp[0], 3)];
+    }), [1, 2]);
+  }
 
   function renderCountries() {
     renderCompare();
@@ -364,6 +403,7 @@
     }
 
     const geos = Object.keys(C.yoy).sort((a, b) => geo(a).localeCompare(geo(b), lang));
+    smGeos = geos;
     const cols = window.innerWidth < 700 ? 3 : 5, rows = Math.ceil(geos.length / cols);
     const xs = C.dates.map(toDate);
     let lo = Infinity, hi = -Infinity;
@@ -391,6 +431,16 @@
     lay.annotations = ann;
     el("p-csm").style.height = (rows * 140 + 50) + "px";
     plot("p-csm", data, lay);
+    if (!csmBound) {  // click a panel (country line or the euro area line in it) -> its profile
+      el("p-csm").on("plotly_click", (ev) => {
+        const pt = ev.points && ev.points[0];
+        if (!pt) return;
+        const k = pt.data.xaxis === "x" ? 0 : Number(pt.data.xaxis.slice(1)) - 1;
+        if (smGeos[k]) { cpGeo = smGeos[k]; renderProfile(); el("cp-card").scrollIntoView({ block: "start", behavior: "smooth" }); }
+      });
+      csmBound = true;
+    }
+    renderProfile();
   }
 
   // ------------------------------------------------------------------ shock simulator
@@ -972,6 +1022,7 @@
   el("oct-range").addEventListener("input", () => setOct(Number(el("oct-range").value)));
   el("oct-reset").addEventListener("click", () => setOct(P[0].point));
   el("cc-add").addEventListener("change", () => { const g = el("cc-add").value; if (g) ccToggle(g); });
+  el("cp-country").addEventListener("change", () => { cpGeo = el("cp-country").value; renderProfile(); });
   bindThreshold();
   buildForm();
   if (theme !== "auto") document.documentElement.setAttribute("data-theme", theme);

@@ -28,7 +28,19 @@ def country_view(d: CleanData, s: Settings, years: int = 6) -> CountryView:
     ea_y = yoy(ea)
     cy = yoy(ix)
     gap = (contrib.loc[window].sum(axis=1) - ea_y.loc[window]).abs().max()
+    profiles = {}
+    for c in s.countries:
+        ixc, wc = d.index_wide(c), d.weights_wide(c)
+        con = exact_contributions(ixc, wc, s.components, s.headline).reindex(window)
+        cy_c = yoy(ixc[s.headline]).reindex(window)
+        tot = ixc[s.headline]
+        profiles[c] = {
+            "contributions": {k: [_none(con.at[t, k]) for t in window] for k in s.components},
+            "max_abs_gap_pp": float((con.sum(axis=1) - cy_c).abs().max()),
+            "index": {f"{t:%Y-%m}": float(v) for t, v in tot.loc[last - pd.DateOffset(years=8):last].dropna().items()},
+        }
     return CountryView(
+        profiles=profiles,
         dates=[f"{t:%Y-%m}" for t in window],
         contributions={c: [_none(contrib.at[t, c]) for t in window] for c in s.countries},
         yoy={c: [_none(cy.at[t, c]) for t in window] for c in s.countries},

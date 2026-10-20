@@ -213,6 +213,18 @@ input[type="range"] { min-width: 160px; }
         <p class="note" id="n-cbar"></p><p class="src" data-src="src_eurostat"></p></div>
       <div class="card span-8"><h2 data-i18n="ch_country_sm"></h2><div class="plot tall" id="p-csm"></div>
         <p class="note" data-i18n="ch_country_sm_note"></p><p class="src" data-src="src_eurostat"></p></div>
+      <div class="card" id="cp-card"><h2 id="cp-title"></h2>
+        <div class="row" style="margin:4px 0 8px"><label><span data-i18n="cp_pick"></span><select id="cp-country"></select></label>
+          <span class="note" data-i18n="cp_hint" style="margin:0"></span></div>
+        <p class="answer" id="cp-summary"></p>
+        <p class="note" id="cp-warn" hidden style="color:var(--text-primary)"></p>
+        <div class="grid" style="gap:12px">
+          <div class="span-8"><h2 data-i18n="cp_drivers"></h2><div class="plot" id="p-cp-drivers"></div><p class="note" id="cp-drivers-note"></p></div>
+          <div class="span-4"><h2 data-i18n="cp_basket"></h2><div class="plot" id="p-cp-basket"></div><p class="note" data-i18n="cp_basket_note"></p></div>
+        </div>
+        <h2 style="margin-top:8px" data-i18n="cp_sens_title"></h2><div class="tablewrap" id="tbl-cp-sens"></div>
+        <p class="note" data-i18n="cp_sens_note"></p>
+        <p class="note" data-i18n="cp_limits"></p><p class="src" data-src="src_eurostat"></p></div>
     </div>
   </section>
   <section role="tabpanel" id="tab-shocks">
