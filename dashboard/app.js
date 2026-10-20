@@ -374,9 +374,9 @@
     geos.forEach((g, k) => {
       const ax = k === 0 ? "" : String(k + 1);
       data.push({ x: xs, y: C.ea_yoy, xaxis: "x" + ax, yaxis: "y" + ax, mode: "lines", line: { color: css("--axis"), width: 1.5 }, name: geo("EA"), hovertemplate: "%{y:.1f}%" });
-      const hi = ccSel.has(g);
+      const picked = ccSel.has(g);  // not "hi": that name holds the shared y-axis maximum in this function
       data.push({ x: xs, y: C.yoy[g], xaxis: "x" + ax, yaxis: "y" + ax, mode: "lines", name: geo(g), hovertemplate: "%{y:.1f}%",
-        line: { color: hi ? css(CC_SLOTS[ccSel.get(g)]) : css("--text-primary"), width: hi ? 2.5 : 1.5 } });
+        line: { color: picked ? css(CC_SLOTS[ccSel.get(g)]) : css("--text-primary"), width: picked ? 2.5 : 1.5 } });
       const base = baseLayout();
       // Years on every panel: a small multiple without a time axis hides which period it shows.
       const y0 = Number(C.dates[0].slice(0, 4));
