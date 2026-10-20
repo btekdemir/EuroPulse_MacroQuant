@@ -46,12 +46,23 @@ class Inputs:
     weights: pd.DataFrame    # EA item weights wide
     pump_w: pd.Series | None
     settings: Settings
+    ppi_m: pd.Series | None = None  # 100·Δln producer energy prices (D35, EA21), by month
 
 
 def make_inputs(d: CleanData, s: Settings, pump_w: pd.Series | None) -> Inputs:
     ix = d.index_wide(s.ea)
+    ppi = d.ppi.set_index("date")["value"].sort_index() if len(getattr(d, "ppi", [])) else None
     return Inputs(index=ix, y=log_changes(ix[[s.headline] + s.components], s.raw["chainlink_start"]),
-                  weights=d.weights_wide(s.ea), pump_w=pump_w, settings=s)
+                  weights=d.weights_wide(s.ea), pump_w=pump_w, settings=s,
+                  ppi_m=(100 * np.log(ppi).diff()).dropna() if ppi is not None else None)
+
+
+def ppi_feature(inp: Inputs, origin: pd.Timestamp) -> pd.Series:
+    """Producer-price m/m as known at the origin: published up to t−1 (released ~35 days after month-end);
+    changes from month t on are unknown and set to 0, i.e. the level is held flat (D27)."""
+    known = inp.ppi_m[inp.ppi_m.index <= origin - pd.DateOffset(months=1)]
+    future = pd.date_range(origin, origin + pd.DateOffset(months=H), freq="MS")
+    return pd.concat([known, pd.Series(0.0, index=future)])
 
 
 def pump_feature(inp: Inputs, origin: pd.Timestamp) -> pd.Series:
@@ -64,21 +75,22 @@ def pump_feature(inp: Inputs, origin: pd.Timestamp) -> pd.Series:
 
 
 def forecast_component(inp: Inputs, comp: str, spec: fc.ModelSpec, origin: pd.Timestamp,
-                       pump: pd.Series | None) -> pd.Series:
+                       pump: pd.Series | None, ppi: pd.Series | None = None) -> pd.Series:
     y = inp.y[comp].loc[:origin]
-    f = fc.fit(y, spec, pump)
-    return fc.predict(f, y, H, pump)
+    f = fc.fit(y, spec, pump, ppi)
+    return fc.predict(f, y, H, pump, ppi)
 
 
 def run_components(inp: Inputs, origins: list[pd.Timestamp], specs: dict[str, list[fc.ModelSpec]]) -> pd.DataFrame:
     rows = []
     for k, t in enumerate(origins):
         pump = pump_feature(inp, t) if inp.pump_w is not None else None
+        ppi = ppi_feature(inp, t) if (inp.ppi_m is not None and any(sp.ppi_lags for v in specs.values() for sp in v)) else None
         for comp, ss in specs.items():
             for spec in ss:
                 if spec.pump and (pump is None or pump.loc[:t].dropna().size < 60):
                     continue
-                path = forecast_component(inp, comp, spec, t, pump)
+                path = forecast_component(inp, comp, spec, t, pump, ppi)
                 for h, (target, v) in enumerate(path.items(), start=1):
                     rows.append((t, comp, spec.name, h, target, v))
         if k % 50 == 0:

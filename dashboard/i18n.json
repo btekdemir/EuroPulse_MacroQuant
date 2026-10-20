@@ -277,7 +277,21 @@
   "note_col_val": "Fact value",
   "note_col_ok": "Match",
   "note_caveat": "The check guarantees that no figure is invented and each is traceable to a named fact. It does not check the wording (direction, emphasis): a person reads the note before it is sent.",
-  "note_missing": "No note in this language."
+  "note_missing": "No note in this language.",
+  "r2_title": "Round 2, pre-registered: can anything beat the random walk at h = 3?",
+  "r2_intro": "Three candidates and the decision rule were written down and committed before this was run (D27). Each is tested against the random walk at h = 3 on all origins; Holm's correction is applied across the four tests.",
+  "r2_model": "Model",
+  "r2_ratio": "RMSE ratio vs RW",
+  "r2_p": "DM p",
+  "r2_thr": "Holm threshold",
+  "r2_pass": "Passes",
+  "m_C1_ppi": "C1: producer energy prices lead electricity & gas",
+  "m_C2_combo": "C2: average of bottom-up and direct AR",
+  "m_C3_ic": "C3: intercept correction (last 3 errors)",
+  "r2_gated": "rejected at component stage (p = {p})",
+  "r2_none": "No candidate passes the pre-registered rule, so the current model stays. The best, the intercept correction, has a ratio of {r} and an unadjusted p of {p}: significant on its own, not after correcting for four tests (threshold {thr}).",
+  "r2_adopted": "Adopted under the rule: {m}.",
+  "r2_reading": "Reading: the gains come from 2020 on. In 2010–2019 the ratios at h = 3 are 0.95 to 1.03 and none is significant. The candidates were chosen after studying the 2021–23 errors, so even the unadjusted p-values overstate the evidence. The forecast ledger collects clean out-of-sample evidence from now on."
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -557,6 +571,20 @@
   "note_col_val": "Valeur du fait",
   "note_col_ok": "Concordance",
   "note_caveat": "Le contrôle garantit qu'aucun chiffre n'est inventé et que chacun est rattaché à un fait nommé. Il ne vérifie pas la formulation (sens, insistance) : une personne relit la note avant envoi.",
-  "note_missing": "Aucune note dans cette langue."
+  "note_missing": "Aucune note dans cette langue.",
+  "r2_title": "Deuxième tour, pré-enregistré : peut-on battre la marche aléatoire à h = 3 ?",
+  "r2_intro": "Trois candidats et la règle de décision ont été écrits et enregistrés avant l'exécution (D27). Chacun est testé contre la marche aléatoire à h = 3 sur toutes les dates ; la correction de Holm s'applique aux quatre tests.",
+  "r2_model": "Modèle",
+  "r2_ratio": "Ratio RMSE vs MA",
+  "r2_p": "p DM",
+  "r2_thr": "Seuil de Holm",
+  "r2_pass": "Retenu",
+  "m_C1_ppi": "C1 : prix à la production de l'énergie en avance sur électricité et gaz",
+  "m_C2_combo": "C2 : moyenne agrégation et AR direct",
+  "m_C3_ic": "C3 : correction d'ordonnée (3 dernières erreurs)",
+  "r2_gated": "rejeté au stade des composantes (p = {p})",
+  "r2_none": "Aucun candidat ne satisfait la règle pré-enregistrée : le modèle actuel est conservé. Le meilleur, la correction d'ordonnée, a un ratio de {r} et une p-valeur non corrigée de {p} : significatif seul, pas après correction pour quatre tests (seuil {thr}).",
+  "r2_adopted": "Retenu selon la règle : {m}.",
+  "r2_reading": "Lecture : les gains proviennent de la période après 2020. Sur 2010–2019, les ratios à h = 3 vont de 0,95 à 1,03 et aucun n'est significatif. Les candidats ont été choisis après étude des erreurs de 2021–23 : même les p-valeurs non corrigées surestiment donc la preuve. Le registre des prévisions accumule désormais une preuve hors échantillon propre."
  }
 }

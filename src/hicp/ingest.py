@@ -180,6 +180,8 @@ def pull_all(settings: Settings, offline: bool = False) -> tuple[dict[str, pd.Da
         "country_weights": (ds["country_weights"], [("statinfo", cfg["country_weights_statinfo"])]),
         "contributions": (ds["contributions"], [("geo", ea)]
                           + [(dim, c) for c in settings.components + cfg["aggregates"]]),
+        "ppi_energy": (ds["producer_prices"], [("geo", cfg["ppi"]["geo"]), ("nace_r2", cfg["ppi"]["nace_r2"]),
+                                              ("unit", "I21"), ("s_adj", "NSA"), ("indic_bt", "PRC_PRR_DOM")]),
         "first_release": (ds["first_release"], [("geo", ea), (dim, settings.headline),
                                                 ("unit", "RCH_A"), ("sinceTimePeriod", "2017-01")]),
     }

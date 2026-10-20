@@ -34,6 +34,7 @@ class ModelSpec:
     easter: bool = False
     pump: bool = False
     window: int | None = None  # None = expanding; else rolling window length in months
+    ppi_lags: int = 0          # >0: add lags 1..ppi_lags of producer energy price m/m (round 2, D27)
 
 
 def easter_regressor(dates: pd.DatetimeIndex) -> np.ndarray:
@@ -46,8 +47,12 @@ def easter_regressor(dates: pd.DatetimeIndex) -> np.ndarray:
     return out
 
 
+def _ppi_lags(dates: pd.DatetimeIndex, ppi: pd.Series, n: int) -> list[np.ndarray]:
+    return [ppi.reindex(dates - pd.DateOffset(months=k)).to_numpy() for k in range(1, n + 1)]
+
+
 def _design(dates: pd.DatetimeIndex, lags: np.ndarray | None, spec: ModelSpec,
-            pump: pd.Series | None) -> np.ndarray:
+            pump: pd.Series | None, ppi: pd.Series | None = None) -> np.ndarray:
     cols = [(dates.month.to_numpy() == m).astype(float) for m in range(1, 13)]
     if lags is not None and lags.size:
         cols += list(lags.T)
@@ -55,6 +60,8 @@ def _design(dates: pd.DatetimeIndex, lags: np.ndarray | None, spec: ModelSpec,
         cols.append(easter_regressor(dates))
     if spec.pump:
         cols.append(pump.reindex(dates).to_numpy())
+    if spec.ppi_lags:
+        cols += _ppi_lags(dates, ppi, spec.ppi_lags)
     return np.column_stack(cols)
 
 
@@ -71,11 +78,14 @@ class Fitted:
     n: int
 
 
-def fit(y: pd.Series, spec: ModelSpec, pump: pd.Series | None = None) -> Fitted:
+def fit(y: pd.Series, spec: ModelSpec, pump: pd.Series | None = None, ppi: pd.Series | None = None) -> Fitted:
     """Fit on the whole of ``y`` (the caller truncates to the information set)."""
     y = y.dropna()
     if spec.pump:
         y = y[y.index.isin(pump.dropna().index)]
+    if spec.ppi_lags:
+        have = np.all(~np.isnan(np.column_stack(_ppi_lags(y.index, ppi, spec.ppi_lags))), axis=1)
+        y = y[have]
     if spec.window:
         y = y.iloc[-spec.window:]
     v = y.to_numpy()
@@ -85,7 +95,7 @@ def fit(y: pd.Series, spec: ModelSpec, pump: pd.Series | None = None) -> Fitted:
     candidates = range(MAX_AR + 1) if spec.ar == "aic" else [int(spec.ar)]
     best = None
     for p in candidates:
-        X = _design(dates, _lag_matrix(v, p, start), spec, pump)
+        X = _design(dates, _lag_matrix(v, p, start), spec, pump, ppi)
         beta, *_ = np.linalg.lstsq(X, target, rcond=None)
         rss = float(((target - X @ beta) ** 2).sum())
         n, k = len(target), X.shape[1]
@@ -96,7 +106,8 @@ def fit(y: pd.Series, spec: ModelSpec, pump: pd.Series | None = None) -> Fitted:
     return Fitted(spec=spec, p=p, beta=beta, sigma=float(sigma), n=n)
 
 
-def predict(f: Fitted, y: pd.Series, horizon: int, pump: pd.Series | None = None) -> pd.Series:
+def predict(f: Fitted, y: pd.Series, horizon: int, pump: pd.Series | None = None,
+            ppi: pd.Series | None = None) -> pd.Series:
     """Iterated h-step forecasts of y after its last observation."""
     hist = list(y.dropna().to_numpy())
     t0 = y.dropna().index[-1]
@@ -104,7 +115,7 @@ def predict(f: Fitted, y: pd.Series, horizon: int, pump: pd.Series | None = None
     for h in range(1, horizon + 1):
         d = pd.DatetimeIndex([t0 + pd.DateOffset(months=h)])
         lags = np.array([[hist[-k] for k in range(1, f.p + 1)]]) if f.p else None
-        x = _design(d, lags, f.spec, pump)
+        x = _design(d, lags, f.spec, pump, ppi)
         val = float((x @ f.beta)[0])
         hist.append(val)
         out[d[0]] = val

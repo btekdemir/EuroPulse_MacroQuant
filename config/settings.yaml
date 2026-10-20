@@ -11,11 +11,18 @@ eurostat:
     country_weights: prc_hicp_cw      # ver.2 country weights (legacy prc_hicp_cow stops at 2025)
     contributions: prc_hicp_ctr       # official contributions to EA annual inflation, pp
     first_release: prc_hicp_fpd       # flash (FLS) and first full (FIN) releases
+    producer_prices: sts_inppd_m      # domestic producer prices, monthly (round-2 candidate C1, D27)
   start_period: "1996-01"
 
 # Euro area*, the changing-composition aggregate. Its Eurostat label is
 # "Euro area (EA11-1999, ..., EA20-2023, EA21-2026)". EA21/EA20/EA19 are fixed compositions.
 euro_area_geo: EA
+
+# Producer prices of electricity, gas and steam (D35). No changing-composition EA aggregate exists in
+# sts_inppd_m, so the fixed EA21 composition is used as an indicator. Known up to t-1 at origin t.
+ppi:
+  geo: EA21
+  nace_r2: D35
 country_weights_statinfo: COWEA
 
 # EA21 members (Bulgaria from Jan 2026). Eurostat writes Greece as EL.

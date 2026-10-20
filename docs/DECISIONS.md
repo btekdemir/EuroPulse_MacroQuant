@@ -333,3 +333,19 @@ Committed to git before the code that runs it. It does not change after the resu
 - **Also reported, not used for the decision:** h = 1, 2; the 2010–2019 and 2020-on samples; DM vs the current bottom-up model.
 
 **Disclosed before running:** C1 and C3 were motivated by the error decomposition of 20 Oct 2026, which used 2020–2023 outcomes, and C2 by known round-1 numbers. So none of these candidates is a clean out-of-sample discovery; the 2020-on sample is not a clean hold-out for them. Each candidate's rationale is standard in the literature, which limits but does not remove the data-snooping concern. The Holm correction covers this round's family only, not every idea considered along the way.
+
+### D27 results (run 20 Oct 2026, after the pre-registration commit 0fb7156; reproduced by `python run.py` → `outputs/round2.json`)
+
+| Model (h = 3, 198 origins) | RMSE ratio vs RW | DM p | Holm threshold | Passes |
+|---|---|---|---|---|
+| Current bottom-up | 0.838 | 0.140 | 0.0250 | no |
+| C1 producer-price-led ELC_GAS | 0.793 | gated out (component stage p = 0.33) | 0.0500 | no |
+| C2 bottom-up + direct AR average | 0.827 | 0.091 | 0.0167 | no |
+| C3 intercept correction | **0.769** | **0.026** | 0.0125 | no |
+
+- **Decision, per the rule:** no candidate passes, so the current model stays. The best candidate (C3) would be significant as a single test at 5%, but not after Holm's correction for four tests.
+- **C1:** at component level the producer-price model lowered ELC_GAS's 2010–2019 MSE (1.23 vs 1.41) but not significantly (p = 0.33), so the gate stopped it. Its headline numbers are reported for information only.
+- **Where the gains are:** in 2010–2019 every model's h = 3 ratio is 0.95–1.03 and none is significant; the improvements come from 2020 on (C3 0.71, C1 0.75, current 0.81). Combined with the data-snooping disclosure above, the honest statement is: *we do not have significant evidence of beating the random walk at h = 3*.
+- **h = 1, 2 (reported, not part of the decision):** every candidate beats the random walk at h = 1 (p ≤ 0.009); at h = 2, C1 (p = 0.013), C2 (p = 0.045) and C3 (p = 0.008) do, against 0.057 for the current model.
+- **One implementation detail D27 did not anticipate:** C3 needs one-month errors from before the first origin, which cannot be computed (the fuel model needs 60 months of bulletin data in 2009). The first three origins therefore use the 0–2 errors already known; 2010-01 has no correction.
+- **What would be legitimate next:** not a round 3 on the same data, which would be a search for a significant result. Instead, (a) the forecast ledger accumulates genuinely out-of-sample outcomes from Oct 2026 on, and (b) information the random walk cannot have at h = 2–3, such as an energy futures curve (not freely available).

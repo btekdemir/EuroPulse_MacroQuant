@@ -24,6 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from hicp import backtest as bt  # noqa: E402
 from hicp import ledger  # noqa: E402
+from hicp.round2 import run_round2  # noqa: E402
 from hicp.clean import clean_all  # noqa: E402
 from hicp.config import ROOT, load_settings  # noqa: E402
 from hicp.external import pull_external, pump_index  # noqa: E402
@@ -32,7 +33,7 @@ from hicp.export import country_view, track, write_shock_outputs  # noqa: E402
 from hicp.outlook import build_outlook  # noqa: E402
 from hicp.passthrough import estimate_all  # noqa: E402
 from hicp.shocks import build_basis, make_presets  # noqa: E402
-from hicp.schemas import (BacktestMetrics, DataVintage, Forecast, RunManifest, SelectionStep,  # noqa: E402
+from hicp.schemas import (BacktestMetrics, DataVintage, Forecast, Round2Report, RunManifest, SelectionStep,  # noqa: E402
                           export_json_schemas, write_json)
 from hicp.validate import run_all  # noqa: E402
 
@@ -107,6 +108,19 @@ def main() -> int:
     for r in res.metrics[(res.metrics.model == "bottom_up") & (res.metrics["sample"] == "full")].itertuples():
         log.info("  bottom-up h=%d: RMSE %.2fpp, ratio vs RW %.2f, DM p %.3f", r.h, r.rmse, r.rmse_ratio_vs_rw, r.dm_p)
 
+    log.info("round 2 (pre-registered, D27): can any candidate beat the random walk at h=3?")
+    r2 = run_round2(inp, res, *cfg["selection_sample"])
+    write_json(Round2Report(
+        rule=ROUND2_RULE, gate={k: (None if isinstance(v, float) and math.isnan(v) else v) for k, v in r2["gate"].items()},
+        holm=r2["holm"], adopted=r2["adopted"],
+        metrics=[_nan_to_none({k: r[k] for k in ("model", "h", "sample", "n", "rmse", "rmse_ratio_vs_rw", "dm_p",
+                                                  "dm_p_vs_bottom_up", "bias")}) for r in r2["metrics"].to_dict("records")]),
+        out / "round2.json")
+    for d in r2["holm"]:
+        log.info("  %-10s p=%s  Holm threshold %.4f  %s", d["name"], "gated" if d["p"] is None else f"{d['p']:.3f}",
+                 d["threshold"], "PASS" if d["rejected"] else "no")
+    log.info("  adopted: %s", r2["adopted"] or "none (current model stays, as the rule says)")
+
     log.info("forecast ledger")
     code_version = git_version().removesuffix("-dirty")
     entry, why = ledger.record(outlook, {p.name: p.sha256 for p in pulls}, code_version, s.config_hash(), tree_is_dirty())
@@ -137,6 +151,11 @@ def main() -> int:
     log.info("validation %s; done in %.1fs", report.summary, time.perf_counter() - t0)
     return 0 if scores.verified else 3
 
+
+ROUND2_RULE = ("Pre-registered (D27, commit 0fb7156): C1 PPI-led ELC_GAS (gated by the D9 rule), C2 equal-weight "
+               "bottom-up + direct AR, C3 intercept correction (mean of last 3 known 1-month errors). Family = current "
+               "bottom-up + C1..C3, DM vs random walk at h=3 on all origins, Holm at 5%. Adopt the lowest-MSE passing "
+               "candidate; otherwise keep the current model.")
 
 RULE = ("Keep the simpler model (ladder SM -> AR1 -> richer) unless the richer model has lower MSE and a "
         "Diebold-Mariano p < 0.05 (two-sided, HLN-corrected, NW h-1 lags) on the cumulative 3-month log change, "

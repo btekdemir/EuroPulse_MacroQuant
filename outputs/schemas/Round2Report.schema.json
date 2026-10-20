@@ -1,0 +1,159 @@
+{
+  "$defs": {
+    "HolmStep": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "p": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "P"
+        },
+        "threshold": {
+          "title": "Threshold",
+          "type": "number"
+        },
+        "rejected": {
+          "title": "Rejected",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "p",
+        "threshold",
+        "rejected"
+      ],
+      "title": "HolmStep",
+      "type": "object"
+    },
+    "Round2Row": {
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "h": {
+          "maximum": 3,
+          "minimum": 1,
+          "title": "H",
+          "type": "integer"
+        },
+        "sample": {
+          "title": "Sample",
+          "type": "string"
+        },
+        "n": {
+          "title": "N",
+          "type": "integer"
+        },
+        "rmse": {
+          "title": "Rmse",
+          "type": "number"
+        },
+        "rmse_ratio_vs_rw": {
+          "title": "Rmse Ratio Vs Rw",
+          "type": "number"
+        },
+        "dm_p": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Dm P"
+        },
+        "dm_p_vs_bottom_up": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Dm P Vs Bottom Up"
+        },
+        "bias": {
+          "title": "Bias",
+          "type": "number"
+        }
+      },
+      "required": [
+        "model",
+        "h",
+        "sample",
+        "n",
+        "rmse",
+        "rmse_ratio_vs_rw",
+        "dm_p",
+        "dm_p_vs_bottom_up",
+        "bias"
+      ],
+      "title": "Round2Row",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Pre-registered round 2 (docs/DECISIONS.md D27): exactly three candidates, Holm across four tests.",
+  "properties": {
+    "rule": {
+      "title": "Rule",
+      "type": "string"
+    },
+    "gate": {
+      "additionalProperties": true,
+      "description": "C1's component-stage test (D9 rule, 2010-2019 origins)",
+      "title": "Gate",
+      "type": "object"
+    },
+    "holm": {
+      "items": {
+        "$ref": "#/$defs/HolmStep"
+      },
+      "title": "Holm",
+      "type": "array"
+    },
+    "adopted": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Candidate adopted as the published model, or None (current model stays)",
+      "title": "Adopted"
+    },
+    "metrics": {
+      "items": {
+        "$ref": "#/$defs/Round2Row"
+      },
+      "title": "Metrics",
+      "type": "array"
+    }
+  },
+  "required": [
+    "rule",
+    "gate",
+    "holm",
+    "adopted",
+    "metrics"
+  ],
+  "title": "Round2Report",
+  "type": "object"
+}

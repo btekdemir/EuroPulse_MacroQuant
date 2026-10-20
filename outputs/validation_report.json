@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-10-20T00:31:39.937104Z",
+  "run_at": "2026-10-20T01:08:58.261439Z",
   "last_period": "2026-09",
   "gates": [
     {
@@ -441,6 +441,7 @@
         "updated_item_weights": "2026-10-16T23:00:00+0200",
         "updated_country_weights": "2026-07-17T11:00:00+0200",
         "updated_contributions": "2026-10-16T11:00:00+0200",
+        "updated_ppi_energy": "2026-10-17T11:00:00+0200",
         "updated_first_release": "2026-10-16T23:00:00+0200",
         "updated_oil_bulletin": "last observation 2026-10-12",
         "updated_brent": "last observation 2026-10-14",

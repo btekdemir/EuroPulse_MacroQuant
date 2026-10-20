@@ -3,7 +3,7 @@
   "use strict";
   const D = JSON.parse(document.getElementById("dashboard-data").textContent);
   const NL_EX = D.nl_examples || [];
-  const L = D.ledger, RN = D.research_note;
+  const L = D.ledger, RN = D.research_note, R2 = D.round2;
   const F = D.forecast, B = D.backtest, V = D.validation, M = D.manifest, S = D.basis, C = D.countries;
   const COMPS = S.components;
   const SLOT = { FUEL: "--s1", ELC_GAS: "--s2", FOOD_P: "--s3", FOOD_NP: "--s4", IGD_NNRG: "--s5", SERV: "--s6" };
@@ -603,6 +603,7 @@
 
     renderBreak();
     renderLedger();
+    renderRound2();
     table(el("tbl-cov"), [t("cov_sample"), "h", "n", t("cov_in68"), t("cov_in90")],
       F.fan_coverage.filter((c) => c.h === 3).map((c) => [t("sample_" + c.sample), String(c.h), String(c.n), fmt(100 * c.in68, 0) + "%", fmt(100 * c.in90, 0) + "%"]), [1, 2, 3, 4]);
     table(el("tbl-sel"), [t("sel_component"), t("sel_candidate"), t("sel_vs"), t("sel_p"), t("sel_accepted")],
@@ -620,6 +621,23 @@
       }));
     table(el("tbl-vin"), [t("vin_source"), t("vin_dataset"), t("vin_updated")],
       M.vintages.map((v) => [v.name, v.dataset, v.updated]));
+  }
+
+  function renderRound2() {
+    const row = (m) => R2.metrics.find((x) => x.model === m && x.h === 3 && x.sample === "full");
+    const holm = Object.fromEntries(R2.holm.map((h) => [h.name, h]));
+    const order = ["bottom_up", "C1_ppi", "C2_combo", "C3_ic"];
+    table(el("tbl-r2"), [t("r2_model"), t("r2_ratio"), t("r2_p"), t("r2_thr"), t("r2_pass")],
+      order.map((m) => {
+        const r = row(m), hm = holm[m];
+        const gated = m === "C1_ppi" && hm.p === null;
+        return [t("m_" + m), fmt(r.rmse_ratio_vs_rw, 3), gated ? t("r2_gated", { p: fmt(R2.gate.dm_p, 2) }) : fmt(hm.p, 3),
+          fmt(hm.threshold, 4), hm.rejected ? t("yes") : t("no")];
+      }), [1, 2, 3]);
+    if (R2.adopted) { el("r2-verdict").textContent = t("r2_adopted", { m: t("m_" + R2.adopted) }); return; }
+    const cands = ["C2_combo", "C3_ic"].concat(holm.C1_ppi.p === null ? [] : ["C1_ppi"]);
+    const best = cands.reduce((a, b) => (row(b).rmse < row(a).rmse ? b : a));
+    el("r2-verdict").textContent = t("r2_none", { r: fmt(row(best).rmse_ratio_vs_rw, 2), p: fmt(holm[best].p, 3), thr: fmt(holm[best].threshold, 4) });
   }
 
   function renderLedger() {

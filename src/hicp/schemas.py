@@ -196,6 +196,35 @@ class CountryView(Strict):
     max_abs_gap_pp: float = Field(description="max |Σ country contributions − EA YoY| over the window")
 
 
+# --------------------------------------------------------------------------- round 2 (D27)
+class Round2Row(Strict):
+    model: str
+    h: int = Field(ge=1, le=3)
+    sample: str
+    n: int
+    rmse: float
+    rmse_ratio_vs_rw: float
+    dm_p: float | None
+    dm_p_vs_bottom_up: float | None
+    bias: float
+
+
+class HolmStep(Strict):
+    name: str
+    p: float | None
+    threshold: float
+    rejected: bool
+
+
+class Round2Report(Strict):
+    """Pre-registered round 2 (docs/DECISIONS.md D27): exactly three candidates, Holm across four tests."""
+    rule: str
+    gate: dict[str, Any] = Field(description="C1's component-stage test (D9 rule, 2010-2019 origins)")
+    holm: list[HolmStep]
+    adopted: str | None = Field(description="Candidate adopted as the published model, or None (current model stays)")
+    metrics: list[Round2Row]
+
+
 # --------------------------------------------------------------------------- forecast ledger
 class LedgerForecast(Strict):
     target: str = Field(pattern=r"^\d{4}-\d{2}$")
@@ -438,6 +467,6 @@ def export_json_schemas(folder: Path) -> None:
     """Write the JSON Schema of each output model, so consumers can validate independently."""
     folder.mkdir(parents=True, exist_ok=True)
     for model in (ValidationReport, RunManifest, Forecast, BacktestMetrics, Scenario, ShockResult, ShockBasis,
-                  CountryView, LedgerEntry, LedgerScores, ResearchNotes):
+                  CountryView, LedgerEntry, LedgerScores, ResearchNotes, Round2Report):
         (folder / f"{model.__name__}.schema.json").write_text(
             json.dumps(model.model_json_schema(), indent=2) + "\n")

@@ -44,6 +44,7 @@ def v1_schema(d: CleanData, s: Settings) -> GateResult:
         "country_weights": {"year", "geo", "weight"},
         "contributions": {"date", "coicop", "value"},
         "first_release": {"date", "release", "value"},
+        "ppi": {"date", "value", "status"},
     }
     for t, cols in expected_cols.items():
         df = getattr(d, t)

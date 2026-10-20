@@ -109,3 +109,22 @@ def test_headline_path_across_january_uses_known_weights_only():
     expected = head[d] * float((s * comps.loc["2021-01-01"] / comps.loc[d]).sum())
     assert path["2021-01-01"] == pytest.approx(expected, rel=1e-12)
     assert path["2021-01-01"] != pytest.approx(head["2021-01-01"], rel=1e-9)  # new weights would differ
+
+
+def test_ppi_feature_uses_only_published_months():
+    from types import SimpleNamespace
+    idx = pd.date_range("2025-01-01", "2026-12-01", freq="MS")
+    inp = SimpleNamespace(ppi_m=pd.Series(np.arange(len(idx), dtype=float) + 1, index=idx))
+    f = bt.ppi_feature(inp, pd.Timestamp("2026-09-01"))
+    assert f[pd.Timestamp("2026-08-01")] == inp.ppi_m[pd.Timestamp("2026-08-01")]  # t-1 is known
+    assert (f.loc["2026-09-01":"2026-12-01"] == 0).all()  # t onward: unknown -> held flat
+    assert f.index.max() == pd.Timestamp("2026-12-01")
+
+
+def test_ppi_lag_model_recovers_coefficient():
+    rng = np.random.default_rng(7)
+    idx = pd.date_range("2001-01-01", periods=400, freq="MS")
+    x = pd.Series(rng.normal(0, 3, 400), index=idx)
+    y = pd.Series(0.2 * x.shift(2).fillna(0).to_numpy() + rng.normal(0, 0.2, 400), index=idx)
+    f = fc.fit(y.iloc[10:], fc.ModelSpec("PPI", ppi_lags=3), ppi=x)
+    assert f.beta[12 + 1] == pytest.approx(0.2, abs=0.02) and abs(f.beta[12]) < 0.03

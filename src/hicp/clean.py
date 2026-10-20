@@ -20,8 +20,9 @@ class CleanData:
     country_weights: pd.DataFrame  # year, geo, weight (per mille of the euro area*)
     contributions: pd.DataFrame    # date, coicop, value (pp)
     first_release: pd.DataFrame    # date, release, value (YoY %)
+    ppi: pd.DataFrame              # date, value (index 2021=100), status: producer prices D35, EA21
 
-    TABLES = ("index", "item_weights", "country_weights", "contributions", "first_release")
+    TABLES = ("index", "item_weights", "country_weights", "contributions", "first_release", "ppi")
 
     # --- convenience views -------------------------------------------------------------
     def index_wide(self, geo: str, unit: str = "I25") -> pd.DataFrame:
@@ -100,5 +101,12 @@ def clean_all(raw: dict[str, pd.DataFrame], settings: Settings) -> CleanData:
         "value": f["value"].astype("float64"),
     }).dropna(subset=["value"]).sort_values(["release", "date"]).reset_index(drop=True)
 
+    q = raw["ppi_energy"]
+    ppi = pd.DataFrame({
+        "date": _month(q["time"]),
+        "value": q["value"].astype("float64"),
+        "status": q["status"].astype("string"),
+    }).dropna(subset=["value"]).sort_values("date").reset_index(drop=True)
+
     return CleanData(index=index, item_weights=item_weights, country_weights=country_weights,
-                     contributions=contributions, first_release=first_release)
+                     contributions=contributions, first_release=first_release, ppi=ppi)

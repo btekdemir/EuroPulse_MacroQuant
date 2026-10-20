@@ -1,7 +1,7 @@
 {
-  "run_at": "2026-10-20T00:32:24.870586Z",
-  "code_version": "a6dbd14-dirty",
-  "config_hash": "9d6e88196c92317d",
+  "run_at": "2026-10-20T01:09:52.942636Z",
+  "code_version": "0fb7156-dirty",
+  "config_hash": "f169e9625751108a",
   "python": "3.11.15",
   "offline": true,
   "vintages": [
@@ -56,6 +56,16 @@
       "raw_file": "data/raw/prc_hicp_ctr/24eb470c93f9__2026-10-16T110000p0200.json.gz"
     },
     {
+      "name": "ppi_energy",
+      "dataset": "sts_inppd_m",
+      "updated": "2026-10-17T11:00:00+0200",
+      "sha256": "ff3c42047947781488ed53dfba54f1f1e3e7c35d2f078a7adfe6dad61e7088fb",
+      "n_values": 320,
+      "fetched_at": "2026-10-20T01:01:10.848120+00:00",
+      "from_cache": true,
+      "raw_file": "data/raw/sts_inppd_m/6b139a9e187c__2026-10-17T110000p0200.json.gz"
+    },
+    {
       "name": "first_release",
       "dataset": "prc_hicp_fpd",
       "updated": "2026-10-16T23:00:00+0200",
@@ -71,7 +81,7 @@
       "updated": "last observation 2026-10-12",
       "sha256": "03a95c7a42ab4dfc4dd2841b3995e7f7517de5b96f7ef31c1519e3a07ec12753",
       "n_values": 3264,
-      "fetched_at": "2026-10-20T00:31:36.738322+00:00",
+      "fetched_at": "2026-10-20T01:08:54.852321+00:00",
       "from_cache": true,
       "raw_file": "data/raw/oil_bulletin/03a95c7a42ab.xlsx"
     },
@@ -81,7 +91,7 @@
       "updated": "last observation 2026-10-14",
       "sha256": "cf9f077822a7620434e86b7d48aa44bada7ef99f57726d50035ae50b549e9011",
       "n_values": 9108,
-      "fetched_at": "2026-10-20T00:31:36.753613+00:00",
+      "fetched_at": "2026-10-20T01:08:54.873547+00:00",
       "from_cache": true,
       "raw_file": "data/raw/brent/cf9f077822a7.csv"
     },
@@ -91,11 +101,11 @@
       "updated": "last observation 2026-10-19",
       "sha256": "7a6e3abdfbba53ccc4bd2ccf8f029fba82aa5895ee9a057d00fb1f4de353635d",
       "n_values": 5839,
-      "fetched_at": "2026-10-20T00:31:36.776027+00:00",
+      "fetched_at": "2026-10-20T01:08:54.895995+00:00",
       "from_cache": true,
       "raw_file": "data/raw/eurusd/7a6e3abdfbba.csv"
     }
   ],
   "last_period": "2026-09",
-  "runtime_seconds": 50.8
+  "runtime_seconds": 60.6
 }
