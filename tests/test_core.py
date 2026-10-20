@@ -15,6 +15,7 @@ OUT = ROOT / "outputs" / "core.json"
 pytestmark = pytest.mark.skipif(not OUT.exists(), reason="run `python run.py` first")
 
 
+@pytest.mark.skipif(not (ROOT / "data" / "clean" / "index.parquet").exists(), reason="needs the cleaned data: run `python run.py`")
 def test_perfect_component_forecasts_reproduce_published_core():
     s = load_settings()
     d = CleanData.load(s)

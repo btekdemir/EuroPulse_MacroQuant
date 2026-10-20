@@ -12,3 +12,5 @@ et-xmlfile==2.0.0
 plotly==7.1.0
 narwhals==2.27.1
 pytest==9.1.1
+# LLM features (scenario interpreter, research note, assistant). The pipeline and the dashboard run without an API key.
+anthropic==1.15.0
