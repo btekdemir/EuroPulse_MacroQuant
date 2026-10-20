@@ -418,3 +418,10 @@ Committed to git before the code that runs it. It does not change after the resu
 - **Schedule:** the GitHub Actions workflow runs it around Eurostat's flash days (1st–3rd) and full-release days (16th–19th) and pushes the commit. The remote's commit time is the independent timestamp the ledger needs.
 - **Untested** until the repository is on GitHub (there is no remote yet). No secrets are needed: public data only, and the paid LLM features are not run there.
 - **Incident, 20 Oct 2026:** the first run of the script recorded **entry 2 with the same numbers as entry 1**. The repeat check keyed on the data vintages, and two datasets had been added that day (producer prices, legacy first releases). The entry stays: deleting it is exactly what the ledger is built to make detectable. The rule was tightened afterwards: a repeat is now the same origin with the same numbers, whatever the vintages (`tests/test_ledger.py`). Entry 2's scores will equal entry 1's.
+
+## D31. Guided tour (20 Oct 2026)
+
+- **Design:** the dashboard never opens a dialog by itself, because the reviewers' first look should be the answer. On a first visit a one-line banner offers a six-step tour. The "Tour" button in the header restarts it.
+- **The six steps:** the answer; the fan; base effect vs momentum; the shock simulator; the reverse stress test; how far to trust it (round 2, calibration, ledger). Each step switches tab, highlights its area and explains it in one or two sentences, in EN/FR.
+- **Behaviour:** Esc, the arrow keys and Tab (focus stays in the dialog) all work, and focus returns to the Tour button at the end. The choice is remembered (local storage, wrapped so a blocked storage only means the banner shows again). On phones the box is a bottom sheet.
+- **Checked in the browser:** every step is fully in view at 1024×768 and 375×812, there is no horizontal scroll, and switching language translates the open step. Only on step 2 does the box overlap its target, unavoidably, because the chart is taller than the free space; there it sits bottom-left so the fan on the right stays visible.

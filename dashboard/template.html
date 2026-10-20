@@ -97,6 +97,24 @@ input[type="number"], select { font: inherit; padding: 5px 8px; border: 1px soli
 .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
 footer { color: var(--text-muted); font-size: 12px; max-width: 1280px; margin: 0 auto; padding: 0 24px 24px; }
 b.sig { color: var(--text-primary); }
+/* ---- guided tour: never blocks on first load; a banner offers it, the Tour button restarts it */
+.tour-btn { padding: 6px 10px; font-size: 13px; }
+.tour-banner { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; padding: 8px 12px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--surface-1); color: var(--text-secondary); font-size: 13px; }
+.tour-banner[hidden] { display: none; }
+.linkbtn { border: 0; background: none; color: var(--text-secondary); font: inherit; text-decoration: underline; cursor: pointer; padding: 4px; }
+.tour-shade { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 900; }
+.tour-target { position: relative; z-index: 901; box-shadow: 0 0 0 3px var(--accent); border-radius: 12px; }
+.tour-box { position: fixed; z-index: 902; width: min(380px, calc(100vw - 32px)); background: var(--surface-1); color: var(--text-primary);
+  border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; box-shadow: 0 12px 32px rgba(0,0,0,0.25); }
+.tour-box h2 { font-size: 16px; margin: 2px 0 6px; }
+.tour-box p { margin: 0 0 12px; color: var(--text-secondary); line-height: 1.5; }
+.tour-step { font-size: 12px; color: var(--text-muted); }
+.tour-actions { display: flex; gap: 8px; align-items: center; }
+.tour-spacer { flex: 1; }
+.tour-primary { border-color: var(--accent); background: var(--accent); color: #fff; }
+@media (max-width: 700px) { .tour-box { left: 16px !important; right: 16px; bottom: 16px; top: auto !important; width: auto; } }
+@media (prefers-reduced-motion: no-preference) { .tour-box { transition: top .15s ease, left .15s ease; } }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </style>
 </head>
@@ -105,6 +123,7 @@ b.sig { color: var(--text-primary); }
   <div class="top">
     <div><h1 data-i18n="title"></h1><p class="subtitle" data-i18n="subtitle"></p></div>
     <div class="controls">
+      <button type="button" class="btn tour-btn" id="tour-open" data-i18n="tour_button"></button>
       <div class="seg" role="group" aria-label="Language">
         <button type="button" data-lang="en" aria-pressed="true">EN</button>
         <button type="button" data-lang="fr" aria-pressed="false">FR</button>
@@ -115,6 +134,11 @@ b.sig { color: var(--text-primary); }
         <button type="button" data-theme-btn="dark" aria-pressed="false" data-i18n="theme_dark"></button>
       </div>
     </div>
+  </div>
+  <div class="tour-banner" id="tour-banner" hidden>
+    <span data-i18n="tour_banner"></span>
+    <button type="button" class="btn" id="tour-start" data-i18n="tour_start"></button>
+    <button type="button" class="linkbtn" id="tour-dismiss" data-i18n="tour_dismiss"></button>
   </div>
   <nav role="tablist">
     <button role="tab" data-tab="overview" aria-selected="true" data-i18n="tab_overview"></button>
@@ -275,6 +299,18 @@ b.sig { color: var(--text-primary); }
   </section>
 </main>
 <footer id="footer"></footer>
+<div class="tour-shade" id="tour-shade" hidden></div>
+<div class="tour-box" id="tour-box" role="dialog" aria-modal="true" aria-labelledby="tour-title" aria-describedby="tour-body" hidden>
+  <div class="tour-step" id="tour-step"></div>
+  <h2 id="tour-title"></h2>
+  <p id="tour-body"></p>
+  <div class="tour-actions">
+    <button type="button" class="linkbtn" id="tour-skip" data-i18n="tour_skip"></button>
+    <span class="tour-spacer"></span>
+    <button type="button" class="btn" id="tour-back" data-i18n="tour_back"></button>
+    <button type="button" class="btn tour-primary" id="tour-next"></button>
+  </div>
+</div>
 <script id="dashboard-data" type="application/json">__DATA__</script>
 <script>__PLOTLY__</script>
 <script>__ENGINE__</script>

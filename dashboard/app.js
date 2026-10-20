@@ -718,13 +718,102 @@
     renderAll();
   }
 
-  document.querySelectorAll("[role=tab]").forEach((b) => b.addEventListener("click", () => {
-    activeTab = b.dataset.tab;
-    document.querySelectorAll("[role=tab]").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
-    document.querySelectorAll("[role=tabpanel]").forEach((p) => p.classList.toggle("active", p.id === "tab-" + activeTab));
-    renderTab(activeTab);
+  function showTab(name) {
+    activeTab = name;
+    document.querySelectorAll("[role=tab]").forEach((x) => x.setAttribute("aria-selected", String(x.dataset.tab === name)));
+    document.querySelectorAll("[role=tabpanel]").forEach((p) => p.classList.toggle("active", p.id === "tab-" + name));
+    renderTab(name);
+  }
+  document.querySelectorAll("[role=tab]").forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
+
+  // ------------------------------------------------------------------ guided tour
+  // Never opens by itself: a one-line banner offers it on the first visit, the Tour button restarts it.
+  const TOUR = [
+    { tab: "overview", sel: "#answer" },
+    { tab: "overview", sel: "#p-headline", corner: "left" },  // the fan sits at the right of the chart
+    { tab: "drivers", sel: "#p-basemom" },
+    { tab: "shocks", sel: "#sim-form" },
+    { tab: "shocks", sel: "#rev-card", self: true },
+    { tab: "model", sel: "#tbl-r2" },
+  ];
+  let tourIdx = -1, tourEl = null;
+  const tourTarget = (s) => { const e = document.querySelector(s.sel); return s.self ? e : (e.closest(".card") || e); };
+
+  function tourShow(i) {
+    tourIdx = i;
+    const s = TOUR[i];
+    if (activeTab !== s.tab) showTab(s.tab);
+    if (tourEl) tourEl.classList.remove("tour-target");
+    tourEl = tourTarget(s);
+    tourEl.classList.add("tour-target");
+    el("tour-step").textContent = t("tour_step", { i: i + 1, n: TOUR.length });
+    el("tour-title").textContent = t(`tour_${i + 1}_t`);
+    el("tour-body").textContent = t(`tour_${i + 1}_b`);
+    el("tour-back").disabled = i === 0;
+    el("tour-next").textContent = i === TOUR.length - 1 ? t("tour_done") : t("tour_next");
+    el("tour-shade").hidden = false;
+    el("tour-box").hidden = false;
+    el("tour-banner").hidden = true;
+    // If the target and the box fit together, put the target at the top with the box underneath;
+    // otherwise centre the target and park the box in a corner (tourPlace).
+    const th = tourEl.getBoundingClientRect().height, bh = el("tour-box").offsetHeight;
+    if (innerWidth > 700 && th + bh + 40 < innerHeight) window.scrollBy(0, tourEl.getBoundingClientRect().top - 16);
+    else tourEl.scrollIntoView({ block: "center" });
+    requestAnimationFrame(tourPlace);
+    el("tour-next").focus({ preventScroll: true });
+  }
+
+  function tourPlace() {
+    if (tourIdx < 0) return;
+    const box = el("tour-box");
+    if (innerWidth <= 700) { box.style.top = ""; box.style.left = ""; return; }  // CSS bottom sheet on phones
+    const r = tourEl.getBoundingClientRect(), bw = box.offsetWidth, bh = box.offsetHeight, gap = 12;
+    let top = r.bottom + gap, left = Math.min(Math.max(8, r.left), innerWidth - bw - 8);
+    if (top + bh > innerHeight - 8) top = r.top - bh - gap;               // not enough room below: above
+    if (top < 8) {  // target too tall for the box above or below: a bottom corner, away from the key content
+      top = innerHeight - bh - 16;
+      left = TOUR[tourIdx].corner === "left" ? 16 : innerWidth - bw - 16;
+    }
+    box.style.top = top + "px";
+    box.style.left = left + "px";
+  }
+
+  function tourEnd() {
+    if (tourEl) tourEl.classList.remove("tour-target");
+    tourIdx = -1; tourEl = null;
+    el("tour-shade").hidden = true;
+    el("tour-box").hidden = true;
+    el("tour-banner").hidden = true;
+    store.set("hicp.tour", "done");
+    showTab("overview");
+    window.scrollTo(0, 0);
+    el("tour-open").focus({ preventScroll: true });
+  }
+
+  el("tour-open").addEventListener("click", () => tourShow(0));
+  el("tour-start").addEventListener("click", () => tourShow(0));
+  el("tour-dismiss").addEventListener("click", () => { store.set("hicp.tour", "dismissed"); el("tour-banner").hidden = true; });
+  el("tour-next").addEventListener("click", () => (tourIdx >= TOUR.length - 1 ? tourEnd() : tourShow(tourIdx + 1)));
+  el("tour-back").addEventListener("click", () => { if (tourIdx > 0) tourShow(tourIdx - 1); });
+  el("tour-skip").addEventListener("click", tourEnd);
+  window.addEventListener("resize", tourPlace);
+  window.addEventListener("scroll", tourPlace, { passive: true });
+  document.addEventListener("keydown", (e) => {
+    if (tourIdx < 0) return;
+    if (e.key === "Escape") { e.preventDefault(); tourEnd(); }
+    else if (e.key === "ArrowRight") { e.preventDefault(); el("tour-next").click(); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); el("tour-back").click(); }
+    else if (e.key === "Tab") {  // keep focus inside the dialog
+      const f = [...el("tour-box").querySelectorAll("button:not([disabled])")];
+      const k = f.indexOf(document.activeElement);
+      e.preventDefault();
+      f[(k + (e.shiftKey ? -1 : 1) + f.length) % f.length].focus();
+    }
+  });
+  document.querySelectorAll("[data-lang]").forEach((b) => b.addEventListener("click", () => {
+    lang = b.dataset.lang; store.set("hicp.lang", lang); renderAll();
+    if (tourIdx >= 0) tourShow(tourIdx);  // re-translate the open step
   }));
-  document.querySelectorAll("[data-lang]").forEach((b) => b.addEventListener("click", () => { lang = b.dataset.lang; store.set("hicp.lang", lang); renderAll(); }));
   document.querySelectorAll("[data-theme-btn]").forEach((b) => b.addEventListener("click", () => setTheme(b.dataset.themeBtn)));
   document.querySelectorAll(".toggle-table").forEach((b) => b.addEventListener("click", () => {
     const tb = el(b.dataset.table); tb.hidden = !tb.hidden; b.textContent = tb.hidden ? t("table_show") : t("table_hide");
@@ -737,4 +826,5 @@
   buildForm();
   if (theme !== "auto") document.documentElement.setAttribute("data-theme", theme);
   renderAll();
+  if (store.get("hicp.tour", null) === null) el("tour-banner").hidden = false;
 })();
