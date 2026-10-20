@@ -349,3 +349,39 @@ Committed to git before the code that runs it. It does not change after the resu
 - **h = 1, 2 (reported, not part of the decision):** every candidate beats the random walk at h = 1 (p ≤ 0.009); at h = 2, C1 (p = 0.013), C2 (p = 0.045) and C3 (p = 0.008) do, against 0.057 for the current model.
 - **One implementation detail D27 did not anticipate:** C3 needs one-month errors from before the first origin, which cannot be computed (the fuel model needs 60 months of bulletin data in 2009). The first three origins therefore use the 0–2 errors already known; 2010-01 has no correction.
 - **What would be legitimate next:** not a round 3 on the same data, which would be a search for a significant result. Instead, (a) the forecast ledger accumulates genuinely out-of-sample outcomes from Oct 2026 on, and (b) information the random walk cannot have at h = 2–3, such as an energy futures curve (not freely available).
+
+---
+
+## D28. PRE-REGISTERED: a crisis-aware fan (written 20 Oct 2026, before any result)
+
+**Problem being fixed:** the published fan uses full-sample error quantiles (in-sample) and is too narrow in crises: the 68% band held 31% of outcomes in 2020–2023, 78% in 2010–2019 (D24). This is a calibration question, not a point-forecast one; the point forecast does not change.
+
+**Both fans are built recursively** (only errors whose target month has been published by the origin), so the comparison has no look-ahead. Neither fan is the in-sample one currently shown.
+- **A (fixed width, recursive):** point + empirical quantiles of the h-step errors known at the origin.
+- **B (volatility-scaled):** point + σ_t × empirical quantiles of the standardised errors z = e / σ_o known at the origin.
+  - σ_t is the root mean square of the last 12 one-month-ahead errors known at origin t.
+  - σ_o is that same measure at each past error's own origin.
+- **Requirements:** at least 12 one-month errors before σ is defined, and at least 36 errors (or standardised errors) before a fan is built. Origins without both fans are not scored.
+
+**Scoring (h = 3, primary):**
+- The quantile (pinball) loss averaged over q = 0.05, 0.16, 0.84, 0.95, per origin.
+- B is adopted for the published fan and the probabilities if its mean loss is lower than A's and a Diebold-Mariano test on the per-origin loss differential (NW h−1 lags, HLN, two-sided) gives p < 0.05. Otherwise the current fan stays and the result is reported.
+
+**Also reported:**
+- coverage of the 68% and 90% bands for A, B and the current in-sample fan, by period (2010–2019, 2020–2023, 2024–now);
+- h = 1 and h = 2.
+
+**Disclosed:** this fix was proposed after seeing the crisis coverage (31%), so the crisis period is not a clean hold-out for it; the rule is fixed before running.
+
+## D29. Real-time robustness check (written 20 Oct 2026, before any result; no decision depends on it)
+
+**Question:** do the backtest results depend on revised data? The forecasts keep using latest-vintage inputs (full real-time component vintages do not exist). What changes is that they are scored against what Eurostat published at the time, with a random walk that also uses only first-published figures.
+
+**First-release outcomes:**
+- **Up to Dec 2025:** legacy `prc_hicp_fp` (ECOICOP ver.1, `coicop=CP00`, `geo=EA`). This is the figure actually released then: flash from Aug 2017, first full release from 1997.
+- **From Jan 2026:** `prc_hicp_fpd` (ver.2, `coicop18=TOTAL`).
+- **Not used:** `prc_hicp_fpd` values before 2026. They are reclassified back-series, not what was released; checked on 20 Oct 2026, they differ from the legacy first releases in 11 of 108 months, by up to 0.3pp.
+
+**Reported:** for h = 1, 2, 3, the RMSE ratio vs the real-time random walk and its DM p-value, (a) against the first full release and (b) against the flash. Each is shown next to the same origins scored on latest-vintage data.
+
+**Caveat stated up front:** first releases are rounded to 0.1, which adds the same rounding noise to both models.
