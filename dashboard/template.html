@@ -135,6 +135,13 @@ input[type="range"] { min-width: 160px; }
 .ask-msg.bot { justify-self: start; border: 1px solid var(--border); }
 .ask-msg.muted { color: var(--text-secondary); }
 .ask-msg .meta { display: block; margin-top: 4px; font-size: 11.5px; color: var(--text-muted); }
+.demo-panel { position: fixed; z-index: 905; left: 16px; bottom: 16px; width: min(360px, calc(100vw - 32px)); background: var(--surface-1);
+  color: var(--text-primary); border: 2px solid var(--accent); border-radius: 12px; padding: 10px 14px; box-shadow: 0 12px 32px rgba(0,0,0,0.25); }
+.demo-panel[hidden] { display: none; }
+.demo-head { display: flex; align-items: center; gap: 8px; }
+.demo-panel h2 { font-size: 15px; margin: 4px 0 4px; }
+.demo-panel p { margin: 0 0 10px; color: var(--text-secondary); font-size: 13px; line-height: 1.5; }
+@media (max-width: 700px) { .demo-panel { left: 8px; right: 8px; bottom: 8px; width: auto; } }
 .brief-view { position: fixed; inset: 0; z-index: 950; background: rgba(0,0,0,0.5); display: flex; flex-direction: column; padding: 16px; gap: 8px; }
 .brief-view[hidden] { display: none; }
 .brief-bar { display: flex; align-items: center; gap: 8px; background: var(--surface-1); color: var(--text-primary); border-radius: 10px; padding: 8px 12px; }
@@ -383,6 +390,13 @@ input[type="range"] { min-width: 160px; }
   </section>
 </main>
 <footer id="footer"></footer>
+<aside class="demo-panel" id="demo-panel" aria-labelledby="demo-title" hidden>
+  <div class="demo-head"><span id="demo-step" class="tour-step"></span><span class="tour-spacer"></span>
+    <button type="button" class="linkbtn" id="demo-exit" data-i18n="demo_exit"></button></div>
+  <h2 id="demo-title"></h2><p id="demo-notes"></p>
+  <div class="tour-actions"><button type="button" class="btn" id="demo-back" data-i18n="tour_back"></button>
+    <span class="tour-spacer"></span><button type="button" class="btn tour-primary" id="demo-next"></button></div>
+</aside>
 <div class="brief-view" id="brief-view" role="dialog" aria-modal="true" aria-labelledby="brief-h" hidden>
   <div class="brief-bar"><b id="brief-h" data-i18n="brief_title"></b><span class="tour-spacer"></span>
     <button type="button" class="btn tour-primary" id="brief-print" data-i18n="brief_print"></button>

@@ -1232,6 +1232,66 @@ ${note}
   el("brief-close").addEventListener("click", () => { el("brief-view").hidden = true; el("brief-open").focus(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !el("brief-view").hidden) el("brief-close").click(); });
 
+  // ------------------------------------------------------------------ interview demo mode (#demo or Shift+D)
+  // A presenter's script: each step sets the page up (tab, selection, scenario) and shows what to say.
+  // No button: reviewers never see it. Nothing here calls a paid API; the Ask step only types the question.
+  // Scroll once the tab switch has laid out (a short timer: animation frames stall in background tabs), and instantly: a smooth scroll started while
+  // charts are still resizing ends up in the wrong place.
+  const focusCard = (sel) => setTimeout(() => {
+    const e = document.querySelector(sel); if (!e) return;
+    const card = e.closest(".card") || e;
+    window.scrollTo(0, Math.max(0, card.getBoundingClientRect().top + window.scrollY - 12));
+    card.classList.add("ask-flash"); setTimeout(() => card.classList.remove("ask-flash"), 1800);
+  }, 80);
+  const DEMO_ALL = [
+    { key: "answer", run: () => { showTab("overview"); window.scrollTo(0, 0); } },
+    { key: "changed", run: () => { showTab("overview"); focusCard("#wc-card"); } },
+    { key: "fan", run: () => { showTab("overview"); focusCard("#p-headline"); } },
+    { key: "month", run: () => { showTab("overview"); el("mx-month").value = "2022-10"; renderMonth(); focusCard("#mx-month"); } },
+    { key: "october", run: () => { showTab("overview"); setOct(4.0); focusCard("#oct-in"); } },
+    { key: "drivers", run: () => { setOct(P[0].point); showTab("drivers"); focusCard("#p-contrib"); } },
+    { key: "profile", run: () => { showTab("countries"); cpGeo = "IT"; el("cp-country").value = "IT"; renderProfile(); focusCard("#cp-card"); } },
+    { key: "heat", run: () => { showTab("shocks"); focusCard("#hm-card"); } },
+    { key: "shock", run: () => {
+      showTab("shocks"); scenario = JSON.parse(JSON.stringify(S.presets[1])); scenario.second_round = true; presetIdx = -1; activeLeg = 0;
+      refreshAll(); focusCard("#p-shock"); } },
+    { key: "reverse", run: () => { showTab("shocks"); focusCard("#rev-card"); } },
+    { key: "timemachine", run: () => { showTab("model"); tmIdx = Math.max(0, tmOrigins.indexOf("2022-06")); renderTM(); focusCard("#tm-card"); } },
+    { key: "trust", run: () => { showTab("model"); focusCard("#tbl-r2"); } },
+    { key: "ask", when: () => !el("ask-open").hidden, run: () => {
+      if (el("ask-panel").hidden) askToggle(true, "ask-fab");
+      el("ask-text").value = t("demo_ask_q"); } },
+    { key: "brief", run: () => { if (!el("ask-panel").hidden) askToggle(false); showTab("overview"); window.scrollTo(0, 0); } },
+  ];
+  let DEMO = DEMO_ALL, demoIdx = -1;
+  function demoShow(i) {
+    if (demoIdx < 0) DEMO = DEMO_ALL.filter((s) => !s.when || s.when());
+    demoIdx = Math.max(0, Math.min(DEMO.length - 1, i));
+    const s = DEMO[demoIdx];
+    el("demo-panel").hidden = false;
+    el("demo-step").textContent = t("demo_step", { i: demoIdx + 1, n: DEMO.length });
+    el("demo-title").textContent = t(`demo_${s.key}_t`);
+    el("demo-notes").textContent = t(`demo_${s.key}_n`, { dec: pct(last.point, 1), base: sgn(last.base_effect_pp), mom: sgn(last.momentum_pp) });
+    el("demo-back").disabled = demoIdx === 0;
+    el("demo-next").textContent = demoIdx === DEMO.length - 1 ? t("tour_done") : t("tour_next");
+    s.run();
+  }
+  function demoEnd() {
+    el("demo-panel").hidden = true; demoIdx = -1; setOct(P[0].point);
+    if (location.hash === "#demo") history.replaceState(null, "", location.href.split("#")[0]);
+  }
+  el("demo-next").addEventListener("click", () => (demoIdx >= DEMO.length - 1 ? demoEnd() : demoShow(demoIdx + 1)));
+  el("demo-back").addEventListener("click", () => demoShow(demoIdx - 1));
+  el("demo-exit").addEventListener("click", demoEnd);
+  document.addEventListener("keydown", (e) => {
+    const typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target && e.target.tagName) || "");
+    if (!typing && e.shiftKey && (e.key === "D" || e.key === "d")) { e.preventDefault(); demoIdx < 0 ? demoShow(0) : demoEnd(); return; }
+    if (demoIdx < 0 || typing || tourIdx >= 0) return;
+    if (e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); el("demo-next").click(); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); el("demo-back").click(); }
+    else if (e.key === "Escape") demoEnd();
+  });
+
   // ------------------------------------------------------------------ 5. PNG / CSV for every chart
   function chartCsv(gd) {
     const rows = [["series", "x", "y"]];
@@ -1491,6 +1551,7 @@ ${note}
   if (theme !== "auto") document.documentElement.setAttribute("data-theme", theme);
   const shared = loadShared();
   renderAll();
-  if (shared) showTab("shocks");
+  if (location.hash === "#demo") setTimeout(() => demoShow(0), 600);  // after the Ask probe has answered
+  else if (shared) showTab("shocks");
   else if (store.get("hicp.tour", null) === null) el("tour-banner").hidden = false;
 })();

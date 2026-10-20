@@ -545,3 +545,69 @@ Committed to git before the code that runs it. It does not change after the resu
   - The page runs a preset directly with the engine, with no interpreter call. It also matches a preset name in the question itself, as a fallback when the model returns no index or replies "not covered".
   - **Follow-ups:** when the interpreter rejects a what-if as incomplete (422), the page says "reply with just the missing part". A short next message that contains a number is joined to it and sent to the interpreter, without going through the assistant again.
   - Browser check with stubbed APIs: "oil supply shock" ran preset 0. "gas shock in Germany" then "+%40" became "gas shock in Germany +%40" and was built. Tested in `tests/test_ask.py` (preset bounds). Not re-run live.
+
+## D38. Sensitivity heatmap (21 Oct 2026)
+
+- **What:** a 21 × 6 grid on the Shock simulator tab. Each cell is the euro area\* December y/y response, in basis points, to a +1% permanent price-level rise in one country and component from next month. The response is first round only.
+  - The 126 cells are computed with `ShockEngine.simulate` (the simulator's engine, parity-tested with Python), once per page load.
+  - Countries are sorted by their total. Clicking a cell opens a +10% version of that shock in the simulator.
+- **Check:** the largest cell is German services, at 13.5bp per 1%. That agrees with the country profile, where +10% gives +1.35pp. Italy's electricity & gas cell is 1.17bp, and +10% gives a 0.12pp peak.
+- **Why basis points per 1%:** the response is linear in size, so one unit makes every cell comparable. The note on the card says this.
+
+## D39. What changed since last month (21 Oct 2026)
+
+- **What:** an Overview card covering two things.
+  - The surprise in the newly published month (actual minus last month's forecast).
+  - The revision to every month both forecasts cover.
+  - Each is split by component using exact chain-linked contributions, with the small chain-link residual shown.
+- **Last month's forecast:** `build_outlook(origin=previous)` re-runs the same machinery as of the previous origin. Its headline numbers equal the backtest's forecasts from that origin to 1e−9 (`tests/test_outlook_changed.py`).
+  - It uses today's data vintage (pseudo-real-time), and the card says so.
+  - The ledger only stores headline points, so it cannot give the component split. From the next monthly run, the ledger entry recorded at the time is the reference for the headline.
+- **Result (Sep 2026 run):** September printed 3.77% against 3.73% forecast in August, a surprise of +0.04pp (non-energy industrial goods −0.13, services +0.10). November was revised from 3.74% to 3.68%.
+- The assistant's fact sheet includes these numbers (`wc_*`), and the section map includes the card.
+
+## D40. Time machine (21 Oct 2026)
+
+- **What:** a slider over all 200 backtest origins, plus jump buttons (Feb 2020, Sep 2021, Jun 2022, Jun 2023, latest). For each origin it shows:
+  - the three-month bottom-up forecast made then;
+  - the fan that could have been drawn then, using only errors whose target month was already published, with at least 24 of them;
+  - the outcome and the random walk's error.
+- **Why the fan known then:** the live fan uses the full error sample, which includes hindsight. Showing the real-time fan makes the 2022 miss visible as it would have looked.
+  - From June 2022, the model forecast September at 8.06%. The outcome was 9.93%, outside even the 90% band known then, and the random walk did better.
+- The data is the backtest track already in the page, so nothing new is estimated.
+
+## D41. Range buttons and a clickable contributions chart (21 Oct 2026)
+
+- **Range buttons:** 1Y / 3Y / All on the long time-series charts (headline, contributions, country comparison, country drivers, track record).
+- **Clickable contributions:** clicking a month on the contributions chart opens "One month, explained" for that month on the Overview tab, as the headline chart already did.
+
+## D42. One-page brief (21 Oct 2026)
+
+- **What:** "Brief (PDF)" builds an A4 page from what the dashboard shows, in the current language:
+  - the KPIs, the answer, and what changed;
+  - the fan chart;
+  - P(December above 3–5%) and accuracy vs the random walk;
+  - the contributions chart;
+  - the research note, if it is verified and not stale;
+  - Eurostat vintages and the commit.
+  The browser's print dialog saves it as PDF.
+- **Design choices:**
+  - It is an in-page preview (an iframe), not a pop-up, because the first version's `window.open` was blocked.
+  - Charts are rendered in the light theme whatever the page theme, and without the range buttons. The theme is restored afterwards.
+  - The research note is left out when stale (the numbers changed since it was written), rather than printed with wrong figures.
+
+## D43. Tour and interview demo cover every feature (21 Oct 2026)
+
+- **Tour:** 16 steps instead of 6, with keyed texts in EN/FR.
+  - The steps: answer, what changed, fan, month explained, October what-if, drivers, base/momentum, countries, country profile, shock simulator, reverse stress test, heatmap, time machine, trust, Ask (only where the assistant is live), brief.
+  - Checked: every step's target is on screen and the box fits, at 1024×768 and at phone width (FR).
+- **Demo mode:** a presenter's script, opened with `#demo` in the URL or Shift+D. There is no button, so reviewers never see it. It has 14 steps, and each sets the page up and shows short speaker notes (EN/FR):
+  - October 2022 in the month explainer;
+  - October at 4.0%;
+  - Italy's profile with its warning;
+  - the gas preset with second round;
+  - June 2022 in the time machine;
+  - the Ask panel with a question typed in. The demo does not send it, so it never spends money by itself.
+  - Keys: → / ← to move, Esc to exit. Exiting resets the October what-if.
+  - The notes only state things checked elsewhere in this file. One unverified claim, that the fan is wider after 2020, was removed.
+  - Scrolling waits a short timer after the tab switch, because animation frames stall in background tabs and made the first version scroll one step late.
