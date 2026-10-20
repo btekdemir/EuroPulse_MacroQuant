@@ -488,3 +488,18 @@ Committed to git before the code that runs it. It does not change after the resu
   - The page then shows a "Go to: …" button. It switches tab, opens the country, scrolls to the card and highlights it. On phones it also closes the panel.
   - A test checks that every section's element and tab exist in the page.
   - Live check (2 calls, after the rule was made stronger): "where can I see country based drivers" → country_profile; "Almanya'nın sürücülerini nerede görebilirim?" → country_profile with DE. Both were verified on the first attempt (6 s and 3 s).
+
+## D35. Shareable scenario links (20 Oct 2026)
+
+- **What:** "Copy link" in the simulator puts the whole scenario into the URL fragment (`#s=` + base64url JSON). Opening the link starts on the simulator with that exact scenario.
+  - The fragment is never sent to a server, so links work for the offline file too.
+  - If the clipboard is blocked, the address bar already holds the link, and the page says so.
+- **A link is untrusted input:** `ShockEngine.decodeScenario` rebuilds the scenario field by field.
+  - Components, countries and start months must exist in the basis. The size must be inside the schema's limits (−50 to 200%). The profile must be one of the five kinds, with valid parameters. There must be 1 to 6 legs.
+  - Unknown fields are dropped and strings are truncated.
+  - A link that fails is ignored with a message, and the default scenario shows.
+- **Tested:** `tests/test_share_link.py`.
+  - Every preset round-trips and simulates identically in Python.
+  - Unicode survives.
+  - Seven kinds of bad link are rejected, and garbage is reported as unreadable.
+  - Browser check: a link with a 37% size reopened on the simulator with the same peak (+0.34pp, Feb 2027).

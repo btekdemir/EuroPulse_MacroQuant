@@ -396,7 +396,12 @@
   "ask_s2": "What does Germany contribute?",
   "ask_s3": "How accurate is the forecast three months ahead?",
   "ask_s4": "What is the probability December is above 4%?",
-  "ask_goto": "Go to: {name} →"
+  "ask_goto": "Go to: {name} →",
+  "share_copy": "Copy link",
+  "share_copied": "Link copied: it opens this exact scenario.",
+  "share_manual": "Copy the address bar: it now holds a link to this scenario.",
+  "share_loaded": "Scenario opened from a shared link. Check its rationale before using it.",
+  "share_bad": "The shared link could not be read (or holds values outside the simulator's limits); showing the default scenario."
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -795,6 +800,11 @@
   "ask_s2": "Quelle est la contribution de l’Allemagne ?",
   "ask_s3": "Quelle est la précision de la prévision à trois mois ?",
   "ask_s4": "Quelle est la probabilité que décembre dépasse 4 % ?",
-  "ask_goto": "Aller à : {name} →"
+  "ask_goto": "Aller à : {name} →",
+  "share_copy": "Copier le lien",
+  "share_copied": "Lien copié : il ouvre exactement ce scénario.",
+  "share_manual": "Copiez la barre d’adresse : elle contient maintenant le lien vers ce scénario.",
+  "share_loaded": "Scénario ouvert depuis un lien partagé. Vérifiez sa justification avant de l’utiliser.",
+  "share_bad": "Le lien partagé est illisible (ou contient des valeurs hors des limites du simulateur) ; scénario par défaut affiché."
  }
 }

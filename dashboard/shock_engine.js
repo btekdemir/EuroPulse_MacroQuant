@@ -171,7 +171,53 @@
     return out;
   }
 
-  const api = { simulate, profileFraction, monthsSince, probAbove, solveSize, requiredPoint, quantile, brentEquivalent,
+  // ---- shareable links: the scenario travels in the URL fragment (#s=...), never to a server.
+  // Decoding re-checks everything against the basis and the schema limits, because a link is untrusted input.
+  const KINDS = ["permanent", "decaying", "temporary", "ramp", "custom"];
+  const b64u = (s) => s.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  function encodeScenario(sc) {
+    const bytes = new TextEncoder().encode(JSON.stringify(sc));
+    let bin = ""; bytes.forEach((x) => { bin += String.fromCharCode(x); });
+    return b64u(btoa(bin));
+  }
+  function decodeScenario(code, basis) {
+    let sc;
+    try {
+      const bin = atob(code.replace(/-/g, "+").replace(/_/g, "/"));
+      sc = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))));
+    } catch (e) { return { error: "unreadable" }; }
+    const uniq = (a) => new Set(a).size === a.length;
+    const legs = sc && Array.isArray(sc.legs) ? sc.legs : [];
+    if (legs.length < 1 || legs.length > 6) return { error: "legs" };
+    const clean = [];
+    for (const lg of legs) {
+      const p = lg && lg.profile;
+      const okComps = Array.isArray(lg.components) && lg.components.length > 0 && uniq(lg.components) && lg.components.every((c) => basis.components.includes(c));
+      const okCountries = Array.isArray(lg.countries) && uniq(lg.countries) && lg.countries.every((g) => basis.countries.includes(g));
+      const okSize = typeof lg.size_pct === "number" && lg.size_pct > -50 && lg.size_pct < 200;
+      const okStart = typeof lg.start === "string" && basis.months.includes(lg.start);
+      const okProf = p && KINDS.includes(p.kind)
+        && (p.kind !== "decaying" || (typeof p.half_life_months === "number" && p.half_life_months > 0))
+        && (!["temporary", "ramp"].includes(p.kind) || (Number.isInteger(p.months) && p.months >= 1 && p.months <= 24))
+        && (p.kind !== "custom" || (Array.isArray(p.fractions) && p.fractions.length > 0 && p.fractions.length <= 60 && p.fractions.every((f) => typeof f === "number" && Number.isFinite(f))));
+      if (!(okComps && okCountries && okSize && okStart && okProf)) return { error: "leg" };
+      const prof = { kind: p.kind };
+      if (p.kind === "decaying") prof.half_life_months = p.half_life_months;
+      if (["temporary", "ramp"].includes(p.kind)) prof.months = p.months;
+      if (p.kind === "custom") prof.fractions = p.fractions.slice();
+      clean.push({ components: lg.components.slice(), countries: lg.countries.slice(), size_pct: lg.size_pct, profile: prof, start: lg.start });
+    }
+    const src = (Array.isArray(sc.sources) ? sc.sources : []).filter((s) => typeof s === "string" && s.trim()).slice(0, 6).map((s) => s.slice(0, 200));
+    const str = (v, n, d) => (typeof v === "string" && v.trim() ? v.slice(0, n) : d);
+    return { scenario: {
+      name: str(sc.name, 120, "Shared scenario"), legs: clean, second_round: sc.second_round === true,
+      second_round_regime: sc.second_round_regime === "pre2020" ? "pre2020" : "post2020",
+      rationale: str(sc.rationale, 1200, "Scenario opened from a shared link; check the rationale before using it."),
+      sources: src.length ? src : ["Shared link"],
+      mapping: typeof sc.mapping === "string" ? sc.mapping.slice(0, 600) : null } };
+  }
+
+  const api = { encodeScenario, decodeScenario, simulate, profileFraction, monthsSince, probAbove, solveSize, requiredPoint, quantile, brentEquivalent,
                 explainMonth, conditionalPath, addMonths };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.ShockEngine = api;

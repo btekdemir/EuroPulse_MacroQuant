@@ -488,6 +488,7 @@
     el("nl-go").addEventListener("click", nlInterpret);
     el("nl-run").addEventListener("click", nlRun);
     el("nl-text").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); nlInterpret(); } });
+    el("sim-share").addEventListener("click", copyShare);
     el("sim-export").addEventListener("click", () => {
       const blob = new Blob([JSON.stringify(scenario, null, 2)], { type: "application/json" });
       const a = node("a", { href: URL.createObjectURL(blob), download: "scenario.json" });
@@ -496,6 +497,25 @@
   }
 
   function refreshAll() { labelForm(); toForm(); renderLegs(); renderShock(); }
+
+  // ---- shareable link: the whole scenario in the URL fragment (nothing is sent anywhere)
+  const shareUrl = (sc) => `${location.href.split("#")[0]}#s=${ShockEngine.encodeScenario(sc)}`;
+  async function copyShare() {
+    const url = shareUrl(scenario);
+    history.replaceState(null, "", url);
+    try { await navigator.clipboard.writeText(url); el("share-status").textContent = t("share_copied"); }
+    catch (e) { el("share-status").textContent = t("share_manual"); }  // the address bar now holds the link
+  }
+  function loadShared() {
+    const m = /#s=([A-Za-z0-9_-]+)/.exec(location.hash);
+    if (!m) return false;
+    const res = ShockEngine.decodeScenario(m[1], S);
+    if (!res.scenario) { el("share-status").textContent = t("share_bad"); return false; }
+    scenario = res.scenario; presetIdx = -1; activeLeg = 0;
+    el("presets").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", "false"));
+    el("share-status").textContent = t("share_loaded");
+    return true;
+  }
 
   function renderLegs() {
     const strip = el("leg-strip"); strip.replaceChildren();
@@ -1126,6 +1146,8 @@
   bindThreshold();
   buildForm();
   if (theme !== "auto") document.documentElement.setAttribute("data-theme", theme);
+  const shared = loadShared();
   renderAll();
-  if (store.get("hicp.tour", null) === null) el("tour-banner").hidden = false;
+  if (shared) showTab("shocks");
+  else if (store.get("hicp.tour", null) === null) el("tour-banner").hidden = false;
 })();
