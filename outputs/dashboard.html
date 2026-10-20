@@ -5377,6 +5377,12 @@ return Plotly;
     document.querySelectorAll("[role=tab]").forEach((x) => x.setAttribute("aria-selected", String(x.dataset.tab === name)));
     document.querySelectorAll("[role=tabpanel]").forEach((p) => p.classList.toggle("active", p.id === "tab-" + name));
     renderTab(name);
+    fitPlots(name);
+  }
+  // Plotly cannot measure a chart in a hidden tab, so a window resize while a tab is hidden (or a render made while
+  // it was hidden, e.g. for the brief) leaves its charts at the old width, overflowing their cards. Refit on show.
+  function fitPlots(name) {
+    setTimeout(() => el("tab-" + name).querySelectorAll(".plot").forEach((p) => { if (p.data) Plotly.Plots.resize(p); }), 0);
   }
   document.querySelectorAll("[role=tab]").forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
 
