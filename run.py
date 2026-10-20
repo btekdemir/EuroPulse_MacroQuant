@@ -25,6 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from hicp import backtest as bt  # noqa: E402
 from hicp import ledger  # noqa: E402
 from hicp.round2 import run_round2  # noqa: E402
+from hicp import calibration, realtime  # noqa: E402
 from hicp.clean import clean_all  # noqa: E402
 from hicp.config import ROOT, load_settings  # noqa: E402
 from hicp.external import pull_external, pump_index  # noqa: E402
@@ -33,7 +34,8 @@ from hicp.export import country_view, track, write_shock_outputs  # noqa: E402
 from hicp.outlook import build_outlook  # noqa: E402
 from hicp.passthrough import estimate_all  # noqa: E402
 from hicp.shocks import build_basis, make_presets  # noqa: E402
-from hicp.schemas import (BacktestMetrics, DataVintage, Forecast, Round2Report, RunManifest, SelectionStep,  # noqa: E402
+from hicp.schemas import (BacktestMetrics, CalibrationReport, DataVintage, Forecast, RealtimeReport,  # noqa: E402
+                          Round2Report, RunManifest, SelectionStep,
                           export_json_schemas, write_json)
 from hicp.validate import run_all  # noqa: E402
 
@@ -96,7 +98,24 @@ def main() -> int:
     cfg = s.raw["backtest"]
     inp = bt.make_inputs(data, s, pump_index(ext.pump))
     res = bt.run_backtest(inp, cfg["first_origin"], *cfg["selection_sample"], rolling=cfg["rolling_window"])
-    outlook = build_outlook(inp, res)
+    cal = calibration.build(res.headline[res.headline.model == "bottom_up"])
+    adopt_b = cal["decision"]["adopt_B"]
+    log.info("  fan calibration (D28): scaled fan pinball %.4f vs %.4f fixed, DM p %.3f -> %s",
+             cal["decision"]["mean_loss_B"], cal["decision"]["mean_loss_A"], cal["decision"]["dm_p"],
+             "ADOPT scaled fan" if adopt_b else "keep current fan")
+    write_json(CalibrationReport(rule=CALIBRATION_RULE, decision=_nan_to_none(cal["decision"]),
+                                 rows=cal["summary"], sigma=cal["sigma"], live_sigma=cal["live_sigma"],
+                                 first_scored=cal["first_scored"]), out / "calibration.json")
+    rt = realtime.evaluate(data, res)
+    write_json(RealtimeReport(note=REALTIME_NOTE, rows=[_nan_to_none({**{k: v for k, v in r.items() if k not in ("from", "to")},
+                                                                       "start": r["from"], "end": r["to"]}) for r in rt]),
+               out / "realtime.json")
+    for r in rt:
+        if r["model"] == "bottom_up":
+            log.info("  real time vs %s, h=%d: ratio %.3f (p %.3f); latest vintage %.3f (p %.3f)", r["target"], r["h"],
+                     r["ratio"], r["dm_p"], r["ratio_latest_vintage"], r["dm_p_latest_vintage"])
+
+    outlook = build_outlook(inp, res, {h: cal["live"][h]["B_errors"] for h in (1, 2, 3)} if adopt_b else None)
     write_json(Forecast(**outlook), out / "forecast.json")
     write_json(BacktestMetrics(
         rule=RULE, first_origin=cfg["first_origin"], last_origin=f"{inp.index.index.max():%Y-%m}",
@@ -151,6 +170,11 @@ def main() -> int:
     log.info("validation %s; done in %.1fs", report.summary, time.perf_counter() - t0)
     return 0 if scores.verified else 3
 
+
+CALIBRATION_RULE = ("Pre-registered (D28, commit e0bfd11): recursive fans, A fixed width vs B scaled by the RMS of the "
+                    "last 12 known one-month errors; h=3 pinball loss over q=.05/.16/.84/.95; adopt B if lower with DM p<0.05.")
+REALTIME_NOTE = ("D29: forecasts (latest-vintage inputs) scored against first releases as published: legacy prc_hicp_fp "
+                 "(ver.1, CP00) to Dec 2025, prc_hicp_fpd from Jan 2026; random walk = last print as first published.")
 
 ROUND2_RULE = ("Pre-registered (D27, commit 0fb7156): C1 PPI-led ELC_GAS (gated by the D9 rule), C2 equal-weight "
                "bottom-up + direct AR, C3 intercept correction (mean of last 3 known 1-month errors). Family = current "

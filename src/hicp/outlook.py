@@ -41,7 +41,8 @@ def fan_coverage(bu: pd.DataFrame, err_q: dict) -> list[dict]:
     return out
 
 
-def build_outlook(inp: Inputs, bt: BacktestResult) -> dict:
+def build_outlook(inp: Inputs, bt: BacktestResult, fan_errors: dict[int, list[float]] | None = None) -> dict:
+    """``fan_errors``: replace the fan's error sample per horizon (used only if D28 adopts the scaled fan)."""
     s = inp.settings
     comps = s.components
     origin = inp.index.index.max()
@@ -55,6 +56,8 @@ def build_outlook(inp: Inputs, bt: BacktestResult) -> dict:
     # Fan: point + empirical quantiles of out-of-sample errors (actual − forecast), per horizon.
     bu = bt.headline[(bt.headline.model == "bottom_up")].dropna(subset=["actual"])
     err_q = {h: (bu[bu.h == h].actual - bu[bu.h == h].fc).quantile(list(QUANTILES)) for h in range(1, H + 1)}
+    if fan_errors:
+        err_q = {h: pd.Series(fan_errors[h]).quantile(list(QUANTILES)) for h in range(1, H + 1)}
 
     # Extended frames: published history + forecast levels, for contributions and base effects.
     levels = inp.index.loc[:origin, comps].iloc[-1] * np.exp(mom.cumsum() / 100)
@@ -101,6 +104,7 @@ def build_outlook(inp: Inputs, bt: BacktestResult) -> dict:
         "official_weights": {c: float(w.at[origin.year, c] / 1000) for c in comps},
         "pump_mom_assumed": {f"{t:%Y-%m}": float(pump[t]) for t in mom.index} if pump is not None else {},
         "assumptions": assumptions,
-        "error_samples": {str(h): [float(v) for v in (bu[bu.h == h].actual - bu[bu.h == h].fc)] for h in range(1, H + 1)},
+        "error_samples": ({str(h): [float(v) for v in fan_errors[h]] for h in range(1, H + 1)} if fan_errors else
+                          {str(h): [float(v) for v in (bu[bu.h == h].actual - bu[bu.h == h].fc)] for h in range(1, H + 1)}),
         "fan_coverage": fan_coverage(bu, err_q),
     }

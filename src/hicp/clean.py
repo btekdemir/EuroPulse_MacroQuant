@@ -21,8 +21,10 @@ class CleanData:
     contributions: pd.DataFrame    # date, coicop, value (pp)
     first_release: pd.DataFrame    # date, release, value (YoY %)
     ppi: pd.DataFrame              # date, value (index 2021=100), status: producer prices D35, EA21
+    first_release_legacy: pd.DataFrame  # date, release, value: ver.1 first releases as published (to 2025-12)
 
-    TABLES = ("index", "item_weights", "country_weights", "contributions", "first_release", "ppi")
+    TABLES = ("index", "item_weights", "country_weights", "contributions", "first_release", "ppi",
+              "first_release_legacy")
 
     # --- convenience views -------------------------------------------------------------
     def index_wide(self, geo: str, unit: str = "I25") -> pd.DataFrame:
@@ -108,5 +110,13 @@ def clean_all(raw: dict[str, pd.DataFrame], settings: Settings) -> CleanData:
         "status": q["status"].astype("string"),
     }).dropna(subset=["value"]).sort_values("date").reset_index(drop=True)
 
+    g = raw["first_release_legacy"]
+    first_release_legacy = pd.DataFrame({
+        "date": _month(g["time"]),
+        "release": g["release"].astype(str),
+        "value": g["value"].astype("float64"),
+    }).dropna(subset=["value"]).sort_values(["release", "date"]).reset_index(drop=True)
+
     return CleanData(index=index, item_weights=item_weights, country_weights=country_weights,
-                     contributions=contributions, first_release=first_release, ppi=ppi)
+                     contributions=contributions, first_release=first_release, ppi=ppi,
+                     first_release_legacy=first_release_legacy)

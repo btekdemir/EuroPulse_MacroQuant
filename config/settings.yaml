@@ -12,6 +12,7 @@ eurostat:
     contributions: prc_hicp_ctr       # official contributions to EA annual inflation, pp
     first_release: prc_hicp_fpd       # flash (FLS) and first full (FIN) releases
     producer_prices: sts_inppd_m      # domestic producer prices, monthly (round-2 candidate C1, D27)
+    first_release_legacy: prc_hicp_fp # ver.1 flash/first releases as published, to Dec 2025 (D29)
   start_period: "1996-01"
 
 # Euro area*, the changing-composition aggregate. Its Eurostat label is

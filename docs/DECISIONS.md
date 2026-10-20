@@ -385,3 +385,35 @@ Committed to git before the code that runs it. It does not change after the resu
 **Reported:** for h = 1, 2, 3, the RMSE ratio vs the real-time random walk and its DM p-value, (a) against the first full release and (b) against the flash. Each is shown next to the same origins scored on latest-vintage data.
 
 **Caveat stated up front:** first releases are rounded to 0.1, which adds the same rounding noise to both models.
+
+### D28 results (run 20 Oct 2026 after commit e0bfd11; `outputs/calibration.json`, Model & validation tab)
+
+| h = 3, 148 scored origins from 2014-03 | Quantile loss | Inside 68% | Inside 90% |
+|---|---|---|---|
+| A fixed width, real time | 0.141 | 60% | 78% |
+| B crisis-aware, real time | 0.132 | 60% | 79% |
+| Current fan (in-sample, for reference) | 0.131 | 63% | 87% |
+
+- **Decision, per the rule:** B lowers the loss by 6% but DM p = 0.36, so B is **not adopted**; the current fan stays.
+- **In 2020–2023 B is clearly better:** 68% band 46% vs 31%, 90% band 73% vs 60%, loss 0.231 vs 0.261. It is still short of nominal coverage.
+- **In calm periods B is slightly worse:** 2010–2019 loss 0.090 vs 0.086; 2024–now 68% coverage 70% vs 83%.
+- **A finding about the old table:** the per-period coverage table in D24 used in-sample quantiles. In real time a fixed-width fan covers 60% (68% band) and 78% (90% band) at h = 3, so the in-sample table flattered it. The dashboard now shows the real-time comparison instead.
+- **The published live fan is unaffected:** at the latest origin all errors are known, so the in-sample and real-time fans coincide (checked: identical quantiles).
+- **A bug caught on the way:** coverage first came out as 1%, which is impossible. The cause was a pandas 3 behaviour: `.mean()` of NumPy booleans stored in an object column returns a wrong value. Coverage is now stored as 0/1 floats, and a test pins the dtype (`tests/test_calibration.py`).
+
+### D29 results (`outputs/realtime.json`)
+
+| Bottom-up vs random walk | h = 1 | h = 2 | h = 3 |
+|---|---|---|---|
+| Scored on first full release (200 origins) | 0.739 (p 0.011) | 0.826 (p 0.076) | 0.846 (p 0.165) |
+| Same origins, revised data | 0.722 (p 0.009) | 0.812 (p 0.057) | 0.838 (p 0.140) |
+| Scored on the flash (110 origins, 2017+) | 0.687 (p 0.015) | 0.781 (p 0.053) | 0.816 (p 0.140) |
+
+- **Reading:** the conclusions do not depend on revisions. Real-time ratios are within 0.02 of the revised-data ones; the slight weakening is consistent with first releases being rounded to 0.1.
+- **Limit:** the inputs remain latest-vintage, because complete real-time component vintages are not published.
+
+## D30. Keeping the ledger running (`scripts/monthly_update.sh`, `.github/workflows/monthly.yml`)
+
+- **What:** the script pulls the latest data, reruns everything, records a new forecast if the data changed, scores past forecasts, and commits only when something real changed: the ledger, the scores, or the forecast. It refuses to run with uncommitted code changes, matching the ledger rule.
+- **Schedule:** the GitHub Actions workflow runs it around Eurostat's flash days (1st–3rd) and full-release days (16th–19th) and pushes the commit. The remote's commit time is the independent timestamp the ledger needs.
+- **Untested** until the repository is on GitHub (there is no remote yet). No secrets are needed: public data only, and the paid LLM features are not run there.

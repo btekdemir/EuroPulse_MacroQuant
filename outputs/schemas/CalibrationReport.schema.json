@@ -1,0 +1,111 @@
+{
+  "$defs": {
+    "CalibrationRow": {
+      "additionalProperties": false,
+      "properties": {
+        "fan": {
+          "enum": [
+            "A",
+            "B",
+            "current"
+          ],
+          "title": "Fan",
+          "type": "string"
+        },
+        "h": {
+          "maximum": 3,
+          "minimum": 1,
+          "title": "H",
+          "type": "integer"
+        },
+        "period": {
+          "title": "Period",
+          "type": "string"
+        },
+        "n": {
+          "title": "N",
+          "type": "integer"
+        },
+        "pinball": {
+          "title": "Pinball",
+          "type": "number"
+        },
+        "in68": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "In68",
+          "type": "number"
+        },
+        "in90": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "In90",
+          "type": "number"
+        }
+      },
+      "required": [
+        "fan",
+        "h",
+        "period",
+        "n",
+        "pinball",
+        "in68",
+        "in90"
+      ],
+      "title": "CalibrationRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "rule": {
+      "title": "Rule",
+      "type": "string"
+    },
+    "decision": {
+      "additionalProperties": true,
+      "title": "Decision",
+      "type": "object"
+    },
+    "rows": {
+      "items": {
+        "$ref": "#/$defs/CalibrationRow"
+      },
+      "title": "Rows",
+      "type": "array"
+    },
+    "sigma": {
+      "additionalProperties": {
+        "type": "number"
+      },
+      "description": "\u03c3_t, RMS of the last 12 known one-month errors, by origin",
+      "title": "Sigma",
+      "type": "object"
+    },
+    "live_sigma": {
+      "title": "Live Sigma",
+      "type": "number"
+    },
+    "first_scored": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "First Scored"
+    }
+  },
+  "required": [
+    "rule",
+    "decision",
+    "rows",
+    "sigma",
+    "live_sigma",
+    "first_scored"
+  ],
+  "title": "CalibrationReport",
+  "type": "object"
+}

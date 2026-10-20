@@ -3,7 +3,7 @@
   "use strict";
   const D = JSON.parse(document.getElementById("dashboard-data").textContent);
   const NL_EX = D.nl_examples || [];
-  const L = D.ledger, RN = D.research_note, R2 = D.round2;
+  const L = D.ledger, RN = D.research_note, R2 = D.round2, CAL = D.calibration, RT = D.realtime;
   const F = D.forecast, B = D.backtest, V = D.validation, M = D.manifest, S = D.basis, C = D.countries;
   const COMPS = S.components;
   const SLOT = { FUEL: "--s1", ELC_GAS: "--s2", FOOD_P: "--s3", FOOD_NP: "--s4", IGD_NNRG: "--s5", SERV: "--s6" };
@@ -604,8 +604,8 @@
     renderBreak();
     renderLedger();
     renderRound2();
-    table(el("tbl-cov"), [t("cov_sample"), "h", "n", t("cov_in68"), t("cov_in90")],
-      F.fan_coverage.filter((c) => c.h === 3).map((c) => [t("sample_" + c.sample), String(c.h), String(c.n), fmt(100 * c.in68, 0) + "%", fmt(100 * c.in90, 0) + "%"]), [1, 2, 3, 4]);
+    renderCalibration();
+    renderRealtime();
     table(el("tbl-sel"), [t("sel_component"), t("sel_candidate"), t("sel_vs"), t("sel_p"), t("sel_accepted")],
       B.selection_log.map((s) => {
         const sel = s.candidate === "SELECTED";
@@ -638,6 +638,26 @@
     const cands = ["C2_combo", "C3_ic"].concat(holm.C1_ppi.p === null ? [] : ["C1_ppi"]);
     const best = cands.reduce((a, b) => (row(b).rmse < row(a).rmse ? b : a));
     el("r2-verdict").textContent = t("r2_none", { r: fmt(row(best).rmse_ratio_vs_rw, 2), p: fmt(holm[best].p, 3), thr: fmt(holm[best].threshold, 4) });
+  }
+
+  function renderCalibration() {
+    const sx = Object.keys(CAL.sigma), sy = sx.map((k) => CAL.sigma[k]);
+    plot("p-sigma", [{ x: sx.map(toDate), y: sy, mode: "lines", name: t("cal_sigma"), line: { color: css("--text-primary"), width: 2 }, hovertemplate: "%{y:.2f} " + t("pp") }],
+      baseLayout({ showlegend: false, title: { text: t("cal_sigma"), font: { size: 12, color: css("--text-secondary") }, x: 0 }, margin: { l: 48, r: 16, t: 30, b: 30 } }));
+    const per = { "2010-2019": "sample_2010-2019", "2020-2023": "sample_2020-2023", "2024-now": "sample_2024-now", "all scored": "sample_full" };
+    table(el("tbl-cal"), [t("cal_fan"), t("cal_period"), "n", t("cal_pinball"), t("cal_in68"), t("cal_in90")],
+      CAL.rows.filter((r) => r.h === 3).map((r) => [t("fan_" + r.fan), t(per[r.period]), String(r.n), fmt(r.pinball, 3),
+        fmt(100 * r.in68, 0) + "%", fmt(100 * r.in90, 0) + "%"]), [2, 3, 4, 5]);
+    const dcs = CAL.decision;
+    el("cal-verdict").textContent = dcs.adopt_B ? t("cal_verdict_adopt", { p: fmt(dcs.dm_p, 3) })
+      : t("cal_verdict_keep", { pct: fmt(100 * (1 - dcs.mean_loss_B / dcs.mean_loss_A), 0), a: fmt(dcs.mean_loss_A, 3), b: fmt(dcs.mean_loss_B, 3), p: fmt(dcs.dm_p, 2) });
+  }
+
+  function renderRealtime() {
+    table(el("tbl-rt"), [t("rt_target"), t("bt_model"), "h", "n", t("rt_ratio"), t("rt_p"), t("rt_ratio_lv"), t("rt_p_lv")],
+      RT.rows.map((r) => [r.target === "flash" ? t("rt_fls") : t("rt_fin"), t("m_" + r.model), String(r.h), String(r.n),
+        fmt(r.ratio, 3), r.dm_p === null ? "–" : fmt(r.dm_p, 3), fmt(r.ratio_latest_vintage, 3), r.dm_p_latest_vintage === null ? "–" : fmt(r.dm_p_latest_vintage, 3)]),
+      [2, 3, 4, 5, 6, 7]);
   }
 
   function renderLedger() {

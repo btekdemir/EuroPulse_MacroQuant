@@ -30,7 +30,7 @@ def test_embedded_data_is_the_validated_outputs(html):
     data = json.loads(payload.replace("<\\/", "</"))
     forecast = json.loads((OUT / "forecast.json").read_text())
     assert data["forecast"]["points"][-1]["point"] == forecast["points"][-1]["point"]
-    assert set(data) == {"forecast", "backtest", "validation", "manifest", "basis", "countries", "ledger", "nl_examples", "research_note", "round2", "i18n"}
+    assert set(data) == {"forecast", "backtest", "validation", "manifest", "basis", "countries", "ledger", "nl_examples", "research_note", "round2", "calibration", "realtime", "i18n"}
 
 
 def test_every_i18n_key_used_in_the_page_exists_in_both_languages():

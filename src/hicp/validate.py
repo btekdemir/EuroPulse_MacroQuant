@@ -45,6 +45,7 @@ def v1_schema(d: CleanData, s: Settings) -> GateResult:
         "contributions": {"date", "coicop", "value"},
         "first_release": {"date", "release", "value"},
         "ppi": {"date", "value", "status"},
+        "first_release_legacy": {"date", "release", "value"},
     }
     for t, cols in expected_cols.items():
         df = getattr(d, t)

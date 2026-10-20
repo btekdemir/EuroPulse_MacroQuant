@@ -80,6 +80,8 @@ Assumptions are listed in `src/hicp/shocks.py` and shown in the dashboard. See D
 - **Probabilities:** "P(December y/y > X%)" from the empirical error sample, also for the shocked path (D24).
 - **Reverse stress test:** "what size of shock gets December to 3%?", solved for the selected shock (D24).
 - **Forecast ledger:** every published forecast is recorded in a hash-chained file and scored automatically when Eurostat releases the figure; Model & validation shows the live record (D25).
+- **Robustness:** the backtest scored against figures as first published gives the same conclusions (D29); a crisis-aware fan is tested against the fixed one in real time (D28), and an attempt to beat the random walk at h = 3 was pre-registered and failed after Holm's correction (D27).
+- **Keeping it running:** `bash scripts/monthly_update.sh` (or the GitHub Actions workflow once the repo is pushed) records and scores each new forecast.
 - **Research note:** an LLM-written note in English and French whose every number is checked against the pipeline outputs (D26). Regenerate with `python -m hicp.note --generate` (paid API call).
 
 ## Natural-language scenario builder (optional)

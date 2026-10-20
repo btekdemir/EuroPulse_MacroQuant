@@ -182,6 +182,8 @@ def pull_all(settings: Settings, offline: bool = False) -> tuple[dict[str, pd.Da
                           + [(dim, c) for c in settings.components + cfg["aggregates"]]),
         "ppi_energy": (ds["producer_prices"], [("geo", cfg["ppi"]["geo"]), ("nace_r2", cfg["ppi"]["nace_r2"]),
                                               ("unit", "I21"), ("s_adj", "NSA"), ("indic_bt", "PRC_PRR_DOM")]),
+        # Legacy ECOICOP ver.1 first releases: what was actually published at the time, up to Dec 2025 (D29).
+        "first_release_legacy": (ds["first_release_legacy"], [("geo", ea), ("coicop", "CP00"), ("unit", "RCH_A")]),
         "first_release": (ds["first_release"], [("geo", ea), (dim, settings.headline),
                                                 ("unit", "RCH_A"), ("sinceTimePeriod", "2017-01")]),
     }

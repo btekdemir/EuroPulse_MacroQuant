@@ -225,6 +225,46 @@ class Round2Report(Strict):
     metrics: list[Round2Row]
 
 
+# --------------------------------------------------------------------------- calibration (D28) and real time (D29)
+class CalibrationRow(Strict):
+    fan: Literal["A", "B", "current"]
+    h: int = Field(ge=1, le=3)
+    period: str
+    n: int
+    pinball: float
+    in68: float = Field(ge=0, le=1)
+    in90: float = Field(ge=0, le=1)
+
+
+class CalibrationReport(Strict):
+    rule: str
+    decision: dict[str, Any]
+    rows: list[CalibrationRow]
+    sigma: dict[str, float] = Field(description="σ_t, RMS of the last 12 known one-month errors, by origin")
+    live_sigma: float
+    first_scored: str | None
+
+
+class RealtimeRow(Strict):
+    target: str
+    model: str
+    h: int = Field(ge=1, le=3)
+    n: int
+    start: str
+    end: str
+    rmse: float
+    rmse_rw: float
+    ratio: float
+    dm_p: float | None
+    ratio_latest_vintage: float
+    dm_p_latest_vintage: float | None
+
+
+class RealtimeReport(Strict):
+    note: str
+    rows: list[RealtimeRow]
+
+
 # --------------------------------------------------------------------------- forecast ledger
 class LedgerForecast(Strict):
     target: str = Field(pattern=r"^\d{4}-\d{2}$")
@@ -467,6 +507,7 @@ def export_json_schemas(folder: Path) -> None:
     """Write the JSON Schema of each output model, so consumers can validate independently."""
     folder.mkdir(parents=True, exist_ok=True)
     for model in (ValidationReport, RunManifest, Forecast, BacktestMetrics, Scenario, ShockResult, ShockBasis,
-                  CountryView, LedgerEntry, LedgerScores, ResearchNotes, Round2Report):
+                  CountryView, LedgerEntry, LedgerScores, ResearchNotes, Round2Report,
+                  CalibrationReport, RealtimeReport):
         (folder / f"{model.__name__}.schema.json").write_text(
             json.dumps(model.model_json_schema(), indent=2) + "\n")

@@ -1,0 +1,109 @@
+{
+  "$defs": {
+    "RealtimeRow": {
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "title": "Target",
+          "type": "string"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "h": {
+          "maximum": 3,
+          "minimum": 1,
+          "title": "H",
+          "type": "integer"
+        },
+        "n": {
+          "title": "N",
+          "type": "integer"
+        },
+        "start": {
+          "title": "Start",
+          "type": "string"
+        },
+        "end": {
+          "title": "End",
+          "type": "string"
+        },
+        "rmse": {
+          "title": "Rmse",
+          "type": "number"
+        },
+        "rmse_rw": {
+          "title": "Rmse Rw",
+          "type": "number"
+        },
+        "ratio": {
+          "title": "Ratio",
+          "type": "number"
+        },
+        "dm_p": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Dm P"
+        },
+        "ratio_latest_vintage": {
+          "title": "Ratio Latest Vintage",
+          "type": "number"
+        },
+        "dm_p_latest_vintage": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Dm P Latest Vintage"
+        }
+      },
+      "required": [
+        "target",
+        "model",
+        "h",
+        "n",
+        "start",
+        "end",
+        "rmse",
+        "rmse_rw",
+        "ratio",
+        "dm_p",
+        "ratio_latest_vintage",
+        "dm_p_latest_vintage"
+      ],
+      "title": "RealtimeRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "note": {
+      "title": "Note",
+      "type": "string"
+    },
+    "rows": {
+      "items": {
+        "$ref": "#/$defs/RealtimeRow"
+      },
+      "title": "Rows",
+      "type": "array"
+    }
+  },
+  "required": [
+    "note",
+    "rows"
+  ],
+  "title": "RealtimeReport",
+  "type": "object"
+}
