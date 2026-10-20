@@ -40,7 +40,7 @@ header { padding: 20px 24px 0; max-width: 1280px; margin: 0 auto; }
 .top { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; justify-content: space-between; }
 h1 { font-size: 22px; margin: 0; font-weight: 650; letter-spacing: -0.01em; }
 .subtitle { color: var(--text-secondary); margin: 4px 0 0; }
-.controls { display: flex; gap: 8px; align-items: center; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface-1); }
 .seg button { border: 0; background: transparent; color: var(--text-secondary); padding: 6px 10px; font: inherit; cursor: pointer; }
 .seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--text-primary); font-weight: 600; }
@@ -122,6 +122,27 @@ input[type="range"] { min-width: 160px; }
 .tour-primary { border-color: var(--accent); background: var(--accent); color: #fff; }
 @media (max-width: 700px) { .tour-box { left: 16px !important; right: 16px; bottom: 16px; top: auto !important; width: auto; } }
 @media (prefers-reduced-motion: no-preference) { .tour-box { transition: top .15s ease, left .15s ease; } }
+/* ---- dashboard assistant (D34): shown only where /api/ask exists (the deployed site or serve_local) */
+.ask-panel { position: fixed; z-index: 800; right: 16px; bottom: 16px; width: min(400px, calc(100vw - 32px));
+  max-height: min(620px, calc(100vh - 32px)); display: flex; flex-direction: column; background: var(--surface-1);
+  color: var(--text-primary); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.25); }
+.ask-panel[hidden] { display: none; }
+.ask-head { display: flex; align-items: center; gap: 8px; padding: 12px 14px 8px; border-bottom: 1px solid var(--border); }
+.ask-head h2 { font-size: 15px; margin: 0; flex: 1; }
+.ask-log { overflow-y: auto; padding: 10px 14px; display: grid; gap: 10px; flex: 1; min-height: 120px; }
+.ask-msg { font-size: 13.5px; line-height: 1.5; padding: 8px 10px; border-radius: 10px; max-width: 92%; overflow-wrap: anywhere; }
+.ask-msg.user { justify-self: end; background: var(--surface-2); }
+.ask-msg.bot { justify-self: start; border: 1px solid var(--border); }
+.ask-msg.muted { color: var(--text-secondary); }
+.ask-msg .meta { display: block; margin-top: 4px; font-size: 11.5px; color: var(--text-muted); }
+.cite { border-bottom: 1px dotted var(--accent); cursor: help; font-variant-numeric: tabular-nums; }
+.ask-foot { padding: 8px 14px 12px; border-top: 1px solid var(--border); display: grid; gap: 6px; }
+.ask-foot .presets[hidden] { display: none; }
+.ask-foot .presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.ask-foot .presets button { font-size: 12px; padding: 4px 8px; }
+.ask-row { display: flex; gap: 6px; align-items: flex-end; }
+.ask-row .nl-text { flex: 1; }
+@media (max-width: 700px) { .ask-panel { right: 8px; left: 8px; bottom: 8px; width: auto; max-height: 75vh; } }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </style>
 </head>
@@ -130,6 +151,7 @@ input[type="range"] { min-width: 160px; }
   <div class="top">
     <div><h1 data-i18n="title"></h1><p class="subtitle" data-i18n="subtitle"></p></div>
     <div class="controls">
+      <button type="button" class="btn tour-btn" id="ask-open" data-i18n="ask_button" aria-controls="ask-panel" aria-expanded="false" hidden></button>
       <button type="button" class="btn tour-btn" id="tour-open" data-i18n="tour_button"></button>
       <div class="seg" role="group" aria-label="Language">
         <button type="button" data-lang="en" aria-pressed="true">EN</button>
@@ -332,6 +354,17 @@ input[type="range"] { min-width: 160px; }
   </section>
 </main>
 <footer id="footer"></footer>
+<aside class="ask-panel" id="ask-panel" aria-labelledby="ask-title" hidden>
+  <div class="ask-head"><h2 id="ask-title" data-i18n="ask_title"></h2>
+    <button type="button" class="linkbtn" id="ask-close" data-i18n="ask_close"></button></div>
+  <div class="ask-log" id="ask-log" role="log" aria-live="polite"><p class="note" data-i18n="ask_intro" style="margin:0"></p></div>
+  <div class="ask-foot">
+    <div class="presets" id="ask-suggest"></div>
+    <div class="ask-row"><textarea id="ask-text" rows="2" maxlength="400" class="nl-text" aria-labelledby="ask-title"></textarea>
+      <button type="button" class="btn tour-primary" id="ask-go" data-i18n="ask_send"></button></div>
+    <span class="note" id="ask-status" role="status" style="margin:0"></span>
+  </div>
+</aside>
 <div class="tour-shade" id="tour-shade" hidden></div>
 <div class="tour-box" id="tour-box" role="dialog" aria-modal="true" aria-labelledby="tour-title" aria-describedby="tour-body" hidden>
   <div class="tour-step" id="tour-step"></div>

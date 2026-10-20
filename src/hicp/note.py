@@ -19,14 +19,13 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import re
 from datetime import datetime, timezone
 from pathlib import Path
 
 from pydantic import BaseModel
 
 from hicp.config import ROOT
-from hicp.schemas import (DraftNote, NoteFact, ResearchNote, ResearchNotes, ShockBasis, VerifiedNumber, write_json)
+from hicp.schemas import DraftNote, NoteFact, ResearchNote, ResearchNotes, ShockBasis, VerifiedNumber, write_json
 
 DEFAULT_MODEL = "claude-opus-5-5"
 MAX_ATTEMPTS = 2
@@ -107,51 +106,8 @@ def facts_hash(facts: list[Fact]) -> str:
 
 
 # --------------------------------------------------------------------------- verification
-NUM = re.compile(r"(?<![\w.,])[−\-]?\d+(?:[.,]\d+)?")
-
-
-def _parse(tok: str) -> tuple[float, int]:
-    """Value (absolute) and number of decimals as written."""
-    s = tok.replace("−", "-").lstrip("-").replace(",", ".")
-    return float(s), (len(s.split(".")[1]) if "." in s else 0)
-
-
-def matches(tok: str, value: float) -> bool:
-    """The written number equals the fact's value rounded to the precision written (sign-insensitive: the
-    words carry the direction, which this check does not verify)."""
-    v, dec = _parse(tok)
-    return abs(round(abs(value), dec) - v) < 1e-9
-
-
-def is_year(tok: str) -> bool:
-    return re.fullmatch(r"20\d\d", tok) is not None
-
-
-def verify(body: str, citations: list, facts: list[Fact]) -> tuple[list[VerifiedNumber], list[str]]:
-    """Every number token in ``body`` must be a year, or be cited and equal the cited fact."""
-    by_id = {x.id: x for x in facts}
-    cited: dict[str, str] = {}
-    for c in citations:
-        cited.setdefault(c.number.strip().replace("−", "-").lstrip("-"), c.fact_id)
-    nums, problems = [], []
-    for m in NUM.finditer(body):
-        tok = m.group(0)
-        if is_year(tok):
-            continue
-        key = tok.replace("−", "-").lstrip("-")
-        fid = cited.get(key)
-        if fid is None:
-            nums.append(VerifiedNumber(token=tok, fact_id=None, fact_label=None, fact_value=None, ok=False))
-            problems.append(f"'{tok}' is in the text but cites no fact")
-        elif fid not in by_id:
-            nums.append(VerifiedNumber(token=tok, fact_id=fid, fact_label=None, fact_value=None, ok=False))
-            problems.append(f"'{tok}' cites '{fid}', which is not in the fact sheet")
-        else:
-            ok = matches(tok, by_id[fid].value)
-            nums.append(VerifiedNumber(token=tok, fact_id=fid, fact_label=by_id[fid].label, fact_value=by_id[fid].value, ok=ok))
-            if not ok:
-                problems.append(f"'{tok}' does not equal fact '{fid}' ({by_id[fid].value:.4g}) at that precision")
-    return nums, problems
+# Shared with the dashboard assistant (hicp.ask); kept in a module with no data dependencies.
+from hicp.numcheck import NUM, is_year, matches, verify  # noqa: E402,F401
 
 
 # --------------------------------------------------------------------------- writing

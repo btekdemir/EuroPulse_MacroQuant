@@ -876,7 +876,7 @@
     if (tab === "shocks") { refreshAll(); renderNL(); }
     if (tab === "model") renderModel();
   }
-  function renderAll() { applyText(); renderTab(activeTab); }
+  function renderAll() { applyText(); renderAsk(); renderTab(activeTab); }
 
   function setTheme(th) {
     theme = th; store.set("hicp.theme", th);
@@ -1016,6 +1016,77 @@
     p.after(bar);
   });
   window.__chartCsv = chartCsv;  // exposed for the automated check only
+
+  // ------------------------------------------------------------------ dashboard assistant (D34)
+  // Answers come from /api/ask, which only uses the pipeline's fact sheet and checks every number against the
+  // fact it cites. The button appears only if that route exists (GET answers 405 there, 404 on a static host).
+  const askHist = [];
+  let askBusy = false;
+
+  function askAnswerNode(res) {
+    const box = node("div", { class: "ask-msg bot" + (res.answerable ? "" : " muted") });
+    const txt = res.answer;
+    let pos = 0;
+    for (const n of res.numbers || []) {
+      const k = txt.indexOf(n.token, pos);
+      if (k < 0) continue;
+      box.append(txt.slice(pos, k));
+      box.append(node("span", { class: "cite", tabindex: 0, title: `${n.fact_label} = ${fmt(n.fact_value, 3)}` }, n.token));
+      pos = k + n.token.length;
+    }
+    box.append(txt.slice(pos));
+    const nNum = (res.numbers || []).length;
+    box.append(node("span", { class: "meta" }, nNum ? t("ask_checked", { n: nNum, model: res.model }) : t("ask_model", { model: res.model })));
+    return box;
+  }
+
+  function askLog(n) { const log = el("ask-log"); log.appendChild(n); log.scrollTop = log.scrollHeight; }
+
+  async function askSend(q) {
+    q = (q || el("ask-text").value).trim();
+    if (!q || askBusy) return;
+    askBusy = true; el("ask-go").disabled = true; el("ask-text").value = "";
+    askLog(node("div", { class: "ask-msg user" }, q));
+    el("ask-suggest").hidden = true;  // the examples have done their job; give the answers the room
+    el("ask-status").textContent = t("ask_busy");
+    try {
+      const r = await fetch("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: q, history: askHist.slice(-4) }) });
+      let body = {}; try { body = await r.json(); } catch (e) { /* non-JSON error page */ }
+      el("ask-status").textContent = "";
+      if (!r.ok) { askLog(node("div", { class: "ask-msg bot muted" }, body.error || `${t("ask_failed")} (${r.status})`)); return; }
+      if (!body.verified) { askLog(node("div", { class: "ask-msg bot muted" }, t("ask_unverified"))); return; }
+      askLog(askAnswerNode(body));
+      askHist.push({ role: "user", content: q }, { role: "assistant", content: body.answer });
+    } catch (e) {
+      el("ask-status").textContent = ""; askLog(node("div", { class: "ask-msg bot muted" }, t("ask_failed")));
+    } finally { askBusy = false; el("ask-go").disabled = false; }
+  }
+
+  function renderAsk() {
+    el("ask-text").placeholder = t("ask_placeholder");
+    el("ask-suggest").replaceChildren(...[t("ask_s1"), t("ask_s2"), t("ask_s3"), t("ask_s4")].map((q) => {
+      const b = node("button", { type: "button" }, q);
+      b.addEventListener("click", () => askSend(q));
+      return b;
+    }));
+  }
+
+  function askToggle(open) {
+    el("ask-panel").hidden = !open; el("ask-open").setAttribute("aria-expanded", String(open));
+    if (open) el("ask-text").focus(); else el("ask-open").focus();
+  }
+
+  if (liveOk()) {
+    fetch("/api/ask", { method: "GET" }).then((r) => { if (r.status === 405) el("ask-open").hidden = false; }).catch(() => {});
+  }
+  el("ask-open").addEventListener("click", () => askToggle(el("ask-panel").hidden));
+  el("ask-close").addEventListener("click", () => askToggle(false));
+  el("ask-go").addEventListener("click", () => askSend());
+  el("ask-text").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); askSend(); }
+    else if (e.key === "Escape") askToggle(false);
+  });
 
   el("mx-month").addEventListener("change", renderMonth);
   el("oct-in").addEventListener("input", () => setOct(Number(el("oct-in").value)));

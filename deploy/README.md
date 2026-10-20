@@ -1,6 +1,6 @@
-# Deploying to Vercel (dashboard + live natural-language scenario builder)
+# Deploying to Vercel (dashboard + live scenario builder + dashboard assistant)
 
-What you get: the dashboard at `/` and one function at `POST /api/scenario`. The Anthropic key exists
+What you get: the dashboard at `/` and two functions: `POST /api/scenario` (natural-language scenario builder) and `POST /api/ask` (the "Ask" panel, D34: answers only from `ask_facts.json`, every number checked). The Ask button appears only where `/api/ask` exists. The Anthropic key exists
 only as an environment variable on Vercel, never in the page. The function is untested on Vercel itself
 until the first deploy; it is tested locally over HTTP with a fake LLM client (`tests/test_deploy_function.py`).
 

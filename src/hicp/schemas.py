@@ -377,6 +377,22 @@ class ResearchNotes(Strict):
     notes: list[ResearchNote]
 
 
+
+# --------------------------------------------------------------------------- dashboard assistant (D34)
+class AskFacts(Strict):
+    """Everything the dashboard assistant may say: numeric facts plus a short non-numeric context."""
+    origin: str
+    facts_hash: str
+    context: str = Field(description="Non-numeric context: definitions, model choices, what is not modelled")
+    facts: list[NoteFact]
+
+
+class DraftAnswer(Strict):
+    """What the LLM must produce for one question."""
+    answerable: bool = Field(description="False when the fact sheet and context do not contain the answer")
+    answer: str
+    citations: list[NoteCitation]
+
 # --------------------------------------------------------------------------- shocks
 from typing import Literal  # noqa: E402
 

@@ -380,7 +380,22 @@
   "cp_share": "Share of the euro area* basket, %",
   "cp_impact": "Euro area* y/y impact of +10%, pp",
   "cp_sens_note": "First-round impact in the first month of a permanent +10% price-level shock to that component in this country only, from the shock engine. Use the Shock simulator for other sizes and profiles.",
-  "cp_limits": "No country forecast here: the forecasting model covers the euro area* only. Eurostat publishes official component contributions for the euro area only, so these country contributions are checked by their sum, not against an official figure."
+  "cp_limits": "No country forecast here: the forecasting model covers the euro area* only. Eurostat publishes official component contributions for the euro area only, so these country contributions are checked by their sum, not against an official figure.",
+  "ask_button": "Ask",
+  "ask_title": "Ask the dashboard",
+  "ask_close": "Close",
+  "ask_intro": "Answers use only this dashboard's numbers. Every number is checked against the figure it comes from (hover it to see which); an answer that fails the check is not shown. Questions it cannot answer get “not covered”.",
+  "ask_send": "Send",
+  "ask_placeholder": "e.g. Why is December higher than September?",
+  "ask_busy": "Thinking…",
+  "ask_failed": "The assistant did not answer. Try again in a minute.",
+  "ask_unverified": "The draft answer contained a number that could not be matched to the dashboard's figures, so it is not shown. Try rephrasing.",
+  "ask_checked": "{n} numbers checked against the dashboard · {model}",
+  "ask_model": "{model}",
+  "ask_s1": "Why is December higher than September?",
+  "ask_s2": "What does Germany contribute?",
+  "ask_s3": "How accurate is the forecast three months ahead?",
+  "ask_s4": "What is the probability December is above 4%?"
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -763,6 +778,21 @@
   "cp_share": "Part du panier de la zone euro*, %",
   "cp_impact": "Impact de +10 % sur l'inflation de la zone euro*, pt",
   "cp_sens_note": "Impact de premier tour, le premier mois, d'un choc permanent de +10 % sur le niveau des prix de cette composante dans ce pays seulement, calculé par le moteur de chocs. Le simulateur permet d'autres tailles et profils.",
-  "cp_limits": "Pas de prévision par pays ici : le modèle de prévision couvre la zone euro* seulement. Eurostat ne publie des contributions officielles par composante que pour la zone euro : ces contributions par pays sont vérifiées par leur somme, pas par un chiffre officiel."
+  "cp_limits": "Pas de prévision par pays ici : le modèle de prévision couvre la zone euro* seulement. Eurostat ne publie des contributions officielles par composante que pour la zone euro : ces contributions par pays sont vérifiées par leur somme, pas par un chiffre officiel.",
+  "ask_button": "Question",
+  "ask_title": "Interroger le tableau de bord",
+  "ask_close": "Fermer",
+  "ask_intro": "Les réponses n’utilisent que les chiffres de ce tableau de bord. Chaque chiffre est vérifié contre sa source (survolez-le pour la voir) ; une réponse qui échoue au contrôle n’est pas affichée. Les questions hors champ reçoivent « non couvert ».",
+  "ask_send": "Envoyer",
+  "ask_placeholder": "ex. Pourquoi décembre est-il plus haut que septembre ?",
+  "ask_busy": "Réflexion…",
+  "ask_failed": "L’assistant n’a pas répondu. Réessayez dans une minute.",
+  "ask_unverified": "Le brouillon contenait un chiffre introuvable dans le tableau de bord ; il n’est donc pas affiché. Reformulez la question.",
+  "ask_checked": "{n} chiffres vérifiés · {model}",
+  "ask_model": "{model}",
+  "ask_s1": "Pourquoi décembre est-il plus haut que septembre ?",
+  "ask_s2": "Quelle est la contribution de l’Allemagne ?",
+  "ask_s3": "Quelle est la précision de la prévision à trois mois ?",
+  "ask_s4": "Quelle est la probabilité que décembre dépasse 4 % ?"
  }
 }

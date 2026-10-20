@@ -449,3 +449,29 @@ Committed to git before the code that runs it. It does not change after the resu
   - the euro area\* impact of a +10% permanent shock to each component in that country only, from the same shock engine as the simulator.
 - **Not included:** a country forecast. The backtest and the model choice (D9) are for the euro area\* headline only. A country forecast would not have been tested, so it is not shown.
 - **Italy finding:** each country's exact contributions add up to its published y/y within 0.02pp, except Italy, which is off by up to 0.12pp. Italy's published TOTAL is not the weighted chain-link of its published components. Other countries reproduce their totals to about 0.01 index points; Italy is off by about 0.10. The cause is not identified; seasonal-item treatment is a guess, not verified. The card warns whenever the gap is above 0.02pp, and `tests/test_country_profiles.py` pins the gap so that a change in the data shows up.
+
+## D34. Dashboard assistant, "Ask the dashboard" (20 Oct 2026)
+
+- **What:** an "Ask" panel that answers questions about the dashboard, such as why December is higher, what Germany contributes, or how accurate the forecast is. Answers use only a fact sheet: `outputs/ask_facts.json`, which `run.py` builds from the validated outputs.
+  - The sheet has 493 numbers: the research-note facts, forecast detail per horizon, 24 months of euro area\* history with the momentum/base split, and each country's y/y, weight, contribution, rank and drivers.
+  - It also has a short non-numeric context: definitions, the selected models, and what is not modelled.
+- **Same contract as the research note:**
+  - The LLM must cite a fact id for every number it writes.
+  - `hicp.numcheck`, the code the note uses (moved into its own module), checks each number against the fact it cites.
+  - A failed check is retried once with the list of failures. If it still fails, the answer is not shown and the page says why.
+  - Questions the sheet cannot answer come back as "not covered" with no numbers. Examples: ECB decisions, country forecasts, anything beyond three months.
+  - The check guarantees that no figure in a shown answer is invented. It does not guarantee the words (it is sign-insensitive), so the page lets you hover any number to see the fact it came from.
+- **Cost and safety:**
+  - The model is `claude-haiku-5-5`, and the system prompt (fact sheet) is prompt-cached.
+  - Limits: 400-character questions, at most 4 earlier messages of 800 characters each, and 1000 output tokens.
+  - The per-IP rate limit is the same as `/api/scenario`. The hard cap is the monthly spend limit on the Anthropic account.
+  - The question, the history and the sheet are treated as data, not instructions.
+- **Where it shows:** only where `/api/ask` exists, i.e. on the Vercel site or with `deploy/serve_local.py`. The page probes the route with a GET, which answers 405 there and 404 on a static host. The offline HTML file never shows the button, so reviewers who open the file see no broken feature.
+- **Tested:** `tests/test_ask.py` uses a fake client and makes no API calls. It checks:
+  - that the facts match the outputs;
+  - retry, then withholding;
+  - the refusal path;
+  - history trimming;
+  - the handler guards (413/400/429);
+  - that the deploy bundle imports without pandas.
+  The UI was checked in the browser with a stubbed response (EN/FR, phone width, static host hides the button). No live answer has been checked yet: that needs a paid call.
