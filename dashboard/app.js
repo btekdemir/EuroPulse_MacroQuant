@@ -498,6 +498,46 @@
 
   function refreshAll() { labelForm(); toForm(); renderLegs(); renderShock(); }
 
+  // ---- sensitivity heatmap: euro area* December y/y response to +1% in one (country, component) cell.
+  // 126 runs of the same engine as the simulator, computed once (they depend on the basis only).
+  let heat = null, heatBound = false;
+  function heatData() {
+    if (heat) return heat;
+    const k = S.months.indexOf(last.date), z = {};
+    S.countries.forEach((g) => {
+      z[g] = COMPS.map((c) => ShockEngine.simulate({ name: "cell", legs: [{ components: [c], countries: [g], size_pct: 1,
+        profile: { kind: "permanent" }, start: S.months[0] }], second_round: false, second_round_regime: "post2020",
+        rationale: "sensitivity cell", sources: ["engine"] }, S).delta_yoy_pp[k] * 100);  // basis points
+    });
+    const order = [...S.countries].sort((a, b) => z[b].reduce((s, v) => s + v, 0) - z[a].reduce((s, v) => s + v, 0));
+    return (heat = { z, order });
+  }
+  function renderHeat() {
+    const { z, order } = heatData(), ys = order.map(geo), xs = COMPS.map(comp);
+    Plotly.react(el("p-heat"), [{ type: "heatmap", x: xs, y: ys, z: order.map((g) => z[g]), customdata: order.map((g) => COMPS.map((c) => [g, c])),
+      colorscale: [[0, css("--surface-2")], [1, css("--accent")]], zmin: 0, xgap: 2, ygap: 2,
+      texttemplate: "%{z:.1f}", textfont: { size: 10 }, colorbar: { title: { text: "bp" }, thickness: 10, len: 0.6 },
+      hovertemplate: `%{y} · %{x}<br>${t("hm_hover")}: %{z:.2f} bp<extra></extra>` }],
+    baseLayout({ margin: { l: 10, r: 10, t: 8, b: 60 }, yaxis: Object.assign(baseLayout().yaxis, { autorange: "reversed", automargin: true }),
+      xaxis: Object.assign(baseLayout().xaxis, { side: "bottom", automargin: true, tickangle: -20 }) }), CFG);
+    table(el("tbl-heat"), [t("hm_country"), ...xs], order.map((g) => [geo(g), ...z[g].map((v) => fmt(v, 2))]), COMPS.map((_, i) => i + 1));
+    if (!heatBound) {
+      el("p-heat").on("plotly_click", (ev) => {
+        const pt = ev.points && ev.points[0];
+        if (!pt) return;
+        const [g, c] = pt.customdata;
+        scenario = { name: `${comp(c)} · ${geo(g)} +10%`, legs: [{ components: [c], countries: [g], size_pct: 10, profile: { kind: "permanent" }, start: S.months[0] }],
+          second_round: false, second_round_regime: "post2020", mapping: null, sources: ["Sensitivity heatmap"],
+          rationale: "Opened from the sensitivity heatmap: a +10% permanent price-level shock in one country and component, to read the size of the response; not a forecast of any event." };
+        presetIdx = -1; activeLeg = 0;
+        el("presets").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", "false"));
+        refreshAll();
+        el("p-shock").closest(".card").scrollIntoView({ block: "start", behavior: "smooth" });
+      });
+      heatBound = true;
+    }
+  }
+
   // ---- shareable link: the whole scenario in the URL fragment (nothing is sent anywhere)
   const shareUrl = (sc) => `${location.href.split("#")[0]}#s=${ShockEngine.encodeScenario(sc)}`;
   async function copyShare() {
@@ -893,7 +933,7 @@
     if (tab === "overview") renderOverview();
     if (tab === "drivers") renderDrivers();
     if (tab === "countries") renderCountries();
-    if (tab === "shocks") { refreshAll(); renderNL(); }
+    if (tab === "shocks") { refreshAll(); renderNL(); renderHeat(); }
     if (tab === "model") renderModel();
   }
   function renderAll() { applyText(); renderAsk(); renderTab(activeTab); }

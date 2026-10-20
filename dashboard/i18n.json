@@ -416,7 +416,12 @@
   "ask_explain_q": "Explain this chart: “{title}”",
   "ask_sc_followup": "Reply with just the missing part (for example +40%) and I will build it.",
   "ask_sc_preset": "Ready-made scenario: {name}.",
-  "ask_sc_meta_preset": "Impact computed by the dashboard's shock engine from the ready-made scenario; no language model involved in the numbers"
+  "ask_sc_meta_preset": "Impact computed by the dashboard's shock engine from the ready-made scenario; no language model involved in the numbers",
+  "hm_title": "Where is euro area* inflation most sensitive?",
+  "hm_intro": "Each cell: change in euro area* December y/y, in basis points, if prices of that component rise 1% in that country from next month and stay there. Countries are sorted by their total. Click a cell to open a +10% version in the simulator.",
+  "hm_note": "First round only, computed by the simulator's engine: roughly country weight × component weight × (1 + its inflation). Linear, so +10% is about ten times the cell.",
+  "hm_hover": "Euro area* Dec y/y",
+  "hm_country": "Country"
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -835,6 +840,11 @@
   "ask_explain_q": "Expliquez ce graphique : « {title} »",
   "ask_sc_followup": "Répondez seulement avec l’élément manquant (par exemple +40 %) et je le construis.",
   "ask_sc_preset": "Scénario prédéfini : {name}.",
-  "ask_sc_meta_preset": "Impact calculé par le moteur de chocs à partir du scénario prédéfini ; aucun modèle de langage dans les chiffres"
+  "ask_sc_meta_preset": "Impact calculé par le moteur de chocs à partir du scénario prédéfini ; aucun modèle de langage dans les chiffres",
+  "hm_title": "Où l’inflation de la zone euro* est-elle la plus sensible ?",
+  "hm_intro": "Chaque case : variation du glissement annuel de décembre de la zone euro*, en points de base, si les prix de cette composante augmentent de 1 % dans ce pays à partir du mois prochain, durablement. Pays triés par total. Cliquez sur une case pour ouvrir une version à +10 % dans le simulateur.",
+  "hm_note": "Premier tour seulement, calculé par le moteur du simulateur : environ poids du pays × poids de la composante × (1 + son inflation). Linéaire : +10 % donne environ dix fois la case.",
+  "hm_hover": "Zone euro*, glissement déc.",
+  "hm_country": "Pays"
  }
 }

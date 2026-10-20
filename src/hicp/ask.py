@@ -70,6 +70,7 @@ SECTIONS = {
     "shock_builder": ("shocks", "sim-form", "build a shock: components, countries, size, profile, second round"),
     "reverse_stress": ("shocks", "rev-card", "reverse stress test: what shock size reaches a target"),
     "shock_result": ("shocks", "p-shock", "impact of the current shock on headline y/y"),
+    "heatmap": ("shocks", "p-heat", "sensitivity heatmap: which country and component moves euro area* inflation most"),
     "ledger": ("model", "n-led", "forecast ledger: every published forecast and its score"),
     "backtest": ("model", "tbl-bt", "backtest accuracy vs random walk and direct AR, by horizon and sample"),
     "track_record": ("model", "p-track", "forecasts vs outcomes over time"),
@@ -99,6 +100,7 @@ CHARTS = {
     "p-track": ("track_record", "past forecasts against outcomes at the selected horizon"),
     "p-brk": ("break_test", "forecast errors over time and the structural break test"),
     "p-sigma": ("calibration", "recent forecast error size used by the scaled fan vs the fixed fan"),
+    "p-heat": ("heatmap", "heatmap: euro area* December y/y response, in basis points, to +1% in each country and component"),
 }
 MAX_PAGE_FACTS = 30
 PAGE_ID = re.compile(r"^page_[a-z0-9_]{1,40}$")
