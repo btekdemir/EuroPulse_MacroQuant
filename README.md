@@ -1,11 +1,15 @@
 # Euro Area HICP: Bottom-up Forecast, Shock Simulation & Dashboard
 
-> Status (19 Oct 2026): data, validation, forecast, backtest, shock engine and dashboard are done.
-> The deck is next.
+> Status (21 Oct 2026): pipeline, validation, forecast, backtest, shock engine, dashboard and assistant are done
+> and pass a clean-clone test (below). Deck and defence notes are prepared separately.
 
 **Dashboard:** open `outputs/dashboard.html`. It is one self-contained file that works offline,
 with an FR/EN toggle and five tabs: Overview, Drivers, Countries, Shock simulator, Model &
-validation.
+validation. Press **Tour** for a two-minute guide to every feature.
+
+For the LLM features too (the Ask panel, "Explain this" and natural-language scenarios), run
+`.venv/bin/python deploy/serve_local.py` and open http://127.0.0.1:8812. This needs `ANTHROPIC_API_KEY`
+in `.env`. Without a key, or in the offline file, those buttons are simply hidden.
 
 ## Answer first
 
@@ -19,18 +23,29 @@ Source: `outputs/forecast.json`.
 
 ```bash
 python3.11 -m venv .venv && .venv/bin/pip install -r requirements.txt
-.venv/bin/python run.py            # live pull → clean → validate → backtest → forecast (~4 min, mostly Eurostat latency)
-.venv/bin/python run.py --offline  # replay the cached vintages (~45 s)
-.venv/bin/python -m pytest         # tests
+.venv/bin/python run.py            # live pull → clean → validate → backtest → forecast (~3 min, mostly Eurostat latency)
+.venv/bin/python run.py --offline  # replay the cached vintages (~2 min)
+.venv/bin/python -m pytest         # tests (data-dependent ones skip until run.py has been run once)
 ```
 
 Outputs, all schema-validated:
 - `validation_report.json`
 - `forecast.json`
 - `backtest_metrics.json`
+- `what_changed.json`
+- `core.json`
+- `countries.json`
+- `shock_basis.json`
+- `round2.json`, `calibration.json`, `realtime.json`
+- `ledger_scores.json`
+- `ask_facts.json`
 - `run_manifest.json`
 
 All are in `outputs/`, with JSON Schemas in `outputs/schemas/`.
+
+**Clean-clone test (21 Oct 2026):** a fresh `git clone` + venv + `pip install -r requirements.txt` + `run.py`
+pulled the data live in 3 min 10 s. All tests passed. The forecast, backtest, core, what-changed and country
+outputs were identical to the committed ones (no numeric difference above 1e−8).
 
 ## Method (bottom-up, as in Eurosystem practice)
 
@@ -54,6 +69,15 @@ uses 2010–2019 origins only; 2020 onwards is a hold-out.
 The model beats the random walk significantly at h = 1. At h = 3 the RMSE is lower, but not
 significantly. It under-predicted the 2021–22 surge (2020–2023 h = 3 bias −0.64pp).
 See D14.
+
+## Core inflation (by-product, D44)
+
+Core HICP (`TOT_X_NRG_FOOD`) is built from the same goods and services forecasts, with no new model.
+Rebuilding it from the two components matches Eurostat's core within 0.05pp.
+
+Its backtest is shown honestly: **a random walk is more accurate for core at every horizon** (RMSE 0.29 vs 0.24
+at h = 1, DM p 0.015; 0.49 vs 0.41 at h = 3, p 0.12). The dashboard says so and recommends the last print. No model
+was re-selected after seeing this.
 
 ## Shock simulator
 
@@ -82,7 +106,25 @@ Assumptions are listed in `src/hicp/shocks.py` and shown in the dashboard. See D
 - **Forecast ledger:** every published forecast is recorded in a hash-chained file and scored automatically when Eurostat releases the figure; Model & validation shows the live record (D25).
 - **Robustness:** the backtest scored against figures as first published gives the same conclusions (D29); a crisis-aware fan is tested against the fixed one in real time (D28), and an attempt to beat the random walk at h = 3 was pre-registered and failed after Holm's correction (D27).
 - **Keeping it running:** `bash scripts/monthly_update.sh` (or the GitHub Actions workflow once the repo is pushed) records and scores each new forecast.
-- **Research note:** an LLM-written note in English and French whose every number is checked against the pipeline outputs (D26). Regenerate with `python -m hicp.note --generate` (paid API call).
+- **Research note:** an LLM-written note in English and French whose every number is checked against the pipeline outputs (D26). Regenerate with `PYTHONPATH=src python -m hicp.note --generate` (paid API call).
+- **What changed since last month:** the surprise in the new print and the revisions, by component (D39).
+- **Any month, explained:** momentum vs base effect for any month; click a month on the headline or contributions chart (D32, D41).
+- **Country profile:** click a country for its own drivers, its basket against the euro area\*, and its euro area\* sensitivity (D33).
+- **Sensitivity heatmap:** euro area\* response to +1% in each country × component; click to simulate (D38).
+- **Time machine:** any past origin's forecast, the fan known then, and the outcome. June 2022 shows the model's biggest miss (D40).
+- **Shareable scenarios:** "Copy link" puts the scenario in the URL; links are validated on load (D35).
+- **One-page brief:** "Brief (PDF)" prints an A4 summary (D42).
+- **Interview demo:** `#demo` in the URL or Shift+D opens a 15-step presenter script with speaker notes (D43).
+
+## Ask the dashboard (optional, needs an API key)
+
+A chat panel that answers only from `ask_facts.json`, a fact sheet of about 500 numbers built by `run.py`.
+- The LLM must cite a fact for every number it writes, and code checks each one. An answer that fails the check is not shown.
+- "Go to" buttons take you to the section that shows the answer.
+- What-if questions run in the shock engine, not in the LLM.
+- "Explain this" sits under every chart.
+
+Design, limits and live checks: D34–D37.
 
 ## Natural-language scenario builder (optional)
 
