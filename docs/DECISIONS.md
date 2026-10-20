@@ -482,3 +482,9 @@ Committed to git before the code that runs it. It does not change after the resu
   - Each answer took 2–16 s and used about 0.8–1.3k output tokens, mostly thinking. The 21k-token sheet was cached after the first call.
   - The first attempt exposed a bug: with max_tokens 1000, the model's thinking left too little room and the JSON was cut off. Fixed with 3000, and malformed output is now retried (tested).
   - Two style points were fixed in the prompt afterwards, and the fix has not been re-run live: French and Turkish answers used a decimal point instead of a comma, and one probability was written as 35.86%.
+- **Navigation (added after the first local try):** asked "where can I see country-based drivers?", the assistant described the view but could not say where it was.
+  - It now gets a map of 29 sections (`hicp.ask.SECTIONS`: tab, element, what it shows) and may return `goto`, plus `goto_country` for the country profile.
+  - The server accepts only ids in the map, and a country only with the country profile.
+  - The page then shows a "Go to: …" button. It switches tab, opens the country, scrolls to the card and highlights it. On phones it also closes the panel.
+  - A test checks that every section's element and tab exist in the page.
+  - It was checked in the browser with a stubbed answer, not yet with a live one.

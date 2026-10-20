@@ -31,8 +31,9 @@ class FakeClient:
         return types.SimpleNamespace(parsed_output=self.queue.pop(0), stop_reason="end_turn")
 
 
-def draft(text, *cites, answerable=True):
-    return DraftAnswer(answerable=answerable, answer=text, citations=[NoteCitation(number=n, fact_id=f) for n, f in cites])
+def draft(text, *cites, answerable=True, goto=None, country=None):
+    return DraftAnswer(answerable=answerable, answer=text, citations=[NoteCitation(number=n, fact_id=f) for n, f in cites],
+                       goto=goto, goto_country=country)
 
 
 def fact(doc, i):
@@ -124,3 +125,21 @@ def test_malformed_output_is_retried(doc):
     c = Broken(draft("Not covered.", answerable=False))
     r = answer("q", doc, client=c, model="m")
     assert r["verified"] and r["attempts"] == 2
+
+
+def test_goto_is_resolved_only_to_real_sections(doc):
+    ok = draft("It is on the Countries tab.", goto="country_profile", country="DE")
+    r = answer("Where are Germany's drivers?", doc, client=FakeClient(ok), model="m")
+    assert r["goto"] == {"id": "country_profile", "tab": "countries", "target": "cp-card", "country": "DE"}
+    r = answer("q", doc, client=FakeClient(draft("x", goto="secret_admin_page", country="DE")), model="m")
+    assert r["goto"] is None
+    r = answer("q", doc, client=FakeClient(draft("x", goto="backtest", country="DE")), model="m")
+    assert r["goto"]["country"] is None  # a country only travels with the country profile
+
+
+def test_every_section_target_exists_in_the_page():
+    from hicp.ask import SECTIONS
+    page = (ROOT / "dashboard" / "template.html").read_text()
+    for sid, (tab, target, _) in SECTIONS.items():
+        assert f'id="{target}"' in page, sid
+        assert f'data-tab="{tab}"' in page, sid

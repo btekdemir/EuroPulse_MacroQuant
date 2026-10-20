@@ -395,7 +395,8 @@
   "ask_s1": "Why is December higher than September?",
   "ask_s2": "What does Germany contribute?",
   "ask_s3": "How accurate is the forecast three months ahead?",
-  "ask_s4": "What is the probability December is above 4%?"
+  "ask_s4": "What is the probability December is above 4%?",
+  "ask_goto": "Go to: {name} →"
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -793,6 +794,7 @@
   "ask_s1": "Pourquoi décembre est-il plus haut que septembre ?",
   "ask_s2": "Quelle est la contribution de l’Allemagne ?",
   "ask_s3": "Quelle est la précision de la prévision à trois mois ?",
-  "ask_s4": "Quelle est la probabilité que décembre dépasse 4 % ?"
+  "ask_s4": "Quelle est la probabilité que décembre dépasse 4 % ?",
+  "ask_goto": "Aller à : {name} →"
  }
 }

@@ -1035,9 +1035,30 @@
       pos = k + n.token.length;
     }
     box.append(txt.slice(pos));
+    if (res.goto) {
+      const tgt = el(res.goto.target), card = tgt && tgt.closest(".card");
+      const name = (card && card.querySelector("h2") && card.querySelector("h2").textContent.trim()) || t("tab_" + res.goto.tab);
+      const label = res.goto.country ? `${name} · ${geo(res.goto.country)}` : name;
+      const go = node("button", { type: "button", class: "btn ask-goto" }, t("ask_goto", { name: label }));
+      go.addEventListener("click", () => askGoto(res.goto));
+      box.append(node("br"), go);
+    }
     const nNum = (res.numbers || []).length;
     box.append(node("span", { class: "meta" }, nNum ? t("ask_checked", { n: nNum, model: res.model }) : t("ask_model", { model: res.model })));
     return box;
+  }
+
+  // Switch tab, open the right country if asked, scroll the section into view and flash it.
+  function askGoto(g) {
+    showTab(g.tab);
+    if (g.country) { cpGeo = g.country; el("cp-country").value = g.country; renderProfile(); }
+    const tgt = el(g.target);
+    if (!tgt) return;
+    const card = tgt.closest(".card") || tgt;
+    if (window.matchMedia("(max-width: 700px)").matches) askToggle(false);  // the panel covers the page on phones
+    card.scrollIntoView({ block: "start", behavior: "smooth" });
+    card.classList.add("ask-flash");
+    setTimeout(() => card.classList.remove("ask-flash"), 1800);
   }
 
   function askLog(n) { const log = el("ask-log"); log.appendChild(n); log.scrollTop = log.scrollHeight; }

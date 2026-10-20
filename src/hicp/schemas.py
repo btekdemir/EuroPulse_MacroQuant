@@ -392,6 +392,8 @@ class DraftAnswer(Strict):
     answerable: bool = Field(description="False when the fact sheet and context do not contain the answer")
     answer: str
     citations: list[NoteCitation]
+    goto: str | None = Field(description="Id of the dashboard section that shows the answer, or null")
+    goto_country: str | None = Field(description="Country code to open in the country profile (goto=country_profile), or null")
 
 # --------------------------------------------------------------------------- shocks
 from typing import Literal  # noqa: E402
