@@ -3,6 +3,7 @@
   "use strict";
   const D = JSON.parse(document.getElementById("dashboard-data").textContent);
   const NL_EX = D.nl_examples || [];
+  const L = D.ledger;
   const F = D.forecast, B = D.backtest, V = D.validation, M = D.manifest, S = D.basis, C = D.countries;
   const COMPS = S.components;
   const SLOT = { FUEL: "--s1", ELC_GAS: "--s2", FOOD_P: "--s3", FOOD_NP: "--s4", IGD_NNRG: "--s5", SERV: "--s6" };
@@ -580,6 +581,7 @@
     ], baseLayout({ yaxis: Object.assign(baseLayout().yaxis, { ticksuffix: "%" }) }));
 
     renderBreak();
+    renderLedger();
     table(el("tbl-cov"), [t("cov_sample"), "h", "n", t("cov_in68"), t("cov_in90")],
       F.fan_coverage.filter((c) => c.h === 3).map((c) => [t("sample_" + c.sample), String(c.h), String(c.n), fmt(100 * c.in68, 0) + "%", fmt(100 * c.in90, 0) + "%"]), [1, 2, 3, 4]);
     table(el("tbl-sel"), [t("sel_component"), t("sel_candidate"), t("sel_vs"), t("sel_p"), t("sel_accepted")],
@@ -597,6 +599,21 @@
       }));
     table(el("tbl-vin"), [t("vin_source"), t("vin_dataset"), t("vin_updated")],
       M.vintages.map((v) => [v.name, v.dataset, v.updated]));
+  }
+
+  function renderLedger() {
+    el("n-led").textContent = L.verified ? t("led_status_ok", { n: L.n_entries, h: (L.head_hash || "").slice(0, 10) })
+      : t("led_status_bad", { p: L.problems.join("; ") });
+    if (!L.rows.length) { el("tbl-led").replaceChildren(node("p", { class: "note" }, t("led_empty"))); return; }
+    table(el("tbl-led"), [t("led_recorded"), t("led_origin"), t("led_target"), "h", t("led_forecast"), t("led_band"), t("led_rw"),
+      t("led_status"), t("led_observed"), t("led_error"), t("led_rw_error")],
+    L.rows.map((r) => {
+      const st = node("span", { class: "status st-" + (r.status === "final" ? "pass" : r.status === "flash" ? "warn" : "") });
+      st.append(node("span", { class: "dot", "aria-hidden": "true" }), document.createTextNode(t("led_" + r.status)));
+      return [r.recorded_at.slice(0, 16).replace("T", " ") + " UTC", monthLabel(r.origin), monthLabel(r.target), String(r.h), fmt(r.point, 2),
+        `${fmt(r.q16, 2)}–${fmt(r.q84, 2)}`, fmt(r.random_walk, 2), st, r.observed === null ? "–" : fmt(r.observed, 2),
+        r.error === null ? "–" : sgn(r.error, 2), r.random_walk_error === null ? "–" : sgn(r.random_walk_error, 2)];
+    }), [3, 4, 5, 6, 8, 9, 10]);
   }
 
   function renderBreak() {

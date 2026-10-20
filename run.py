@@ -23,6 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from hicp import backtest as bt  # noqa: E402
+from hicp import ledger  # noqa: E402
 from hicp.clean import clean_all  # noqa: E402
 from hicp.config import ROOT, load_settings  # noqa: E402
 from hicp.external import pull_external, pump_index  # noqa: E402
@@ -47,6 +48,16 @@ def git_version() -> str:
         return sha + ("-dirty" if dirty else "")
     except (subprocess.CalledProcessError, FileNotFoundError):
         return "unknown"
+
+
+def tree_is_dirty() -> bool:
+    """Uncommitted changes to anything except the generated folders (outputs/, ledger/, data/)."""
+    try:
+        out = subprocess.run(["git", "status", "--porcelain", "--", ".", ":!outputs", ":!ledger", ":!data"], cwd=ROOT,
+                             capture_output=True, text=True, check=True).stdout.strip()
+        return bool(out)
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return True
 
 
 def main() -> int:
@@ -109,9 +120,22 @@ def main() -> int:
     except ImportError:
         log.warning("  dashboard builder not available")
 
+    log.info("forecast ledger")
+    code_version = git_version().removesuffix("-dirty")
+    entry, why = ledger.record(outlook, {p.name: p.sha256 for p in pulls}, code_version, s.config_hash(), tree_is_dirty())
+    log.info("  %s", why)
+    scores = ledger.scores_report(data, s)
+    write_json(scores, out / "ledger_scores.json")
+    if not scores.verified:
+        log.error("  LEDGER CHAIN BROKEN: %s", "; ".join(scores.problems))
+    else:
+        done = [r for r in scores.rows if r.status != "pending"]
+        log.info("  chain intact (%d entries); %d forecasts scored, %d pending", scores.n_entries, len(done),
+                 len(scores.rows) - len(done))
+
     write_manifest(s, args, report, pulls, t0)
     log.info("validation %s; done in %.1fs", report.summary, time.perf_counter() - t0)
-    return 0
+    return 0 if scores.verified else 3
 
 
 RULE = ("Keep the simpler model (ladder SM -> AR1 -> richer) unless the richer model has lower MSE and a "

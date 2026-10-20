@@ -196,6 +196,61 @@ class CountryView(Strict):
     max_abs_gap_pp: float = Field(description="max |Σ country contributions − EA YoY| over the window")
 
 
+# --------------------------------------------------------------------------- forecast ledger
+class LedgerForecast(Strict):
+    target: str = Field(pattern=r"^\d{4}-\d{2}$")
+    h: int = Field(ge=1, le=3)
+    point: float
+    q05: float
+    q16: float
+    q84: float
+    q95: float
+
+
+class LedgerEntry(Strict):
+    """One recorded forecast. ``entry_hash`` covers every other field, including ``prev_hash``."""
+    seq: int = Field(ge=1)
+    prev_hash: str = Field(pattern=r"^([0-9a-f]{64}|GENESIS)$")
+    run_at: datetime
+    code_version: str = Field(description="git commit of the code that produced the forecast")
+    config_hash: str
+    origin: str = Field(pattern=r"^\d{4}-\d{2}$")
+    last_actual_yoy: float = Field(description="Last published y/y at the origin = the random-walk forecast")
+    forecasts: list[LedgerForecast] = Field(min_length=3, max_length=3)
+    selected_models: dict[str, str]
+    data_vintages: dict[str, str] = Field(description="dataset name -> sha256 of the raw pull")
+    entry_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+
+class LedgerScoreRow(Strict):
+    seq: int
+    recorded_at: datetime
+    code_version: str
+    origin: str
+    target: str
+    h: int
+    point: float
+    q16: float
+    q84: float
+    q05: float
+    q95: float
+    random_walk: float
+    status: Literal["pending", "flash", "final"]
+    observed: float | None = None
+    error: float | None = Field(default=None, description="observed − forecast, pp")
+    random_walk_error: float | None = None
+    in68: bool | None = None
+    in90: bool | None = None
+
+
+class LedgerScores(Strict):
+    verified: bool = Field(description="Hash chain intact: no entry altered, removed or reordered")
+    problems: list[str]
+    n_entries: int
+    head_hash: str | None
+    rows: list[LedgerScoreRow]
+
+
 # --------------------------------------------------------------------------- shocks
 from typing import Literal  # noqa: E402
 
@@ -337,6 +392,6 @@ def export_json_schemas(folder: Path) -> None:
     """Write the JSON Schema of each output model, so consumers can validate independently."""
     folder.mkdir(parents=True, exist_ok=True)
     for model in (ValidationReport, RunManifest, Forecast, BacktestMetrics, Scenario, ShockResult, ShockBasis,
-                  CountryView):
+                  CountryView, LedgerEntry, LedgerScores):
         (folder / f"{model.__name__}.schema.json").write_text(
             json.dumps(model.model_json_schema(), indent=2) + "\n")
