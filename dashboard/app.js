@@ -78,7 +78,19 @@
     }, extra);
   }
   const CFG = { displayModeBar: false, responsive: true };
-  const plot = (id, data, layout) => Plotly.react(el(id), data, layout, CFG);
+  // Long time-series charts get range buttons (1Y / 3Y / all) above the plot.
+  const RANGED = new Set(["p-headline", "p-contrib", "p-ccmp", "p-cp-drivers", "p-track"]);
+  const plot = (id, data, layout) => {
+    if (RANGED.has(id)) {
+      layout = Object.assign({}, layout, { margin: Object.assign({}, layout.margin || {}, { t: 34 }) });
+      layout.xaxis = Object.assign({}, layout.xaxis, { rangeselector: { x: 0, y: 1.02, yanchor: "bottom",
+        bgcolor: css("--surface-2"), activecolor: css("--band68"), bordercolor: css("--border"), borderwidth: 1,
+        font: { color: css("--text-primary"), size: 11 },
+        buttons: [{ count: 1, step: "year", stepmode: "backward", label: t("rng_1y") },
+          { count: 3, step: "year", stepmode: "backward", label: t("rng_3y") }, { step: "all", label: t("rng_all") }] } });
+    }
+    return Plotly.react(el(id), data, layout, CFG);
+  };
 
   // ------------------------------------------------------------------ static text
   function applyText() {
@@ -305,6 +317,16 @@
     plot("p-contrib", traces, baseLayout({ barmode: "relative", bargap: 0.25,
       shapes: [{ type: "rect", xref: "x", yref: "paper", x0: F.origin + "-16", x1: last.date + "-16", y0: 0, y1: 1,
         fillcolor: css("--surface-2"), line: { width: 0 }, layer: "below" }] }));
+    if (!contribBound) {  // click a month: open "One month, explained" for it on the Overview tab
+      el("p-contrib").on("plotly_click", (ev) => {
+        const pt = ev.points && ev.points[0], ym = pt && String(pt.x).slice(0, 7);
+        if (!ym || !MONTHS.includes(ym)) return;
+        showTab("overview");
+        el("mx-month").value = ym; renderMonth();
+        el("mx-month").closest(".card").scrollIntoView({ block: "start", behavior: "smooth" });
+      });
+      contribBound = true;
+    }
     table(el("tbl-contrib"), [t("month"), ...COMPS.map(comp), "% y/y"],
       [...hist.slice(-12).map((h) => [monthLabel(h.date), ...COMPS.map((c) => fmt(h.contributions[c], 2)), fmt(h.yoy, 2)]),
         ...P.map((p) => [monthLabel(p.date) + " (f)", ...COMPS.map((c) => fmt(p.contributions[c], 2)), fmt(p.point, 2)])],
@@ -362,7 +384,7 @@
     for (const [g, k] of ccSel) tr.push({ x: xs, y: C.yoy[g], mode: "lines", name: geo(g), line: { color: css(CC_SLOTS[k]), width: 2 }, hovertemplate: "%{y:.1f}%" });
     plot("p-ccmp", tr, baseLayout({ yaxis: Object.assign(baseLayout().yaxis, { ticksuffix: "%" }) }));
   }
-  let cbarBound = false, csmBound = false, smGeos = [], cpGeo = "DE";
+  let contribBound = false, cbarBound = false, csmBound = false, smGeos = [], cpGeo = "DE";
 
   // ------------------------------------------------------------------ country profile
   function renderProfile() {

@@ -26,7 +26,7 @@
   "answer_title": "Answer first",
   "answer_text": "Euro area* headline inflation is forecast at {dec}% y/y in {date} (h = 3 from the {origin} release), against {last}% in {origin}. Between {origin} and {date}, base effects contribute {base}pp, already known, and new price momentum {mom}pp. Largest contributors in {date}: services {serv}pp and fuels {fuel}pp.",
   "ch_contrib": "Contributions to headline HICP inflation, pp (bars) and headline % y/y (line)",
-  "ch_contrib_note": "Exact chain-linked contributions (they add up to headline). Last three months are forecasts (lighter bars). Matches Eurostat's official contributions within 0.01pp (gate V5).",
+  "ch_contrib_note": "Exact chain-linked contributions (they add up to headline). Last three months are forecasts (lighter bars). Matches Eurostat's official contributions within 0.01pp (gate V5). Click a month to see it explained (momentum vs base effect).",
   "ch_basemom": "Change in headline y/y since {origin}: base effect vs momentum, pp",
   "ch_basemom_note": "Base effect: last year's m/m dropping out of the 12-month window (known today). Momentum: new m/m (forecast). The two sum exactly to the change.",
   "s_base": "Base effect (known)",
@@ -453,7 +453,10 @@
   "wc_col_rev": "Revision, {m}",
   "wc_resid": "Chain-link residual",
   "wc_total": "Headline",
-  "wc_note": "Last month's forecast is the same models re-run as of {prev} on today's data (it equals the backtest's forecast from that origin). Contributions are exact chain-linked ones, so the components add up to the headline change apart from the small residual shown. From the next monthly run, the forecast recorded in the ledger at the time becomes the reference."
+  "wc_note": "Last month's forecast is the same models re-run as of {prev} on today's data (it equals the backtest's forecast from that origin). Contributions are exact chain-linked ones, so the components add up to the headline change apart from the small residual shown. From the next monthly run, the forecast recorded in the ledger at the time becomes the reference.",
+  "rng_1y": "1Y",
+  "rng_3y": "3Y",
+  "rng_all": "All"
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -482,7 +485,7 @@
   "answer_title": "En bref",
   "answer_text": "L'inflation globale de la zone euro* est prévue à {dec} % sur un an en {date} (horizon 3 mois depuis la publication de {origin}), contre {last} % en {origin}. Entre {origin} et {date}, les effets de base contribuent pour {base} pt, déjà connus, et la nouvelle dynamique des prix pour {mom} pt. Principales contributions en {date} : services {serv} pt et carburants {fuel} pt.",
   "ch_contrib": "Contributions à l'inflation IPCH globale, pt (barres) et inflation globale en % sur un an (courbe)",
-  "ch_contrib_note": "Contributions exactes en indice chaîné (leur somme donne l'inflation globale). Les trois derniers mois sont des prévisions (barres plus claires). Écart aux contributions officielles d'Eurostat inférieur à 0,01 pt (contrôle V5).",
+  "ch_contrib_note": "Contributions exactes en indice chaîné (leur somme donne l'inflation globale). Les trois derniers mois sont des prévisions (barres plus claires). Écart aux contributions officielles d'Eurostat inférieur à 0,01 pt (contrôle V5). Cliquez sur un mois pour l’expliquer (dynamique et effet de base).",
   "ch_basemom": "Variation de l'inflation sur un an depuis {origin} : effet de base et dynamique, pt",
   "ch_basemom_note": "Effet de base : variations mensuelles d'il y a un an qui sortent de la fenêtre de 12 mois (connu aujourd'hui). Dynamique : nouvelles variations mensuelles (prévision). La somme des deux donne exactement la variation.",
   "s_base": "Effet de base (connu)",
@@ -909,6 +912,9 @@
   "wc_col_rev": "Révision, {m}",
   "wc_resid": "Résidu de chaînage",
   "wc_total": "Indice global",
-  "wc_note": "La prévision du mois dernier est celle des mêmes modèles relancés à l’origine {prev} sur les données d’aujourd’hui (identique à la prévision du backtest depuis cette origine). Les contributions sont exactes (chaînées) : les composantes s’additionnent à la variation de l’indice global, au petit résidu près. À partir du prochain run mensuel, la prévision enregistrée dans le registre à l’époque devient la référence."
+  "wc_note": "La prévision du mois dernier est celle des mêmes modèles relancés à l’origine {prev} sur les données d’aujourd’hui (identique à la prévision du backtest depuis cette origine). Les contributions sont exactes (chaînées) : les composantes s’additionnent à la variation de l’indice global, au petit résidu près. À partir du prochain run mensuel, la prévision enregistrée dans le registre à l’époque devient la référence.",
+  "rng_1y": "1 an",
+  "rng_3y": "3 ans",
+  "rng_all": "Tout"
  }
 }
