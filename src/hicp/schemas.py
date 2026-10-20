@@ -394,6 +394,8 @@ class DraftAnswer(Strict):
     citations: list[NoteCitation]
     goto: str | None = Field(description="Id of the dashboard section that shows the answer, or null")
     goto_country: str | None = Field(description="Country code to open in the country profile (goto=country_profile), or null")
+    scenario_request: bool = Field(description="True when the question asks for the effect of a hypothetical price "
+                                               "shock; the page then builds and runs it in the simulator")
 
 # --------------------------------------------------------------------------- shocks
 from typing import Literal  # noqa: E402

@@ -401,7 +401,17 @@
   "share_copied": "Link copied: it opens this exact scenario.",
   "share_manual": "Copy the address bar: it now holds a link to this scenario.",
   "share_loaded": "Scenario opened from a shared link. Check its rationale before using it.",
-  "share_bad": "The shared link could not be read (or holds values outside the simulator's limits); showing the default scenario."
+  "share_bad": "The shared link could not be read (or holds values outside the simulator's limits); showing the default scenario.",
+  "ask_building": "Building the scenario…",
+  "ask_sc_failed": "The scenario could not be built from that sentence. Try the simulator's form.",
+  "ask_sc_title": "Scenario, as interpreted:",
+  "ask_sc_peak": "Peak impact on headline y/y: {pp} pp in {month}.",
+  "ask_sc_dec": "{date}: {pp} pp, so {y} instead of {base}.",
+  "ask_sc_prob": "P({thr}% exceeded in December): {p}% (baseline {b}%).",
+  "ask_sc_open": "Open in the simulator →",
+  "ask_sc_copied": "Link copied",
+  "ask_sc_inbar": "Link is in the address bar",
+  "ask_sc_meta": "Impact computed by the dashboard's shock engine, not by the language model · interpreter {model}"
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -805,6 +815,16 @@
   "share_copied": "Lien copié : il ouvre exactement ce scénario.",
   "share_manual": "Copiez la barre d’adresse : elle contient maintenant le lien vers ce scénario.",
   "share_loaded": "Scénario ouvert depuis un lien partagé. Vérifiez sa justification avant de l’utiliser.",
-  "share_bad": "Le lien partagé est illisible (ou contient des valeurs hors des limites du simulateur) ; scénario par défaut affiché."
+  "share_bad": "Le lien partagé est illisible (ou contient des valeurs hors des limites du simulateur) ; scénario par défaut affiché.",
+  "ask_building": "Construction du scénario…",
+  "ask_sc_failed": "Impossible de construire un scénario à partir de cette phrase. Utilisez le formulaire du simulateur.",
+  "ask_sc_title": "Scénario, tel qu’interprété :",
+  "ask_sc_peak": "Impact maximal sur le glissement annuel : {pp} pt en {month}.",
+  "ask_sc_dec": "{date} : {pp} pt, soit {y} au lieu de {base}.",
+  "ask_sc_prob": "P(dépassement de {thr} % en décembre) : {p} % (référence {b} %).",
+  "ask_sc_open": "Ouvrir dans le simulateur →",
+  "ask_sc_copied": "Lien copié",
+  "ask_sc_inbar": "Le lien est dans la barre d’adresse",
+  "ask_sc_meta": "Impact calculé par le moteur de chocs du tableau de bord, pas par le modèle de langage · interprète {model}"
  }
 }

@@ -1055,7 +1055,7 @@
       pos = k + n.token.length;
     }
     box.append(txt.slice(pos));
-    if (res.goto) {
+    if (res.goto && !res.scenario_request) {  // a what-if gets its own "Open in the simulator" button below
       const tgt = el(res.goto.target), card = tgt && tgt.closest(".card");
       const name = (card && card.querySelector("h2") && card.querySelector("h2").textContent.trim()) || t("tab_" + res.goto.tab);
       const label = res.goto.country ? `${name} · ${geo(res.goto.country)}` : name;
@@ -1081,6 +1081,48 @@
     setTimeout(() => card.classList.remove("ask-flash"), 1800);
   }
 
+  // A what-if question: the scenario interpreter (/api/scenario) turns the words into a scenario, and the
+  // impact numbers below come from ShockEngine.simulate in the page, never from the language model.
+  async function askScenario(q) {
+    el("ask-status").textContent = t("ask_building");
+    let body = {}, r;
+    try {
+      r = await fetch("/api/scenario", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: q }) });
+      try { body = await r.json(); } catch (e) { /* non-JSON error page */ }
+    } catch (e) { r = { ok: false, status: 0 }; }
+    el("ask-status").textContent = "";
+    if (!r.ok || !body.scenario) { askLog(node("div", { class: "ask-msg bot muted" }, body.error || t("ask_sc_failed"))); return; }
+    const sc = body.scenario, res = ShockEngine.simulate(sc, S), k = S.months.indexOf(last.date);
+    const box = node("div", { class: "ask-msg bot" });
+    box.append(node("b", {}, t("ask_sc_title")));
+    const ul = node("ul", { class: "ask-sc-lines" });
+    (body.interpretation || []).forEach((l) => ul.appendChild(node("li", {}, l)));
+    box.append(ul);
+    const lines = [
+      t("ask_sc_peak", { pp: sgn(res.peak_pp), month: monthLabel(res.peak_month) }),
+      t("ask_sc_dec", { date: monthLabel(last.date), pp: sgn(res.delta_yoy_pp[k]), y: pct(res.shocked_yoy[k]), base: pct(last.point) }),
+      t("ask_sc_prob", { thr: fmt(thr, 1), p: fmt(100 * probOf(res.shocked_yoy[k], thr), 0), b: fmt(100 * probOf(last.point, thr), 0) }),
+    ];
+    lines.forEach((l) => box.append(node("div", {}, l)));
+    const open = node("button", { type: "button", class: "btn ask-goto" }, t("ask_sc_open"));
+    open.addEventListener("click", () => {
+      scenario = JSON.parse(JSON.stringify(sc)); presetIdx = -1; activeLeg = 0;
+      el("presets").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", "false"));
+      askGoto({ tab: "shocks", target: "p-shock", country: null });
+      refreshAll();
+    });
+    const link = node("button", { type: "button", class: "btn ask-goto" }, t("share_copy"));
+    link.addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(shareUrl(sc)); link.textContent = t("ask_sc_copied"); }
+      catch (e) { history.replaceState(null, "", shareUrl(sc)); link.textContent = t("ask_sc_inbar"); }
+    });
+    box.append(node("div", { class: "row", style: "gap:6px;margin-top:2px" }, undefined));
+    box.lastChild.append(open, link);
+    box.append(node("span", { class: "meta" }, t("ask_sc_meta", { model: body.model })));
+    askLog(box);
+    askHist.push({ role: "assistant", content: lines.join(" ") });
+  }
+
   function askLog(n) { const log = el("ask-log"); log.appendChild(n); log.scrollTop = log.scrollHeight; }
 
   async function askSend(q) {
@@ -1099,6 +1141,7 @@
       if (!body.verified) { askLog(node("div", { class: "ask-msg bot muted" }, t("ask_unverified"))); return; }
       askLog(askAnswerNode(body));
       askHist.push({ role: "user", content: q }, { role: "assistant", content: body.answer });
+      if (body.scenario_request) await askScenario(q);
     } catch (e) {
       el("ask-status").textContent = ""; askLog(node("div", { class: "ask-msg bot muted" }, t("ask_failed")));
     } finally { askBusy = false; el("ask-go").disabled = false; }

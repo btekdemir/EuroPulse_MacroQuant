@@ -31,9 +31,9 @@ class FakeClient:
         return types.SimpleNamespace(parsed_output=self.queue.pop(0), stop_reason="end_turn")
 
 
-def draft(text, *cites, answerable=True, goto=None, country=None):
+def draft(text, *cites, answerable=True, goto=None, country=None, scenario=False):
     return DraftAnswer(answerable=answerable, answer=text, citations=[NoteCitation(number=n, fact_id=f) for n, f in cites],
-                       goto=goto, goto_country=country)
+                       goto=goto, goto_country=country, scenario_request=scenario)
 
 
 def fact(doc, i):
@@ -143,3 +143,11 @@ def test_every_section_target_exists_in_the_page():
     for sid, (tab, target, _) in SECTIONS.items():
         assert f'id="{target}"' in page, sid
         assert f'data-tab="{tab}"' in page, sid
+
+
+def test_scenario_request_passes_through(doc):
+    r = answer("What if gas rises 30% in Germany?", doc, model="m",
+               client=FakeClient(draft("Building that scenario in the shock simulator.", goto="shock_result", scenario=True)))
+    assert r["scenario_request"] and r["goto"]["id"] == "shock_result"
+    r = answer("q", doc, model="m", client=FakeClient(draft("Not covered.", answerable=False, scenario=True)))
+    assert not r["scenario_request"]  # never for an answer the sheet cannot support

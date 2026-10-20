@@ -503,3 +503,16 @@ Committed to git before the code that runs it. It does not change after the resu
   - Unicode survives.
   - Seven kinds of bad link are rejected, and garbage is reported as unreadable.
   - Browser check: a link with a 37% size reopened on the simulator with the same peak (+0.34pp, Feb 2027).
+
+## D36. The assistant runs what-if scenarios (20 Oct 2026)
+
+- **What:** a question such as "what if gas rises 30% in Germany?" or "ya petrol %20 düşerse?" gets a real simulation in the chat.
+  - The assistant flags it (`scenario_request`, accepted only on an answerable reply) and answers in one sentence with no numbers.
+  - The page then sends the same sentence to the existing scenario interpreter, `/api/scenario` (D26, same schema and guards).
+  - It runs the result with `ShockEngine.simulate` and shows four things: how the scenario was interpreted, the peak impact, the December impact and shocked level, and P(December above the threshold) against the baseline.
+- **Why the numbers can be trusted:** the impact figures are computed in the page by the same engine as the simulator, which matches Python to 1e−12 (D20). They are not written by a language model, and the bubble says so. The language models only turn words into a scenario, and the interpretation is shown so the reader can check it.
+- **Buttons:** "Open in the simulator" loads the scenario (tab, form, charts). "Copy link" gives a shareable link to it (D35). The answer bubble's own "Go to" button is hidden for what-ifs: it would have opened the simulator with the previous scenario.
+- **Cost:** two API calls per what-if question: ask (Haiku), then the interpreter.
+- **Tested:**
+  - `tests/test_ask.py`: the flag passes through, and never on a "not covered" reply.
+  - Browser, with stubbed APIs: Germany gas +30% gave a +0.41pp peak in the chat, equal to `simulate` on the same scenario. "Open in the simulator" showed the same peak, with DE ticked and size 30.

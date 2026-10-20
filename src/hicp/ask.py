@@ -195,6 +195,10 @@ def system_prompt(doc: AskFacts) -> str:
         "(DE, FR, IT, ...); for country questions in general, country_profile without a country. Name the tab in words "
         "in the answer; the page adds a button that takes the reader there. Use null only when no section fits (for "
         "example out-of-scope questions). Never invent a section.\n"
+        "What-if questions: when the question asks what would happen to inflation if some prices changed (for "
+        "example 'what if gas rises 30% in Germany', 'ya petrol %20 düşerse'), set scenario_request=true, set "
+        "goto=shock_result, and answer in one short sentence with no numbers that you are building that scenario in "
+        "the shock simulator; the page computes the impact with its own engine. These count as answerable. Otherwise scenario_request=false.\n"
         f"Tabs: {'; '.join(TABS.values())}.\nSections (id: tab, what it shows):\n{sections}\n\n"
         f"Context:\n{doc.context}\n\nFact sheet (id: label = value):\n{sheet}"
     )
@@ -238,11 +242,13 @@ def answer(question: str, doc: AskFacts, client=None, model: str | None = None, 
             if not problems:
                 return {"answerable": draft.answerable, "verified": True, "answer": draft.answer,
                         "goto": resolve_goto(draft.goto, draft.goto_country),
+                        "scenario_request": bool(draft.scenario_request and draft.answerable),
                         "numbers": [n.model_dump() for n in nums], "model": model, "attempts": attempt}
             msgs = msgs + [{"role": "assistant", "content": draft.answer},
                            {"role": "user", "content": "An automatic check rejected that answer:\n- " + "\n- ".join(problems)
                             + "\nAnswer the same question again, fixing every item and using only the fact sheet."}]
-    return {"answerable": True, "verified": False, "answer": "", "numbers": [], "goto": None, "model": model,
+    return {"answerable": True, "verified": False, "answer": "", "numbers": [], "goto": None,
+            "scenario_request": False, "model": model,
             "attempts": MAX_ATTEMPTS, "problems": problems}
 
 
