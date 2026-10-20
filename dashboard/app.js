@@ -1156,7 +1156,13 @@
     const title = (h && h.textContent.trim()) || p.id;
     const ctx = chartContext(p.id);
     if (el("ask-panel").hidden) askToggle(true, "ask-fab");
-    askSend(t("ask_explain_q", { title }), { chart: p.id, chart_state: ctx.state, chart_facts: ctx.facts });
+    // What is drawn, read from the chart itself so the explanation never guesses at styles.
+    const traces = (p.data || []).filter((tr) => !(tr.meta && tr.meta.csv === false) && (tr.name || tr.type === "bar")).map((tr) => {
+      const kind = tr.type === "bar" ? "bars" : (tr.fill && tr.fill !== "none") ? "shaded band"
+        : `${tr.line && tr.line.dash && tr.line.dash !== "solid" ? tr.line.dash + " " : "solid "}line${/markers/.test(tr.mode || "") ? " with markers" : ""}`;
+      return `${kind}${tr.name ? ": " + tr.name : ""}`;
+    }).filter((x, i, a) => a.indexOf(x) === i);
+    askSend(t("ask_explain_q", { title }), { chart: p.id, chart_state: ctx.state, chart_facts: ctx.facts, chart_traces: traces });
   }
 
   function askLog(n) { const log = el("ask-log"); log.appendChild(n); log.scrollTop = log.scrollHeight; }

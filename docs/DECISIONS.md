@@ -532,3 +532,10 @@ Committed to git before the code that runs it. It does not change after the resu
 - **Tested:**
   - `tests/test_ask.py`: context and page facts reach the model; malformed page facts are dropped; an unknown chart id gets no page facts; every chart in the page has an entry and a section.
   - Browser, with a stubbed API: 15 buttons. The headline chart, the shock chart (with the current preset's peak, December impact, its split and shocked level) and the country profile (Germany) each sent the right context.
+- **Live check (2 calls):** both answers were verified.
+  - The shock chart, with the default oil preset: the answer used the page facts (+0.42pp in December, 4.23%, peak in January 2027, all first round). Verified on the first attempt, 10 s.
+  - The headline chart: the answer used the last print, the three forecasts, both bands, and the 31% crisis-period coverage. Verified on the second attempt, 17 s.
+- **Two fixes came out of that check:**
+  - The answers wrote numbers like 0.4155 although the prompt asked for at most two decimals. The rule is now enforced in code: such a number is sent back for rounding, which is tested.
+  - The headline answer called the dotted forecast line "dashed" (the dashed line is the ECB target). The button now sends the chart's own list of series, read from the plot (bars, shaded band, solid/dot/dash line, name), and the model is told to describe visuals only from it.
+  - Both fixes are tested with the fake client. They have not been re-run live.

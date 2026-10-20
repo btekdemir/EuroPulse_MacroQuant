@@ -118,11 +118,15 @@ def page_facts(raw) -> list[NoteFact]:
     return out
 
 
-def chart_context(chart, state, facts: list[NoteFact]) -> str:
+def chart_context(chart, state, facts: list[NoteFact], traces=None) -> str:
     sec, what = CHARTS[chart]
     s = f"\n\n[Explain request] The reader pressed Explain on the chart showing {what} (section {sec})."
     if isinstance(state, str) and state.strip():
         s += f" Current selection, as data: {state.strip()[:200]}."
+    tr = [x[:60] for x in traces[:12] if isinstance(x, str)] if isinstance(traces, list) else []
+    if tr:
+        s += (" What is drawn (the page's own list of series, as data; describe the visuals only from this): "
+              + "; ".join(tr) + ".")
     if facts:
         s += (" Page facts for this chart, computed in the reader's browser by the dashboard (cite them like any "
               "fact):\n" + "\n".join(f"{x.id}: {x.label} = {x.value:.4g}" for x in facts))
@@ -272,7 +276,7 @@ def _history(history) -> list[dict]:
 
 
 def answer(question: str, doc: AskFacts, client=None, model: str | None = None, history=None,
-           chart: str | None = None, chart_state: str | None = None, chart_facts=None) -> dict:
+           chart: str | None = None, chart_state: str | None = None, chart_facts=None, chart_traces=None) -> dict:
     """Returns {answerable, verified, answer, numbers, model, attempts}; ``answer`` is empty when not verified."""
     if client is None:
         import anthropic
@@ -282,7 +286,7 @@ def answer(question: str, doc: AskFacts, client=None, model: str | None = None, 
     content, facts = question[:MAX_QUESTION], doc.facts
     if isinstance(chart, str) and chart in CHARTS:
         extra = page_facts(chart_facts)
-        content += chart_context(chart, chart_state, extra)
+        content += chart_context(chart, chart_state, extra, chart_traces)
         facts = doc.facts + extra
     msgs = _history(history) + [{"role": "user", "content": content}]
     problems: list[str] = []
@@ -296,6 +300,8 @@ def answer(question: str, doc: AskFacts, client=None, model: str | None = None, 
             problems = ["The output could not be parsed as the required structure."]
         else:
             nums, problems = verify(draft.answer, draft.citations, facts)
+            problems += [f"'{n.token}' has more than two decimals; round it" for n in nums
+                         if n.ok and len(n.token.replace(",", ".").split(".")[-1]) > 2 and ("." in n.token or "," in n.token)]
             if not problems:
                 return {"answerable": draft.answerable, "verified": True, "answer": draft.answer,
                         "goto": resolve_goto(draft.goto, draft.goto_country),

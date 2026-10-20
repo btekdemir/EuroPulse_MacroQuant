@@ -74,7 +74,7 @@ def handle(raw_body: bytes, ip: str, client=None) -> tuple[int, bytes]:
     try:
         return respond(200, answer(question.strip(), _facts_cached(), client=client, history=history,
                                    chart=req.get("chart"), chart_state=req.get("chart_state"),
-                                   chart_facts=req.get("chart_facts")))
+                                   chart_facts=req.get("chart_facts"), chart_traces=req.get("chart_traces")))
     except Exception:  # never leak internals (or keys) to the page
         return respond(500, {"error": "Unexpected error."})
 

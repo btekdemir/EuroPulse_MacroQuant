@@ -179,3 +179,18 @@ def test_every_chart_is_in_the_page_and_maps_to_a_section():
         assert f'id="{pid}"' in page and sec in SECTIONS, pid
     plots = set(re.findall(r'class="plot[^"]*" id="([a-z0-9-]+)"', page))
     assert plots == set(CHARTS)
+
+
+def test_more_than_two_decimals_is_sent_back(doc):
+    v = fact(doc, "forecast_h3").value
+    long_, short = draft(f"December {v:.3f}%.", (f"{v:.3f}", "forecast_h3")), draft(f"December {v:.2f}%.", (f"{v:.2f}", "forecast_h3"))
+    c = FakeClient(long_, short)
+    r = answer("q", doc, client=c, model="m")
+    assert r["verified"] and r["attempts"] == 2 and "two decimals" in c.calls[1]["messages"][-1]["content"]
+
+
+def test_chart_traces_reach_the_model(doc):
+    c = FakeClient(draft("x"))
+    answer("q", doc, client=c, model="m", chart="p-headline", chart_traces=["dot line with markers: Forecast", 5, "x" * 500])
+    msg = c.calls[0]["messages"][-1]["content"]
+    assert "dot line with markers: Forecast" in msg and "x" * 61 not in msg
