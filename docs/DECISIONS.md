@@ -463,7 +463,7 @@ Committed to git before the code that runs it. It does not change after the resu
   - The check guarantees that no figure in a shown answer is invented. It does not guarantee the words (it is sign-insensitive), so the page lets you hover any number to see the fact it came from.
 - **Cost and safety:**
   - The model is `claude-haiku-5-5`, and the system prompt (fact sheet) is prompt-cached.
-  - Limits: 400-character questions, at most 4 earlier messages of 800 characters each, and 1000 output tokens.
+  - Limits: 400-character questions, at most 4 earlier messages of 800 characters each, and 3000 output tokens (Haiku 5.5 thinks by default: about 750 thinking tokens per answer were seen).
   - The per-IP rate limit is the same as `/api/scenario`. The hard cap is the monthly spend limit on the Anthropic account.
   - The question, the history and the sheet are treated as data, not instructions.
 - **Where it shows:** only where `/api/ask` exists, i.e. on the Vercel site or with `deploy/serve_local.py`. The page probes the route with a GET, which answers 405 there and 404 on a static host. The offline HTML file never shows the button, so reviewers who open the file see no broken feature.
@@ -474,4 +474,11 @@ Committed to git before the code that runs it. It does not change after the resu
   - history trimming;
   - the handler guards (413/400/429);
   - that the deploy bundle imports without pandas.
-  The UI was checked in the browser with a stubbed response (EN/FR, phone width, static host hides the button). No live answer has been checked yet: that needs a paid call.
+  The UI was checked in the browser with a stubbed response (EN/FR, phone width, static host hides the button).
+- **Live check (20 Oct 2026, 5 questions, Haiku 5.5):**
+  - All 5 were verified: four on the first attempt, the French one on the second.
+  - The questions: why December is higher (EN), accuracy vs the random walk (FR), P(Dec > 4%) (TR), an ECB cut (out of scope, correctly answered "not covered" with no numbers), and Italy's contribution and its month split (EN; it also mentioned the Italy caveat from the context).
+  - Every cited value was re-checked by hand against the sheet.
+  - Each answer took 2–16 s and used about 0.8–1.3k output tokens, mostly thinking. The 21k-token sheet was cached after the first call.
+  - The first attempt exposed a bug: with max_tokens 1000, the model's thinking left too little room and the JSON was cut off. Fixed with 3000, and malformed output is now retried (tested).
+  - Two style points were fixed in the prompt afterwards, and the fix has not been re-run live: French and Turkish answers used a decimal point instead of a comma, and one probability was written as 35.86%.

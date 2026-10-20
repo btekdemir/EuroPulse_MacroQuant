@@ -22,6 +22,7 @@ from hicp.schemas import AskFacts, DraftAnswer, NoteFact
 
 DEFAULT_MODEL = "claude-haiku-5-5"
 MAX_ATTEMPTS = 2
+MAX_TOKENS = 3000
 MAX_QUESTION = 400
 MAX_HISTORY = 4          # previous messages kept (2 questions + 2 answers)
 MAX_HISTORY_CHARS = 800
@@ -135,7 +136,8 @@ def system_prompt(doc: AskFacts) -> str:
         "- Use ONLY the fact sheet and the context below. If they do not contain the answer, set answerable=false and "
         "say briefly that the dashboard does not cover it, with no numbers.\n"
         "- Never compute, convert, add, subtract or combine numbers. A number you write must be a fact's value, "
-        "rounded to at most its precision (usually 1 or 2 decimals).\n"
+        "rounded to at most two decimals (one for y/y rates, none for probabilities).\n"
+        "- Use the decimal separator of the answer's language: a comma in French and Turkish (3,8 %), a point in English.\n"
         "- For EVERY number you write (not years like 2026), add a citation with the number exactly as written and "
         "the fact id. Write months as words (September 2026), never as 2026-09. Do not write list numbers or other "
         "digits.\n"
@@ -171,8 +173,11 @@ def answer(question: str, doc: AskFacts, client=None, model: str | None = None, 
     msgs = _history(history) + [{"role": "user", "content": question[:MAX_QUESTION]}]
     problems: list[str] = []
     for attempt in range(1, MAX_ATTEMPTS + 1):
-        resp = client.messages.parse(model=model, max_tokens=1000, system=system, messages=msgs, output_format=DraftAnswer)
-        draft = resp.parsed_output
+        try:  # max_tokens covers the model's own thinking (~750 tokens seen on Haiku 5.5) plus the JSON answer
+            draft = client.messages.parse(model=model, max_tokens=MAX_TOKENS, system=system, messages=msgs,
+                                          output_format=DraftAnswer).parsed_output
+        except ValueError:  # truncated or malformed JSON (pydantic ValidationError is a ValueError)
+            draft = None
         if draft is None:
             problems = ["The output could not be parsed as the required structure."]
         else:

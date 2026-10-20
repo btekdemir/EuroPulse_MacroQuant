@@ -112,3 +112,15 @@ def test_deploy_lib_needs_no_pandas():
     lib = ROOT / "deploy" / "api" / "_lib"
     code = "import sys; sys.path.insert(0, sys.argv[1]); import hicp.ask; assert 'pandas' not in sys.modules"
     subprocess.run([sys.executable, "-I", "-c", code, str(lib)], check=True)
+
+
+def test_malformed_output_is_retried(doc):
+    class Broken(FakeClient):
+        def _parse(self, **kw):
+            self.calls.append(kw)
+            if len(self.calls) == 1:
+                raise ValueError("Invalid JSON: EOF while parsing")
+            return types.SimpleNamespace(parsed_output=self.queue.pop(0), stop_reason="end_turn")
+    c = Broken(draft("Not covered.", answerable=False))
+    r = answer("q", doc, client=c, model="m")
+    assert r["verified"] and r["attempts"] == 2
