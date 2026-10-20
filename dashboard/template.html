@@ -132,6 +132,12 @@ b.sig { color: var(--text-primary); }
       <div class="card span-3 kpi" id="kpi-ecb"></div>
       <div class="card span-3 kpi" id="kpi-base"></div>
       <div class="card"><h2 data-i18n="answer_title"></h2><p class="answer" id="answer"></p></div>
+      <div class="card" id="note-card" hidden><h2 id="note-title"></h2>
+        <p class="note" id="note-status" style="margin:0 0 8px"></p>
+        <div id="note-body" class="answer"></div>
+        <button class="btn" id="note-toggle" type="button" style="margin-top:8px;padding:4px 8px;font-size:12px"></button>
+        <div class="tablewrap" id="note-check" hidden></div>
+        <p class="note" data-i18n="note_caveat"></p></div>
       <div class="card"><h2 id="t-prob"></h2>
         <div class="row" style="margin:6px 0 10px"><label><span data-i18n="prob_threshold"></span>
           <input type="number" class="thr" step="0.1" value="4.0"></label></div>

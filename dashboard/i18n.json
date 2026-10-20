@@ -264,7 +264,20 @@
   "led_pending": "Pending",
   "led_flash": "Flash",
   "led_final": "Final",
-  "led_empty": "No forecast recorded yet."
+  "led_empty": "No forecast recorded yet.",
+  "note_heading": "Research note",
+  "note_ok": "Every number in this note ({n}) was checked against the pipeline's outputs: each equals the fact it cites.",
+  "note_rejected": "Rejected: this draft failed the automatic number check and is not shown as a note.",
+  "note_stale": "This note was written for earlier numbers; regenerate it.",
+  "note_generated": "Written by {model} on {date} from {k} facts.",
+  "note_show": "Show the check",
+  "note_hide": "Hide the check",
+  "note_col_num": "In the text",
+  "note_col_fact": "Cited fact",
+  "note_col_val": "Fact value",
+  "note_col_ok": "Match",
+  "note_caveat": "The check guarantees that no figure is invented and each is traceable to a named fact. It does not check the wording (direction, emphasis): a person reads the note before it is sent.",
+  "note_missing": "No note in this language."
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -531,6 +544,19 @@
   "led_pending": "En attente",
   "led_flash": "Flash",
   "led_final": "Définitif",
-  "led_empty": "Aucune prévision enregistrée pour l'instant."
+  "led_empty": "Aucune prévision enregistrée pour l'instant.",
+  "note_heading": "Note de recherche",
+  "note_ok": "Chaque chiffre de cette note ({n}) a été vérifié par rapport aux sorties du pipeline : il est égal au fait qu'il cite.",
+  "note_rejected": "Rejetée : ce brouillon a échoué au contrôle automatique des chiffres et n'est pas présenté comme une note.",
+  "note_stale": "Cette note a été rédigée pour des chiffres antérieurs ; régénérez-la.",
+  "note_generated": "Rédigée par {model} le {date} à partir de {k} faits.",
+  "note_show": "Afficher le contrôle",
+  "note_hide": "Masquer le contrôle",
+  "note_col_num": "Dans le texte",
+  "note_col_fact": "Fait cité",
+  "note_col_val": "Valeur du fait",
+  "note_col_ok": "Concordance",
+  "note_caveat": "Le contrôle garantit qu'aucun chiffre n'est inventé et que chacun est rattaché à un fait nommé. Il ne vérifie pas la formulation (sens, insistance) : une personne relit la note avant envoi.",
+  "note_missing": "Aucune note dans cette langue."
  }
 }

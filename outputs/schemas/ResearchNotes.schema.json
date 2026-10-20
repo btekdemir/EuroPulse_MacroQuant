@@ -1,0 +1,183 @@
+{
+  "$defs": {
+    "NoteFact": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "value"
+      ],
+      "title": "NoteFact",
+      "type": "object"
+    },
+    "ResearchNote": {
+      "additionalProperties": false,
+      "properties": {
+        "lang": {
+          "enum": [
+            "en",
+            "fr"
+          ],
+          "title": "Lang",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "body": {
+          "title": "Body",
+          "type": "string"
+        },
+        "verified": {
+          "description": "True only if every number in the body matches the fact it cites",
+          "title": "Verified",
+          "type": "boolean"
+        },
+        "attempts": {
+          "title": "Attempts",
+          "type": "integer"
+        },
+        "numbers": {
+          "items": {
+            "$ref": "#/$defs/VerifiedNumber"
+          },
+          "title": "Numbers",
+          "type": "array"
+        },
+        "problems": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Problems",
+          "type": "array"
+        }
+      },
+      "required": [
+        "lang",
+        "title",
+        "body",
+        "verified",
+        "attempts",
+        "numbers",
+        "problems"
+      ],
+      "title": "ResearchNote",
+      "type": "object"
+    },
+    "VerifiedNumber": {
+      "additionalProperties": false,
+      "properties": {
+        "token": {
+          "title": "Token",
+          "type": "string"
+        },
+        "fact_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Fact Id"
+        },
+        "fact_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Fact Label"
+        },
+        "fact_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Fact Value"
+        },
+        "ok": {
+          "title": "Ok",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "token",
+        "fact_id",
+        "fact_label",
+        "fact_value",
+        "ok"
+      ],
+      "title": "VerifiedNumber",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "model": {
+      "title": "Model",
+      "type": "string"
+    },
+    "origin": {
+      "title": "Origin",
+      "type": "string"
+    },
+    "facts_hash": {
+      "description": "Hash of the fact sheet the notes were written from (detects stale notes)",
+      "title": "Facts Hash",
+      "type": "string"
+    },
+    "facts": {
+      "items": {
+        "$ref": "#/$defs/NoteFact"
+      },
+      "title": "Facts",
+      "type": "array"
+    },
+    "notes": {
+      "items": {
+        "$ref": "#/$defs/ResearchNote"
+      },
+      "title": "Notes",
+      "type": "array"
+    }
+  },
+  "required": [
+    "generated_at",
+    "model",
+    "origin",
+    "facts_hash",
+    "facts",
+    "notes"
+  ],
+  "title": "ResearchNotes",
+  "type": "object"
+}

@@ -12,8 +12,8 @@ from pathlib import Path
 
 import plotly
 
-from hicp.schemas import (BacktestMetrics, CountryView, Forecast, LedgerScores, NLExamples, RunManifest,
-                          ShockBasis, ValidationReport)
+from hicp.schemas import (BacktestMetrics, CountryView, Forecast, LedgerScores, NLExamples, ResearchNotes,
+                          RunManifest, ShockBasis, ValidationReport)
 
 HERE = Path(__file__).resolve().parent
 
@@ -39,6 +39,13 @@ def build(out_dir: Path) -> Path:
     nl = out_dir / "nl_examples.json"  # optional: recorded outputs of the LLM builder (needs an API run)
     data["nl_examples"] = (NLExamples.model_validate_json(nl.read_text()).model_dump(mode="json")["examples"]
                            if nl.exists() else [])
+    note = out_dir / "research_note.json"  # optional: generated on demand with `python -m hicp.note --generate`
+    data["research_note"] = None
+    if note.exists():
+        from hicp.note import build_facts, facts_hash
+        rn = ResearchNotes.model_validate_json(note.read_text()).model_dump(mode="json")
+        rn["stale"] = rn["facts_hash"] != facts_hash(build_facts(out_dir))  # numbers changed since the note was written
+        data["research_note"] = rn
     data["i18n"] = json.loads((HERE / "i18n.json").read_text())
     missing = set(data["i18n"]["en"]) ^ set(data["i18n"]["fr"])
     if missing:

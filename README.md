@@ -75,6 +75,13 @@ dashboard. Presets, in `config/scenarios/`:
 
 Assumptions are listed in `src/hicp/shocks.py` and shown in the dashboard. See D17–D19.
 
+## What else the dashboard does
+
+- **Probabilities:** "P(December y/y > X%)" from the empirical error sample, also for the shocked path (D24).
+- **Reverse stress test:** "what size of shock gets December to 3%?", solved for the selected shock (D24).
+- **Forecast ledger:** every published forecast is recorded in a hash-chained file and scored automatically when Eurostat releases the figure; Model & validation shows the live record (D25).
+- **Research note:** an LLM-written note in English and French whose every number is checked against the pipeline outputs (D26). Regenerate with `python -m hicp.note --generate` (paid API call).
+
 ## Natural-language scenario builder (optional)
 
 Type "gas +40% in Germany and Italy, fading over 6 months" in the simulator. An LLM only fills a small

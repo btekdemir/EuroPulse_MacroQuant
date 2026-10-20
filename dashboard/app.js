@@ -3,7 +3,7 @@
   "use strict";
   const D = JSON.parse(document.getElementById("dashboard-data").textContent);
   const NL_EX = D.nl_examples || [];
-  const L = D.ledger;
+  const L = D.ledger, RN = D.research_note;
   const F = D.forecast, B = D.backtest, V = D.validation, M = D.manifest, S = D.basis, C = D.countries;
   const COMPS = S.components;
   const SLOT = { FUEL: "--s1", ELC_GAS: "--s2", FOOD_P: "--s3", FOOD_NP: "--s4", IGD_NNRG: "--s5", SERV: "--s6" };
@@ -116,6 +116,26 @@
       [2, 3, 3.5, 4, 4.5, 5].map((x) => [fmt(x, 1) + "%", fmt(100 * probOf(last.point, x), 0) + "%"]), [1]);
   }
 
+  // ------------------------------------------------------------------ research note (numbers verified)
+  function renderNote() {
+    const card = el("note-card");
+    if (!RN) { card.hidden = true; return; }
+    const n = RN.notes.find((x) => x.lang === lang);
+    card.hidden = false;
+    el("note-title").textContent = n ? `${t("note_heading")}: ${n.title}` : t("note_heading");
+    const status = el("note-status"), body = el("note-body"), chk = el("note-check"), tog = el("note-toggle");
+    if (!n) { status.textContent = t("note_missing"); body.replaceChildren(); chk.replaceChildren(); tog.hidden = true; return; }
+    const bits = [n.verified ? t("note_ok", { n: n.numbers.length }) : t("note_rejected"),
+      t("note_generated", { model: RN.model, date: RN.generated_at.slice(0, 10), k: RN.facts.length })];
+    if (RN.stale) bits.push(t("note_stale"));
+    status.textContent = bits.join(" ");
+    body.replaceChildren(...(n.verified ? n.body.split(/\n{2,}/).map((p) => node("p", { style: "margin:0 0 8px" }, p)) : []));
+    tog.hidden = !n.numbers.length;
+    tog.textContent = chk.hidden ? t("note_show") : t("note_hide");
+    table(chk, [t("note_col_num"), t("note_col_fact"), t("note_col_val"), t("note_col_ok")],
+      n.numbers.map((x) => [x.token, x.fact_label || x.fact_id || "–", x.fact_value === null ? "–" : fmt(x.fact_value, 3), x.ok ? "✓" : "✗"]), [2]);
+  }
+
   // ------------------------------------------------------------------ overview
   const P = F.points, last = P[P.length - 1];
   function renderOverview() {
@@ -136,6 +156,7 @@
     });
     el("t-headline").textContent = t("ch_headline");
     renderProb();
+    renderNote();
 
     const hx = F.history.map((h) => toDate(h.date)), hy = F.history.map((h) => h.yoy);
     const fx = [toDate(F.origin), ...P.map((p) => toDate(p.date))];
@@ -668,6 +689,7 @@
   el("bt-sample").addEventListener("change", renderModel);
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { if (theme === "auto") renderAll(); });
 
+  el("note-toggle").addEventListener("click", () => { const c = el("note-check"); c.hidden = !c.hidden; renderNote(); });
   bindThreshold();
   buildForm();
   if (theme !== "auto") document.documentElement.setAttribute("data-theme", theme);

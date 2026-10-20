@@ -251,6 +251,52 @@ class LedgerScores(Strict):
     rows: list[LedgerScoreRow]
 
 
+# --------------------------------------------------------------------------- research note
+class NoteCitation(Strict):
+    number: str = Field(description="The number exactly as written in the body, e.g. '3.8' or '1,4'")
+    fact_id: str = Field(description="The id of the fact the number comes from")
+
+
+class DraftNote(Strict):
+    """What the LLM must produce."""
+    title: str
+    body: str
+    citations: list[NoteCitation]
+
+
+class VerifiedNumber(Strict):
+    token: str
+    fact_id: str | None
+    fact_label: str | None
+    fact_value: float | None
+    ok: bool
+
+
+class NoteFact(Strict):
+    id: str
+    label: str
+    value: float
+
+
+class ResearchNote(Strict):
+    lang: Literal["en", "fr"]
+    title: str
+    body: str
+    verified: bool = Field(description="True only if every number in the body matches the fact it cites")
+    attempts: int
+    numbers: list[VerifiedNumber]
+    problems: list[str]
+
+
+class ResearchNotes(Strict):
+    generated_at: datetime
+    model: str
+    origin: str
+    facts_hash: str = Field(description="Hash of the fact sheet the notes were written from (detects stale notes)")
+    facts: list[NoteFact]
+    notes: list[ResearchNote]
+
+
 # --------------------------------------------------------------------------- shocks
 from typing import Literal  # noqa: E402
 
@@ -392,6 +438,6 @@ def export_json_schemas(folder: Path) -> None:
     """Write the JSON Schema of each output model, so consumers can validate independently."""
     folder.mkdir(parents=True, exist_ok=True)
     for model in (ValidationReport, RunManifest, Forecast, BacktestMetrics, Scenario, ShockResult, ShockBasis,
-                  CountryView, LedgerEntry, LedgerScores):
+                  CountryView, LedgerEntry, LedgerScores, ResearchNotes):
         (folder / f"{model.__name__}.schema.json").write_text(
             json.dumps(model.model_json_schema(), indent=2) + "\n")
