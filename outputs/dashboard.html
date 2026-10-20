@@ -135,6 +135,12 @@ input[type="range"] { min-width: 160px; }
 .ask-msg.bot { justify-self: start; border: 1px solid var(--border); }
 .ask-msg.muted { color: var(--text-secondary); }
 .ask-msg .meta { display: block; margin-top: 4px; font-size: 11.5px; color: var(--text-muted); }
+.ask-fab { position: fixed; z-index: 799; right: 20px; bottom: 20px; width: 52px; height: 52px; border-radius: 50%;
+  border: 0; background: var(--accent); color: #fff; cursor: pointer; display: grid; place-items: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25); }
+.ask-fab[hidden] { display: none; }
+.ask-fab svg { width: 24px; height: 24px; }
+@media (max-width: 700px) { .ask-fab { right: 14px; bottom: 14px; } }
 .ask-goto { margin-top: 8px; font-size: 12.5px; padding: 5px 10px; border-color: var(--accent); }
 .ask-flash { box-shadow: 0 0 0 3px var(--accent); transition: box-shadow .3s ease; }
 .cite { border-bottom: 1px dotted var(--accent); cursor: help; font-variant-numeric: tabular-nums; }
@@ -356,6 +362,10 @@ input[type="range"] { min-width: 160px; }
   </section>
 </main>
 <footer id="footer"></footer>
+<button type="button" class="ask-fab" id="ask-fab" aria-controls="ask-panel" aria-expanded="false" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01"/></svg>
+</button>
 <aside class="ask-panel" id="ask-panel" aria-labelledby="ask-title" hidden>
   <div class="ask-head"><h2 id="ask-title" data-i18n="ask_title"></h2>
     <button type="button" class="linkbtn" id="ask-close" data-i18n="ask_close"></button></div>
@@ -5267,6 +5277,7 @@ return Plotly;
 
   function renderAsk() {
     el("ask-text").placeholder = t("ask_placeholder");
+    el("ask-fab").setAttribute("aria-label", t("ask_title")); el("ask-fab").title = t("ask_title");
     el("ask-suggest").replaceChildren(...[t("ask_s1"), t("ask_s2"), t("ask_s3"), t("ask_s4")].map((q) => {
       const b = node("button", { type: "button" }, q);
       b.addEventListener("click", () => askSend(q));
@@ -5274,15 +5285,22 @@ return Plotly;
     }));
   }
 
-  function askToggle(open) {
-    el("ask-panel").hidden = !open; el("ask-open").setAttribute("aria-expanded", String(open));
-    if (open) el("ask-text").focus(); else el("ask-open").focus();
+  let askFrom = "ask-fab";  // focus goes back to whichever button opened the panel
+  function askToggle(open, from) {
+    if (from) askFrom = from;
+    el("ask-panel").hidden = !open;
+    el("ask-fab").hidden = open;  // the panel sits where the round button is
+    ["ask-open", "ask-fab"].forEach((id) => el(id).setAttribute("aria-expanded", String(open)));
+    if (open) el("ask-text").focus(); else el(askFrom).focus();
   }
 
   if (liveOk()) {
-    fetch("/api/ask", { method: "GET" }).then((r) => { if (r.status === 405) el("ask-open").hidden = false; }).catch(() => {});
+    fetch("/api/ask", { method: "GET" }).then((r) => {
+      if (r.status === 405) { el("ask-open").hidden = false; el("ask-fab").hidden = false; }
+    }).catch(() => {});
   }
-  el("ask-open").addEventListener("click", () => askToggle(el("ask-panel").hidden));
+  el("ask-open").addEventListener("click", () => askToggle(el("ask-panel").hidden, "ask-open"));
+  el("ask-fab").addEventListener("click", () => askToggle(true, "ask-fab"));
   el("ask-close").addEventListener("click", () => askToggle(false));
   el("ask-go").addEventListener("click", () => askSend());
   el("ask-text").addEventListener("keydown", (e) => {

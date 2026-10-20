@@ -1086,6 +1086,7 @@
 
   function renderAsk() {
     el("ask-text").placeholder = t("ask_placeholder");
+    el("ask-fab").setAttribute("aria-label", t("ask_title")); el("ask-fab").title = t("ask_title");
     el("ask-suggest").replaceChildren(...[t("ask_s1"), t("ask_s2"), t("ask_s3"), t("ask_s4")].map((q) => {
       const b = node("button", { type: "button" }, q);
       b.addEventListener("click", () => askSend(q));
@@ -1093,15 +1094,22 @@
     }));
   }
 
-  function askToggle(open) {
-    el("ask-panel").hidden = !open; el("ask-open").setAttribute("aria-expanded", String(open));
-    if (open) el("ask-text").focus(); else el("ask-open").focus();
+  let askFrom = "ask-fab";  // focus goes back to whichever button opened the panel
+  function askToggle(open, from) {
+    if (from) askFrom = from;
+    el("ask-panel").hidden = !open;
+    el("ask-fab").hidden = open;  // the panel sits where the round button is
+    ["ask-open", "ask-fab"].forEach((id) => el(id).setAttribute("aria-expanded", String(open)));
+    if (open) el("ask-text").focus(); else el(askFrom).focus();
   }
 
   if (liveOk()) {
-    fetch("/api/ask", { method: "GET" }).then((r) => { if (r.status === 405) el("ask-open").hidden = false; }).catch(() => {});
+    fetch("/api/ask", { method: "GET" }).then((r) => {
+      if (r.status === 405) { el("ask-open").hidden = false; el("ask-fab").hidden = false; }
+    }).catch(() => {});
   }
-  el("ask-open").addEventListener("click", () => askToggle(el("ask-panel").hidden));
+  el("ask-open").addEventListener("click", () => askToggle(el("ask-panel").hidden, "ask-open"));
+  el("ask-fab").addEventListener("click", () => askToggle(true, "ask-fab"));
   el("ask-close").addEventListener("click", () => askToggle(false));
   el("ask-go").addEventListener("click", () => askSend());
   el("ask-text").addEventListener("keydown", (e) => {
