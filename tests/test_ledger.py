@@ -38,7 +38,8 @@ def test_identical_forecast_is_not_recorded_twice(tmp_path):
     rec(p)
     entry, why = rec(p)
     assert entry is None and "already recorded" in why and len(ledger.read(p)) == 1
-    assert rec(p, vint={**VINT, "oil_bulletin": "c" * 64})[0] is not None  # new data vintage = new record
+    assert rec(p, vint={**VINT, "oil_bulletin": "c" * 64})[0] is None  # new vintage, same numbers: not a new forecast
+    assert rec(p, fake_forecast(base=3.71))[0] is not None  # different numbers: recorded
 
 
 def test_dirty_tree_is_refused(tmp_path):

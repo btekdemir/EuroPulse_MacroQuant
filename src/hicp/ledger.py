@@ -98,12 +98,15 @@ def record(forecast: dict, vintages: dict[str, str], code_version: str, config_h
         return None, "refused: existing ledger is broken (" + problems[0] + ")"
     if dirty:
         return None, "not recorded: the code has uncommitted changes, so the commit hash would not identify it"
+    # A repeat is the same origin with the same numbers (6 dp), whatever the data vintages: a revised
+    # dataset that leaves the forecast unchanged is not a new forecast. (Until 20 Oct 2026 vintages were part
+    # of the key, which is why entry 2 repeats entry 1's numbers; see D30.)
     fcs = [{"target": p["date"], "h": p["horizon"], "point": p["point"]} for p in forecast["points"]]
-    fp = fingerprint(forecast["origin"], fcs, vintages)
+    fp = fingerprint(forecast["origin"], fcs, {})
     for e in entries:
         efc = [{"target": f["target"], "h": f["h"], "point": f["point"]} for f in e["forecasts"]]
-        if fingerprint(e["origin"], efc, e["data_vintages"]) == fp:
-            return None, f"already recorded as entry {e['seq']}"
+        if fingerprint(e["origin"], efc, {}) == fp:
+            return None, f"already recorded as entry {e['seq']} (same origin and numbers)"
     entry = make_entry(entries[-1] if entries else None, forecast, vintages, code_version, config_hash, now)
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a") as fh:
