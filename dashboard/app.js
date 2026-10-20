@@ -79,7 +79,7 @@
   }
   const CFG = { displayModeBar: false, responsive: true };
   // Long time-series charts get range buttons (1Y / 3Y / all) above the plot.
-  const RANGED = new Set(["p-headline", "p-contrib", "p-ccmp", "p-cp-drivers", "p-track"]);
+  const RANGED = new Set(["p-headline", "p-contrib", "p-ccmp", "p-cp-drivers", "p-track", "p-core"]);
   const plot = (id, data, layout) => {
     if (RANGED.has(id)) {
       layout = Object.assign({}, layout, { margin: Object.assign({}, layout.margin || {}, { t: 34 }) });
@@ -303,7 +303,37 @@
   }
 
   // ------------------------------------------------------------------ drivers
+  // ------------------------------------------------------------------ core inflation (by-product, D44)
+  function renderCore() {
+    const K = D.core, lp = K.points[K.points.length - 1];
+    const met = (h) => K.metrics.find((r) => r.h === h && r.sample === "full");
+    el("core-text").textContent = t("core_text", { last: pct(K.last_actual, 2), o: monthLabel(K.origin), d: monthLabel(lp.date), v: pct(lp.point, 2),
+      lo: fmt(lp.quantiles.q16, 1), hi: fmt(lp.quantiles.q84, 1), goods: sgn(lp.contributions.IGD_NNRG), serv: sgn(lp.contributions.SERV),
+      head: pct(last.point, 2) });
+    const hx = K.history.map((h) => toDate(h.date)), path = [K.origin, ...K.points.map((p) => p.date)].map(toDate);
+    const pv = [K.last_actual, ...K.points.map((p) => p.point)];
+    const band = (lo, hi, col, name) => [
+      { x: path, y: [K.last_actual, ...K.points.map((p) => p.quantiles[hi])], mode: "lines", line: { width: 0 }, hoverinfo: "skip", showlegend: false, meta: { csv: false } },
+      { x: path, y: [K.last_actual, ...K.points.map((p) => p.quantiles[lo])], mode: "lines", line: { width: 0 }, fill: "tonexty", fillcolor: css(col), name, hoverinfo: "skip" }];
+    plot("p-core", [
+      ...band("q05", "q95", "--band90", t("s_band90")), ...band("q16", "q84", "--band68", t("s_band68")),
+      { x: hx, y: K.history.map((h) => h.headline_yoy), mode: "lines", name: t("core_headline"), line: { color: css("--neutral"), width: 1.5 }, hovertemplate: "%{y:.2f}%" },
+      { x: hx, y: K.history.map((h) => h.core_yoy), mode: "lines", name: t("core_actual"), line: { color: css("--text-primary"), width: 2 }, hovertemplate: "%{y:.2f}%" },
+      { x: path, y: pv, mode: "lines+markers", name: t("core_fc"), line: { color: css("--accent"), width: 2, dash: "dot" }, marker: { size: 7 }, hovertemplate: "%{y:.2f}%" },
+      { x: path, y: path.map(() => K.last_actual), mode: "lines", name: t("core_rw"), line: { color: css("--s2"), width: 1.5, dash: "dash" }, hovertemplate: "%{y:.2f}%" },
+    ], baseLayout({ yaxis: Object.assign(baseLayout().yaxis, { ticksuffix: "%" }) }));
+    table(el("tbl-core"), [t("core_col_h"), t("core_col_rmse"), t("core_col_rw"), t("core_col_ratio"), t("core_col_p"), "n"],
+      [1, 2, 3].map((h) => { const m = met(h); return [String(h), fmt(m.rmse, 2), fmt(m.rmse_rw, 2), fmt(m.rmse_ratio_vs_rw, 2), m.dm_p === null ? "–" : fmt(m.dm_p, 3), String(m.n)]; }),
+      [1, 2, 3, 4, 5]);
+    const worse = [1, 2, 3].filter((h) => met(h).rmse_ratio_vs_rw > 1), sig = worse.filter((h) => met(h).dm_p !== null && met(h).dm_p < 0.05);
+    el("core-verdict").textContent = worse.length === 3
+      ? t("core_verdict_rw", { sig: sig.length ? t("core_sig", { hs: sig.join(", ") }) : t("core_nosig"), rw: pct(K.last_actual, 2) })
+      : t("core_verdict_model");
+    el("core-note").textContent = t("core_note", { goods: K.models.IGD_NNRG, serv: K.models.SERV, gap: fmt(K.max_abs_gap_pp, 3), n: K.n_origins });
+  }
+
   function renderDrivers() {
+    renderCore();
     const hist = F.history.slice(-36);
     const xs = [...hist.map((h) => toDate(h.date)), ...P.map((p) => toDate(p.date))];
     const nH = hist.length;
@@ -1078,6 +1108,7 @@
     { key: "october", tab: "overview", sel: "#oct-in" },
     { key: "drivers", tab: "drivers", sel: "#p-contrib" },
     { key: "basemom", tab: "drivers", sel: "#p-basemom" },
+    { key: "core", tab: "drivers", sel: "#core-card", self: true },
     { key: "countries", tab: "countries", sel: "#p-csm" },
     { key: "profile", tab: "countries", sel: "#cp-summary", self: true },  // the whole card is taller than the screen
     { key: "shock", tab: "shocks", sel: "#sim-form" },
@@ -1250,6 +1281,7 @@ ${note}
     { key: "month", run: () => { showTab("overview"); el("mx-month").value = "2022-10"; renderMonth(); focusCard("#mx-month"); } },
     { key: "october", run: () => { showTab("overview"); setOct(4.0); focusCard("#oct-in"); } },
     { key: "drivers", run: () => { setOct(P[0].point); showTab("drivers"); focusCard("#p-contrib"); } },
+    { key: "core", run: () => { showTab("drivers"); focusCard("#core-card"); } },
     { key: "profile", run: () => { showTab("countries"); cpGeo = "IT"; el("cp-country").value = "IT"; renderProfile(); focusCard("#cp-card"); } },
     { key: "heat", run: () => { showTab("shocks"); focusCard("#hm-card"); } },
     { key: "shock", run: () => {

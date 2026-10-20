@@ -379,6 +379,49 @@ class ResearchNotes(Strict):
 
 
 
+
+# --------------------------------------------------------------------------- core inflation (D44)
+class CorePoint(Strict):
+    date: str
+    horizon: int
+    point: float
+    quantiles: dict[str, float]
+    contributions: dict[str, float]
+    base_effect_pp: float
+    momentum_pp: float
+
+
+class CoreHistory(Strict):
+    date: str
+    core_yoy: float
+    headline_yoy: float
+    contributions: dict[str, float]
+
+
+class CoreMetric(Strict):
+    h: int
+    sample: str
+    n: int
+    rmse: float
+    mae: float
+    rmse_rw: float
+    rmse_ratio_vs_rw: float
+    dm_stat: float | None
+    dm_p: float | None
+    bias: float
+
+
+class CoreView(Strict):
+    """Core inflation (TOT_X_NRG_FOOD) as a by-product of the goods and services forecasts; not separately selected."""
+    origin: str
+    last_actual: float
+    points: list[CorePoint]
+    history: list[CoreHistory]
+    metrics: list[CoreMetric]
+    max_abs_gap_pp: float = Field(description="max |goods + services contributions − published core y/y| since 2010")
+    n_origins: int
+    models: dict[str, str]
+
 # --------------------------------------------------------------------------- what changed (D39)
 class ChangeRow(Strict):
     target: str

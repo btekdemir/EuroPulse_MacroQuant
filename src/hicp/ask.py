@@ -60,6 +60,7 @@ SECTIONS = {
     "october_whatif": ("overview", "oct-in", "what if October prints differently: Nov/Dec path and probabilities"),
     "contributions": ("drivers", "p-contrib", "euro area* contributions by component over time and in the forecast"),
     "base_momentum": ("drivers", "p-basemom", "base effect vs momentum in the forecast"),
+    "core": ("drivers", "core-card", "core inflation: bottom-up forecast, its backtest against a random walk, and the honest verdict"),
     "weights": ("drivers", "p-weights", "component weights: official vs effective at today's prices"),
     "country_compare": ("countries", "cc-add", "compare up to three countries with the euro area*"),
     "country_contributions": ("countries", "p-cbar", "each country's contribution to euro area* y/y, latest month"),
@@ -103,6 +104,7 @@ CHARTS = {
     "p-brk": ("break_test", "forecast errors over time and the structural break test"),
     "p-sigma": ("calibration", "recent forecast error size used by the scaled fan vs the fixed fan"),
     "p-tm": ("time_machine", "time machine: a past origin's three-month forecast, the fan known then, and the outcome"),
+    "p-core": ("core", "core inflation (ex energy, food, alcohol, tobacco): history vs headline, bottom-up forecast with fan, and the random walk"),
     "p-heat": ("heatmap", "heatmap: euro area* December y/y response, in basis points, to +1% in each country and component"),
 }
 MAX_PAGE_FACTS = 30
@@ -207,6 +209,18 @@ def build_ask_facts(out: Path) -> AskFacts:
             if v is not None:
                 add(f"{g}_contrib_{c}", f"Contribution of {cname} to {name} y/y, {d}, pp", v)
 
+    core_path = out / "core.json"
+    if core_path.exists():
+        k = json.loads(core_path.read_text())
+        add("core_last", f"Core inflation (ex energy, food, alcohol, tobacco) y/y, {_mon(k['origin'])}, %", k["last_actual"])
+        for p in k["points"]:
+            add(f"core_fc_h{p['horizon']}", f"Core inflation bottom-up forecast, {_mon(p['date'])}, %", p["point"])
+        for r in k["metrics"]:
+            if r["sample"] == "full":
+                add(f"core_rmse_h{r['h']}", f"Core bottom-up RMSE, h={r['h']}, pp", r["rmse"])
+                add(f"core_rmse_rw_h{r['h']}", f"Core random-walk RMSE, h={r['h']}, pp", r["rmse_rw"])
+                if r["dm_p"] is not None:
+                    add(f"core_dm_p_h{r['h']}", f"Diebold-Mariano p-value, core bottom-up vs random walk, h={r['h']}", r["dm_p"])
     wc_path = out / "what_changed.json"
     if wc_path.exists():
         wc = json.loads(wc_path.read_text())
@@ -232,8 +246,9 @@ def build_ask_facts(out: Path) -> AskFacts:
         "The bands are empirical quantiles of the model's own past out-of-sample errors, not model-implied.\n"
         "The shock simulator moves price levels per country and component; second-round effects are an estimated "
         "distributed lag. Actuals are final Eurostat releases; flash estimates are used only in the real-time check.\n"
-        "Not modelled: country forecasts (only the euro area* headline is forecast and backtested), core inflation as "
-        "a target, ECB policy decisions, anything after the three-month horizon.\n"
+        "Core inflation is shown as a by-product of the goods and services forecasts; a random walk is more accurate "
+        "for core at every horizon, and the dashboard says so. Not modelled: country forecasts (only the euro area* "
+        "headline is forecast and selected), ECB policy decisions, anything after the three-month horizon.\n"
         "Italy: its published total differs from the weighted sum of its components by up to about a tenth of a "
         "point; the cause is not identified."
     )

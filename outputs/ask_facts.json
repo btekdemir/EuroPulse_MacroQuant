@@ -1,7 +1,7 @@
 {
   "origin": "2026-09",
-  "facts_hash": "955410b011e06c51",
-  "context": "Data: Eurostat HICP, euro area* = the 21 current members at every date, chain-linked bottom-up from six components. Last published month: Sep 2026. The forecast covers the next three months.\nSelected component models (pre-committed rule: keep the simpler model unless a richer one is significantly better, Diebold-Mariano test, chosen on 2010-2019 origins): fuels: Weekly Oil Bulletin pump prices; electricity and gas: seasonal mean of monthly changes; processed food: AR(p) chosen by AIC; unprocessed food: seasonal mean of monthly changes; non-energy industrial goods: AR(p), rolling 120-month window; services: seasonal mean, rolling 120-month window.\nBase effect = the part of the change in y/y that comes from the monthly change a year earlier dropping out; it is known in advance. Momentum = the part from new monthly price changes.\nThe bands are empirical quantiles of the model's own past out-of-sample errors, not model-implied.\nThe shock simulator moves price levels per country and component; second-round effects are an estimated distributed lag. Actuals are final Eurostat releases; flash estimates are used only in the real-time check.\nNot modelled: country forecasts (only the euro area* headline is forecast and backtested), core inflation as a target, ECB policy decisions, anything after the three-month horizon.\nItaly: its published total differs from the weighted sum of its components by up to about a tenth of a point; the cause is not identified.",
+  "facts_hash": "c69c281d5b3a5a38",
+  "context": "Data: Eurostat HICP, euro area* = the 21 current members at every date, chain-linked bottom-up from six components. Last published month: Sep 2026. The forecast covers the next three months.\nSelected component models (pre-committed rule: keep the simpler model unless a richer one is significantly better, Diebold-Mariano test, chosen on 2010-2019 origins): fuels: Weekly Oil Bulletin pump prices; electricity and gas: seasonal mean of monthly changes; processed food: AR(p) chosen by AIC; unprocessed food: seasonal mean of monthly changes; non-energy industrial goods: AR(p), rolling 120-month window; services: seasonal mean, rolling 120-month window.\nBase effect = the part of the change in y/y that comes from the monthly change a year earlier dropping out; it is known in advance. Momentum = the part from new monthly price changes.\nThe bands are empirical quantiles of the model's own past out-of-sample errors, not model-implied.\nThe shock simulator moves price levels per country and component; second-round effects are an estimated distributed lag. Actuals are final Eurostat releases; flash estimates are used only in the real-time check.\nCore inflation is shown as a by-product of the goods and services forecasts; a random walk is more accurate for core at every horizon, and the dashboard says so. Not modelled: country forecasts (only the euro area* headline is forecast and selected), ECB policy decisions, anything after the three-month horizon.\nItaly: its published total differs from the weighted sum of its components by up to about a tenth of a point; the cause is not identified.",
   "facts": [
     {
       "id": "last_actual",
@@ -2467,6 +2467,71 @@
       "id": "SK_contrib_SERV",
       "label": "Contribution of services to Slovakia y/y, Sep 2026, pp",
       "value": 1.2561364221540317
+    },
+    {
+      "id": "core_last",
+      "label": "Core inflation (ex energy, food, alcohol, tobacco) y/y, Sep 2026, %",
+      "value": 2.500248040480213
+    },
+    {
+      "id": "core_fc_h1",
+      "label": "Core inflation bottom-up forecast, Oct 2026, %",
+      "value": 2.3957596489776467
+    },
+    {
+      "id": "core_fc_h2",
+      "label": "Core inflation bottom-up forecast, Nov 2026, %",
+      "value": 2.475669545028336
+    },
+    {
+      "id": "core_fc_h3",
+      "label": "Core inflation bottom-up forecast, Dec 2026, %",
+      "value": 2.563736509628889
+    },
+    {
+      "id": "core_rmse_h1",
+      "label": "Core bottom-up RMSE, h=1, pp",
+      "value": 0.2852107553771417
+    },
+    {
+      "id": "core_rmse_rw_h1",
+      "label": "Core random-walk RMSE, h=1, pp",
+      "value": 0.24335374195022652
+    },
+    {
+      "id": "core_dm_p_h1",
+      "label": "Diebold-Mariano p-value, core bottom-up vs random walk, h=1",
+      "value": 0.014717895614754985
+    },
+    {
+      "id": "core_rmse_h2",
+      "label": "Core bottom-up RMSE, h=2, pp",
+      "value": 0.41041679862665215
+    },
+    {
+      "id": "core_rmse_rw_h2",
+      "label": "Core random-walk RMSE, h=2, pp",
+      "value": 0.3190108061071329
+    },
+    {
+      "id": "core_dm_p_h2",
+      "label": "Diebold-Mariano p-value, core bottom-up vs random walk, h=2",
+      "value": 0.0068567345404272045
+    },
+    {
+      "id": "core_rmse_h3",
+      "label": "Core bottom-up RMSE, h=3, pp",
+      "value": 0.4940695390774169
+    },
+    {
+      "id": "core_rmse_rw_h3",
+      "label": "Core random-walk RMSE, h=3, pp",
+      "value": 0.40687444941917766
+    },
+    {
+      "id": "core_dm_p_h3",
+      "label": "Diebold-Mariano p-value, core bottom-up vs random walk, h=3",
+      "value": 0.11943808273221258
     },
     {
       "id": "wc_fc_prev",

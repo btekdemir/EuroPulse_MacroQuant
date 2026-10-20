@@ -611,3 +611,17 @@ Committed to git before the code that runs it. It does not change after the resu
   - Keys: → / ← to move, Esc to exit. Exiting resets the October what-if.
   - The notes only state things checked elsewhere in this file. One unverified claim, that the fan is wider after 2020, was removed.
   - Scrolling waits a short timer after the tab switch, because animation frames stall in background tabs and made the first version scroll one step late.
+
+## D44. Core inflation, as a by-product (21 Oct 2026)
+
+- **What:** core HICP (Eurostat `TOT_X_NRG_FOOD`: excluding energy, food, alcohol and tobacco) on the Drivers tab, built from two of the six components already forecast for the headline: non-energy industrial goods and services.
+  - Same component models, same weights known at each origin, same chain-link (`hicp.core`). No new model.
+  - The published core index is the actual.
+  - The card shows the history against the headline, a forecast with a fan from its own backtest errors, the goods/services split, and the random walk (last print held).
+- **Aggregation check:** feeding the realised goods and services changes through the same chain-link reproduces published core y/y within 0.05pp (RMS 0.01pp, 558 cases; tested). Contributions add up within 0.016pp since 2010.
+- **Result, stated on the card:** a random walk is more accurate for core at every horizon.
+  - Full sample, 198–200 origins: RMSE 0.29 vs 0.24 (h=1, DM p 0.015), 0.41 vs 0.32 (h=2, p 0.007), 0.49 vs 0.41 (h=3, p 0.12).
+  - The measurement was checked before being reported (perfect-foresight test above).
+  - Likely reasons: core is very persistent, and the goods and services models (ARP and SM, rolling 120 months) were chosen for the headline, where the bottom-up model does beat the random walk at one month.
+- **Not done, on purpose:** re-selecting a core model after seeing this would be selection on the evaluation sample. The card recommends the last print as the better core forecast and says why. A dedicated core model would need its own pre-committed rule and its own hold-out sample.
+- The assistant knows these facts (`core_*`) and the section. The tour and the demo have a core step; demo titles no longer carry step numbers, since the panel shows "i of n".
