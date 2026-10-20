@@ -305,3 +305,31 @@ It does not change after the results are in.
 - **Result of the real run:** English passed on the first attempt (28 numbers), French on the second (21 numbers): the first French draft was rejected by the check.
 - **What the check cannot see, found while reading the French note:** it says the upward asymmetry of the band is "liée à l'énergie". The numbers are all verified, but that causal claim is not in the fact sheet; the asymmetry comes from the 2021–22 under-prediction, and attributing it to energy is plausible but not something we measured. The check guarantees that no figure is invented; it does not check wording (direction, causal claims, emphasis). The dashboard says so on the card, and a person reads the note before it is sent. This note should be edited (or regenerated with a stricter instruction) before anyone relies on that phrase.
 - **Stale notes:** the note stores a hash of its fact sheet; the dashboard flags it as stale when the numbers have changed since it was written. Generated on demand with `python -m hicp.note --generate`, never inside `run.py`, so the pipeline needs no API key.
+
+---
+
+## D27. PRE-REGISTERED round 2: can we beat the random walk at h = 3? (written 20 Oct 2026, before any round-2 result)
+
+Committed to git before the code that runs it. It does not change after the results are in.
+
+**Question:** does any candidate beat the random walk on headline y/y at h = 3, significantly, after correcting for the number of tests?
+
+**Candidates (exactly three, no others will be tried in this round):**
+
+- **C1 — producer energy prices lead electricity & gas.**
+  - Model: ELC_GAS m/m = 12 month dummies + Σ_{k=1..6} β_k · 100·Δln PPI_{t−k}.
+  - Data: Eurostat `sts_inppd_m`, `nace_r2=D35` (electricity, gas, steam), `geo=EA21`, `unit=I21`, NSA. This is a fixed composition, used as an indicator; the changing-composition aggregate does not exist for this dataset. 180 of 320 observations carry Eurostat's `i` flag; they are used as published.
+  - Information set: at origin t, PPI is known up to t−1 (it is released about 35 days after month-end; on 20 Oct 2026 the latest is Aug 2026). Unknown PPI changes are set to 0, i.e. the PPI level is held flat, as with pump prices.
+  - Gate: C1 enters the headline test only if it passes the D9 rule at component level against the current ELC_GAS model (SM): lower MSE and DM p < 0.05 on the 3-month cumulative change, 2010–2019 origins. If it fails, C1 is reported as rejected at the component stage.
+  - Rationale: retail electricity and gas tariffs follow wholesale and producer costs with a lag. ELC_GAS was 41% of the squared h = 3 error in 2021–23.
+- **C2 — combination:** the equal-weight average of the bottom-up (current) and direct AR headline forecasts. The weights are fixed and not estimated. Rationale: forecast combination; the two approaches' errors are not identical.
+- **C3 — intercept correction:** bottom-up forecast + the mean of the last three one-month-ahead headline errors known at the origin (forecasts made at t−3, t−2, t−1 for targets t−2, t−1, t). Rationale: Clements–Hendry; errors were autocorrelated in the crisis (0.41).
+
+**Test family and decision rule:**
+- **Family:** four hypotheses, each "no better than the random walk at h = 3": the current bottom-up model (round 1) plus C1–C3.
+- **Test:** each is a Diebold-Mariano test (squared error, NW h−1 lags, HLN correction, two-sided) on all origins 2010-01 → latest with an observed outcome.
+- **Correction:** Holm step-down at α = 0.05 across the four.
+- **Adoption:** if one or more candidates C1–C3 pass, the one with the lowest full-sample h = 3 MSE becomes the published model. Otherwise the current model stays, and the result is reported as it is.
+- **Also reported, not used for the decision:** h = 1, 2; the 2010–2019 and 2020-on samples; DM vs the current bottom-up model.
+
+**Disclosed before running:** C1 and C3 were motivated by the error decomposition of 20 Oct 2026, which used 2020–2023 outcomes, and C2 by known round-1 numbers. So none of these candidates is a clean out-of-sample discovery; the 2020-on sample is not a clean hold-out for them. Each candidate's rationale is standard in the literature, which limits but does not remove the data-snooping concern. The Holm correction covers this round's family only, not every idea considered along the way.
