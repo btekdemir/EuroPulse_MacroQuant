@@ -74,6 +74,7 @@ SECTIONS = {
     "ledger": ("model", "n-led", "forecast ledger: every published forecast and its score"),
     "backtest": ("model", "tbl-bt", "backtest accuracy vs random walk and direct AR, by horizon and sample"),
     "track_record": ("model", "p-track", "forecasts vs outcomes over time"),
+    "time_machine": ("model", "tm-card", "time machine: go back to any past forecast date and see the forecast, the fan known then and the outcome"),
     "break_test": ("model", "n-brk", "structural break test on forecast errors"),
     "round2": ("model", "tbl-r2", "pre-registered round 2 model candidates and the verdict"),
     "calibration": ("model", "tbl-cal", "fan calibration: band coverage, fixed vs scaled width"),
@@ -100,6 +101,7 @@ CHARTS = {
     "p-track": ("track_record", "past forecasts against outcomes at the selected horizon"),
     "p-brk": ("break_test", "forecast errors over time and the structural break test"),
     "p-sigma": ("calibration", "recent forecast error size used by the scaled fan vs the fixed fan"),
+    "p-tm": ("time_machine", "time machine: a past origin's three-month forecast, the fan known then, and the outcome"),
     "p-heat": ("heatmap", "heatmap: euro area* December y/y response, in basis points, to +1% in each country and component"),
 }
 MAX_PAGE_FACTS = 30

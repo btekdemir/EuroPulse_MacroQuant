@@ -805,6 +805,77 @@
   // ------------------------------------------------------------------ model & validation
   const SAMPLES = ["full", "selection", "holdout", "2010-2019", "2020-2023", "2024-now"];
   const MODELS = ["bottom_up", "direct_AR", "bottom_up_SM", "direct_SM"];
+  // ------------------------------------------------------------------ time machine
+  // Go back to any past origin: what the bottom-up model forecast for the next three months, the fan that
+  // could have been drawn THEN (quantiles of the errors already known at that origin), and what happened.
+  const TM_MIN_ERRORS = 24;
+  const tmBU = B.track.filter((x) => x.model === "bottom_up");
+  const tmOrigins = [...new Set(tmBU.map((x) => x.origin))].sort();
+  const tmActual = {};
+  B.track.filter((x) => x.model === "bottom_up" && x.h === 1 && x.actual !== null).forEach((x) => { tmActual[x.target] = x.actual; });
+  F.history.forEach((h) => { tmActual[h.date] = h.yoy; });
+  let tmIdx = tmOrigins.indexOf("2022-06") >= 0 ? tmOrigins.indexOf("2022-06") : tmOrigins.length - 1, tmBound = false;
+
+  function tmAt(o) {
+    const rows = [1, 2, 3].map((h) => {
+      const f = tmBU.find((x) => x.origin === o && x.h === h);
+      const known = tmBU.filter((x) => x.h === h && x.actual !== null && x.target <= o).map((x) => x.actual - x.fc);
+      const q = known.length >= TM_MIN_ERRORS ? [0.05, 0.16, 0.84, 0.95].map((p) => f.fc + ShockEngine.quantile(known, p)) : null;
+      const rw = B.track.find((x) => x.model === "RW" && x.origin === o && x.h === h);
+      return { h, target: f.target, fc: f.fc, actual: f.actual, q, n: known.length, rw: rw ? rw.fc : null };
+    });
+    return rows;
+  }
+
+  function renderTM() {
+    const r = el("tm-range");
+    r.max = String(tmOrigins.length - 1); r.value = String(tmIdx);
+    const o = tmOrigins[tmIdx], rows = tmAt(o);
+    el("tm-label").textContent = t("tm_origin", { m: monthLabel(o) });
+    const j = el("tm-jump");
+    if (!j.childElementCount) {
+      [["2020-02", "tm_j_covid"], ["2021-09", "tm_j_2021"], ["2022-06", "tm_j_2022"], ["2023-06", "tm_j_2023"], [tmOrigins[tmOrigins.length - 1], "tm_j_now"]]
+        .filter(([m]) => tmOrigins.includes(m)).forEach(([m, k]) => {
+          const b = node("button", { type: "button", "data-i18n": k });
+          b.addEventListener("click", () => { tmIdx = tmOrigins.indexOf(m); renderTM(); });
+          j.appendChild(b);
+        });
+      applyText();
+    }
+    // readout: the h=3 forecast, its outcome, and whether it fell inside the fan known then
+    const h3 = rows[2];
+    let read = t("tm_read_fc", { o: monthLabel(o), tgt: monthLabel(h3.target), fc: pct(h3.fc, 2) });
+    if (h3.actual !== null) {
+      const e = h3.actual - h3.fc;
+      const inside = h3.q ? (h3.actual >= h3.q[1] && h3.actual <= h3.q[2] ? "tm_in68" : h3.actual >= h3.q[0] && h3.actual <= h3.q[3] ? "tm_in90" : "tm_out90") : "tm_nofan";
+      read += " " + t("tm_read_out", { act: pct(h3.actual, 2), err: sgn(e, 2) }) + " " + t(inside);
+      if (h3.rw !== null) read += " " + t("tm_read_rw", { rw: sgn(h3.actual - h3.rw, 2), better: Math.abs(e) < Math.abs(h3.actual - h3.rw) ? t("tm_better") : t("tm_worse") });
+    } else read += " " + t("tm_pending");
+    el("tm-read").textContent = read;
+
+    const from = addM(o, -24), to = addM(o, 6);
+    const hist = Object.keys(tmActual).filter((m) => m >= from && m <= to).sort();
+    const path = [o, ...rows.map((x) => x.target)], pv = [tmActual[o], ...rows.map((x) => x.fc)];
+    const tr = [];
+    if (rows.every((x) => x.q)) {
+      const band = (lo, hi, name, col) => [
+        { x: path.map(toDate), y: [tmActual[o], ...rows.map((x) => x.q[hi])], mode: "lines", line: { width: 0 }, hoverinfo: "skip", showlegend: false, meta: { csv: false } },
+        { x: path.map(toDate), y: [tmActual[o], ...rows.map((x) => x.q[lo])], mode: "lines", line: { width: 0 }, fill: "tonexty", fillcolor: css(col), name, hoverinfo: "skip" }];
+      tr.push(...band(0, 3, t("s_band90"), "--band90"), ...band(1, 2, t("s_band68"), "--band68"));
+    }
+    tr.push({ x: hist.map(toDate), y: hist.map((m) => tmActual[m]), mode: "lines", name: t("tm_actual"), line: { color: css("--text-primary"), width: 2 }, hovertemplate: "%{y:.2f}%<extra></extra>" });
+    tr.push({ x: path.map(toDate), y: pv, mode: "lines+markers", name: t("tm_forecast"), line: { color: css("--accent"), width: 2, dash: "dot" }, marker: { size: 8 }, hovertemplate: "%{y:.2f}%<extra></extra>" });
+    plot("p-tm", tr, baseLayout({ hovermode: "x unified", margin: { l: 44, r: 16, t: 8, b: 36 },
+      shapes: [{ type: "line", x0: toDate(o), x1: toDate(o), yref: "paper", y0: 0, y1: 1, line: { color: css("--axis"), width: 1, dash: "dash" } }],
+      annotations: [{ x: toDate(o), y: 1, yref: "paper", text: t("tm_then"), showarrow: false, xanchor: "left", yanchor: "top", font: { size: 11, color: css("--text-secondary") } }],
+      yaxis: Object.assign(baseLayout().yaxis, { ticksuffix: "%" }) }));
+    if (!tmBound) {
+      r.addEventListener("input", () => { tmIdx = Number(r.value); renderTM(); });
+      tmBound = true;
+    }
+  }
+  const addM = (ym, k) => ShockEngine.addMonths(ym, k);
+
   function renderModel() {
     const sel = el("bt-sample"), cur = sel.value || "full";
     sel.replaceChildren(...SAMPLES.map((s) => node("option", { value: s }, t("sample_" + s)))); sel.value = cur;
@@ -834,6 +905,7 @@
     ], baseLayout({ yaxis: Object.assign(baseLayout().yaxis, { ticksuffix: "%" }) }));
 
     renderBreak();
+    renderTM();
     renderLedger();
     renderRound2();
     renderCalibration();

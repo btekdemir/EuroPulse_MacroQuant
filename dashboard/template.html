@@ -345,6 +345,13 @@ input[type="range"] { min-width: 160px; }
       <div class="card"><h2 id="t-track"></h2>
         <div class="row" style="margin:6px 0"><div class="seg" id="track-h"></div></div>
         <div class="plot" id="p-track"></div><p class="note" id="n-track"></p><p class="src" data-src="src_backtest"></p></div>
+      <div class="card" id="tm-card"><h2 data-i18n="tm_title"></h2><p class="note" data-i18n="tm_intro" style="margin:0 0 8px"></p>
+        <div class="row" style="align-items:flex-end;gap:10px;flex-wrap:wrap">
+          <label style="flex:1;min-width:220px"><span id="tm-label"></span><input type="range" id="tm-range" min="0" max="0" step="1" style="width:100%"></label>
+          <div class="presets" id="tm-jump"></div></div>
+        <p class="answer" id="tm-read" role="status" style="margin:8px 0"></p>
+        <div class="plot" id="p-tm"></div>
+        <p class="note" data-i18n="tm_note"></p><p class="src" data-src="src_backtest"></p></div>
       <div class="card"><h2 data-i18n="brk_title"></h2><p class="note" id="n-brk"></p>
         <div class="plot short" id="p-brk"></div><p class="note" data-i18n="brk_chart_note"></p>
         <div class="grid" style="gap:12px;margin-top:8px">
