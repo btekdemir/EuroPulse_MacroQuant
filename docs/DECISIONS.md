@@ -519,3 +519,16 @@ Committed to git before the code that runs it. It does not change after the resu
 - **Live check (2 questions, 4 calls):**
   - EN, "What if gas prices rise 30% in Germany?": flagged and answered with no numbers (4 s). Interpreted (1.7 s) as electricity & gas, DE, +30%, permanent from Oct 2026, with no second round. Result: +0.41pp peak in Dec 2026 and December at 4.22% instead of 3.82%. This equals the JS figure from the browser test.
   - TR, "Ya İspanya'da elektrik %15 düşer, İtalya'da gıda %5 artarsa ne olur?": two legs. ES electricity & gas −15%, and IT processed + unprocessed food +5%, both permanent from Oct 2026. Net +0.085pp in December, which puts December at 3.90%.
+
+## D37. "Explain this" on every chart (20 Oct 2026)
+
+- **What:** each of the 15 charts has an "Explain this" button next to PNG/CSV. It is shown only where `/api/ask` exists. It opens the assistant with the question "Explain this chart: “<title>”", and the request carries the chart's id.
+  - The server adds what that chart shows, from `hicp.ask.CHARTS` (plot id → section, description). The answer explains how to read the chart and the one or two points that matter now, and points `goto` at it.
+- **Selections and page facts:**
+  - The page also sends the reader's current selection as data: the shock scenario, the chosen month, the country, the compared countries, the horizon.
+  - For charts whose numbers are computed in the browser (the shock impact, the chosen month's split), it sends up to 30 page facts (`page_*`). The server accepts only well-formed ids, finite numbers and string labels.
+  - These page facts join the fact list for that one request, so cited page numbers pass the same check.
+  - A page fact comes from the reader's browser, not from the pipeline. It can only make an answer agree with what that reader's page shows, and the id prefix keeps it apart from pipeline facts.
+- **Tested:**
+  - `tests/test_ask.py`: context and page facts reach the model; malformed page facts are dropped; an unknown chart id gets no page facts; every chart in the page has an entry and a section.
+  - Browser, with a stubbed API: 15 buttons. The headline chart, the shock chart (with the current preset's peak, December impact, its split and shocked level) and the country profile (Germany) each sent the right context.

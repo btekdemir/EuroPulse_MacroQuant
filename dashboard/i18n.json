@@ -411,7 +411,9 @@
   "ask_sc_open": "Open in the simulator →",
   "ask_sc_copied": "Link copied",
   "ask_sc_inbar": "Link is in the address bar",
-  "ask_sc_meta": "Impact computed by the dashboard's shock engine, not by the language model · interpreter {model}"
+  "ask_sc_meta": "Impact computed by the dashboard's shock engine, not by the language model · interpreter {model}",
+  "ask_explain": "Explain this",
+  "ask_explain_q": "Explain this chart: “{title}”"
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -825,6 +827,8 @@
   "ask_sc_open": "Ouvrir dans le simulateur →",
   "ask_sc_copied": "Lien copié",
   "ask_sc_inbar": "Le lien est dans la barre d’adresse",
-  "ask_sc_meta": "Impact calculé par le moteur de chocs du tableau de bord, pas par le modèle de langage · interprète {model}"
+  "ask_sc_meta": "Impact calculé par le moteur de chocs du tableau de bord, pas par le modèle de langage · interprète {model}",
+  "ask_explain": "Expliquer",
+  "ask_explain_q": "Expliquez ce graphique : « {title} »"
  }
 }

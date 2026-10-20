@@ -2,6 +2,7 @@
 
 import importlib.util
 import json
+import re
 import subprocess
 import sys
 import types
@@ -99,7 +100,7 @@ def _fn():
 def test_handler_guards(doc):
     subprocess.run([sys.executable, str(ROOT / "deploy" / "prepare.py")], check=True, capture_output=True)
     fn = _fn()
-    assert fn.handle(b"x" * 9000, "1")[0] == 413
+    assert fn.handle(b"x" * 17000, "1")[0] == 413
     assert fn.handle(b"not json", "1")[0] == 400
     assert fn.handle(json.dumps({"question": " "}).encode(), "1")[0] == 400
     assert fn.handle(json.dumps({"question": "q" * 401}).encode(), "1")[0] == 400
@@ -151,3 +152,30 @@ def test_scenario_request_passes_through(doc):
     assert r["scenario_request"] and r["goto"]["id"] == "shock_result"
     r = answer("q", doc, model="m", client=FakeClient(draft("Not covered.", answerable=False, scenario=True)))
     assert not r["scenario_request"]  # never for an answer the sheet cannot support
+
+
+def test_explain_chart_adds_context_and_page_facts(doc):
+    good = draft("The peak impact is 0.41 pp.", ("0.41", "page_peak_pp"), goto="shock_result")
+    c = FakeClient(good)
+    pf = [{"id": "page_peak_pp", "label": "Peak impact of the current shock, pp", "value": 0.4088},
+          {"id": "evil id", "label": "x", "value": 1}, {"id": "page_nan", "label": "x", "value": float("nan")},
+          {"id": "page_flag", "label": "x", "value": True}]
+    r = answer("Explain this chart", doc, client=c, model="m", chart="p-shock", chart_state="Gas DE +30%", chart_facts=pf)
+    assert r["verified"] and r["numbers"][0]["fact_id"] == "page_peak_pp"
+    msg = c.calls[0]["messages"][-1]["content"]
+    assert "[Explain request]" in msg and "page_peak_pp" in msg and "Gas DE +30%" in msg
+    assert "evil id" not in msg and "page_nan" not in msg and "page_flag" not in msg
+    # without a known chart, page facts are ignored, so the same number cannot be verified
+    r = answer("q", doc, model="m", chart="p-nope", chart_facts=pf, client=FakeClient(good, good))
+    assert not r["verified"]
+    r = answer("q", doc, model="m", chart=["p-shock"], chart_facts=pf, client=FakeClient(good, good))
+    assert not r["verified"]
+
+
+def test_every_chart_is_in_the_page_and_maps_to_a_section():
+    from hicp.ask import CHARTS, SECTIONS
+    page = (ROOT / "dashboard" / "template.html").read_text()
+    for pid, (sec, _) in CHARTS.items():
+        assert f'id="{pid}"' in page and sec in SECTIONS, pid
+    plots = set(re.findall(r'class="plot[^"]*" id="([a-z0-9-]+)"', page))
+    assert plots == set(CHARTS)

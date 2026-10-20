@@ -22,7 +22,7 @@ from hicp.ask import MAX_QUESTION, answer, load_facts  # noqa: E402
 
 PER_MINUTE = int(os.environ.get("HICP_ASK_PER_MINUTE", "6"))
 PER_DAY_INSTANCE = int(os.environ.get("HICP_ASK_PER_DAY_INSTANCE", "300"))
-MAX_BODY = 8192
+MAX_BODY = 16384
 
 _hits: dict[str, deque] = defaultdict(deque)
 _day = deque()
@@ -72,7 +72,9 @@ def handle(raw_body: bytes, ip: str, client=None) -> tuple[int, bytes]:
     if not allow(ip):
         return respond(429, {"error": "Too many requests. Wait a minute."})
     try:
-        return respond(200, answer(question.strip(), _facts_cached(), client=client, history=history))
+        return respond(200, answer(question.strip(), _facts_cached(), client=client, history=history,
+                                   chart=req.get("chart"), chart_state=req.get("chart_state"),
+                                   chart_facts=req.get("chart_facts")))
     except Exception:  # never leak internals (or keys) to the page
         return respond(500, {"error": "Unexpected error."})
 

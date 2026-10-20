@@ -1032,7 +1032,9 @@
       const a = node("a", { href: URL.createObjectURL(new Blob([chartCsv(p)], { type: "text/csv" })), download: p.id.replace(/^p-/, "hicp-") + ".csv" });
       document.body.appendChild(a); a.click(); a.remove();
     });
-    bar.append(png, csv);
+    const ex = node("button", { type: "button", class: "dl-btn ask-explain", "data-i18n": "ask_explain", hidden: true });
+    ex.addEventListener("click", () => askExplain(p));
+    bar.append(png, csv, ex);
     p.after(bar);
   });
   window.__chartCsv = chartCsv;  // exposed for the automated check only
@@ -1123,9 +1125,43 @@
     askHist.push({ role: "assistant", content: lines.join(" ") });
   }
 
+  // "Explain" on a chart: the question names the chart; the server adds what it shows, and the page sends the
+  // selection and any numbers it computed itself (the current shock, a chosen month) as page facts.
+  function chartContext(pid) {
+    const F_ = (id, label, value) => ({ id: "page_" + id, label, value });
+    if (pid === "p-shock" || pid === "p-shockpath") {
+      const r = ShockEngine.simulate(scenario, S), k = S.months.indexOf(last.date);
+      return { state: `${scenario.name}: ${scenario.legs.map(legLabel).join("; ")}${scenario.second_round ? " (with second round)" : ""}`,
+        facts: [F_("peak_pp", `Peak impact of the current shock on headline y/y (${r.peak_month}), pp`, r.peak_pp),
+          F_("dec_pp", `Impact of the current shock on ${last.date} headline y/y, pp`, r.delta_yoy_pp[k]),
+          F_("dec_first_pp", `First-round part of that impact, pp`, r.delta_first_round_pp[k]),
+          F_("dec_second_pp", `Second-round part of that impact, pp`, r.delta_second_round_pp[k]),
+          F_("dec_shocked", `Headline y/y in ${last.date} with the shock, %`, r.shocked_yoy[k]),
+          F_("n_legs", "Number of shocks (legs) in the scenario", scenario.legs.length)] };
+    }
+    if (pid === "p-month") {
+      const m = el("mx-month").value, ex = ShockEngine.explainMonth(F.headline_index, m);
+      return { state: `month ${m}`, facts: [F_("m_yoy", `Headline y/y in ${m}, %`, ex.yoy),
+        F_("m_dyoy", `Change in y/y from the previous month to ${m}, pp`, ex.delta_pp),
+        F_("m_mom", `Momentum part of that change, pp`, ex.momentum_pp), F_("m_base", `Base-effect part of that change, pp`, ex.base_effect_pp)] };
+    }
+    if (pid === "p-cp-drivers" || pid === "p-cp-basket") return { state: `country ${geo(cpGeo)} (${cpGeo})`, facts: [] };
+    if (pid === "p-ccmp") return { state: `countries ${[...ccSel.keys()].map((g) => `${geo(g)} (${g})`).join(", ") || "none selected"}`, facts: [] };
+    if (pid === "p-track") return { state: `horizon ${el("track-h").value}`, facts: [] };
+    return { state: "", facts: [] };
+  }
+
+  function askExplain(p) {
+    const card = p.closest(".card"), h = card && card.querySelector("h2");
+    const title = (h && h.textContent.trim()) || p.id;
+    const ctx = chartContext(p.id);
+    if (el("ask-panel").hidden) askToggle(true, "ask-fab");
+    askSend(t("ask_explain_q", { title }), { chart: p.id, chart_state: ctx.state, chart_facts: ctx.facts });
+  }
+
   function askLog(n) { const log = el("ask-log"); log.appendChild(n); log.scrollTop = log.scrollHeight; }
 
-  async function askSend(q) {
+  async function askSend(q, extra) {
     q = (q || el("ask-text").value).trim();
     if (!q || askBusy) return;
     askBusy = true; el("ask-go").disabled = true; el("ask-text").value = "";
@@ -1134,7 +1170,7 @@
     el("ask-status").textContent = t("ask_busy");
     try {
       const r = await fetch("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: q, history: askHist.slice(-4) }) });
+        body: JSON.stringify(Object.assign({ question: q, history: askHist.slice(-4) }, extra || {})) });
       let body = {}; try { body = await r.json(); } catch (e) { /* non-JSON error page */ }
       el("ask-status").textContent = "";
       if (!r.ok) { askLog(node("div", { class: "ask-msg bot muted" }, body.error || `${t("ask_failed")} (${r.status})`)); return; }
@@ -1168,7 +1204,10 @@
 
   if (liveOk()) {
     fetch("/api/ask", { method: "GET" }).then((r) => {
-      if (r.status === 405) { el("ask-open").hidden = false; el("ask-fab").hidden = false; }
+      if (r.status === 405) {
+        el("ask-open").hidden = false; el("ask-fab").hidden = false;
+        document.querySelectorAll(".ask-explain").forEach((b) => { b.hidden = false; });
+      }
     }).catch(() => {});
   }
   el("ask-open").addEventListener("click", () => askToggle(el("ask-panel").hidden, "ask-open"));

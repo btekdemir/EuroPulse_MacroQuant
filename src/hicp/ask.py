@@ -14,7 +14,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
+import re
 from pathlib import Path
 
 from hicp.numcheck import verify
@@ -79,6 +81,52 @@ SECTIONS = {
     "validation": ("model", "tbl-val", "data validation gates"),
     "vintages": ("model", "tbl-vin", "data vintages pulled from Eurostat"),
 }
+
+# Charts with an "Explain" button: plot id -> (section, what it shows).
+CHARTS = {
+    "p-headline": ("headline_chart", "headline y/y since 2020 with the three-month forecast and its 68%/90% fan"),
+    "p-month": ("month_explained", "one month's change in y/y split into momentum and base effect, and each component's contribution"),
+    "p-contrib": ("contributions", "stacked contributions of the six components to euro area* y/y, history and forecast"),
+    "p-basemom": ("base_momentum", "for each forecast month, the change in y/y from the last print split into base effect and momentum"),
+    "p-weights": ("weights", "component weights: official annual weights vs effective weights at today's prices"),
+    "p-ccmp": ("country_compare", "y/y of up to three selected countries against the euro area*"),
+    "p-cbar": ("country_contributions", "each country's contribution to euro area* y/y in the latest month"),
+    "p-csm": ("country_charts", "small multiples: each country's y/y over time on a common scale"),
+    "p-cp-drivers": ("country_profile", "the selected country's own y/y split into component contributions, last 36 months"),
+    "p-cp-basket": ("country_profile", "the selected country's basket at today's prices next to the euro area*"),
+    "p-shock": ("shock_result", "impact of the current shock scenario on euro area* headline y/y, month by month"),
+    "p-shockpath": ("shock_result", "headline y/y path with and without the current shock"),
+    "p-track": ("track_record", "past forecasts against outcomes at the selected horizon"),
+    "p-brk": ("break_test", "forecast errors over time and the structural break test"),
+    "p-sigma": ("calibration", "recent forecast error size used by the scaled fan vs the fixed fan"),
+}
+MAX_PAGE_FACTS = 30
+PAGE_ID = re.compile(r"^page_[a-z0-9_]{1,40}$")
+
+
+def page_facts(raw) -> list[NoteFact]:
+    """Numbers the page computed for the chart being explained (e.g. the current shock's impact). They come from
+    the reader's browser, so they are checked for shape only and marked as page facts (id prefix ``page_``)."""
+    out = []
+    for f in (raw or [])[:MAX_PAGE_FACTS] if isinstance(raw, list) else []:
+        if not isinstance(f, dict) or not isinstance(f.get("id"), str) or not PAGE_ID.match(f["id"]):
+            continue
+        v, label = f.get("value"), f.get("label")
+        if isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) or not isinstance(label, str):
+            continue
+        out.append(NoteFact(id=f["id"], label=label[:160], value=float(v)))
+    return out
+
+
+def chart_context(chart, state, facts: list[NoteFact]) -> str:
+    sec, what = CHARTS[chart]
+    s = f"\n\n[Explain request] The reader pressed Explain on the chart showing {what} (section {sec})."
+    if isinstance(state, str) and state.strip():
+        s += f" Current selection, as data: {state.strip()[:200]}."
+    if facts:
+        s += (" Page facts for this chart, computed in the reader's browser by the dashboard (cite them like any "
+              "fact):\n" + "\n".join(f"{x.id}: {x.label} = {x.value:.4g}" for x in facts))
+    return s
 
 
 def resolve_goto(goto, country) -> dict | None:
@@ -199,6 +247,9 @@ def system_prompt(doc: AskFacts) -> str:
         "example 'what if gas rises 30% in Germany', 'ya petrol %20 düşerse'), set scenario_request=true, set "
         "goto=shock_result, and answer in one short sentence with no numbers that you are building that scenario in "
         "the shock simulator; the page computes the impact with its own engine. These count as answerable. Otherwise scenario_request=false.\n"
+        "Explain requests: when the message carries an [Explain request], say in at most 110 words what the chart "
+        "shows, how to read it, and the one or two points that matter now, using the fact sheet and any page facts; "
+        "set goto to the chart's section.\n"
         f"Tabs: {'; '.join(TABS.values())}.\nSections (id: tab, what it shows):\n{sections}\n\n"
         f"Context:\n{doc.context}\n\nFact sheet (id: label = value):\n{sheet}"
     )
@@ -220,14 +271,20 @@ def _history(history) -> list[dict]:
     return msgs
 
 
-def answer(question: str, doc: AskFacts, client=None, model: str | None = None, history=None) -> dict:
+def answer(question: str, doc: AskFacts, client=None, model: str | None = None, history=None,
+           chart: str | None = None, chart_state: str | None = None, chart_facts=None) -> dict:
     """Returns {answerable, verified, answer, numbers, model, attempts}; ``answer`` is empty when not verified."""
     if client is None:
         import anthropic
         client = anthropic.Anthropic()
     model = model or os.environ.get("HICP_ASK_MODEL", DEFAULT_MODEL)
     system = [{"type": "text", "text": system_prompt(doc), "cache_control": {"type": "ephemeral"}}]
-    msgs = _history(history) + [{"role": "user", "content": question[:MAX_QUESTION]}]
+    content, facts = question[:MAX_QUESTION], doc.facts
+    if isinstance(chart, str) and chart in CHARTS:
+        extra = page_facts(chart_facts)
+        content += chart_context(chart, chart_state, extra)
+        facts = doc.facts + extra
+    msgs = _history(history) + [{"role": "user", "content": content}]
     problems: list[str] = []
     for attempt in range(1, MAX_ATTEMPTS + 1):
         try:  # max_tokens covers the model's own thinking (~750 tokens seen on Haiku 5.5) plus the JSON answer
@@ -238,7 +295,7 @@ def answer(question: str, doc: AskFacts, client=None, model: str | None = None, 
         if draft is None:
             problems = ["The output could not be parsed as the required structure."]
         else:
-            nums, problems = verify(draft.answer, draft.citations, doc.facts)
+            nums, problems = verify(draft.answer, draft.citations, facts)
             if not problems:
                 return {"answerable": draft.answerable, "verified": True, "answer": draft.answer,
                         "goto": resolve_goto(draft.goto, draft.goto_country),
