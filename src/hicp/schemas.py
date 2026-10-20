@@ -385,6 +385,7 @@ class AskFacts(Strict):
     facts_hash: str
     context: str = Field(description="Non-numeric context: definitions, model choices, what is not modelled")
     facts: list[NoteFact]
+    presets: list[str] = Field(default_factory=list, description="Names of the simulator's ready-made scenarios, in order")
 
 
 class DraftAnswer(Strict):
@@ -396,6 +397,7 @@ class DraftAnswer(Strict):
     goto_country: str | None = Field(description="Country code to open in the country profile (goto=country_profile), or null")
     scenario_request: bool = Field(description="True when the question asks for the effect of a hypothetical price "
                                                "shock; the page then builds and runs it in the simulator")
+    preset: int | None = Field(description="Index of the ready-made scenario the question names, or null")
 
 # --------------------------------------------------------------------------- shocks
 from typing import Literal  # noqa: E402

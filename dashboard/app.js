@@ -1085,6 +1085,10 @@
 
   // A what-if question: the scenario interpreter (/api/scenario) turns the words into a scenario, and the
   // impact numbers below come from ShockEngine.simulate in the page, never from the language model.
+  // A what-if the interpreter could not finish (e.g. no size given) waits for the next message, which is then
+  // read together with it: "oil shock" then "+40%" becomes "oil shock +40%".
+  let askPendingWhatIf = null;
+
   async function askScenario(q) {
     el("ask-status").textContent = t("ask_building");
     let body = {}, r;
@@ -1093,12 +1097,27 @@
       try { body = await r.json(); } catch (e) { /* non-JSON error page */ }
     } catch (e) { r = { ok: false, status: 0 }; }
     el("ask-status").textContent = "";
-    if (!r.ok || !body.scenario) { askLog(node("div", { class: "ask-msg bot muted" }, body.error || t("ask_sc_failed"))); return; }
-    const sc = body.scenario, res = ShockEngine.simulate(sc, S), k = S.months.indexOf(last.date);
+    if (!r.ok || !body.scenario) {
+      askPendingWhatIf = r.status === 422 ? q : null;
+      askLog(node("div", { class: "ask-msg bot muted" }, (body.error || t("ask_sc_failed")) + (askPendingWhatIf ? " " + t("ask_sc_followup") : "")));
+      return;
+    }
+    askPendingWhatIf = null;
+    askScenarioResult(body.scenario, body.interpretation || [], t("ask_sc_meta", { model: body.model }));
+  }
+
+  // A preset needs no interpreter: the page already has it.
+  const presetIn = (q) => {
+    const s = q.toLowerCase();
+    return S.presets.findIndex((p) => s.includes(p.name.split("(")[0].trim().toLowerCase()));
+  };
+
+  function askScenarioResult(sc, interpretation, meta) {
+    const res = ShockEngine.simulate(sc, S), k = S.months.indexOf(last.date);
     const box = node("div", { class: "ask-msg bot" });
     box.append(node("b", {}, t("ask_sc_title")));
     const ul = node("ul", { class: "ask-sc-lines" });
-    (body.interpretation || []).forEach((l) => ul.appendChild(node("li", {}, l)));
+    interpretation.forEach((l) => ul.appendChild(node("li", {}, l)));
     box.append(ul);
     const lines = [
       t("ask_sc_peak", { pp: sgn(res.peak_pp), month: monthLabel(res.peak_month) }),
@@ -1120,7 +1139,7 @@
     });
     box.append(node("div", { class: "row", style: "gap:6px;margin-top:2px" }, undefined));
     box.lastChild.append(open, link);
-    box.append(node("span", { class: "meta" }, t("ask_sc_meta", { model: body.model })));
+    box.append(node("span", { class: "meta" }, meta));
     askLog(box);
     askHist.push({ role: "assistant", content: lines.join(" ") });
   }
@@ -1173,6 +1192,13 @@
     askBusy = true; el("ask-go").disabled = true; el("ask-text").value = "";
     askLog(node("div", { class: "ask-msg user" }, q));
     el("ask-suggest").hidden = true;  // the examples have done their job; give the answers the room
+    if (askPendingWhatIf && !extra && q.length <= 80 && /\d/.test(q)) {  // a short answer with a number: the missing piece
+      const whole = `${askPendingWhatIf} ${q}`;
+      askPendingWhatIf = null;
+      try { await askScenario(whole); } finally { askBusy = false; el("ask-go").disabled = false; }
+      return;
+    }
+    askPendingWhatIf = null;
     el("ask-status").textContent = t("ask_busy");
     try {
       const r = await fetch("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" },
@@ -1183,7 +1209,13 @@
       if (!body.verified) { askLog(node("div", { class: "ask-msg bot muted" }, t("ask_unverified"))); return; }
       askLog(askAnswerNode(body));
       askHist.push({ role: "user", content: q }, { role: "assistant", content: body.answer });
-      if (body.scenario_request) await askScenario(q);
+      if (body.scenario_request || (!body.answerable && presetIn(q) >= 0)) {  // a bare preset name is a what-if too
+        const k = Number.isInteger(body.preset) && S.presets[body.preset] ? body.preset : presetIn(q);
+        if (k >= 0) {
+          const pre = S.presets[k];
+          askScenarioResult(JSON.parse(JSON.stringify(pre)), [t("ask_sc_preset", { name: pre.name }), pre.rationale], t("ask_sc_meta_preset"));
+        } else await askScenario(q);
+      }
     } catch (e) {
       el("ask-status").textContent = ""; askLog(node("div", { class: "ask-msg bot muted" }, t("ask_failed")));
     } finally { askBusy = false; el("ask-go").disabled = false; }

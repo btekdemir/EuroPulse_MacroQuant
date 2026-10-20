@@ -539,3 +539,9 @@ Committed to git before the code that runs it. It does not change after the resu
   - The answers wrote numbers like 0.4155 although the prompt asked for at most two decimals. The rule is now enforced in code: such a number is sent back for rounding, which is tested.
   - The headline answer called the dotted forecast line "dashed" (the dashed line is the ECB target). The button now sends the chart's own list of series, read from the plot (bars, shaded band, solid/dot/dash line, name), and the model is told to describe visuals only from it.
   - Both fixes are tested with the fake client. They have not been re-run live.
+- **Fixes after a local try (the user's transcript):**
+  - "oil supply shock" was flagged as a what-if and sent to the interpreter, which failed with "No size found". The follow-up "+%40" was then answered "not covered".
+  - **Presets:** the assistant now knows the simulator's ready-made scenarios (`AskFacts.presets`) and may return `preset`. The server accepts only an index in range, and only on a what-if.
+  - The page runs a preset directly with the engine, with no interpreter call. It also matches a preset name in the question itself, as a fallback when the model returns no index or replies "not covered".
+  - **Follow-ups:** when the interpreter rejects a what-if as incomplete (422), the page says "reply with just the missing part". A short next message that contains a number is joined to it and sent to the interpreter, without going through the assistant again.
+  - Browser check with stubbed APIs: "oil supply shock" ran preset 0. "gas shock in Germany" then "+%40" became "gas shock in Germany +%40" and was built. Tested in `tests/test_ask.py` (preset bounds). Not re-run live.

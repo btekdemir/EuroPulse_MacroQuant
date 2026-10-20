@@ -32,9 +32,9 @@ class FakeClient:
         return types.SimpleNamespace(parsed_output=self.queue.pop(0), stop_reason="end_turn")
 
 
-def draft(text, *cites, answerable=True, goto=None, country=None, scenario=False):
+def draft(text, *cites, answerable=True, goto=None, country=None, scenario=False, preset=None):
     return DraftAnswer(answerable=answerable, answer=text, citations=[NoteCitation(number=n, fact_id=f) for n, f in cites],
-                       goto=goto, goto_country=country, scenario_request=scenario)
+                       goto=goto, goto_country=country, scenario_request=scenario, preset=preset)
 
 
 def fact(doc, i):
@@ -194,3 +194,13 @@ def test_chart_traces_reach_the_model(doc):
     answer("q", doc, client=c, model="m", chart="p-headline", chart_traces=["dot line with markers: Forecast", 5, "x" * 500])
     msg = c.calls[0]["messages"][-1]["content"]
     assert "dot line with markers: Forecast" in msg and "x" * 61 not in msg
+
+
+def test_preset_reference_is_resolved_and_bounded(doc):
+    assert doc.presets and "Oil supply shock" in doc.presets[0]
+    ok = draft("Running the oil supply shock scenario.", scenario=True, preset=0)
+    assert answer("oil supply shock", doc, client=FakeClient(ok), model="m")["preset"] == 0
+    for bad in (99, -1):
+        r = answer("q", doc, client=FakeClient(draft("x", scenario=True, preset=bad)), model="m")
+        assert r["preset"] is None
+    assert answer("q", doc, client=FakeClient(draft("x", preset=0)), model="m")["preset"] is None  # not a what-if

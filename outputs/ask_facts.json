@@ -2468,5 +2468,10 @@
       "label": "Contribution of services to Slovakia y/y, Sep 2026, pp",
       "value": 1.2561364221540317
     }
+  ],
+  "presets": [
+    "Oil supply shock (Brent +30%)",
+    "European gas price spike",
+    "France regulated electricity tariff +10%"
   ]
 }

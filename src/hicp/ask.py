@@ -219,7 +219,8 @@ def build_ask_facts(out: Path) -> AskFacts:
         "point; the cause is not identified."
     )
     h = hashlib.sha256(json.dumps([[x.id, round(x.value, 6)] for x in fx]).encode()).hexdigest()[:16]
-    return AskFacts(origin=f["origin"], facts_hash=h, context=context, facts=fx)
+    presets = [p["name"] for p in json.loads((out / "shock_basis.json").read_text())["presets"]]
+    return AskFacts(origin=f["origin"], facts_hash=h, context=context, facts=fx, presets=presets)
 
 
 # --------------------------------------------------------------------------- answer (Vercel function)
@@ -251,6 +252,9 @@ def system_prompt(doc: AskFacts) -> str:
         "example 'what if gas rises 30% in Germany', 'ya petrol %20 düşerse'), set scenario_request=true, set "
         "goto=shock_result, and answer in one short sentence with no numbers that you are building that scenario in "
         "the shock simulator; the page computes the impact with its own engine. These count as answerable. Otherwise scenario_request=false.\n"
+        "If the question names one of the ready-made scenarios below, or just its theme without a size (for example "
+        "'oil supply shock', 'the gas spike'), treat it as a what-if and set preset to its index; otherwise null.\n"
+        f"Ready-made scenarios (index: name): {'; '.join(f'{k}: {n}' for k, n in enumerate(doc.presets)) or 'none'}.\n"
         "Explain requests: when the message carries an [Explain request], say in at most 110 words what the chart "
         "shows, how to read it, and the one or two points that matter now, using the fact sheet and any page facts; "
         "set goto to the chart's section.\n"
@@ -306,12 +310,14 @@ def answer(question: str, doc: AskFacts, client=None, model: str | None = None, 
                 return {"answerable": draft.answerable, "verified": True, "answer": draft.answer,
                         "goto": resolve_goto(draft.goto, draft.goto_country),
                         "scenario_request": bool(draft.scenario_request and draft.answerable),
+                        "preset": (draft.preset if draft.scenario_request and draft.answerable and isinstance(draft.preset, int)
+                                   and 0 <= draft.preset < len(doc.presets) else None),
                         "numbers": [n.model_dump() for n in nums], "model": model, "attempts": attempt}
             msgs = msgs + [{"role": "assistant", "content": draft.answer},
                            {"role": "user", "content": "An automatic check rejected that answer:\n- " + "\n- ".join(problems)
                             + "\nAnswer the same question again, fixing every item and using only the fact sheet."}]
     return {"answerable": True, "verified": False, "answer": "", "numbers": [], "goto": None,
-            "scenario_request": False, "model": model,
+            "scenario_request": False, "preset": None, "model": model,
             "attempts": MAX_ATTEMPTS, "problems": problems}
 
 

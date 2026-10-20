@@ -413,7 +413,10 @@
   "ask_sc_inbar": "Link is in the address bar",
   "ask_sc_meta": "Impact computed by the dashboard's shock engine, not by the language model · interpreter {model}",
   "ask_explain": "Explain this",
-  "ask_explain_q": "Explain this chart: “{title}”"
+  "ask_explain_q": "Explain this chart: “{title}”",
+  "ask_sc_followup": "Reply with just the missing part (for example +40%) and I will build it.",
+  "ask_sc_preset": "Ready-made scenario: {name}.",
+  "ask_sc_meta_preset": "Impact computed by the dashboard's shock engine from the ready-made scenario; no language model involved in the numbers"
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -829,6 +832,9 @@
   "ask_sc_inbar": "Le lien est dans la barre d’adresse",
   "ask_sc_meta": "Impact calculé par le moteur de chocs du tableau de bord, pas par le modèle de langage · interprète {model}",
   "ask_explain": "Expliquer",
-  "ask_explain_q": "Expliquez ce graphique : « {title} »"
+  "ask_explain_q": "Expliquez ce graphique : « {title} »",
+  "ask_sc_followup": "Répondez seulement avec l’élément manquant (par exemple +40 %) et je le construis.",
+  "ask_sc_preset": "Scénario prédéfini : {name}.",
+  "ask_sc_meta_preset": "Impact calculé par le moteur de chocs à partir du scénario prédéfini ; aucun modèle de langage dans les chiffres"
  }
 }
