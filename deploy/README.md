@@ -9,9 +9,8 @@ until the first deploy; it is tested locally over HTTP with a fake LLM client (`
 1. Create an API key in the Anthropic Console for this project only (not your main one).
 2. Set a **monthly spend limit of $10** on that account/workspace in the Console (look under the
    billing/limits settings). This is the hard cap; nothing in the code can replace it.
-3. At the default model (`claude-haiku-5-5`, $0.10 / $0.50 per million tokens) one request costs a
-   small fraction of a cent, so $10 covers tens of thousands of requests. Verify on the Console's
-   usage page after the first few calls.
+3. Check the real cost per request on the Console's usage page after the first few calls (an assistant
+   answer uses about 21k cached input tokens and 1k output tokens, most of it the model's thinking).
 
 ## Deploy
 
@@ -26,8 +25,14 @@ npx vercel --prod              # answer the prompts; root directory = deploy/
 Then in the Vercel dashboard: Project → Settings → Environment Variables → add
 `ANTHROPIC_API_KEY` (Production). Redeploy once so the function sees it. Do not paste the key anywhere else.
 
+**Access code (recommended for a public link):** add `HICP_ACCESS_CODE` (Production, type Secret) with a
+code of your choice, at least 12 characters, and redeploy. The dashboard stays public. The assistant, "Explain
+this" and the sentence box ask for the code once per browser tab, and without it no paid call is made (D45).
+Send the code together with the link.
+
 Optional variables: `HICP_NL_MODEL` (default `claude-haiku-5-5`), `HICP_NL_PER_MINUTE` (default 6),
-`HICP_NL_PER_DAY_INSTANCE` (default 200).
+`HICP_NL_PER_DAY_INSTANCE` (default 200); for the assistant `HICP_ASK_MODEL`, `HICP_ASK_PER_MINUTE` (default 6),
+`HICP_ASK_PER_DAY_INSTANCE` (default 300).
 
 ## Limits to know
 

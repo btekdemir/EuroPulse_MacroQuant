@@ -752,14 +752,42 @@
     else if (el("nl-status").textContent === t("nl_live_off")) el("nl-status").textContent = "";
   }
 
+  // ---- every paid API call goes through here: adds the access code (if the site has one) and, on a
+  // "code required" answer, opens the code box in the Ask panel. The code lives in this tab only.
+  let accessCode = "";
+  try { accessCode = sessionStorage.getItem("hicp.code") || ""; } catch (e) { /* storage blocked */ }
+  async function apiPost(url, payload) {
+    let r, body = {};
+    try {
+      r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(accessCode ? Object.assign({}, payload, { access_code: accessCode }) : payload) });
+      try { body = await r.json(); } catch (e) { /* non-JSON error page */ }
+    } catch (e) { r = { ok: false, status: 0 }; }
+    if (r.status === 401 && body.code_required) {
+      accessCode = ""; try { sessionStorage.removeItem("hicp.code"); } catch (e) { /* ignore */ }
+      el("ask-code-row").hidden = false;
+      if (el("ask-panel").hidden) askToggle(true, "ask-fab");
+      el("ask-code").focus();
+      body = Object.assign({}, body, { error: t("code_needed") });
+    }
+    return { r, body };
+  }
+  function unlock() {
+    const v = el("ask-code").value.trim();
+    if (!v) return;
+    accessCode = v; try { sessionStorage.setItem("hicp.code", v); } catch (e) { /* ignore */ }
+    el("ask-code").value = ""; el("ask-code-row").hidden = true;
+    el("ask-status").textContent = t("code_saved");
+    el("ask-text").focus();
+  }
+
   async function nlInterpret() {
     const text = el("nl-text").value.trim();
     if (!text) return;
     if (!liveOk()) { el("nl-status").textContent = t("nl_live_off"); return; }
     el("nl-status").textContent = t("nl_busy"); el("nl-go").disabled = true; el("nl-confirm").hidden = true;
     try {
-      const r = await fetch("/api/scenario", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) });
-      let body = {}; try { body = await r.json(); } catch (e) { /* non-JSON error page */ }
+      const { r, body } = await apiPost("/api/scenario", { text });
       if (!r.ok || !body.scenario) {
         el("nl-status").textContent = [404, 405, 501].includes(r.status) ? t("nl_live_off") : (body.error || `${t("nl_failed")} (${r.status})`);
         return;
@@ -1415,11 +1443,7 @@ ${note}
 
   async function askScenario(q) {
     el("ask-status").textContent = t("ask_building");
-    let body = {}, r;
-    try {
-      r = await fetch("/api/scenario", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: q }) });
-      try { body = await r.json(); } catch (e) { /* non-JSON error page */ }
-    } catch (e) { r = { ok: false, status: 0 }; }
+    const { r, body } = await apiPost("/api/scenario", { text: q });
     el("ask-status").textContent = "";
     if (!r.ok || !body.scenario) {
       askPendingWhatIf = r.status === 422 ? q : null;
@@ -1527,9 +1551,7 @@ ${note}
     askPendingWhatIf = null;
     el("ask-status").textContent = t("ask_busy");
     try {
-      const r = await fetch("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(Object.assign({ question: q, history: askHist.slice(-4) }, extra || {})) });
-      let body = {}; try { body = await r.json(); } catch (e) { /* non-JSON error page */ }
+      const { r, body } = await apiPost("/api/ask", Object.assign({ question: q, history: askHist.slice(-4) }, extra || {}));
       el("ask-status").textContent = "";
       if (!r.ok) { askLog(node("div", { class: "ask-msg bot muted" }, body.error || `${t("ask_failed")} (${r.status})`)); return; }
       if (!body.verified) { askLog(node("div", { class: "ask-msg bot muted" }, t("ask_unverified"))); return; }
@@ -1551,6 +1573,7 @@ ${note}
 
   function renderAsk() {
     el("ask-text").placeholder = t("ask_placeholder");
+    el("ask-code").placeholder = t("code_placeholder");
     el("ask-fab").setAttribute("aria-label", t("ask_title")); el("ask-fab").title = t("ask_title");
     el("ask-suggest").replaceChildren(...[t("ask_s1"), t("ask_s2"), t("ask_s3"), t("ask_s4")].map((q) => {
       const b = node("button", { type: "button" }, q);
@@ -1578,6 +1601,8 @@ ${note}
   }
   el("ask-open").addEventListener("click", () => askToggle(el("ask-panel").hidden, "ask-open"));
   el("ask-fab").addEventListener("click", () => askToggle(true, "ask-fab"));
+  el("ask-code-go").addEventListener("click", unlock);
+  el("ask-code").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); unlock(); } });
   el("ask-close").addEventListener("click", () => askToggle(false));
   el("ask-go").addEventListener("click", () => askSend());
   el("ask-text").addEventListener("keydown", (e) => {

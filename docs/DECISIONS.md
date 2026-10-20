@@ -625,3 +625,19 @@ Committed to git before the code that runs it. It does not change after the resu
   - Likely reasons: core is very persistent, and the goods and services models (ARP and SM, rolling 120 months) were chosen for the headline, where the bottom-up model does beat the random walk at one month.
 - **Not done, on purpose:** re-selecting a core model after seeing this would be selection on the evaluation sample. The card recommends the last print as the better core forecast and says why. A dedicated core model would need its own pre-committed rule and its own hold-out sample.
 - The assistant knows these facts (`core_*`) and the section. The tour and the demo have a core step; demo titles no longer carry step numbers, since the panel shows "i of n".
+
+## D45. Access code for the paid routes (21 Oct 2026)
+
+- **Why:** the deployed link is public and the Vercel address is guessable. The monthly spend limit caps the loss, but someone could still drain it just before the interview, which would leave the assistant dead during the demo.
+- **What:** if `HICP_ACCESS_CODE` is set (on Vercel, as a Secret), `/api/ask` and `/api/scenario` answer 401 unless the JSON body carries the same `access_code`.
+  - The check is constant-time (`hmac.compare_digest`).
+  - It runs after the per-IP rate limit, so guesses are throttled like any request, and before any LLM call.
+  - If the variable is unset (local runs, tests), the routes stay open.
+- **Page:** every paid call goes through one helper, `apiPost`. On a "code required" answer, the Ask panel opens a password field. The code is kept in `sessionStorage` (this tab only) and sent with later calls. A wrong code clears it and asks again. The dashboard itself never needs the code.
+- **Tested:** `tests/test_access_code.py`.
+  - Missing, wrong and non-string codes give 401, and the LLM client is never called.
+  - The right code gives 200.
+  - With the variable unset, the routes are open.
+  - The 7th wrong guess in a minute gives 429.
+  - Browser, against the real local server started with a test code: the code box appears, a wrong code is refused, and the right one is attached to the next request (that request was answered by a stub, so no paid call was made).
+- `deploy/README.md` no longer quotes a per-token price: it was never verified, so the reader is told to check the Console.

@@ -160,6 +160,7 @@ input[type="range"] { min-width: 160px; }
 .ask-foot .presets[hidden] { display: none; }
 .ask-foot .presets { display: flex; flex-wrap: wrap; gap: 6px; }
 .ask-foot .presets button { font-size: 12px; padding: 4px 8px; }
+.ask-row[hidden] { display: none; }
 .ask-row { display: flex; gap: 6px; align-items: flex-end; }
 .ask-row .nl-text { flex: 1; }
 @media (max-width: 700px) { .ask-panel { right: 8px; left: 8px; bottom: 8px; width: auto; max-height: 75vh; } }
@@ -419,6 +420,9 @@ input[type="range"] { min-width: 160px; }
     <div class="presets" id="ask-suggest"></div>
     <div class="ask-row"><textarea id="ask-text" rows="2" maxlength="400" class="nl-text" aria-labelledby="ask-title"></textarea>
       <button type="button" class="btn tour-primary" id="ask-go" data-i18n="ask_send"></button></div>
+    <div class="ask-row" id="ask-code-row" hidden><input type="password" id="ask-code" class="nl-text" autocomplete="off"
+        aria-labelledby="ask-code-lab"><button type="button" class="btn" id="ask-code-go" data-i18n="code_unlock"></button></div>
+    <span class="note" id="ask-code-lab" hidden data-i18n="code_label"></span>
     <span class="note" id="ask-status" role="status" style="margin:0"></span>
   </div>
 </aside>

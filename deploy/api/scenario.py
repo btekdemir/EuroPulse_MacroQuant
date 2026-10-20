@@ -20,6 +20,7 @@ from http.server import BaseHTTPRequestHandler
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "_lib"))
 
+from hicp import access  # noqa: E402
 from hicp.nl_scenario import NLError, load_basis, parse_request  # noqa: E402
 
 PER_MINUTE = int(os.environ.get("HICP_NL_PER_MINUTE", "6"))
@@ -61,13 +62,16 @@ def handle(raw_body: bytes, ip: str, client=None) -> tuple[int, bytes]:
     if len(raw_body) > MAX_BODY:
         return respond(413, {"error": "Request too large."})
     try:
-        text = json.loads(raw_body or b"{}").get("text", "")
+        req = json.loads(raw_body or b"{}")
+        text = req.get("text", "")
     except (ValueError, AttributeError):
         return respond(400, {"error": "Send JSON like {\"text\": \"gas +40% in Germany\"}."})
     if not isinstance(text, str):
         return respond(400, {"error": "'text' must be a string."})
     if not allow(ip):
         return respond(429, {"error": "Too many requests. Wait a minute."})
+    if not access.allowed(req):  # before any paid call; wrong codes are rate-limited like any request
+        return respond(401, access.DENIED)
     try:
         return respond(200, parse_request(text, _basis_cached(), client=client))
     except NLError as exc:

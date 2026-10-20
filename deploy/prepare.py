@@ -18,7 +18,7 @@ lib = D / "api" / "_lib"
 (lib / "hicp").mkdir(parents=True, exist_ok=True)
 for name in ("shock_basis.json", "ask_facts.json"):
     shutil.copy(ROOT / "outputs" / name, lib / name)
-for name in ("schemas.py", "nl_scenario.py", "numcheck.py", "ask.py"):
+for name in ("schemas.py", "nl_scenario.py", "numcheck.py", "ask.py", "access.py"):
     shutil.copy(ROOT / "src" / "hicp" / name, lib / "hicp" / name)
 (lib / "hicp" / "__init__.py").write_text("")
 print("deploy/ ready:", sorted(str(p.relative_to(D)) for p in D.rglob("*") if p.is_file() and "__pycache__" not in str(p)))

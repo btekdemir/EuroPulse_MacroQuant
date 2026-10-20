@@ -18,6 +18,7 @@ from http.server import BaseHTTPRequestHandler
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "_lib"))
 
+from hicp import access  # noqa: E402
 from hicp.ask import MAX_QUESTION, answer, load_facts  # noqa: E402
 
 PER_MINUTE = int(os.environ.get("HICP_ASK_PER_MINUTE", "6"))
@@ -71,6 +72,8 @@ def handle(raw_body: bytes, ip: str, client=None) -> tuple[int, bytes]:
         history = []
     if not allow(ip):
         return respond(429, {"error": "Too many requests. Wait a minute."})
+    if not access.allowed(req):  # before any paid call; wrong codes are rate-limited like any request
+        return respond(401, access.DENIED)
     try:
         return respond(200, answer(question.strip(), _facts_cached(), client=client, history=history,
                                    chart=req.get("chart"), chart_state=req.get("chart_state"),
