@@ -227,3 +227,21 @@ def test_small_values_may_keep_three_decimals(doc):
     tok = f"{abs(small.value):.3f}"
     r = answer("q", doc, client=FakeClient(draft(f"p = {tok}.", (tok, small.id))), model="m")
     assert r["verified"] and r["attempts"] == 1
+
+
+def test_citation_moves_to_the_month_the_sentence_names(doc):
+    """D63: September's 3.770% and December's 3.774% both read 3.77; the model cited both to December. The check
+    cannot see it, so the citation follows the month named just before the number."""
+    dec, sep = fact(doc, "forecast_h3"), fact(doc, "last_actual")
+    tok = f"{dec.value:.2f}"
+    assert tok == f"{sep.value:.2f}"  # the case only exists while both round alike
+    text = f"The December forecast is {tok}%. Against September's {tok}%, the base effect offsets momentum."
+    r = answer("q", doc, client=FakeClient(draft(text, (tok, "forecast_h3"))), model="m")
+    assert r["verified"] and [n["fact_id"] for n in r["numbers"]] == ["forecast_h3", "last_actual"]
+
+
+def test_a_month_word_without_a_matching_fact_changes_nothing(doc):
+    v = fact(doc, "forecast_h3").value
+    tok = f"{v:.2f}"
+    r = answer("q", doc, client=FakeClient(draft(f"Inflation may stay near {tok}% in December.", (tok, "forecast_h3"))), model="m")
+    assert r["numbers"][0]["fact_id"] == "forecast_h3"

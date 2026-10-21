@@ -978,3 +978,6 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
 - **Scales:** "Germany contributes 0.90 pp … It accounts for 1.41 pp from fuels" mixed two scales: 1.41 pp is fuels' share of Germany's own 3.3%. The prompt now requires keeping them apart.
 - **Not verified live:** the two prompt changes would need paid calls to confirm.
 - **Checked:** Python tests pass, including 2 new rounding tests; end-to-end 153/153.
+- **Paid check of the two prompt changes (2 calls):**
+  - Scales: fixed. The Germany answer now says "0.90 pp to the euro area … from a national rate of 3.26%".
+  - Citations: not fixed by the prompt. September's 3.77% was still cited to December's forecast. So the citation is now corrected in code: if the words just before a number name a month and the cited fact is about another month, the citation moves to the fact for the named month that the number also matches. It runs after the number check and needs no extra call. Two tests replay the case.

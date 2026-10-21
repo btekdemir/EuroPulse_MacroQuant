@@ -387,6 +387,49 @@ def target_decimals(label: str) -> int | None:
     return None
 
 
+# Month words the answers use (English, French, Turkish), longest first so "sept" wins over "sep".
+_MONTHS = {
+    1: ["january", "janvier", "ocak", "jan"], 2: ["february", "février", "fevrier", "şubat", "subat", "feb", "févr"],
+    3: ["march", "mars", "mart", "mar"], 4: ["april", "avril", "nisan", "apr", "avr"], 5: ["may", "mai", "mayıs", "mayis"],
+    6: ["june", "juin", "haziran", "jun"], 7: ["july", "juillet", "temmuz", "jul", "juil"],
+    8: ["august", "août", "aout", "ağustos", "agustos", "aug"], 9: ["september", "septembre", "eylül", "eylul", "sept", "sep"],
+    10: ["october", "octobre", "ekim", "oct"], 11: ["november", "novembre", "kasım", "kasim", "nov"],
+    12: ["december", "décembre", "decembre", "aralık", "aralik", "dec", "déc"]}
+_MONTH_RE = re.compile(r"\b(" + "|".join(sorted({w for ws in _MONTHS.values() for w in ws}, key=len, reverse=True)) + r")\b", re.I)
+_WORD_MONTH = {w: m for m, ws in _MONTHS.items() for w in ws}
+_LABEL_MONTH = re.compile(r"\b\d{4}-(\d{2})\b|\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* \d{4}\b")
+
+
+def _label_month(label: str) -> int | None:
+    m = _LABEL_MONTH.search(label or "")
+    if not m:
+        return None
+    return int(m.group(1)) if m.group(1) else _WORD_MONTH[m.group(2).lower()]
+
+
+def recite_by_month(text: str, nums: list, facts: list) -> list:
+    """When two facts round to the same number (September's 3.770% and December's 3.774%), the model may cite the
+    wrong one; the number check cannot tell. If the words just before a number name a month and the cited fact is
+    about another month, the citation moves to the fact for the named month that the number also matches (D63)."""
+    out, pos = [], 0
+    for n in nums:
+        k = text.find(n.token, pos)
+        if k < 0 or not n.ok or not n.fact_id:
+            out.append(n)
+            continue
+        start = max(text.rfind(".", 0, k - 1) + 1, k - 60, 0)
+        words = _MONTH_RE.findall(text[start:k])
+        pos = k + len(n.token)
+        named = _WORD_MONTH.get(words[-1].lower()) if words else None
+        if named is None or _label_month(n.fact_label or "") in (None, named):
+            out.append(n)
+            continue
+        unit = (n.fact_label or "").rstrip()[-2:]
+        alt = [f for f in facts if _label_month(f.label) == named and f.label.rstrip()[-2:] == unit and matches(n.token, f.value)]
+        out.append(n.model_copy(update={"fact_id": alt[0].id, "fact_label": alt[0].label, "fact_value": alt[0].value}) if alt else n)
+    return out
+
+
 def tidy_numbers(text: str, nums: list) -> tuple[str, list]:
     """Round each checked number to the page's precision, in code: the model rounds unevenly (27.27%, 0.02 for a
     p-value of 0.016), and asking it again costs a call. The value is unchanged, so every number still matches its
@@ -442,6 +485,7 @@ def answer(question: str, doc: AskFacts, client=None, model: str | None = None, 
         else:
             nums, problems = verify(draft.answer, draft.citations, facts)
             if not problems:
+                nums = recite_by_month(draft.answer, nums, facts)
                 text, nums = tidy_numbers(draft.answer, nums)  # rounding is done in code, not by asking again (D63)
                 return {"answerable": draft.answerable, "verified": True, "answer": text,
                         "goto": resolve_goto(draft.goto, draft.goto_country),
