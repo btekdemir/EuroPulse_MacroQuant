@@ -1147,6 +1147,8 @@
   const TOUR_ALL = [
     { key: "answer", tab: "overview", sel: "#answer" },
     { key: "changed", tab: "overview", sel: "#wc-card", self: true },
+    { key: "note", tab: "overview", sel: "#note-title", when: () => !el("note-card").hidden },
+    { key: "prob", tab: "overview", sel: "#t-prob" },
     { key: "fan", tab: "overview", sel: "#p-headline", corner: "left" },  // the fan sits at the right of the chart
     { key: "month", tab: "overview", sel: "#mx-month" },
     { key: "october", tab: "overview", sel: "#oct-in" },
@@ -1158,8 +1160,10 @@
     { key: "shock", tab: "shocks", sel: "#sim-form" },
     { key: "reverse", tab: "shocks", sel: "#rev-card", self: true },
     { key: "heat", tab: "shocks", sel: "#hm-card", self: true },
+    { key: "backtest", tab: "model", sel: "#tbl-bt" },
     { key: "timemachine", tab: "model", sel: "#tm-card", self: true },
     { key: "trust", tab: "model", sel: "#tbl-r2" },
+    { key: "ledger", tab: "model", sel: "#n-led" },
     { key: "ask", tab: "overview", sel: "#ask-open", self: true, when: () => !el("ask-open").hidden },
     { key: "brief", tab: "overview", sel: "#brief-open", self: true },
   ];
@@ -1324,6 +1328,8 @@ ${note}
   const DEMO_ALL = [
     { key: "answer", run: () => { showTab("overview"); window.scrollTo(0, 0); } },
     { key: "changed", run: () => { showTab("overview"); focusCard("#wc-card"); } },
+    { key: "note", when: () => !el("note-card").hidden, run: () => { showTab("overview"); focusCard("#note-card"); } },
+    { key: "prob", run: () => { showTab("overview"); focusCard("#t-prob"); } },
     { key: "fan", run: () => { showTab("overview"); focusCard("#p-headline"); } },
     { key: "month", run: () => { showTab("overview"); el("mx-month").value = "2022-10"; renderMonth(); focusCard("#mx-month"); } },
     { key: "october", run: () => { showTab("overview"); setOct(4.0); focusCard("#oct-in"); } },
@@ -1335,8 +1341,10 @@ ${note}
       showTab("shocks"); scenario = JSON.parse(JSON.stringify(S.presets[1])); scenario.second_round = true; presetIdx = -1; activeLeg = 0;
       refreshAll(); focusCard("#p-shock"); } },
     { key: "reverse", run: () => { showTab("shocks"); focusCard("#rev-card"); } },
+    { key: "backtest", run: () => { showTab("model"); focusCard("#tbl-bt"); } },
     { key: "timemachine", run: () => { showTab("model"); tmIdx = Math.max(0, tmOrigins.indexOf("2022-06")); renderTM(); focusCard("#tm-card"); } },
     { key: "trust", run: () => { showTab("model"); focusCard("#tbl-r2"); } },
+    { key: "ledger", run: () => { showTab("model"); focusCard("#n-led"); } },
     { key: "ask", when: () => !el("ask-open").hidden, run: () => {
       if (el("ask-panel").hidden) askToggle(true, "ask-fab");
       el("ask-text").value = t("demo_ask_q"); } },
@@ -1400,6 +1408,31 @@ ${note}
     p.after(bar);
   });
   window.__chartCsv = chartCsv;  // exposed for the automated check only
+
+  // Tables: every table gets its own CSV (exactly what it shows), and the tables that carry a card on their own
+  // (no chart beside them) also get "Explain this", with the same chart-context mechanism as the charts.
+  const EXPLAIN_TABLES = new Set(["tbl-wc", "tbl-prob", "tbl-oct", "tbl-led", "tbl-bt", "tbl-r2", "tbl-rt", "tbl-sel", "tbl-val", "tbl-vin"]);
+  function tableCsv(w) {
+    const q = (v) => { const s = String(v).replace(/\s+/g, " ").trim(); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+    return [...w.querySelectorAll("tr")].map((tr) => [...tr.children].map((c) => q(c.textContent)).join(",")).join("\n") + "\n";
+  }
+  window.__tableCsv = tableCsv;  // exposed for the automated check only
+  document.querySelectorAll(".tablewrap").forEach((w) => {
+    const bar = node("div", { class: "dl-bar" });
+    const csv = node("button", { type: "button", class: "dl-btn", "data-i18n": "dl_csv_table" });
+    csv.addEventListener("click", () => {
+      if (!w.querySelector("tr")) return;
+      const a = node("a", { href: URL.createObjectURL(new Blob([tableCsv(w)], { type: "text/csv" })), download: w.id.replace(/^tbl-/, "hicp-table-") + ".csv" });
+      document.body.appendChild(a); a.click(); a.remove();
+    });
+    bar.appendChild(csv);
+    if (EXPLAIN_TABLES.has(w.id)) {
+      const ex = node("button", { type: "button", class: "dl-btn ask-explain", "data-i18n": "ask_explain", hidden: true });
+      ex.addEventListener("click", () => askExplain(w));
+      bar.appendChild(ex);
+    }
+    w.after(bar);
+  });
 
   // ------------------------------------------------------------------ dashboard assistant (D34)
   // Answers come from /api/ask, which only uses the pipeline's fact sheet and checks every number against the
@@ -1525,6 +1558,7 @@ ${note}
     if (pid === "p-cp-drivers" || pid === "p-cp-basket") return { state: `country ${geo(cpGeo)} (${cpGeo})`, facts: [] };
     if (pid === "p-ccmp") return { state: `countries ${[...ccSel.keys()].map((g) => `${geo(g)} (${g})`).join(", ") || "none selected"}`, facts: [] };
     if (pid === "p-track") return { state: `horizon ${trackH} months`, facts: [] };  // track-h is a button group, not an input
+    if (EXPLAIN_TABLES.has(pid)) return { state: "", facts: [] };
     return { state: "", facts: [] };
   }
 

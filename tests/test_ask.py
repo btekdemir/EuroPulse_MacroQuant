@@ -179,6 +179,9 @@ def test_every_chart_is_in_the_page_and_maps_to_a_section():
         assert f'id="{pid}"' in page and sec in SECTIONS, pid
     plots = set(re.findall(r'class="plot[^"]*" id="([a-z0-9-]+)"', page))
     assert plots == set(CHARTS)
+    from hicp.ask import TABLES
+    for tid, (sec, _) in TABLES.items():
+        assert f'id="{tid}"' in page and sec in SECTIONS, tid
 
 
 def test_more_than_two_decimals_is_sent_back(doc):

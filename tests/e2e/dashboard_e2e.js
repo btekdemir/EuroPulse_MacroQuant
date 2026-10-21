@@ -222,8 +222,14 @@
     const all = $$(".plot").filter((p) => p.data);
     const bad = all.filter((p) => window.__chartCsv(p).split("\n").length < 3).map((p) => p.id);
     ok(`CSV for ${all.length} rendered charts`, bad.length === 0, bad.join(","));
-    const ex = $$(".ask-explain"), shown = ex.filter((b) => !b.hidden).length;
-    ok("Explain button under every chart", shown === $$(".plot").length, `${shown}/${$$(".plot").length}`);
+    const plotsWithExplain = $$(".plot").filter((p) => { const b = p.nextElementSibling; return b && [...b.querySelectorAll(".ask-explain")].some((x) => !x.hidden); }).length;
+    ok("Explain button under every chart", plotsWithExplain === $$(".plot").length, `${plotsWithExplain}/${$$(".plot").length}`);
+    const tw = $$(".tablewrap"), noCsv = tw.filter((w) => !(w.nextElementSibling && w.nextElementSibling.classList.contains("dl-bar"))).map((w) => w.id);
+    ok(`table CSV button on all ${tw.length} tables`, noCsv.length === 0, noCsv.join(","));
+    const emptyCsv = tw.filter((w) => w.querySelector("tr") && window.__tableCsv(w).split("\n").length < 3).map((w) => w.id);
+    ok("table CSVs have rows", emptyCsv.length === 0, emptyCsv.join(","));
+    const tex = ["tbl-wc", "tbl-bt", "tbl-led", "tbl-r2", "tbl-val"].filter((id) => !el(id).nextElementSibling.querySelector(".ask-explain:not([hidden])"));
+    ok("Explain on table-only cards", tex.length === 0, tex.join(","));
   });
 
   // ---------------------------------------------------------------- H. assistant (stubbed)

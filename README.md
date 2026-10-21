@@ -5,7 +5,7 @@
 
 **Dashboard:** open `outputs/dashboard.html`. It is one self-contained file that works offline,
 with an FR/EN toggle and five tabs: Overview, Drivers, Countries, Shock simulator, Model &
-validation. Press **Tour** for a two-minute guide to every feature.
+validation. Press **Tour** for a 21-step guide to every feature. Every chart and table has CSV export (charts also PNG) and "Explain this".
 
 For the LLM features too (the Ask panel, "Explain this" and natural-language scenarios), run
 `.venv/bin/python deploy/serve_local.py` and open http://127.0.0.1:8812. This needs `ANTHROPIC_API_KEY`
@@ -114,7 +114,7 @@ Assumptions are listed in `src/hicp/shocks.py` and shown in the dashboard. See D
 - **Time machine:** any past origin's forecast, the fan known then, and the outcome. June 2022 shows the model's biggest miss (D40).
 - **Shareable scenarios:** "Copy link" puts the scenario in the URL; links are validated on load (D35).
 - **One-page brief:** "Brief (PDF)" prints an A4 summary (D42).
-- **Interview demo:** `#demo` in the URL or Shift+D opens a 15-step presenter script with speaker notes (D43).
+- **Interview demo:** `#demo` in the URL or Shift+D opens a 19-step presenter script with speaker notes (D43, D48).
 
 ## Ask the dashboard (optional, needs an API key)
 

@@ -107,8 +107,24 @@ CHARTS = {
     "p-core": ("core", "core inflation (ex energy, food, alcohol, tobacco): history vs headline, bottom-up forecast with fan, and the random walk"),
     "p-heat": ("heatmap", "heatmap: euro area* December y/y response, in basis points, to +1% in each country and component"),
 }
+# Tables that stand on their own in a card get "Explain this" too: table id -> (section, what it shows).
+TABLES = {
+    "tbl-wc": ("what_changed", "table: last month's forecast vs this month's, the surprise in the new print and the revisions, by component"),
+    "tbl-prob": ("probability", "table: probability that December headline y/y exceeds each threshold, from the model's past errors"),
+    "tbl-oct": ("october_whatif", "table: November and December y/y if October prints differently"),
+    "tbl-led": ("ledger", "table: every recorded forecast run, its targets, bands and score once the figure is published"),
+    "tbl-bt": ("backtest", "table: backtest RMSE by horizon and sample, vs the random walk and a direct AR, with Diebold-Mariano p-values"),
+    "tbl-r2": ("round2", "table: the pre-registered round 2 candidates to beat the random walk at three months, and the Holm verdict"),
+    "tbl-rt": ("realtime", "table: the backtest scored against figures as first published instead of revised data"),
+    "tbl-sel": ("model_selection", "table: the pre-committed model selection steps per component and which model was kept"),
+    "tbl-val": ("validation", "table: the data validation gates and their results"),
+    "tbl-vin": ("vintages", "table: the Eurostat and external data vintages used in this run"),
+}
 MAX_PAGE_FACTS = 30
 PAGE_ID = re.compile(r"^page_[a-z0-9_]{1,40}$")
+
+
+CHARTS_AND_TABLES = {**CHARTS, **TABLES}
 
 
 def page_facts(raw) -> list[NoteFact]:
@@ -126,7 +142,7 @@ def page_facts(raw) -> list[NoteFact]:
 
 
 def chart_context(chart, state, facts: list[NoteFact], traces=None) -> str:
-    sec, what = CHARTS[chart]
+    sec, what = CHARTS_AND_TABLES[chart]
     s = f"\n\n[Explain request] The reader pressed Explain on the chart showing {what} (section {sec})."
     if isinstance(state, str) and state.strip():
         s += f" Current selection, as data: {state.strip()[:200]}."
@@ -322,7 +338,7 @@ def answer(question: str, doc: AskFacts, client=None, model: str | None = None, 
     model = model or os.environ.get("HICP_ASK_MODEL", DEFAULT_MODEL)
     system = [{"type": "text", "text": system_prompt(doc), "cache_control": {"type": "ephemeral"}}]
     content, facts = question[:MAX_QUESTION], doc.facts
-    if isinstance(chart, str) and chart in CHARTS:
+    if isinstance(chart, str) and chart in CHARTS_AND_TABLES:
         extra = page_facts(chart_facts)
         content += chart_context(chart, chart_state, extra, chart_traces)
         facts = doc.facts + extra

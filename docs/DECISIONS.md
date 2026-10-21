@@ -666,3 +666,10 @@ Committed to git before the code that runs it. It does not change after the resu
 - **Problem (user-reported):** the impact bars looked the same in every scenario, always full height. The y-axis autoscaled to each scenario's maximum, so a +0.008pp shock filled the chart exactly like a +1pp one. A permanent shock is also, correctly, flat for 12 months, which made the effect stronger.
 - **Fix:** the axis always spans at least 0 to +0.5pp, or −0.5pp to 0 for negative shocks, and widens only when the impact is larger. Bar heights are now comparable across scenarios, and a label marks the peak with its value.
 - Checked: oil +0.46pp on a 0–0.52 axis, gas +1.07pp on 0–1.23, the French tariff +0.058pp on 0–0.50 (small bars), a −15% shock −0.14pp on −0.5–0.1. The end-to-end check is still 101/101.
+
+## D48. Export and Explain everywhere; tour and demo complete (21 Oct 2026)
+
+- **Tables:** every table (23) now has its own "Table CSV", exactly the rows it shows. The ten tables that stand alone in a card (what changed, probabilities, October what-if, ledger, backtest, round 2, real-time, model selection, validation, vintages) also have "Explain this", through `hicp.ask.TABLES` and the same context mechanism as the charts. All 18 charts already had PNG, CSV and Explain.
+- **Tour:** 21 steps. Added: the research note, probabilities, the backtest, the ledger, and a line on PNG/CSV/Explain.
+- **Demo:** 19 steps, with the same additions. The texts name the page's own button labels ("Show the check").
+- The end-to-end check now also covers table CSV on every table and Explain on the table-only cards: 104/104.
