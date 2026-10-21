@@ -765,20 +765,24 @@
     } catch (e) { r = { ok: false, status: 0 }; }
     if (r.status === 401 && body.code_required) {
       accessCode = ""; try { sessionStorage.removeItem("hicp.code"); } catch (e) { /* ignore */ }
-      el("ask-code-row").hidden = false;
-      if (el("ask-panel").hidden) askToggle(true, "ask-fab");
-      el("ask-code").focus();
+      if (url === "/api/scenario" && !el("ask-panel").contains(document.activeElement) && el("ask-panel").hidden) {
+        el("nl-code-row").hidden = false; el("nl-code").focus();  // ask right under the sentence box
+      } else {
+        el("ask-code-row").hidden = false;
+        if (el("ask-panel").hidden) askToggle(true, "ask-fab");
+        el("ask-code").focus();
+      }
       body = Object.assign({}, body, { error: t("code_needed") });
     }
     return { r, body };
   }
-  function unlock() {
-    const v = el("ask-code").value.trim();
+  function unlock(fromSentenceBox) {
+    const inp = el(fromSentenceBox ? "nl-code" : "ask-code"), v = inp.value.trim();
     if (!v) return;
     accessCode = v; try { sessionStorage.setItem("hicp.code", v); } catch (e) { /* ignore */ }
-    el("ask-code").value = ""; el("ask-code-row").hidden = true;
-    el("ask-status").textContent = t("code_saved");
-    el("ask-text").focus();
+    inp.value = ""; el("ask-code-row").hidden = true; el("nl-code-row").hidden = true;
+    if (fromSentenceBox) nlInterpret();  // retry the sentence straight away
+    else { el("ask-status").textContent = t("code_saved"); el("ask-text").focus(); }
   }
 
   async function nlInterpret() {
@@ -1617,7 +1621,7 @@ ${note}
 
   function renderAsk() {
     el("ask-text").placeholder = t("ask_placeholder");
-    el("ask-code").placeholder = t("code_placeholder");
+    el("ask-code").placeholder = t("code_placeholder"); el("nl-code").placeholder = t("code_placeholder");
     el("ask-fab").setAttribute("aria-label", t("ask_title")); el("ask-fab").title = t("ask_title");
     el("ask-suggest").replaceChildren(...[t("ask_s1"), t("ask_s2"), t("ask_s3"), t("ask_s4")].map((q) => {
       const b = node("button", { type: "button" }, q);
@@ -1645,8 +1649,10 @@ ${note}
   }
   el("ask-open").addEventListener("click", () => askToggle(el("ask-panel").hidden, "ask-open"));
   el("ask-fab").addEventListener("click", () => askToggle(true, "ask-fab"));
-  el("ask-code-go").addEventListener("click", unlock);
-  el("ask-code").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); unlock(); } });
+  el("ask-code-go").addEventListener("click", () => unlock(false));
+  el("ask-code").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); unlock(false); } });
+  el("nl-code-go").addEventListener("click", () => unlock(true));
+  el("nl-code").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); unlock(true); } });
   el("ask-close").addEventListener("click", () => askToggle(false));
   el("ask-go").addEventListener("click", () => askSend());
   el("ask-text").addEventListener("keydown", (e) => {

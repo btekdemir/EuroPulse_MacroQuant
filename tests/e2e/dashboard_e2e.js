@@ -265,6 +265,7 @@
     ok("track chart sends its horizon", /horizon \d/.test(s), s);
   });
   await step("assistant: access code flow", async () => {
+    await sleep(1000);  // let the previous request finish: the page rightly refuses a new one while busy
     stubMode = "locked"; sent.length = 0;
     try { sessionStorage.removeItem("hicp.code"); } catch (e) { /* ignore */ }
     setVal(el("ask-text"), "Stub question"); el("ask-go").click(); await sleep(500);
