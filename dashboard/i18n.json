@@ -780,7 +780,15 @@
   "ask_checked_1": "1 number checked against the dashboard · {model}",
   "sim_rat_edit": "scenario rationale (saved in the shared link)",
   "sim_rat_ph": "Why this scenario? What event or assumption does it represent?",
-  "sim_leg_head": "Shock {n}: what it hits, where, how much and when"
+  "sim_leg_head": "Shock {n}: what it hits, where, how much and when",
+  "map_title_yoy": "Inflation across the euro area, % y/y, {date}",
+  "map_title_con": "Who drives the euro area rate: contribution, pp, {date}",
+  "map_mode_yoy": "Country rate, % y/y",
+  "map_mode_con": "Contribution to the euro area, pp",
+  "map_h_yoy": "y/y",
+  "map_h_con": "contribution to the euro area",
+  "map_ecb": "2% (ECB)",
+  "map_note": "Euro area members coloured, neighbours grey. A country's contribution is its weight times its rate, so large economies dominate it. Click a country to open its profile below; Malta, Cyprus and Luxembourg are small on the map, so the panels below list every member too. Outlines: Natural Earth."
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -1563,6 +1571,14 @@
   "ask_checked_1": "1 chiffre vérifié · {model}",
   "sim_rat_edit": "justification du scénario (enregistrée dans le lien partagé)",
   "sim_rat_ph": "Pourquoi ce scénario ? Quel événement ou hypothèse représente-t-il ?",
-  "sim_leg_head": "Choc {n} : ce qu'il touche, où, de combien et quand"
+  "sim_leg_head": "Choc {n} : ce qu'il touche, où, de combien et quand",
+  "map_title_yoy": "L'inflation dans la zone euro, % sur un an, {date}",
+  "map_title_con": "Qui fait l'inflation de la zone euro : contribution, pt, {date}",
+  "map_mode_yoy": "Taux national, % sur un an",
+  "map_mode_con": "Contribution à la zone euro, pt",
+  "map_h_yoy": "sur un an",
+  "map_h_con": "contribution à la zone euro",
+  "map_ecb": "2 % (BCE)",
+  "map_note": "Membres de la zone euro en couleur, voisins en gris. La contribution d'un pays est son poids multiplié par son taux : les grandes économies dominent. Cliquez sur un pays pour ouvrir son profil ; Malte, Chypre et le Luxembourg sont petits sur la carte, les panneaux ci-dessous listent aussi chaque membre. Contours : Natural Earth."
  }
 }

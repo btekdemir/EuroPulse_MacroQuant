@@ -708,7 +708,59 @@
     }), [1, 2]);
   }
 
+  // ------------------------------------------------------------------ euro area map (D66)
+  // Euro area members coloured by their latest y/y rate or their contribution to the euro area rate; neighbours in
+  // pale grey for context. Outlines are embedded (Natural Earth 1:50m via tools/make_europe_geo.py), so the map
+  // needs no network. Click a member to open its profile.
+  let mapMode = "yoy", mapBound = false;
+  // Plotly fetches its world outline from cdn.plot.ly for any geo chart, even with the base map off. An empty
+  // outline registered up front means it never asks, so the map works offline (D66).
+  window.PlotlyGeoAssets = window.PlotlyGeoAssets || { topojson: {} };
+  window.PlotlyGeoAssets.topojson.world_110m = window.PlotlyGeoAssets.topojson.world_110m || { type: "Topology", arcs: [],
+    objects: Object.fromEntries(["land", "ocean", "lakes", "rivers", "coastlines", "countries", "subunits"].map((k) => [k, { type: "GeometryCollection", geometries: [] }])) };
+  function renderMap() {
+    const n = C.dates.length - 1, date = C.dates[n], G = D.geo;
+    const ea = G.features.filter((f) => f.properties.ea && C.yoy[f.id]).map((f) => f.id);
+    const other = G.features.filter((f) => !f.properties.ea).map((f) => f.id);
+    const yoyOf = (g) => C.yoy[g][n], conOf = (g) => C.contributions[g][n];
+    const val = mapMode === "yoy" ? yoyOf : conOf;
+    const zs = ea.map(val), hi = Math.max(...zs), lo = mapMode === "yoy" ? Math.min(2, ...zs) : Math.min(0, ...zs);  // y/y scale starts at the ECB's 2%
+    el("t-map").textContent = t(mapMode === "yoy" ? "map_title_yoy" : "map_title_con", { date: monthLabel(date) });
+    const seg = el("map-mode"); seg.replaceChildren();
+    [["yoy", "map_mode_yoy"], ["con", "map_mode_con"]].forEach(([k, key]) => {
+      const b = node("button", { type: "button" }, t(key)); b.setAttribute("aria-pressed", String(k === mapMode));
+      b.addEventListener("click", () => { mapMode = k; renderMap(); }); seg.appendChild(b);
+    });
+    const tick = mapMode === "yoy" ? { tickvals: [lo, 2, hi].filter((v, i, a) => a.indexOf(v) === i && v >= lo && v <= hi).sort((x, y) => x - y) } : {};
+    if (tick.tickvals) tick.ticktext = tick.tickvals.map((v) => (v === 2 ? t("map_ecb") : fmt(v, 1) + "%"));
+    const line = { color: css("--surface-1"), width: 0.8 };
+    plot("p-map", [
+      { type: "choropleth", geojson: G, featureidkey: "id", locations: other, z: other.map(() => 0), showscale: false,
+        colorscale: [[0, css("--surface-2")], [1, css("--surface-2")]], marker: { line: { color: css("--border"), width: 0.6 } },
+        hoverinfo: "skip", meta: { csv: false } },
+      { type: "choropleth", geojson: G, featureidkey: "id", locations: ea, z: zs, zmin: lo, zmax: hi,
+        colorscale: [[0, css("--band68")], [1, css("--accent")]], marker: { line },
+        customdata: ea.map((g) => [geo(g), yoyOf(g), conOf(g)]), name: t(mapMode === "yoy" ? "map_mode_yoy" : "map_mode_con"),
+        hovertemplate: `<b>%{customdata[0]}</b><br>${t("map_h_yoy")}: %{customdata[1]:.1f}%<br>${t("map_h_con")}: %{customdata[2]:.2f} ${t("pp")}<extra></extra>`,
+        colorbar: Object.assign({ thickness: 10, len: 0.7, ticksuffix: mapMode === "yoy" ? "" : " " + t("pp"),
+          tickfont: { color: css("--text-secondary"), size: 11 } }, tick) },
+    ], baseLayout({ hovermode: "closest", margin: { l: 0, r: 0, t: 0, b: 0 },
+      geo: { visible: false, projection: { type: "azimuthal equal area", rotation: { lon: 12, lat: 52 } },
+        lonaxis: { range: [-12, 34] }, lataxis: { range: [34.5, 70] }, bgcolor: "rgba(0,0,0,0)" } }));
+    el("n-map").textContent = t("map_note", { date: monthLabel(date) });
+    if (!mapBound) {
+      el("p-map").on("plotly_click", (ev) => {
+        const g = ev.points && ev.points[0] && ev.points[0].location;
+        if (!g || !C.yoy[g]) return;
+        cpGeo = g; el("cp-country").value = g; renderProfile();
+        el("cp-card").scrollIntoView({ block: "start", behavior: "smooth" });
+      });
+      mapBound = true;
+    }
+  }
+
   function renderCountries() {
+    renderMap();
     renderCompare();
     const n = C.dates.length - 1, date = C.dates[n];
     el("t-cbar").textContent = t("ch_country_bar", { date: monthLabel(date) });
@@ -1912,8 +1964,9 @@ ${note}
     const rows = [["series", "x", "y"]];
     (gd.data || []).forEach((tr, k) => {
       const meta = tr.meta || {};
-      if (meta.csv === false || !tr.x || !tr.y) return;
       const name = meta.csvName || tr.name || `series ${k + 1}`;
+      if (meta.csv !== false && tr.locations && tr.z) { tr.locations.forEach((g, i) => rows.push([name, g, tr.z[i]])); return; }  // maps
+      if (meta.csv === false || !tr.x || !tr.y) return;
       const horiz = tr.orientation === "h";
       for (let i = 0; i < tr.x.length; i++) rows.push([name, horiz ? tr.y[i] : tr.x[i], horiz ? tr.x[i] : tr.y[i]]);
     });
@@ -1945,6 +1998,7 @@ ${note}
     return [...w.querySelectorAll("tr")].map((tr) => [...tr.children].map((c) => q(c.textContent)).join(",")).join("\n") + "\n";
   }
   window.__tableCsv = tableCsv;  // exposed for the automated check only
+  window.__chartCsv = chartCsv;  // likewise
   document.querySelectorAll(".tablewrap").forEach((w) => {
     const bar = node("div", { class: "dl-bar" });
     const csv = node("button", { type: "button", class: "dl-btn", "data-i18n": "dl_csv_table" });
@@ -2096,6 +2150,7 @@ ${note}
         F_("m_mom", `Momentum part of that change, pp`, ex.momentum_pp), F_("m_base", `Base-effect part of that change, pp`, ex.base_effect_pp)] };
     }
     if (pid === "p-cp-drivers" || pid === "p-cp-basket") return { state: `country ${geo(cpGeo)} (${cpGeo})`, facts: [] };
+    if (pid === "p-map") return { state: `map showing ${mapMode === "yoy" ? "each country's y/y rate" : "each country's contribution to the euro area rate"}`, facts: [] };
     if (pid === "p-ccmp") return { state: `countries ${[...ccSel.keys()].map((g) => `${geo(g)} (${g})`).join(", ") || "none selected"}`, facts: [] };
     if (pid === "p-track") return { state: `horizon ${trackH} months`, facts: [] };  // track-h is a button group, not an input
     if (EXPLAIN_TABLES.has(pid)) return { state: "", facts: [] };

@@ -190,6 +190,18 @@
 
   // ---------------------------------------------------------------- D. countries
   await tab("countries");
+  await step("countries: euro area map (D66)", async () => {
+    const m = el("p-map"), ea = m.data[1];
+    ok("all 21 members coloured", ea.locations.length === 21 && ea.z.every(Number.isFinite));
+    ok("no outline fetched from the network", !performance.getEntriesByType("resource").some((r) => /cdn\.plot\.ly|topojson|world_110m/.test(r.name)));
+    ok("CSV lists every member", window.__chartCsv ? window.__chartCsv(m).trim().split("\n").length === 22 : true);
+    const t0 = visibleText(el("t-map"));
+    $("#map-mode button:nth-child(2)").click(); await sleep(300);
+    ok("toggle switches to contributions", visibleText(el("t-map")) !== t0 && el("p-map").data[1].z.some((v) => v < 2));
+    $("#map-mode button:nth-child(1)").click(); await sleep(300);
+    el("p-map").emit("plotly_click", { points: [{ location: "IT" }] }); await sleep(500);
+    ok("clicking a country opens its profile", el("cp-country").value === "IT");
+  });
   await step("countries: compare add/remove keeps colours", async () => {
     const chips = () => $$("#cc-chips label, #cc-chips .chip, #cc-chips > *").length;
     const c0 = chips();

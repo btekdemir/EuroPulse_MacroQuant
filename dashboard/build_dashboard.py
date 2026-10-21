@@ -54,6 +54,9 @@ def build(out_dir: Path) -> Path:
         rn = ResearchNotes.model_validate_json(note.read_text()).model_dump(mode="json")
         rn["stale"] = rn["facts_hash"] != facts_hash(build_facts(out_dir))  # numbers changed since the note was written
         data["research_note"] = rn
+    # Europe outlines for the Countries map (D66), made once by tools/make_europe_geo.py and kept in the repo,
+    # so the page stays one offline file.
+    data["geo"] = json.loads((HERE / "europe_geo.json").read_text())
     data["i18n"] = json.loads((HERE / "i18n.json").read_text())
     missing = set(data["i18n"]["en"]) ^ set(data["i18n"]["fr"])
     if missing:

@@ -1018,3 +1018,17 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
   - The site sends `Cache-Control: max-age=0, must-revalidate` and Vercel replaces its copy on every deploy, so after a redeploy every new visit gets the new page.
   - A phone browser may still show a tab restored from memory until it is reloaded.
 - **Checked:** Python tests pass; end-to-end 160/160 (3 new).
+
+## D66. A euro area map on the Countries tab (22 Oct 2026)
+
+- **What:**
+  - A map of Europe at the top of the Countries tab. Euro area members are coloured by their latest y/y rate or, with a toggle, by their contribution to the euro area rate; neighbours are pale grey.
+  - Hover shows both numbers; a click opens the country's profile.
+  - It is a Europe map, not a world map: only the 21 members have data.
+- **Colour:** one hue from light to dark (the existing band and accent colours, no new palette). The y/y scale starts at the ECB's 2%, labelled on the legend.
+- **Outlines:**
+  - Natural Earth 1:50m admin-0 (public domain), taken once from the world-atlas@2.0.2 npm package. `tools/make_europe_geo.py` keeps the members and neighbours, drops far territories (French Guiana, the Canaries), simplifies the lines and writes `dashboard/europe_geo.json` (57 KB, committed). The 1:50m set is used because the coarser one drops Malta.
+  - Plotly fetches its own world outline from cdn.plot.ly for any map, even with the base map off. An empty outline is registered first, so the page makes no network request and still works offline.
+- **Small members:** Malta, Cyprus and Luxembourg are hard to see and click on a map. The note says so, and the panels and table below still list every member.
+- **Wired in:** PNG/CSV (the CSV lists all 21 members), "Explain this", the assistant's "Go to" (section `country_map`).
+- **Checked:** Python tests pass; end-to-end 165/165 (5 new, including "no outline fetched from the network").
