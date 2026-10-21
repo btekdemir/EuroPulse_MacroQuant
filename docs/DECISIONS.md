@@ -1057,3 +1057,4 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
 - **Files:** `docs/europulse_logo.svg` and `.png` (512 px) are there for the deck.
 - **Also named:** the README title and the assistant's description of itself.
 - **Checked:** Python tests pass; end-to-end 165/165.
+- **Tour:** each step now scrolls to the top of its section, not the centre. Centring tall sections (the simulator, the country panels) cut off their headings. Checked all 8 steps: each heading sits at the top and the tour box never covers it.

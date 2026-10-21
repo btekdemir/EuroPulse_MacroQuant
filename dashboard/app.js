@@ -1778,11 +1778,9 @@
     el("tour-shade").hidden = false;
     el("tour-box").hidden = false;
     el("tour-banner").hidden = true;
-    // If the target and the box fit together, put the target at the top with the box underneath;
-    // otherwise centre the target and park the box in a corner (tourPlace).
-    const th = tourEl.getBoundingClientRect().height, bh = el("tour-box").offsetHeight;
-    if (innerWidth > 700 && th + bh + 40 < innerHeight) window.scrollBy(0, tourEl.getBoundingClientRect().top - 16);
-    else tourEl.scrollIntoView({ block: "center" });
+    // Always bring the start of the section to the top (D68): centring a tall section cut off its heading.
+    // tourPlace puts the box underneath when it fits, otherwise in a bottom corner.
+    window.scrollBy(0, tourEl.getBoundingClientRect().top - 16);
     requestAnimationFrame(tourPlace);
     el("tour-next").focus({ preventScroll: true });
   }
