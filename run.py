@@ -26,6 +26,7 @@ from hicp import backtest as bt  # noqa: E402
 from hicp import ledger  # noqa: E402
 from hicp.round2 import run_round2  # noqa: E402
 from hicp.round3 import run_round3  # noqa: E402
+from hicp.round4 import run_round4  # noqa: E402
 from hicp import calibration, realtime  # noqa: E402
 from hicp.clean import clean_all  # noqa: E402
 from hicp.config import ROOT, load_settings  # noqa: E402
@@ -38,7 +39,7 @@ from hicp.outlook import build_outlook, what_changed  # noqa: E402
 from hicp.passthrough import estimate_all  # noqa: E402
 from hicp.shocks import build_basis, make_presets  # noqa: E402
 from hicp.schemas import (CoreView, WhatChanged, BacktestMetrics, CalibrationReport, DataVintage, Forecast, RealtimeReport,  # noqa: E402
-                          Round2Report, Round3Report, RunManifest, SelectionStep,
+                          Round2Report, Round3Report, Round4Report, RunManifest, SelectionStep,
                           export_json_schemas, write_json)
 from hicp.validate import run_all  # noqa: E402
 
@@ -164,6 +165,19 @@ def main() -> int:
     log.info("  seasonal naive vs no-change max gap %.2e pp; candidate: %s", r3["naive_equals_rw_max_gap"],
              r3["candidate"] or "none (nothing changes, as D56 says)")
 
+    log.info("round 4 (pre-registered, D57): bottom-up variants")
+    r4 = run_round4(inp, res)
+    write_json(Round4Report(rule=ROUND4_RULE, holm=r4["holm"], best_passing=r4["best_passing"], adopted=r4["adopted"], checks=r4["checks"],
+                            origin=r4["origin"], latest=r4["latest"],
+                            metrics=[_nan_to_none(r) for r in r4["metrics"].to_dict("records")]), out / "round4.json")
+    for r in r4["metrics"][(r4["metrics"].h == 3) & (r4["metrics"]["sample"] == "full")].itertuples():
+        log.info("  %-24s h=3 RMSE %.3f vs RW %.3f (ratio %.2f, DM p %.3f; bottom-up %.3f, p %.3f)", r.model, r.rmse, r.rmse_rw,
+                 r.rmse_ratio_vs_rw, r.dm_p, r.rmse_bottom_up, r.dm_p_vs_bottom_up)
+    for d in r4["holm"]:
+        log.info("  Holm %-24s p=%.3f threshold %.4f %s", d["name"], d["p"], d["threshold"], "REJECT" if d["rejected"] else "no")
+    log.info("  checks: %s", {k: f"{v:.2e}" for k, v in r4["checks"].items()})
+    log.info("  adopted: %s", r4["adopted"] or "none (current bottom-up stays, as D57 says)")
+
     log.info("forecast ledger")
     code_version = git_version().removesuffix("-dirty")
     entry, why = ledger.record(outlook, {p.name: p.sha256 for p in pulls}, code_version, s.config_hash(), tree_is_dirty())
@@ -201,6 +215,11 @@ CALIBRATION_RULE = ("Pre-registered (D28, commit e0bfd11): recursive fans, A fix
                     "last 12 known one-month errors; h=3 pinball loss over q=.05/.16/.84/.95; adopt B if lower with DM p<0.05.")
 REALTIME_NOTE = ("D29: forecasts (latest-vintage inputs) scored against first releases as published: legacy prc_hicp_fp "
                  "(ver.1, CP00) to Dec 2025, prc_hicp_fpd from Jan 2026; random walk = last print as first published.")
+
+ROUND4_RULE = ("Pre-registered (D57, commit 6f20491): bottom-up variants B1 core components no-change in y/y, B2 all but "
+               "fuels no-change, B3 all but fuels 0.5 model + 0.5 no-change. DM vs random walk at h=3 on all origins, Holm "
+               "at 5% over B1..B3; passes if rejected with MSE below the random walk; adopted only if it also beats the "
+               "current bottom-up MSE, otherwise nothing changes.")
 
 ROUND3_RULE = ("Pre-registered (D56, commit a55dbf6): M2 SARIMA airline, M3 Elastic Net, M4 histogram gradient boosting, "
                "M5 equal-weight M3+M4; direct change in y/y, expanding window, fixed settings. DM vs random walk at h=3 on "

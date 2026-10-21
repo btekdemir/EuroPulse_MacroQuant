@@ -261,6 +261,22 @@ class Round3Report(Strict):
     latest: dict[str, list[dict[str, Any]]] = Field(description="each model's forecasts from the latest origin")
     metrics: list[Round3Row]
 
+
+class Round4Row(Round3Row):
+    rmse_bottom_up: float
+
+
+class Round4Report(Strict):
+    """Pre-registered round 4 (docs/DECISIONS.md D57): bottom-up variants B1..B3."""
+    rule: str
+    holm: list[HolmStep]
+    best_passing: str | None
+    adopted: str | None = Field(description="Adopted as the published model (passes and beats current bottom-up), or None")
+    checks: dict[str, float] = Field(description="Measurement checks: B0 reproduces bottom-up; no-change keeps component y/y")
+    origin: str
+    latest: dict[str, list[dict[str, Any]]]
+    metrics: list[Round4Row]
+
 # --------------------------------------------------------------------------- calibration (D28) and real time (D29)
 class CalibrationRow(Strict):
     fan: Literal["A", "B", "current"]

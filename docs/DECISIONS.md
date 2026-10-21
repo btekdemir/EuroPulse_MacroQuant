@@ -811,3 +811,21 @@ Written and committed **before any of these variants was run**. Results are repo
 - **Adoption:** the lowest-MSE passing variant is adopted as the published model only if its full-sample MSE at h = 3 is also below the current bottom-up model's. Because it is still bottom-up, the decomposition, fan, shock basis and everything else follow it. Otherwise nothing changes.
 - Also reported, not used for the decision: DM against the current bottom-up model, and the 2010–2019 and 2020-on samples.
 - **Not done:** estimating the shrink weight, choosing components after seeing results, or adding variants.
+- **Results (run after the commit above; reported as they came out):**
+
+  | h = 3, all 198 origins | RMSE, pp | vs RW | DM p vs RW | Holm | vs bottom-up RMSE 0.671 |
+  |---|---|---|---|---|---|
+  | B1 core no-change | **0.632** | 0.79 | 0.016 | **rejects** (threshold 0.0167) | lower (DM p 0.245) |
+  | B3 half-way shrink | 0.653 | 0.82 | 0.041 | no (0.025) | lower |
+  | B2 all but fuel no-change | 0.724 | 0.90 | 0.076 | no (0.05) | higher |
+
+  - B1 passes and has a lower MSE than the current bottom-up model, so the rule says **adopt B1**.
+  - The pass is narrow: p 0.016 against a Holm threshold of 0.0167.
+  - The gain is not from one period: the ratio to the random walk is 0.79 in 2010–2019, 0.79 since 2020 and 0.79 overall, and B1 is also better at h = 1 and h = 2. At h = 1 it beats bottom-up significantly (p 0.043).
+  - Its December forecast is 3.77%, against 3.82% for the current bottom-up model.
+- **Measurement checks** (added after the first run and before adoption; not part of the decision):
+  - B0, which replaces nothing, reproduces the published bottom-up forecasts exactly (603 rows, gap 0).
+  - Under "no change", the core components' forecast y/y equals their y/y at the origin (gap 1.8×10⁻¹³).
+  - A first run failed on a lookup error (last year's month read from a shifted table that ends at the last release). It was fixed before any result existed.
+- **Reading it:** services and goods inflation is persistent enough that last year's monthly pattern beats the seasonal-mean and AR models chosen under D9. This is consistent with the core finding (D44). Energy and food keep their models, which do add information (pump prices, food dynamics).
+- **Adoption:** pending at this commit. Switching the published model changes the forecast, fan, decomposition, shock baseline, ledger and research note, so it is done as a separate, reviewed step.
