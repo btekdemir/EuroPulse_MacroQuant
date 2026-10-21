@@ -19,7 +19,7 @@ import os
 import re
 from pathlib import Path
 
-from hicp.numcheck import matches, verify
+from hicp.numcheck import NUM, matches, verify
 from hicp.schemas import AskFacts, DraftAnswer, NoteFact
 
 DEFAULT_MODEL = "claude-haiku-5-5"
@@ -459,6 +459,22 @@ def tidy_numbers(text: str, nums: list) -> tuple[str, list]:
     return "".join(out), new_nums
 
 
+def _allow_question_numbers(question: str, nums: list, problems: list[str]) -> tuple[list, list[str]]:
+    """A what-if reply may repeat the reader's own numbers ("building gas +30% in Germany"): they are the question,
+    not a claim about the dashboard, so they need no fact. Without this the reply was withheld and the scenario
+    never built (D63). Every other number is still checked."""
+    asked = {m.group(0).replace("−", "-").lstrip("-").replace(",", ".") for m in NUM.finditer(question)}
+    out, echoed = [], set()
+    for n in nums:
+        key = n.token.replace("−", "-").lstrip("-").replace(",", ".")
+        if n.fact_id is None and key in asked:
+            out.append(n.model_copy(update={"ok": True, "fact_label": "from your question", "fact_value": float(key)}))
+            echoed.add(n.token)
+        else:
+            out.append(n)
+    return out, [p for p in problems if not any(p.startswith(f"'{tok}' is in the text but cites no fact") for tok in echoed)]
+
+
 def answer(question: str, doc: AskFacts, client=None, model: str | None = None, history=None,
            chart: str | None = None, chart_state: str | None = None, chart_facts=None, chart_traces=None) -> dict:
     """Returns {answerable, verified, answer, numbers, model, attempts}; ``answer`` is empty when not verified."""
@@ -484,6 +500,8 @@ def answer(question: str, doc: AskFacts, client=None, model: str | None = None, 
             problems = ["The output could not be parsed as the required structure."]
         else:
             nums, problems = verify(draft.answer, draft.citations, facts)
+            if draft.scenario_request and draft.answerable:
+                nums, problems = _allow_question_numbers(question, nums, problems)
             if not problems:
                 nums = recite_by_month(draft.answer, nums, facts)
                 text, nums = tidy_numbers(draft.answer, nums)  # rounding is done in code, not by asking again (D63)

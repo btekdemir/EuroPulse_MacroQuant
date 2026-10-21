@@ -775,7 +775,8 @@
   "nl_applies": "Applies to {c} in {g}, from {m}.",
   "nl_shock_n": "Shock {n}: ",
   "nl_whole_ea": "the whole euro area",
-  "nl_gas_note": "'Gas' is mapped to the electricity & gas component. The size applies to the whole component, so it overstates a change in gas prices alone."
+  "nl_gas_note": "'Gas' is mapped to the electricity & gas component. The size applies to the whole component, so it overstates a change in gas prices alone.",
+  "nl_examples_label": "Or try an example:"
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -1553,6 +1554,7 @@
   "nl_applies": "S'applique à : {c}, en {g}, à partir de {m}.",
   "nl_shock_n": "Choc {n} : ",
   "nl_whole_ea": "toute la zone euro",
-  "nl_gas_note": "« Gaz » correspond à la composante électricité et gaz. La taille s'applique à toute la composante : elle surestime une variation du seul prix du gaz."
+  "nl_gas_note": "« Gaz » correspond à la composante électricité et gaz. La taille s'applique à toute la composante : elle surestime une variation du seul prix du gaz.",
+  "nl_examples_label": "Ou essayez un exemple :"
  }
 }

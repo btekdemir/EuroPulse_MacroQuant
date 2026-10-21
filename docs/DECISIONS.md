@@ -981,3 +981,7 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
 - **Paid check of the two prompt changes (2 calls):**
   - Scales: fixed. The Germany answer now says "0.90 pp to the euro area … from a national rate of 3.26%".
   - Citations: not fixed by the prompt. September's 3.77% was still cited to December's forecast. So the citation is now corrected in code: if the words just before a number name a month and the cited fact is about another month, the citation moves to the fact for the named month that the number also matches. It runs after the number check and needs no extra call. Two tests replay the case.
+- **Paid scenario check (3 requests):**
+  - Chat what-if failed. The reply was withheld after 2 attempts, apparently because it repeated the reader's "30%", which is no dashboard fact; so the scenario was never built. A what-if reply may now repeat numbers from the question (marked "from your question"); every other number is still checked, and a test covers both cases. Not yet re-run live.
+  - French sentence box passed. Readable French names and the gas note appear; size, countries, start and profile are right. The interpreter's other notes ("You wrote", "Assumed…") are still English on the French page.
+- **Sentence box:** Interpret and "Run this scenario" are primary buttons. The example sentences sit below as quiet chips under "Or try an example".

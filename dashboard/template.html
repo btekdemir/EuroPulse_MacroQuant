@@ -195,6 +195,11 @@ input[type="range"] { min-width: 160px; }
 .ask-foot .presets[hidden] { display: none; }
 .ask-foot .presets { display: flex; flex-wrap: wrap; gap: 6px; }
 .ask-foot .presets button { font-size: 12px; padding: 4px 8px; }
+/* Example sentences are suggestions, not actions (D63): small, quiet chips under the primary Interpret button. */
+.ex-label { margin: 10px 0 4px; font-size: 12px; }
+.presets.examples button { font-size: 12.5px; padding: 4px 10px; border-radius: 999px; background: var(--surface-2);
+  border: 1px dashed var(--border); color: var(--text-secondary); }
+.presets.examples button:hover { border-style: solid; border-color: var(--accent); color: var(--text-primary); }
 .ask-row[hidden] { display: none; }
 .ask-row { display: flex; gap: 6px; align-items: flex-end; }
 .ask-row .nl-text { flex: 1; }
@@ -345,14 +350,15 @@ input[type="range"] { min-width: 160px; }
         <h2 data-i18n="nl_title"></h2>
         <p class="note" data-i18n="nl_intro" style="margin:0 0 6px"></p>
         <textarea id="nl-text" rows="2" maxlength="300" class="nl-text"></textarea>
-        <div class="row" style="margin-top:6px"><button class="btn" id="nl-go" type="button" data-i18n="nl_go"></button>
+        <div class="row" style="margin-top:6px"><button class="btn tour-primary" id="nl-go" type="button" data-i18n="nl_go"></button>
           <span class="note" id="nl-status" style="margin:0" role="status"></span></div>
         <div class="ask-row" id="nl-code-row" hidden style="margin-top:6px"><input type="password" id="nl-code" class="nl-text" autocomplete="off" aria-label="Access code">
           <button type="button" class="btn tour-primary" id="nl-code-go" data-i18n="code_unlock"></button></div>
-        <div class="presets" id="nl-examples" style="margin-top:6px"></div>
+        <p class="note ex-label" data-i18n="nl_examples_label"></p>
+        <div class="presets examples" id="nl-examples"></div>
         <div class="assume" id="nl-confirm" hidden>
           <b data-i18n="nl_confirm_title"></b><ul id="nl-lines"></ul>
-          <div class="row" style="margin-top:6px"><button class="btn" id="nl-run" type="button" data-i18n="nl_run"></button>
+          <div class="row" style="margin-top:6px"><button class="btn tour-primary" id="nl-run" type="button" data-i18n="nl_run"></button>
             <span class="note" id="nl-src" style="margin:0"></span></div></div>
         <h2 style="margin-top:16px" data-i18n="sim_presets"></h2><div class="presets" id="presets"></div>
         <h2 style="margin-top:16px" data-i18n="sim_custom"></h2>

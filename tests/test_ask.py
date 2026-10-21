@@ -245,3 +245,16 @@ def test_a_month_word_without_a_matching_fact_changes_nothing(doc):
     tok = f"{v:.2f}"
     r = answer("q", doc, client=FakeClient(draft(f"Inflation may stay near {tok}% in December.", (tok, "forecast_h3"))), model="m")
     assert r["numbers"][0]["fact_id"] == "forecast_h3"
+
+
+def test_what_if_reply_may_repeat_the_question_numbers(doc):
+    """D63: 'building gas +30% in Germany' was withheld because 30 is not a dashboard fact, so the scenario was never
+    built. Numbers from the question are allowed in a what-if reply; any other number is still checked."""
+    q = "What if gas prices rise 30% in Germany from November?"
+    ok_ = answer(q, doc, client=FakeClient(draft("Building gas +30% in Germany in the simulator.", scenario=True)), model="m")
+    assert ok_["verified"] and ok_["scenario_request"] and ok_["attempts"] == 1
+    bad = draft("Gas +30% would add 9.99 pp.", scenario=True)
+    r = answer(q, doc, client=FakeClient(bad, bad), model="m")
+    assert not r["verified"]
+    plain = draft("Gas +30% matters.")  # not a what-if: the question's numbers get no pass
+    assert not answer(q, doc, client=FakeClient(plain, plain), model="m")["verified"]
