@@ -741,3 +741,32 @@ Committed to git before the code that runs it. It does not change after the resu
   - The no-effect and out-of-range cases are handled.
   - JS and Python agree.
 - **Limit:** "smallest" is exact only to first order. The engine's response is close to linear in size, so the result is near-minimal, and the card says "in proportion to its effect".
+
+## D56. Round 3, pre-registered: naive, SARIMA, Elastic Net, gradient boosting, ensemble (22 Oct 2026)
+
+Written and committed **before any of these models was run**. Results are reported whatever they are.
+
+- **Question:** can a direct headline model beat the random walk (no change in y/y) at h = 3, where the bottom-up model's gain is not significant (D14, D27)?
+- **Common setup:**
+  - The same origins as the backtest (every month from 2010-01; targets known up to the last release).
+  - Horizons 1–3; h = 3 is the test.
+  - Expanding window: at origin t, a model trains only on pairs whose target month is ≤ t.
+  - Target: the change in headline y/y from t to t+h; the forecast is y/y_t plus the predicted change.
+- **Features at origin t** (all published by t; nothing from the future):
+  - headline y/y at t, t−1, t−2, t−6, t−12;
+  - each component's y/y at t and its change over the last 3 months (6 + 6);
+  - the base effect, i.e. last year's headline log m/m for the months that drop out (t+1−12 … t+h−12), known at t;
+  - the target's calendar month.
+- **Models (fixed settings, no tuning):**
+  - **M1, naive.** (a) No change in y/y (= the random walk already used). (b) Seasonal naive on the index: next months repeat last year's monthly changes. Algebraically this gives y/y_{t+h} = y/y_t, i.e. M1a. It is computed and checked numerically, and it is not a separate test.
+  - **M2, SARIMA.** The airline model (0,1,1)(0,1,1)_12 on 100·log headline index, fitted at every origin on data from 2002-01. No order search.
+  - **M3, Elastic Net.** Standardised features. `ElasticNetCV` with l1_ratio ∈ {0.1, 0.5, 0.9}, 30 alphas, 5 time-series folds inside the training window, refitted at every origin.
+  - **M4, gradient boosting.** scikit-learn `HistGradientBoostingRegressor`, the same histogram GBDT family as LightGBM. LightGBM itself needs a system OpenMP library, which a clean clone does not have. Settings: max_depth 2, 200 iterations, learning rate 0.05, min_samples_leaf 20, l2_regularization 1.0, no early stopping, random_state 0.
+  - **M5, ensemble.** The equal-weight mean of M3 and M4.
+- **Test and rule (as in D27):**
+  - Diebold–Mariano (HLN, Newey–West h−1) against the random walk at h = 3 on all origins.
+  - Holm at 5% across the family {M2, M3, M4, M5}.
+  - A model "passes" if Holm rejects and its MSE is below the random walk's.
+  - If any passes, the lowest-MSE one is reported as the candidate headline forecast next to the bottom-up one. The decomposition, fan and shock basis stay bottom-up, because only the bottom-up model has components.
+  - If none passes, nothing changes. Also reported, not used for the decision: DM against the current bottom-up model, and the 2010–2019 and 2020-on samples.
+- **Not done, on purpose:** hyperparameter search, feature selection after seeing results, or more model families. All three would be selection on the evaluation sample.
