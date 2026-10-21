@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-10-20T21:22:42.328974Z",
+  "generated_at": "2026-10-21T13:09:07.147693Z",
   "model": "claude-opus-5-5",
   "origin": "2026-09",
-  "facts_hash": "385aab0ff05d2805",
+  "facts_hash": "58c7d519822d3f3a",
   "facts": [
     {
       "id": "last_actual",
@@ -12,37 +12,37 @@
     {
       "id": "forecast_h1",
       "label": "Forecast headline y/y, 2026-10 (h=1), %",
-      "value": 3.7041329590532746
+      "value": 3.778144269083472
     },
     {
       "id": "forecast_h2",
       "label": "Forecast headline y/y, 2026-11 (h=2), %",
-      "value": 3.6766645715796242
+      "value": 3.6895580856292742
     },
     {
       "id": "forecast_h3",
       "label": "Forecast headline y/y, 2026-12 (h=3), %",
-      "value": 3.8157125210701803
+      "value": 3.7735759028955096
     },
     {
       "id": "band68_lo",
       "label": "68% band lower end, 2026-12, %",
-      "value": 3.463226529760197
+      "value": 3.3984852197475606
     },
     {
       "id": "band68_hi",
       "label": "68% band upper end, 2026-12, %",
-      "value": 4.351752306417733
+      "value": 4.2312625809057085
     },
     {
       "id": "band90_lo",
       "label": "90% band lower end, 2026-12, %",
-      "value": 3.1520208222569064
+      "value": 2.998638531993297
     },
     {
       "id": "band90_hi",
       "label": "90% band upper end, 2026-12, %",
-      "value": 5.118500656707064
+      "value": 5.0745349216619235
     },
     {
       "id": "ecb_target",
@@ -52,22 +52,22 @@
     {
       "id": "vs_last_pp",
       "label": "Change in y/y from 2026-09 to 2026-12, pp",
-      "value": 0.04531856961773606
+      "value": 0.003181951443065323
     },
     {
       "id": "vs_target_pp",
       "label": "Forecast 2026-12 minus ECB target, pp",
-      "value": 1.8157125210701803
+      "value": 1.7735759028955096
     },
     {
       "id": "base_effect_pp",
       "label": "Base effect on the change in y/y to 2026-12, pp (known today)",
-      "value": -0.11351963025321574
+      "value": -0.11349658940065353
     },
     {
       "id": "momentum_pp",
       "label": "Momentum effect on the change in y/y to 2026-12, pp (forecast)",
-      "value": 0.1588381998709518
+      "value": 0.11667854084371886
     },
     {
       "id": "contrib_FUEL",
@@ -92,12 +92,12 @@
     {
       "id": "contrib_IGD_NNRG",
       "label": "Contribution of non-energy industrial goods to 2026-12 headline y/y, pp",
-      "value": 0.4315503120179993
+      "value": 0.2880540379457535
     },
     {
       "id": "contrib_SERV",
       "label": "Contribution of services to 2026-12 headline y/y, pp",
-      "value": 1.41685084749573
+      "value": 1.5182073376301386
     },
     {
       "id": "fuel_yoy",
@@ -122,7 +122,7 @@
     {
       "id": "p_above_3",
       "label": "Probability that 2026-12 headline y/y exceeds 3%, %",
-      "value": 96.96969696969697
+      "value": 94.94949494949495
     },
     {
       "id": "threshold_3_5",
@@ -132,7 +132,7 @@
     {
       "id": "p_above_3_5",
       "label": "Probability that 2026-12 headline y/y exceeds 3.5%, %",
-      "value": 81.81818181818183
+      "value": 78.78787878787878
     },
     {
       "id": "threshold_4",
@@ -142,7 +142,7 @@
     {
       "id": "p_above_4",
       "label": "Probability that 2026-12 headline y/y exceeds 4%, %",
-      "value": 35.858585858585855
+      "value": 27.27272727272727
     },
     {
       "id": "threshold_4_5",
@@ -152,7 +152,7 @@
     {
       "id": "p_above_4_5",
       "label": "Probability that 2026-12 headline y/y exceeds 4.5%, %",
-      "value": 12.121212121212121
+      "value": 10.606060606060606
     },
     {
       "id": "threshold_5",
@@ -162,12 +162,12 @@
     {
       "id": "p_above_5",
       "label": "Probability that 2026-12 headline y/y exceeds 5%, %",
-      "value": 6.0606060606060606
+      "value": 6.565656565656567
     },
     {
       "id": "rmse_h1",
       "label": "Bottom-up RMSE, h=1, pp",
-      "value": 0.26661220438073946
+      "value": 0.23174786528410443
     },
     {
       "id": "rmse_rw_h1",
@@ -177,17 +177,17 @@
     {
       "id": "ratio_h1",
       "label": "RMSE ratio vs random walk, h=1",
-      "value": 0.7215128069444555
+      "value": 0.6271620354848212
     },
     {
       "id": "dm_p_h1",
       "label": "Diebold-Mariano p-value vs random walk, h=1",
-      "value": 0.009171788700222555
+      "value": 0.0001785955915822747
     },
     {
       "id": "rmse_h3",
       "label": "Bottom-up RMSE, h=3, pp",
-      "value": 0.6706348302328763
+      "value": 0.6315162454819622
     },
     {
       "id": "rmse_rw_h3",
@@ -197,12 +197,12 @@
     {
       "id": "ratio_h3",
       "label": "RMSE ratio vs random walk, h=3",
-      "value": 0.8376532121223104
+      "value": 0.7887923318144632
     },
     {
       "id": "dm_p_h3",
       "label": "Diebold-Mariano p-value vs random walk, h=3",
-      "value": 0.1395167237709563
+      "value": 0.016289229405117886
     },
     {
       "id": "n_origins",
@@ -212,32 +212,32 @@
     {
       "id": "bias_crisis_h3",
       "label": "Mean forecast error 2020-2023, h=3, pp (forecast minus actual)",
-      "value": -0.6352752227152075
+      "value": -0.37237373819788755
     },
     {
       "id": "coverage_calm_68",
       "label": "Share of 2010-2019 outcomes inside the 68% band (h=3), %",
-      "value": 78.33333333333333
+      "value": 79.16666666666666
     },
     {
       "id": "coverage_crisis_68",
       "label": "Share of 2020-2023 outcomes inside the 68% band (h=3), %",
-      "value": 31.25
+      "value": 35.41666666666667
     },
     {
       "id": "preset_0_peak",
       "label": "Peak impact on headline y/y of the scenario 'Oil supply shock (Brent +30%)', pp",
-      "value": 0.45520799651608645
+      "value": 0.45502323714707127
     },
     {
       "id": "preset_1_peak",
       "label": "Peak impact on headline y/y of the scenario 'European gas price spike', pp",
-      "value": 1.0665997280786774
+      "value": 1.066166817641559
     },
     {
       "id": "preset_2_peak",
       "label": "Peak impact on headline y/y of the scenario 'France regulated electricity tariff +10%', pp",
-      "value": 0.05775490277852868
+      "value": 0.05773146127601431
     },
     {
       "id": "brent_elasticity",
@@ -257,71 +257,78 @@
     {
       "id": "ledger_entries",
       "label": "Forecast runs recorded in the ledger",
-      "value": 2.0
+      "value": 3.0
     }
   ],
   "notes": [
     {
       "lang": "en",
-      "title": "Euro area inflation: headline seen near 3.8% by December, with services and fuels the main drivers",
-      "body": "Euro area headline HICP inflation stood at 3.77% in September. Our bottom-up forecast sees it at 3.7% in October and November before edging up to 3.8% in December. A favourable base effect of -0.11 pp is more than offset by forecast momentum of 0.16 pp. Services (1.4 pp) and fuels (1.3 pp) are the largest contributors in December, with fuel prices up 32.3% y/y.\n\nRisks are skewed towards persistence above the ECB's 2% target. We see a 97% probability that December inflation exceeds 3%, 36% that it exceeds 4% and 6% that it exceeds 5%. The 68% band spans 3.5% to 4.4%. A European gas price spike scenario would add up to 1.1 pp to headline inflation at peak.\n\nAt the three-month horizon, the model's RMSE of 0.67 pp compares with 0.80 pp for a random walk, though the gain is not statistically significant (p-value 0.14). The main limitation is crisis performance: in 2020-2023 forecasts underestimated inflation by 0.64 pp on average, and only 31% of outcomes fell within the 68% band.",
+      "title": "Euro area inflation: headline seen broadly stable near 3.8% into year-end",
+      "body": "We forecast euro area headline HICP inflation at 3.77% y/y in December 2026, essentially unchanged from 3.77% in September (a change of 0.003 pp). A favourable base effect of -0.11 pp is offset by momentum of 0.12 pp. Services (1.52 pp) and fuels (1.30 pp) are the largest contributors, with fuel prices up 32.32% y/y. Inflation would remain 1.77 pp above the ECB's 2% target.\n\nUncertainty is sizeable. The 68% band spans 3.40% to 4.23% and the 90% band 3.00% to 5.075%. We estimate a 94.95% probability that inflation exceeds 3%, 27.27% that it exceeds 4% and 6.6% that it exceeds 5%. On the upside, a European gas price spike scenario would lift headline inflation by up to 1.07 pp at peak.\n\nOver 198 out-of-sample origins, the three-month-ahead RMSE is 0.63 pp versus 0.80 pp for a random walk. The main limitation is crisis performance: in 2020-2023 only 35.42% of outcomes fell inside the 68% band, with a mean forecast error of -0.37 pp.",
       "verified": true,
-      "attempts": 1,
+      "attempts": 2,
       "numbers": [
         {
           "token": "3.77",
-          "fact_id": "last_actual",
-          "fact_label": "Euro area* headline HICP y/y, last published (2026-09), %",
-          "fact_value": 3.7703939514524443,
-          "ok": true
-        },
-        {
-          "token": "3.7",
-          "fact_id": "forecast_h1",
-          "fact_label": "Forecast headline y/y, 2026-10 (h=1), %",
-          "fact_value": 3.7041329590532746,
-          "ok": true
-        },
-        {
-          "token": "3.8",
           "fact_id": "forecast_h3",
           "fact_label": "Forecast headline y/y, 2026-12 (h=3), %",
-          "fact_value": 3.8157125210701803,
+          "fact_value": 3.7735759028955096,
+          "ok": true
+        },
+        {
+          "token": "3.77",
+          "fact_id": "forecast_h3",
+          "fact_label": "Forecast headline y/y, 2026-12 (h=3), %",
+          "fact_value": 3.7735759028955096,
+          "ok": true
+        },
+        {
+          "token": "0.003",
+          "fact_id": "vs_last_pp",
+          "fact_label": "Change in y/y from 2026-09 to 2026-12, pp",
+          "fact_value": 0.003181951443065323,
           "ok": true
         },
         {
           "token": "-0.11",
           "fact_id": "base_effect_pp",
           "fact_label": "Base effect on the change in y/y to 2026-12, pp (known today)",
-          "fact_value": -0.11351963025321574,
+          "fact_value": -0.11349658940065353,
           "ok": true
         },
         {
-          "token": "0.16",
+          "token": "0.12",
           "fact_id": "momentum_pp",
           "fact_label": "Momentum effect on the change in y/y to 2026-12, pp (forecast)",
-          "fact_value": 0.1588381998709518,
+          "fact_value": 0.11667854084371886,
           "ok": true
         },
         {
-          "token": "1.4",
+          "token": "1.52",
           "fact_id": "contrib_SERV",
           "fact_label": "Contribution of services to 2026-12 headline y/y, pp",
-          "fact_value": 1.41685084749573,
+          "fact_value": 1.5182073376301386,
           "ok": true
         },
         {
-          "token": "1.3",
+          "token": "1.30",
           "fact_id": "contrib_FUEL",
           "fact_label": "Contribution of fuels to 2026-12 headline y/y, pp",
           "fact_value": 1.304255386868818,
           "ok": true
         },
         {
-          "token": "32.3",
+          "token": "32.32",
           "fact_id": "fuel_yoy",
           "fact_label": "Fuel prices y/y, 2026-12, %",
           "fact_value": 32.3235535779137,
+          "ok": true
+        },
+        {
+          "token": "1.77",
+          "fact_id": "vs_target_pp",
+          "fact_label": "Forecast 2026-12 minus ECB target, pp",
+          "fact_value": 1.7735759028955096,
           "ok": true
         },
         {
@@ -332,10 +339,52 @@
           "ok": true
         },
         {
-          "token": "97",
+          "token": "68",
+          "fact_id": "band68_level",
+          "fact_label": "Nominal coverage of the inner forecast band, %",
+          "fact_value": 68.0,
+          "ok": true
+        },
+        {
+          "token": "3.40",
+          "fact_id": "band68_lo",
+          "fact_label": "68% band lower end, 2026-12, %",
+          "fact_value": 3.3984852197475606,
+          "ok": true
+        },
+        {
+          "token": "4.23",
+          "fact_id": "band68_hi",
+          "fact_label": "68% band upper end, 2026-12, %",
+          "fact_value": 4.2312625809057085,
+          "ok": true
+        },
+        {
+          "token": "90",
+          "fact_id": "band90_level",
+          "fact_label": "Nominal coverage of the outer forecast band, %",
+          "fact_value": 90.0,
+          "ok": true
+        },
+        {
+          "token": "3.00",
+          "fact_id": "band90_lo",
+          "fact_label": "90% band lower end, 2026-12, %",
+          "fact_value": 2.998638531993297,
+          "ok": true
+        },
+        {
+          "token": "5.075",
+          "fact_id": "band90_hi",
+          "fact_label": "90% band upper end, 2026-12, %",
+          "fact_value": 5.0745349216619235,
+          "ok": true
+        },
+        {
+          "token": "94.95",
           "fact_id": "p_above_3",
           "fact_label": "Probability that 2026-12 headline y/y exceeds 3%, %",
-          "fact_value": 96.96969696969697,
+          "fact_value": 94.94949494949495,
           "ok": true
         },
         {
@@ -346,10 +395,10 @@
           "ok": true
         },
         {
-          "token": "36",
+          "token": "27.27",
           "fact_id": "p_above_4",
           "fact_label": "Probability that 2026-12 headline y/y exceeds 4%, %",
-          "fact_value": 35.858585858585855,
+          "fact_value": 27.27272727272727,
           "ok": true
         },
         {
@@ -360,10 +409,10 @@
           "ok": true
         },
         {
-          "token": "6",
+          "token": "6.6",
           "fact_id": "p_above_5",
           "fact_label": "Probability that 2026-12 headline y/y exceeds 5%, %",
-          "fact_value": 6.0606060606060606,
+          "fact_value": 6.565656565656567,
           "ok": true
         },
         {
@@ -374,38 +423,24 @@
           "ok": true
         },
         {
-          "token": "68",
-          "fact_id": "band68_level",
-          "fact_label": "Nominal coverage of the inner forecast band, %",
-          "fact_value": 68.0,
-          "ok": true
-        },
-        {
-          "token": "3.5",
-          "fact_id": "band68_lo",
-          "fact_label": "68% band lower end, 2026-12, %",
-          "fact_value": 3.463226529760197,
-          "ok": true
-        },
-        {
-          "token": "4.4",
-          "fact_id": "band68_hi",
-          "fact_label": "68% band upper end, 2026-12, %",
-          "fact_value": 4.351752306417733,
-          "ok": true
-        },
-        {
-          "token": "1.1",
+          "token": "1.07",
           "fact_id": "preset_1_peak",
           "fact_label": "Peak impact on headline y/y of the scenario 'European gas price spike', pp",
-          "fact_value": 1.0665997280786774,
+          "fact_value": 1.066166817641559,
           "ok": true
         },
         {
-          "token": "0.67",
+          "token": "198",
+          "fact_id": "n_origins",
+          "fact_label": "Number of out-of-sample forecast origins (h=3)",
+          "fact_value": 198.0,
+          "ok": true
+        },
+        {
+          "token": "0.63",
           "fact_id": "rmse_h3",
           "fact_label": "Bottom-up RMSE, h=3, pp",
-          "fact_value": 0.6706348302328763,
+          "fact_value": 0.6315162454819622,
           "ok": true
         },
         {
@@ -416,24 +451,10 @@
           "ok": true
         },
         {
-          "token": "0.14",
-          "fact_id": "dm_p_h3",
-          "fact_label": "Diebold-Mariano p-value vs random walk, h=3",
-          "fact_value": 0.1395167237709563,
-          "ok": true
-        },
-        {
-          "token": "0.64",
-          "fact_id": "bias_crisis_h3",
-          "fact_label": "Mean forecast error 2020-2023, h=3, pp (forecast minus actual)",
-          "fact_value": -0.6352752227152075,
-          "ok": true
-        },
-        {
-          "token": "31",
+          "token": "35.42",
           "fact_id": "coverage_crisis_68",
           "fact_label": "Share of 2020-2023 outcomes inside the 68% band (h=3), %",
-          "fact_value": 31.25,
+          "fact_value": 35.41666666666667,
           "ok": true
         },
         {
@@ -442,14 +463,21 @@
           "fact_label": "Nominal coverage of the inner forecast band, %",
           "fact_value": 68.0,
           "ok": true
+        },
+        {
+          "token": "-0.37",
+          "fact_id": "bias_crisis_h3",
+          "fact_label": "Mean forecast error 2020-2023, h=3, pp (forecast minus actual)",
+          "fact_value": -0.37237373819788755,
+          "ok": true
         }
       ],
       "problems": []
     },
     {
       "lang": "fr",
-      "title": "Zone euro : l'inflation attendue \u00e0 3,8 % en d\u00e9cembre 2026",
-      "body": "Nous pr\u00e9voyons une inflation globale de 3,8 % sur un an en d\u00e9cembre 2026, contre 3,77 % en septembre, soit une quasi-stabilit\u00e9 (+0,05 pp). Un effet de base favorable (-0,11 pp) est plus que compens\u00e9 par la dynamique des prix (+0,16 pp). Les services (1,42 pp) et les carburants (1,3 pp), dont les prix progressent de 32,3 % sur un an, sont les principaux contributeurs. L'\u00e9cart \u00e0 la cible de la BCE (2 %) resterait de 1,82 pp.\n\nLa probabilit\u00e9 d'un d\u00e9passement de 3 % est estim\u00e9e \u00e0 97 %, celle de 4 % \u00e0 36 % et celle de 5 % \u00e0 6 %. La bande \u00e0 90 % s'\u00e9tend de 3,15 % \u00e0 5,12 %, ce qui traduit une asym\u00e9trie haussi\u00e8re. Un choc sur les prix du gaz europ\u00e9en ajouterait jusqu'\u00e0 1,07 pp.\n\n\u00c0 un mois, le mod\u00e8le surpasse la marche al\u00e9atoire (ratio de RMSE de 0,72) ; \u00e0 trois mois, le gain (0,84) n'est pas statistiquement significatif. Principale limite : sur 2020-2023, seules 31 % des r\u00e9alisations se situaient dans la bande \u00e0 68 %, les pr\u00e9visions ayant sous-estim\u00e9 l'inflation.",
+      "title": "Zone euro : l'inflation resterait \u00e9lev\u00e9e et stable d'ici fin 2026",
+      "body": "Notre mod\u00e8le pr\u00e9voit une inflation globale IPCH de 3,8 % en glissement annuel en d\u00e9cembre 2026, contre 3,77 % en septembre. Un effet de base favorable de 0,11 pt serait compens\u00e9 par la dynamique des prix, qui ajouterait 0,12 pt. Les services (1,5 pt) et les carburants (1,3 pt, dont les prix progresseraient de 32,3 % sur un an) resteraient les principaux contributeurs, loin devant l'\u00e9lectricit\u00e9 et le gaz (0,4 pt).\n\nLa probabilit\u00e9 d'un taux sup\u00e9rieur \u00e0 3 % est estim\u00e9e \u00e0 95 %, celle d'un d\u00e9passement de 4 % \u00e0 27 % et celle d'un d\u00e9passement de 5 % \u00e0 6,6 %. La bande \u00e0 68 % s'\u00e9tend de 3,4 % \u00e0 4,2 %. Un choc sur le prix du gaz europ\u00e9en ajouterait jusqu'\u00e0 1,1 pt.\n\nLe mod\u00e8le fait mieux qu'une marche al\u00e9atoire (erreur quadratique moyenne de 0,63 pt contre 0,80 pt \u00e0 trois mois), mais sa principale limite appara\u00eet en p\u00e9riode de crise : en 2020-2023, il a sous-estim\u00e9 l'inflation de 0,37 pt en moyenne et seuls 35 % des r\u00e9alisations se situaient dans la bande \u00e0 68 %.",
       "verified": true,
       "attempts": 2,
       "numbers": [
@@ -457,7 +485,7 @@
           "token": "3,8",
           "fact_id": "forecast_h3",
           "fact_label": "Forecast headline y/y, 2026-12 (h=3), %",
-          "fact_value": 3.8157125210701803,
+          "fact_value": 3.7735759028955096,
           "ok": true
         },
         {
@@ -468,31 +496,24 @@
           "ok": true
         },
         {
-          "token": "0,05",
-          "fact_id": "vs_last_pp",
-          "fact_label": "Change in y/y from 2026-09 to 2026-12, pp",
-          "fact_value": 0.04531856961773606,
-          "ok": true
-        },
-        {
-          "token": "-0,11",
+          "token": "0,11",
           "fact_id": "base_effect_pp",
           "fact_label": "Base effect on the change in y/y to 2026-12, pp (known today)",
-          "fact_value": -0.11351963025321574,
+          "fact_value": -0.11349658940065353,
           "ok": true
         },
         {
-          "token": "0,16",
+          "token": "0,12",
           "fact_id": "momentum_pp",
           "fact_label": "Momentum effect on the change in y/y to 2026-12, pp (forecast)",
-          "fact_value": 0.1588381998709518,
+          "fact_value": 0.11667854084371886,
           "ok": true
         },
         {
-          "token": "1,42",
+          "token": "1,5",
           "fact_id": "contrib_SERV",
           "fact_label": "Contribution of services to 2026-12 headline y/y, pp",
-          "fact_value": 1.41685084749573,
+          "fact_value": 1.5182073376301386,
           "ok": true
         },
         {
@@ -510,17 +531,10 @@
           "ok": true
         },
         {
-          "token": "2",
-          "fact_id": "ecb_target",
-          "fact_label": "ECB inflation target, %",
-          "fact_value": 2.0,
-          "ok": true
-        },
-        {
-          "token": "1,82",
-          "fact_id": "vs_target_pp",
-          "fact_label": "Forecast 2026-12 minus ECB target, pp",
-          "fact_value": 1.8157125210701803,
+          "token": "0,4",
+          "fact_id": "contrib_ELC_GAS",
+          "fact_label": "Contribution of electricity and gas to 2026-12 headline y/y, pp",
+          "fact_value": 0.40552000208288713,
           "ok": true
         },
         {
@@ -531,10 +545,10 @@
           "ok": true
         },
         {
-          "token": "97",
+          "token": "95",
           "fact_id": "p_above_3",
           "fact_label": "Probability that 2026-12 headline y/y exceeds 3%, %",
-          "fact_value": 96.96969696969697,
+          "fact_value": 94.94949494949495,
           "ok": true
         },
         {
@@ -545,10 +559,10 @@
           "ok": true
         },
         {
-          "token": "36",
+          "token": "27",
           "fact_id": "p_above_4",
           "fact_label": "Probability that 2026-12 headline y/y exceeds 4%, %",
-          "fact_value": 35.858585858585855,
+          "fact_value": 27.27272727272727,
           "ok": true
         },
         {
@@ -559,59 +573,66 @@
           "ok": true
         },
         {
-          "token": "6",
+          "token": "6,6",
           "fact_id": "p_above_5",
           "fact_label": "Probability that 2026-12 headline y/y exceeds 5%, %",
-          "fact_value": 6.0606060606060606,
+          "fact_value": 6.565656565656567,
           "ok": true
         },
         {
-          "token": "90",
-          "fact_id": "band90_level",
-          "fact_label": "Nominal coverage of the outer forecast band, %",
-          "fact_value": 90.0,
+          "token": "68",
+          "fact_id": "band68_level",
+          "fact_label": "Nominal coverage of the inner forecast band, %",
+          "fact_value": 68.0,
           "ok": true
         },
         {
-          "token": "3,15",
-          "fact_id": "band90_lo",
-          "fact_label": "90% band lower end, 2026-12, %",
-          "fact_value": 3.1520208222569064,
+          "token": "3,4",
+          "fact_id": "band68_lo",
+          "fact_label": "68% band lower end, 2026-12, %",
+          "fact_value": 3.3984852197475606,
           "ok": true
         },
         {
-          "token": "5,12",
-          "fact_id": "band90_hi",
-          "fact_label": "90% band upper end, 2026-12, %",
-          "fact_value": 5.118500656707064,
+          "token": "4,2",
+          "fact_id": "band68_hi",
+          "fact_label": "68% band upper end, 2026-12, %",
+          "fact_value": 4.2312625809057085,
           "ok": true
         },
         {
-          "token": "1,07",
+          "token": "1,1",
           "fact_id": "preset_1_peak",
           "fact_label": "Peak impact on headline y/y of the scenario 'European gas price spike', pp",
-          "fact_value": 1.0665997280786774,
+          "fact_value": 1.066166817641559,
           "ok": true
         },
         {
-          "token": "0,72",
-          "fact_id": "ratio_h1",
-          "fact_label": "RMSE ratio vs random walk, h=1",
-          "fact_value": 0.7215128069444555,
+          "token": "0,63",
+          "fact_id": "rmse_h3",
+          "fact_label": "Bottom-up RMSE, h=3, pp",
+          "fact_value": 0.6315162454819622,
           "ok": true
         },
         {
-          "token": "0,84",
-          "fact_id": "ratio_h3",
-          "fact_label": "RMSE ratio vs random walk, h=3",
-          "fact_value": 0.8376532121223104,
+          "token": "0,80",
+          "fact_id": "rmse_rw_h3",
+          "fact_label": "Random-walk RMSE, h=3, pp",
+          "fact_value": 0.8006115424946919,
           "ok": true
         },
         {
-          "token": "31",
+          "token": "0,37",
+          "fact_id": "bias_crisis_h3",
+          "fact_label": "Mean forecast error 2020-2023, h=3, pp (forecast minus actual)",
+          "fact_value": -0.37237373819788755,
+          "ok": true
+        },
+        {
+          "token": "35",
           "fact_id": "coverage_crisis_68",
           "fact_label": "Share of 2020-2023 outcomes inside the 68% band (h=3), %",
-          "fact_value": 31.25,
+          "fact_value": 35.41666666666667,
           "ok": true
         },
         {
