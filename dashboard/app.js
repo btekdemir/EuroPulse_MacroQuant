@@ -701,6 +701,67 @@
 
   function refreshAll() { labelForm(); toForm(); renderLegs(); renderShock(); }
 
+  // ---- scenario comparison (D54): the presets plus scenarios the reader saves (kept in this browser), up to four
+  // shown together. Colour follows the scenario, not its position (a slot is held while it stays selected).
+  const CMP_KEY = "hicp.scenarios", CMP_MAX = 4, CMP_SLOTS = ["--s1", "--s2", "--s3", "--s5"];
+  const cmpLoad = () => { try { return JSON.parse(localStorage.getItem(CMP_KEY) || "[]"); } catch (e) { return []; } };
+  const cmpStore = (list) => { try { localStorage.setItem(CMP_KEY, JSON.stringify(list)); return true; } catch (e) { return false; } };
+  let cmpSaved = cmpLoad().filter((x) => x && x.id && x.scenario && ShockEngine.decodeScenario(ShockEngine.encodeScenario(x.scenario), S).scenario);
+  const cmpSel = new Map([["preset-0", 0], ["preset-1", 1]]);  // id -> colour slot
+  let cmpBound = false;
+  const cmpAll = () => [...S.presets.map((p, i) => ({ id: `preset-${i}`, name: p.name, scenario: p, builtin: true })), ...cmpSaved];
+  function cmpToggle(id) {
+    if (cmpSel.has(id)) { cmpSel.delete(id); renderCompare(); return; }
+    if (cmpSel.size >= CMP_MAX) { el("cmp-status").textContent = t("cmp_max", { n: CMP_MAX }); return; }
+    const used = new Set(cmpSel.values()); cmpSel.set(id, [0, 1, 2, 3].find((k) => !used.has(k)));
+    renderCompare();
+  }
+  function cmpSave() {
+    const name = (el("cmp-name").value || scenario.name || "").trim().slice(0, 60) || t("cmp_unnamed");
+    const clean = ShockEngine.decodeScenario(ShockEngine.encodeScenario(Object.assign({}, scenario, { name })), S).scenario;
+    if (!clean) { el("cmp-status").textContent = t("share_bad"); return; }
+    const id = "saved-" + Date.now().toString(36);
+    cmpSaved.push({ id, name, scenario: clean });
+    const persisted = cmpStore(cmpSaved);
+    el("cmp-status").textContent = persisted ? t("cmp_saved", { name }) : t("cmp_saved_session", { name });
+    if (cmpSel.size < CMP_MAX) cmpToggle(id); else renderCompare();
+  }
+  function renderCompare() {
+    if (!cmpBound) {
+      el("cmp-save").addEventListener("click", cmpSave);
+      el("cmp-name").addEventListener("keydown", (e) => { if (e.key === "Enter") cmpSave(); });
+      cmpBound = true;
+    }
+    el("cmp-name").placeholder = scenario.name || "";
+    const all = cmpAll(), byId = Object.fromEntries(all.map((x) => [x.id, x]));
+    [...cmpSel.keys()].forEach((id) => { if (!byId[id]) cmpSel.delete(id); });
+    const list = el("cmp-list"); list.replaceChildren();
+    all.forEach((x) => {
+      const lab = node("label"), cb = node("input", { type: "checkbox" }); cb.checked = cmpSel.has(x.id);
+      cb.addEventListener("change", () => cmpToggle(x.id));
+      lab.append(cb, node("span", { class: "swatch", style: cmpSel.has(x.id) ? `background:var(${CMP_SLOTS[cmpSel.get(x.id)]})` : "background:transparent" }), node("span", {}, x.name));
+      const load = node("button", { type: "button", class: "chip-x", title: t("cmp_load") }, "↗");
+      load.addEventListener("click", (e) => { e.preventDefault(); scenario = JSON.parse(JSON.stringify(x.scenario)); presetIdx = -1; activeLeg = 0; refreshAll(); el("sim-form").scrollIntoView({ block: "start" }); });
+      lab.appendChild(load);
+      if (!x.builtin) {
+        const del = node("button", { type: "button", class: "chip-x", title: t("cmp_delete"), "aria-label": t("cmp_delete") }, "×");
+        del.addEventListener("click", (e) => { e.preventDefault(); cmpSaved = cmpSaved.filter((y) => y.id !== x.id); cmpSel.delete(x.id); cmpStore(cmpSaved); renderCompare(); });
+        lab.appendChild(del);
+      }
+      list.appendChild(lab);
+    });
+    const k = S.months.indexOf(last.date), xs = S.months.map(toDate);
+    const chosen = [...cmpSel.entries()].map(([id, slot]) => ({ x: byId[id], slot, r: ShockEngine.simulate(byId[id].scenario, S) }));
+    plot("p-compare", chosen.map(({ x, slot, r }) => ({ x: xs, y: r.delta_yoy_pp, mode: "lines+markers", name: x.name,
+      line: { color: css(CMP_SLOTS[slot]), width: 2 }, marker: { size: 6 }, hovertemplate: `${x.name.replace(/[<>&]/g, "")}: %{y:+.2f} ${t("pp")}<extra></extra>` })),
+    baseLayout({ yaxis: Object.assign(baseLayout().yaxis, { title: { text: t("pp") }, zeroline: true }),
+      shapes: [{ type: "line", x0: toDate(last.date), x1: toDate(last.date), yref: "paper", y0: 0, y1: 1, line: { color: css("--axis"), width: 1, dash: "dash" } }] }));
+    table(el("tbl-compare"), [t("cmp_col_name"), t("cmp_col_peak"), t("cmp_col_when"), t("cmp_col_dec", { d: monthLabel(last.date) }), t("cmp_col_level", { d: monthLabel(last.date) }), t("cmp_col_prob", { thr: fmt(thr, 1), d: monthLabel(last.date) }), t("cmp_col_legs")],
+      [[t("s_baseline"), "–", "–", "0.00", pct(last.point, 2), fmt(100 * probOf(last.point, thr), 0) + "%", "0"],
+        ...chosen.map(({ x, r }) => [x.name, sgn(r.peak_pp), monthLabel(r.peak_month), sgn(r.delta_yoy_pp[k]), pct(r.shocked_yoy[k], 2),
+          fmt(100 * probOf(r.shocked_yoy[k], thr), 0) + "%", String(x.scenario.legs.length)])], [1, 3, 4, 5, 6]);
+  }
+
   // ---- sensitivity heatmap: euro area* December y/y response to +1% in one (country, component) cell.
   // 126 runs of the same engine as the simulator, computed once (they depend on the basis only).
   let heat = null, heatBound = false;
@@ -1268,7 +1329,7 @@
     if (tab === "overview") renderOverview();
     if (tab === "drivers") renderDrivers();
     if (tab === "countries") renderCountries();
-    if (tab === "shocks") { refreshAll(); renderNL(); renderHeat(); }
+    if (tab === "shocks") { refreshAll(); renderNL(); renderCompare(); renderHeat(); }
     if (tab === "model") renderModel();
   }
   function renderAll() { applyText(); renderAsk(); renderTab(activeTab); }

@@ -370,6 +370,12 @@ input[type="range"] { min-width: 160px; }
         <div class="assume" style="margin-top:8px"><b data-i18n="sim_assumptions"></b><ul id="sim-assume"></ul></div>
         <button class="toggle-table" data-table="tbl-shock"></button><div class="tablewrap" id="tbl-shock" hidden></div>
       </div>
+      <div class="card" id="cmp-card"><h2 data-i18n="cmp_title"></h2><p class="note" data-i18n="cmp_intro" style="margin:0 0 8px"></p>
+        <div class="row" style="margin:0 0 8px"><label><span data-i18n="cmp_name"></span><input type="text" id="cmp-name" maxlength="60" class="nl-text" style="min-width:200px"></label>
+          <button type="button" class="btn tour-primary" id="cmp-save" data-i18n="cmp_save"></button><span class="note" id="cmp-status" role="status" style="margin:0"></span></div>
+        <div class="chips" id="cmp-list"></div>
+        <div class="plot" id="p-compare"></div>
+        <div class="tablewrap" id="tbl-compare"></div><p class="note" data-i18n="cmp_note"></p></div>
       <div class="card" id="hm-card"><h2 data-i18n="hm_title"></h2><p class="note" data-i18n="hm_intro" style="margin:0 0 8px"></p>
         <div class="plot tall" id="p-heat"></div>
         <p class="note" data-i18n="hm_note"></p><p class="src" data-src="src_shock"></p>
