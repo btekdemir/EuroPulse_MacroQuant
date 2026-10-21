@@ -50,9 +50,9 @@ def git_version() -> str:
     try:
         sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True,
                              text=True, check=True).stdout.strip()
-        dirty = subprocess.run(["git", "status", "--porcelain"], cwd=ROOT, capture_output=True,
-                               text=True).stdout.strip()
-        return sha + ("-dirty" if dirty else "")
+        # Only source changes count: the run rewrites outputs/, ledger/ and data/ itself, and those must not
+        # mark its own manifest dirty (D59).
+        return sha + ("-dirty" if tree_is_dirty() else "")
     except (subprocess.CalledProcessError, FileNotFoundError):
         return "unknown"
 
@@ -68,6 +68,7 @@ def tree_is_dirty() -> bool:
 
 
 def main() -> int:
+    version = git_version()  # read before the run writes anything
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--offline", action="store_true", help="replay cached raw pulls, no network")
     args = ap.parse_args()
@@ -183,7 +184,7 @@ def main() -> int:
 
 
     log.info("forecast ledger")
-    code_version = git_version().removesuffix("-dirty")
+    code_version = version.removesuffix("-dirty")
     entry, why = ledger.record(outlook, {p.name: p.sha256 for p in pulls}, code_version, s.config_hash(), tree_is_dirty())
     log.info("  %s", why)
     scores = ledger.scores_report(data, s)
@@ -246,7 +247,7 @@ def _nan_to_none(r: dict) -> dict:
 
 def write_manifest(s, args, report, pulls, t0) -> None:
     manifest = RunManifest(
-        run_at=datetime.now(timezone.utc), code_version=git_version(), config_hash=s.config_hash(),
+        run_at=datetime.now(timezone.utc), code_version=version, config_hash=s.config_hash(),
         python=platform.python_version(), offline=args.offline, last_period=report.last_period,
         vintages=[DataVintage(name=p.name, dataset=p.dataset, updated=p.updated, sha256=p.sha256,
                               n_values=p.n_values, fetched_at=p.fetched_at, from_cache=p.from_cache,

@@ -889,3 +889,4 @@ Two reviews were pasted in, one on method and consistency and one on looks. Thei
   - The PNG / CSV / Explain buttons rest at 60% opacity instead of 18%: the review found them too hard to see. This replaces that part of D58.
 - **Footer:** outputs are rebuilt from a clean tree, so the commit shown has no "-dirty".
 - **Checked:** Python 212/212; end-to-end 123/123 at 1280×900, at the narrow app pane (horizontal bridge) and at 375×812.
+- **Footer fix:** run.py read the git state after writing outputs/, so its own outputs marked it dirty. It now reads it once at the start and ignores outputs/, ledger/ and data/, as the ledger check already did.
