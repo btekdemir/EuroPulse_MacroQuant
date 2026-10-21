@@ -777,7 +777,8 @@
   let activeLeg = 0;
 
   const activeShock = () => scenario.legs[activeLeg];
-  const newLeg = () => ({ components: ["ELC_GAS"], countries: [], size_pct: 10, profile: { kind: "permanent" }, start: S.months[0] });
+  // A new shock starts empty (D65): nothing is simulated until the reader picks what it hits.
+  const newLeg = () => ({ components: [], countries: [], size_pct: 10, profile: { kind: "permanent" }, start: S.months[0] });
   const legLabel = (lg) => `${lg.components.map(comp).join(" + ") || "?"} · ${lg.countries.length ? lg.countries.join("/") : geo("EA")} · ${sgn(lg.size_pct, 1)}%`;
 
   function buildForm() {
@@ -979,7 +980,9 @@
     });
     el("leg-add").disabled = scenario.legs.length >= MAX_LEGS;
     el("leg-del").disabled = scenario.legs.length <= 1;
-    el("leg-edit").textContent = scenario.legs.length > 1 ? t("sim_editing", { n: activeLeg + 1 }) : "";
+    el("leg-edit").textContent = "";  // the shock group header says which shock is being edited (D65)
+    el("leg-head").textContent = t("sim_leg_head", { n: activeLeg + 1 });
+    el("leg-group").style.setProperty("--leg-color", `var(${LEG_SLOT[activeLeg]})`);
   }
 
   function labelForm() {
@@ -1112,8 +1115,10 @@
   function renderNL() {
     el("nl-text").placeholder = t("nl_placeholder");
     const ex = el("nl-examples"); ex.replaceChildren();
-    NL_EX.forEach((e) => {
-      const b = node("button", { type: "button", title: e.text }, e.text.length > 46 ? e.text.slice(0, 44) + "…" : e.text);
+    // Examples in the page's language only, in full (D65); all of them if none is recorded in this language.
+    const mine = NL_EX.filter((e) => (e.lang || "en") === lang);
+    (mine.length ? mine : NL_EX).forEach((e) => {
+      const b = node("button", { type: "button" }, e.text);
       b.addEventListener("click", () => {
         el("nl-text").value = e.text;
         showInterpretation({ scenario: e.scenario, interpretation: e.interpretation }, t("nl_recorded", { model: e.model }));
@@ -1185,8 +1190,9 @@
     if (!nlPending) return;
     scenario = JSON.parse(JSON.stringify(nlPending.scenario));
     presetIdx = -1; activeLeg = 0;
+    el("nl-confirm").hidden = true; nlPending = null;  // done: the question box closes once the scenario runs (D65)
     refreshAll();
-    el("sim-export").scrollIntoView({ block: "nearest" });
+    el("leg-group").scrollIntoView({ block: "nearest" });
   }
 
   function paramVisibility() {

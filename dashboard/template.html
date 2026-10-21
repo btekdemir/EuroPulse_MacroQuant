@@ -77,6 +77,17 @@ a.dcode { color: inherit; text-decoration: underline dotted; text-underline-offs
 .infomsg .linkbtn { margin-left: 6px; }
 .rat-label { display: block; font-weight: 600; margin-bottom: 4px; }
 #sim-rat-edit { width: 100%; margin-bottom: 6px; }
+.subsec { margin-top: 16px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); }
+.subsec > h2:first-child { margin-top: 0; }
+.leg-group { border: 1px solid var(--border); border-left: 4px solid var(--leg-color, var(--accent)); border-radius: 8px; padding: 10px 12px; margin: 10px 0;
+  background: var(--surface-1); }
+.form .leg-group fieldset { border: 0; padding: 0; margin: 0 0 10px; }
+.form .leg-group legend { font-weight: 600; padding: 0; margin-bottom: 4px; }
+.leg-head { font-weight: 600; margin-bottom: 8px; }
+#nl-lines li, .ask-sc-lines li { margin: 0 0 6px; line-height: 1.45; }
+.presets.examples { margin-bottom: 8px; }
+.presets.examples button { white-space: normal; text-align: left; line-height: 1.35; }
+[hidden] { display: none !important; }  /* a label styled as flex must still hide (D65: "Months" showed for permanent shocks) */
 .card.plain { background: transparent; border: 0; padding: 4px 2px; }
 .tab-lede { grid-column: span 12; margin: 2px 0 0; color: var(--text-secondary); font-size: 14px; }
 .sec-head { grid-column: span 12; margin: 14px 2px -4px; font-size: 11.5px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
@@ -349,39 +360,47 @@ input[type="range"] { min-width: 160px; }
     <div class="grid">
       <p class="tab-lede" data-i18n="lede_shocks"></p>
       <div class="card span-4">
-        <h2 data-i18n="nl_title"></h2>
-        <p class="note" data-i18n="nl_intro" style="margin:0 0 6px"></p>
-        <textarea id="nl-text" rows="2" maxlength="300" class="nl-text"></textarea>
-        <div class="row" style="margin-top:6px"><button class="btn tour-primary" id="nl-go" type="button" data-i18n="nl_go"></button>
-          <span class="note" id="nl-status" style="margin:0" role="status"></span></div>
-        <div class="ask-row" id="nl-code-row" hidden style="margin-top:6px"><input type="password" id="nl-code" class="nl-text" autocomplete="off" aria-label="Access code">
-          <button type="button" class="btn tour-primary" id="nl-code-go" data-i18n="code_unlock"></button></div>
-        <p class="note ex-label" data-i18n="nl_examples_label"></p>
-        <div class="presets examples" id="nl-examples"></div>
-        <div class="assume" id="nl-confirm" hidden>
-          <b data-i18n="nl_confirm_title"></b><ul id="nl-lines"></ul>
-          <div class="row" style="margin-top:6px"><button class="btn tour-primary" id="nl-run" type="button" data-i18n="nl_run"></button>
-            <span class="note" id="nl-src" style="margin:0"></span></div></div>
-        <h2 style="margin-top:16px" data-i18n="sim_presets"></h2><div class="presets" id="presets"></div>
-        <h2 style="margin-top:16px" data-i18n="sim_custom"></h2>
+        <h2 data-i18n="sim_presets"></h2><div class="presets" id="presets"></div>
+        <!-- D65: two clearly separate ways in. The sentence box and its examples are one section; the builder another. -->
+        <section class="subsec" id="nl-sec">
+          <h2 data-i18n="nl_title"></h2>
+          <p class="note" data-i18n="nl_intro" style="margin:0 0 6px"></p>
+          <p class="note ex-label" data-i18n="nl_examples_label"></p>
+          <div class="presets examples" id="nl-examples"></div>
+          <textarea id="nl-text" rows="2" maxlength="300" class="nl-text"></textarea>
+          <div class="row" style="margin-top:6px"><button class="btn tour-primary" id="nl-go" type="button" data-i18n="nl_go"></button>
+            <span class="note" id="nl-status" style="margin:0" role="status"></span></div>
+          <div class="ask-row" id="nl-code-row" hidden style="margin-top:6px"><input type="password" id="nl-code" class="nl-text" autocomplete="off" aria-label="Access code">
+            <button type="button" class="btn tour-primary" id="nl-code-go" data-i18n="code_unlock"></button></div>
+          <div class="assume" id="nl-confirm" hidden>
+            <b data-i18n="nl_confirm_title"></b><ul id="nl-lines"></ul>
+            <div class="row" style="margin-top:6px"><button class="btn tour-primary" id="nl-run" type="button" data-i18n="nl_run"></button>
+              <span class="note" id="nl-src" style="margin:0"></span></div></div>
+        </section>
+        <section class="subsec" id="build-sec">
+        <h2 data-i18n="sim_custom"></h2>
         <div class="form" id="sim-form">
           <fieldset><legend data-i18n="sim_legs"></legend>
             <div class="presets" id="leg-strip"></div>
             <div class="row" style="margin-top:6px"><button class="btn" id="leg-add" type="button" data-i18n="sim_add_leg"></button>
               <button class="btn" id="leg-del" type="button" data-i18n="sim_del_leg"></button>
               <span class="note" id="leg-edit" style="margin:0"></span></div></fieldset>
-          <fieldset><legend data-i18n="sim_components"></legend><div class="chips" id="f-comps"></div></fieldset>
-          <fieldset><legend data-i18n="sim_countries"></legend>
-            <div class="chips"><label><input type="checkbox" id="f-allea" checked> <span data-i18n="sim_all_ea"></span></label></div>
-            <div class="chips" id="f-countries" style="margin-top:6px"></div></fieldset>
-          <div class="row">
-            <label><span data-i18n="sim_size"></span><input type="number" id="f-size" step="0.5" value="10" min="-50" max="100"></label>
-            <label><span data-i18n="sim_start"></span><select id="f-start"></select></label>
-          </div>
-          <div class="warnmsg" id="size-warn" role="alert" hidden></div>
-          <div class="row">
-            <label><span data-i18n="sim_profile"></span><select id="f-profile"></select></label>
-            <label id="w-param"><span id="l-param"></span><input type="number" id="f-param" min="1" max="24" step="1" value="6"></label>
+          <!-- D65: everything that defines one shock sits in one group, so it reads as one thing -->
+          <div class="leg-group" id="leg-group">
+            <div class="leg-head" id="leg-head"></div>
+            <fieldset><legend data-i18n="sim_components"></legend><div class="chips" id="f-comps"></div></fieldset>
+            <fieldset><legend data-i18n="sim_countries"></legend>
+              <div class="chips"><label><input type="checkbox" id="f-allea" checked> <span data-i18n="sim_all_ea"></span></label></div>
+              <div class="chips" id="f-countries" style="margin-top:6px"></div></fieldset>
+            <div class="row">
+              <label><span data-i18n="sim_size"></span><input type="number" id="f-size" step="0.5" value="10" min="-50" max="100"></label>
+              <label><span data-i18n="sim_start"></span><select id="f-start"></select></label>
+            </div>
+            <div class="warnmsg" id="size-warn" role="alert" hidden></div>
+            <div class="row">
+              <label><span data-i18n="sim_profile"></span><select id="f-profile"></select></label>
+              <label id="w-param"><span id="l-param"></span><input type="number" id="f-param" min="1" max="24" step="1" value="6"></label>
+            </div>
           </div>
           <div class="chips"><label><input type="checkbox" id="f-second"> <span data-i18n="sim_second"></span></label></div>
           <div class="row"><label><span data-i18n="sim_regime"></span><select id="f-regime"></select></label></div>
@@ -390,10 +409,13 @@ input[type="range"] { min-width: 160px; }
           <button class="btn" id="sim-share" type="button" data-i18n="share_copy"></button>
           <span class="note" id="share-status" role="status" style="margin:0"></span>
         </div>
+        </section>
       </div>
       <div class="card span-8">
-        <div class="row" style="margin-bottom:8px"><label><span data-i18n="prob_threshold"></span>
-          <input type="number" class="thr" step="0.1" value="4.0"></label></div>
+        <div class="row" style="margin-bottom:8px;align-items:flex-end;flex-wrap:wrap;gap:12px"><label><span data-i18n="prob_threshold"></span>
+          <input type="number" class="thr" step="0.1" value="4.0"></label>
+          <label><span data-i18n="cmp_name"></span><input type="text" id="cmp-name" maxlength="60" class="nl-text" style="min-width:180px"></label>
+          <button type="button" class="btn" id="cmp-save" data-i18n="cmp_save"></button><span class="note" id="cmp-status" role="status" style="margin:0"></span></div>
         <div class="infomsg" id="heat-notice" role="status" hidden></div>
         <div class="grid" style="gap:12px">
           <div class="kpi" style="grid-column: span 3" id="k-peak"></div>
@@ -424,8 +446,6 @@ input[type="range"] { min-width: 160px; }
         <button class="toggle-table" data-table="tbl-shock"></button><div class="tablewrap" id="tbl-shock" hidden></div>
       </div>
       <div class="card" id="cmp-card"><h2 data-i18n="cmp_title"></h2><p class="note" data-i18n="cmp_intro" style="margin:0 0 8px"></p>
-        <div class="row" style="margin:0 0 8px"><label><span data-i18n="cmp_name"></span><input type="text" id="cmp-name" maxlength="60" class="nl-text" style="min-width:200px"></label>
-          <button type="button" class="btn tour-primary" id="cmp-save" data-i18n="cmp_save"></button><span class="note" id="cmp-status" role="status" style="margin:0"></span></div>
         <div class="chips" id="cmp-list"></div>
         <div class="plot" id="p-compare"></div>
         <div class="tablewrap" id="tbl-compare"></div><p class="note" data-i18n="cmp_note"></p></div>

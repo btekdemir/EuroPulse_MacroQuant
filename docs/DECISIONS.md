@@ -1000,3 +1000,21 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
   - The old "Edit this text before sharing" sentence, which had no box to edit, is gone.
 - **Readability:** KPI notes and source lines use the existing secondary text colour instead of the muted one, a little larger. No palette colour was changed.
 - **Checked:** Python tests pass; end-to-end 157/157 (4 new). The receiving side was checked by hand: a fresh load of a `&t=5` link opened at 5% (P(Dec > 5.0%) 11%).
+
+## D65. Simulator layout from the user's own test (22 Oct 2026)
+
+- **Add shock** used to add an "electricity & gas +10%" shock with nothing chosen. A new shock now starts empty; nothing is simulated until a component is picked (the existing warning says so).
+- **Order and grouping:**
+  - The simulator column now opens with the presets, then two separate boxed sections: "Describe a scenario in words" (examples, text box, Interpret, confirmation) and "Build a scenario".
+  - The active shock's components, countries, size, start and profile sit in one group with a "Shock N: what it hits, where, how much and when" header and the shock's colour on its edge.
+- **Examples:**
+  - Shown in full: they were cut at 46 characters with a slow, small tooltip.
+  - Only in the page's language. Only one French example is recorded; recording more is a paid call.
+- **Confirmation:** "Is this what you meant?" closes once the scenario runs, and its lines have more space between them.
+- **Save for comparison:** the name box and Save button moved up, next to the threshold, at the top of the results.
+- **Old bug found on the way:** the "Months" field showed for permanent shocks, because a style rule overrode the `hidden` attribute. `[hidden]` now always hides.
+- **Why a friend saw the grey Interpret button:**
+  - The blue button was committed at 22:10, but the site was not redeployed until after 23:20. Anyone who opened the link in between got the older live version.
+  - The site sends `Cache-Control: max-age=0, must-revalidate` and Vercel replaces its copy on every deploy, so after a redeploy every new visit gets the new page.
+  - A phone browser may still show a tab restored from memory until it is reloaded.
+- **Checked:** Python tests pass; end-to-end 160/160 (3 new).

@@ -228,6 +228,9 @@
     const l0 = legs();
     el("leg-add").click(); await sleep(250);
     ok("add a leg", legs() === l0 + 1);
+    ok("a new shock starts empty and asks for a component (D65)", $$("#f-comps input:checked").length === 0 && !el("sim-warn").hidden);
+    $("#f-comps input[value=SERV]").click(); await sleep(250);
+    ok("picking a component simulates it", el("sim-warn").hidden);
     setVal(el("f-size"), "25"); await sleep(250);
     ok("legs table shown for 2+ legs", !el("legs-block").hidden);
     el("leg-del").click(); await sleep(250);
@@ -248,6 +251,7 @@
   await step("shocks: reverse stress across all shocks", async () => {
     $$("#presets button")[0].click(); await sleep(250);
     el("leg-add").click(); await sleep(250);
+    $("#f-comps input[value=ELC_GAS]").click(); await sleep(250);
     setVal(el("rev-y"), "4.6"); setVal(el("rev-solve"), "min"); await sleep(500);
     ok("smallest-combination sentence lists both shocks", /1\..*2\./.test(visibleText(el("rev-out"))) && !el("rev-apply").hidden, visibleText(el("rev-out")).slice(0, 90));
     el("rev-apply").click(); await sleep(400);
@@ -326,6 +330,7 @@
     ok("codes shown as names (D63)", !/ELC_GAS|\bDE\b/.test(lines) && lines.includes(D.i18n.en.g_DE || "Germany"), lines.slice(0, 120));
     ok("bare 'gas' gets the component note", lines.includes(D.i18n.en.nl_gas_note.slice(0, 20)));
     el("nl-run").click(); await sleep(300);
+    ok("the question box closes after Run (D65)", el("nl-confirm").hidden);
     ok("scenario loaded", $("#f-countries input[value=DE]").checked && el("f-size").value === "30");
   });
 

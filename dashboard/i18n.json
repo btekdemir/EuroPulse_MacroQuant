@@ -779,7 +779,8 @@
   "nl_examples_label": "Or try an example:",
   "ask_checked_1": "1 number checked against the dashboard · {model}",
   "sim_rat_edit": "scenario rationale (saved in the shared link)",
-  "sim_rat_ph": "Why this scenario? What event or assumption does it represent?"
+  "sim_rat_ph": "Why this scenario? What event or assumption does it represent?",
+  "sim_leg_head": "Shock {n}: what it hits, where, how much and when"
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -1561,6 +1562,7 @@
   "nl_examples_label": "Ou essayez un exemple :",
   "ask_checked_1": "1 chiffre vérifié · {model}",
   "sim_rat_edit": "justification du scénario (enregistrée dans le lien partagé)",
-  "sim_rat_ph": "Pourquoi ce scénario ? Quel événement ou hypothèse représente-t-il ?"
+  "sim_rat_ph": "Pourquoi ce scénario ? Quel événement ou hypothèse représente-t-il ?",
+  "sim_leg_head": "Choc {n} : ce qu'il touche, où, de combien et quand"
  }
 }
