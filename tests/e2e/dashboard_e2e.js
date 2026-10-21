@@ -296,6 +296,22 @@
     ok("Undo restores the previous scenario", el("heat-notice").hidden && !($("#f-countries input[value=FR]").checked && el("f-size").value === "10"), before.slice(0, 40));
     el("p-heat").emit("plotly_click", { points: [{ customdata: ["FR", "SERV"] }] }); await sleep(400);
   });
+  await step("shocks: share link carries threshold and the reader's rationale (D64)", async () => {
+    const box = el("sim-rat-edit");
+    ok("custom scenario has a rationale box", !!box);
+    if (box) { setVal(box, "E2E: why this scenario"); }
+    setVal(el("f-size"), "12"); await sleep(200);
+    ok("typed rationale survives an edit", el("sim-rat-edit") && el("sim-rat-edit").value === "E2E: why this scenario");
+    const thrIn = $("input.thr"), thr0 = thrIn.value;
+    setVal(thrIn, "5"); await sleep(200);
+    el("sim-share").click(); await sleep(300);
+    ok("link has the threshold", /&t=5\b/.test(location.hash), location.hash.slice(-12));
+    const code = (/#s=([A-Za-z0-9_-]+)/.exec(location.hash) || [])[1];
+    const dec = code && ShockEngine.decodeScenario(code, D.basis);
+    ok("link carries the rationale", dec && dec.scenario && dec.scenario.rationale === "E2E: why this scenario");
+    setVal(thrIn, thr0); await sleep(200);
+    history.replaceState(null, "", location.href.split("#")[0]);
+  });
   await step("shocks: share link round trip", async () => {
     el("sim-share").click(); await sleep(300);
     const code = (/#s=([A-Za-z0-9_-]+)/.exec(location.hash) || [])[1];

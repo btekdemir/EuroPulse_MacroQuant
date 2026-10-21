@@ -943,7 +943,12 @@
   }
 
   // ---- shareable link: the whole scenario in the URL fragment (nothing is sent anywhere)
-  const shareUrl = (sc) => `${location.href.split("#")[0]}#s=${ShockEngine.encodeScenario(sc)}`;
+  // The probability threshold travels with the link (D64): the receiver must see the same question answered.
+  const shareUrl = (sc) => `${location.href.split("#")[0]}#s=${ShockEngine.encodeScenario(sc)}&t=${thr}`;
+  function setThreshold(v) {
+    thr = v;
+    document.querySelectorAll("input.thr").forEach((o) => { o.value = String(v); });
+  }
   async function copyShare() {
     const url = shareUrl(scenario);
     history.replaceState(null, "", url);
@@ -956,6 +961,8 @@
     const res = ShockEngine.decodeScenario(m[1], S);
     if (!res.scenario) { el("share-status").textContent = t("share_bad"); return false; }
     scenario = res.scenario; presetIdx = -1; activeLeg = 0;
+    const tm = /[#&]t=(-?\d+(?:\.\d+)?)/.exec(location.hash), tv = tm ? Number(tm[1]) : NaN;
+    if (Number.isFinite(tv) && tv >= -5 && tv <= 15) setThreshold(tv);
     el("presets").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", "false"));
     el("share-status").textContent = t("share_loaded");
     return true;
@@ -1192,8 +1199,8 @@
   function markCustom() {
     if (presetIdx >= 0 && JSON.stringify(scenario.legs) === JSON.stringify(S.presets[presetIdx].legs)) return;
     presetIdx = -1;
-    Object.assign(scenario, { name: "Custom scenario", sources: ["Dashboard simulator"], mapping: null,
-      rationale: "User-defined scenario built in the dashboard (no external mapping). Edit this text before sharing." });
+    Object.assign(scenario, { name: "Custom scenario", sources: ["Dashboard simulator"], mapping: null });
+    if (!scenario.ratByUser) scenario.rationale = "User-defined scenario built in the dashboard (no external mapping).";  // typed text is kept (D64)
     el("presets").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", "false"));
   }
 
@@ -1282,7 +1289,13 @@
 
     const rat = el("sim-rationale"); rat.replaceChildren();
     const nm = presetIdx >= 0 ? t("preset_" + presetIdx) : t("sim_custom");
-    rat.append(node("b", {}, `${nm} — ${t("sim_rationale")}: `), document.createTextNode(scenario.rationale));
+    if (presetIdx >= 0) rat.append(node("b", {}, `${nm} — ${t("sim_rationale")}: `), document.createTextNode(scenario.rationale));
+    else {  // the reader's own scenario: the rationale is theirs to write, and it travels with the link (D64)
+      const box = node("textarea", { id: "sim-rat-edit", rows: "2", maxlength: "1200", class: "nl-text", "aria-label": t("sim_rat_edit") });
+      box.value = scenario.rationale || ""; box.placeholder = t("sim_rat_ph");
+      box.addEventListener("input", () => { scenario.rationale = box.value.slice(0, 1200); scenario.ratByUser = true; });
+      rat.append(node("label", { for: "sim-rat-edit", class: "rat-label" }, `${nm} — ${t("sim_rat_edit")}`), box);
+    }
     if (scenario.mapping) rat.append(node("br"), node("b", {}, t("sim_mapping") + ": "), document.createTextNode(scenario.mapping));
     rat.append(node("br"), node("b", {}, t("sim_sources") + ": "), document.createTextNode(scenario.sources.join("; ")));
     if (lang !== "en") rat.append(node("br"), node("i", {}, t("rationale_lang_note")));

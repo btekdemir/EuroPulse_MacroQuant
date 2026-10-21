@@ -988,3 +988,15 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
 - **Re-run of the chat what-if (2 requests): passed.**
   - The reply came through on the first attempt and the scenario was built: names, gas note, "Largest impact", +0.41 pp.
   - The caption "1 numbers checked against the dashboard" counted the reader's own 30%. It now counts only dashboard-checked numbers, with a singular form.
+
+## D64. Sixth review: share link threshold, editable rationale, readability (22 Oct 2026)
+
+- **Share link:**
+  - "Copy link" now adds the probability threshold (`&t=5`). Opening the link sets it, so the receiver sees the same question answered.
+  - Before, the shock loaded correctly but the threshold fell back to 4%.
+- **Rationale:**
+  - A custom scenario now has a "Scenario rationale" box. What the reader types travels in the link (the encoder already carried the rationale).
+  - Editing the shock no longer overwrites typed text: before, every edit reset the rationale.
+  - The old "Edit this text before sharing" sentence, which had no box to edit, is gone.
+- **Readability:** KPI notes and source lines use the existing secondary text colour instead of the muted one, a little larger. No palette colour was changed.
+- **Checked:** Python tests pass; end-to-end 157/157 (4 new). The receiving side was checked by hand: a fresh load of a `&t=5` link opened at 5% (P(Dec > 5.0%) 11%).
