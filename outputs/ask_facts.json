@@ -1,6 +1,6 @@
 {
   "origin": "2026-09",
-  "facts_hash": "dd046c53bb65c82b",
+  "facts_hash": "53c93379354a0ea3",
   "context": "Data: Eurostat HICP, euro area* = the 21 current members at every date, chain-linked bottom-up from six components. Last published month: Sep 2026. The forecast covers the next three months.\nSelected component models (pre-committed rule: keep the simpler model unless a richer one is significantly better, Diebold-Mariano test, chosen on 2010-2019 origins): fuels: Weekly Oil Bulletin pump prices; electricity and gas: seasonal mean of monthly changes; processed food: AR(p) chosen by AIC; unprocessed food: seasonal mean of monthly changes; non-energy industrial goods: no change in y/y (last year's monthly changes repeated; round 4, D57); services: no change in y/y (last year's monthly changes repeated; round 4, D57).\nBase effect = the part of the change in y/y that comes from the monthly change a year earlier dropping out; it is known in advance. Momentum = the part from new monthly price changes.\nThe bands are empirical quantiles of the model's own past out-of-sample errors, not model-implied.\nThe shock simulator moves price levels per country and component; second-round effects are an estimated distributed lag. Actuals are final Eurostat releases; flash estimates are used only in the first-release check.\nModel history: rounds 2 and 3 (pre-registered; round 3 tried SARIMA, Elastic Net, gradient boosting and an ensemble) found nothing that beat the random walk at three months. Round 4 (pre-registered) forecast services and non-energy industrial goods as 'no change in y/y' (their monthly changes repeat last year's); it passed the Holm test narrowly and beat the earlier bottom-up model, so it is now the published model. Core inflation is a by-product of the goods and services forecasts, so it is now forecast essentially as a random walk. Not modelled: country forecasts (only the euro area* headline is forecast and selected), ECB policy decisions, anything after the three-month horizon.\nItaly: its published total differs from the weighted sum of its components by up to about a tenth of a point; the cause is not identified.",
   "facts": [
     {
@@ -2471,17 +2471,17 @@
     {
       "id": "r3_rmse_M2_sarima",
       "label": "Round 3, SARIMA airline model: RMSE at h=3, pp",
-      "value": 0.7216065018582501
+      "value": 0.7216073246099987
     },
     {
       "id": "r3_ratio_M2_sarima",
       "label": "Round 3, SARIMA airline model: RMSE ratio vs random walk at h=3",
-      "value": 0.901319133633443
+      "value": 0.901320161287561
     },
     {
       "id": "r3_p_M2_sarima",
       "label": "Round 3, SARIMA airline model: Diebold-Mariano p-value vs random walk at h=3",
-      "value": 0.2533082901096428
+      "value": 0.2533130974692232
     },
     {
       "id": "r3_rmse_M3_enet",
@@ -2526,7 +2526,7 @@
     {
       "id": "r3_p_M5_ensemble",
       "label": "Round 3, Elastic Net + boosting ensemble: Diebold-Mariano p-value vs random walk at h=3",
-      "value": 0.46070490330048297
+      "value": 0.460704903300483
     },
     {
       "id": "r3_dec_M2_sarima",
