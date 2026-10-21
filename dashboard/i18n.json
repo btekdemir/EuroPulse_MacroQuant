@@ -788,7 +788,9 @@
   "map_h_yoy": "y/y",
   "map_h_con": "contribution to the euro area",
   "map_ecb": "2% (ECB)",
-  "map_note": "Euro area members coloured, neighbours grey. A country's contribution is its weight times its rate, so large economies dominate it. Click a country to open its profile below; Malta, Cyprus and Luxembourg are small on the map, so the panels below list every member too. Outlines: Natural Earth."
+  "map_note": "Euro area members coloured, neighbours grey. A country's contribution is its weight times its rate, so large economies dominate it. Click a country to open its profile below; Malta, Cyprus and Luxembourg are small on the map, so the panels below list every member too. Outlines: Natural Earth.",
+  "map_sum": "Highest: {hi} {hv} · Lowest: {lo} {lv}",
+  "nl_more_ex": "More examples"
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -1579,6 +1581,8 @@
   "map_h_yoy": "sur un an",
   "map_h_con": "contribution à la zone euro",
   "map_ecb": "2 % (BCE)",
-  "map_note": "Membres de la zone euro en couleur, voisins en gris. La contribution d'un pays est son poids multiplié par son taux : les grandes économies dominent. Cliquez sur un pays pour ouvrir son profil ; Malte, Chypre et le Luxembourg sont petits sur la carte, les panneaux ci-dessous listent aussi chaque membre. Contours : Natural Earth."
+  "map_note": "Membres de la zone euro en couleur, voisins en gris. La contribution d'un pays est son poids multiplié par son taux : les grandes économies dominent. Cliquez sur un pays pour ouvrir son profil ; Malte, Chypre et le Luxembourg sont petits sur la carte, les panneaux ci-dessous listent aussi chaque membre. Contours : Natural Earth.",
+  "map_sum": "Le plus élevé : {hi} {hv} · Le plus bas : {lo} {lv}",
+  "nl_more_ex": "Plus d'exemples"
  }
 }

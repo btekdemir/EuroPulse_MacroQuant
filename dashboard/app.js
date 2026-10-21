@@ -278,6 +278,10 @@
     try { const r = await fetch("/api/guess"); bmShared = r.ok ? await r.json() : { shared: false, guesses: [] }; }
     catch (e) { bmShared = { shared: false, guesses: [] }; }
   }
+  const dayLabel = (iso) => (iso ? new Date(String(iso).slice(0, 10) + "T12:00:00Z").toLocaleDateString(lang === "fr" ? "fr-FR" : "en-GB",
+    { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) : "–");
+  // When the published forecast for the target was recorded in the ledger (the latest entry for it).
+  const modelRecorded = () => { const r = (L.rows || []).filter((x) => x.target === last.date).pop(); return r ? r.recorded_at : null; };
   function renderBeat() {
     const tgt = last.date, actualRow = F.history.find((h) => h.date === tgt), actual = actualRow ? actualRow.yoy : null;
     el("bm-title").textContent = t("bm_title", { m: monthLabel(tgt) });
@@ -295,17 +299,20 @@
       { x: [q.q16, q.q84], y: [0, 0], mode: "lines", line: { color: css("--band68"), width: 18 }, name: t("s_band68"), hoverinfo: "skip" },
       { x: [last.point], y: [0], mode: "markers", name: t("bm_model"), marker: { symbol: "diamond", size: 14, color: css("--accent"), line: { color: css("--surface-1"), width: 2 } },
         hovertemplate: `${t("bm_model")}: %{x:.2f}%<extra></extra>` },
-      { x: list.map((g) => g.value), y: list.map((_, i) => 0.28 + 0.1 * ((i * 7) % 5) / 4), mode: "markers", name: t("bm_guesses"), text: list.map((g) => g.name),
-        marker: { size: 10, color: css("--s2"), line: { color: css("--surface-1"), width: 1.5 } }, hovertemplate: "%{text}: %{x:.2f}%<extra></extra>" },
+      // Guesses sit just above the band, labelled while there are few of them (D67); the hover always names them.
+      { x: list.map((g) => g.value), y: list.map((_, i) => 0.32 + (list.length > 8 ? 0.12 * ((i * 7) % 5) / 4 : 0)), mode: list.length <= 8 ? "markers+text" : "markers",
+        name: t("bm_guesses"), text: list.map((g) => `${g.name} ${fmt(g.value, 2)}%`), textposition: "top center",
+        textfont: { size: 12, color: css("--text-secondary") }, cliponaxis: false,
+        marker: { size: 11, color: css("--s2"), line: { color: css("--surface-1"), width: 1.5 } }, hovertemplate: "%{text}<extra></extra>" },
     ];
     const shapes = actual !== null ? [{ type: "line", x0: actual, x1: actual, yref: "paper", y0: 0, y1: 1, line: { color: css("--text-primary"), width: 2 } }] : [];
     const xs = [q.q05, q.q95, ...list.map((g) => g.value), ...(actual !== null ? [actual] : [])];
     plot("p-guess", tr, baseLayout({ hovermode: "closest", margin: { l: 16, r: 16, t: 8, b: 36 }, shapes,
-      yaxis: Object.assign(baseLayout().yaxis, { visible: false, range: [-0.3, 0.6] }),
+      yaxis: Object.assign(baseLayout().yaxis, { visible: false, range: [-0.25, 0.7] }),
       xaxis: Object.assign(baseLayout().xaxis, { ticksuffix: "%", range: [Math.min(...xs) - 0.3, Math.max(...xs) + 0.3] }) }));
     table(el("tbl-guess"), [t("bm_col_rank"), t("bm_col_name"), t("bm_col_guess"), actual !== null ? t("bm_col_err") : t("bm_col_when")],
       rows.map((r, i) => [actual !== null ? String(i + 1) : "–", r.model ? `${r.name} ★` : r.name + (r.local ? ` (${t("bm_local")})` : ""), pct(r.value, 2),
-        actual !== null ? fmt(r.err, 2) : (r.model ? monthLabel(F.origin) : (r.at || "").slice(0, 10))]), [2, 3]);
+        actual !== null ? fmt(r.err, 2) : dayLabel(r.model ? modelRecorded() : r.at)]), [2, 3]);  // one date format for every row (D67)
     el("bm-note").textContent = (actual !== null ? t("bm_scored", { m: monthLabel(tgt), a: pct(actual, 2) }) : t("bm_pending", { m: monthLabel(tgt) }))
       + " " + (bmShared && bmShared.shared ? t("bm_shared", { n: list.length }) : t("bm_localonly"));
     if (!bmBound) {
@@ -742,11 +749,15 @@
         colorscale: [[0, css("--band68")], [1, css("--accent")]], marker: { line },
         customdata: ea.map((g) => [geo(g), yoyOf(g), conOf(g)]), name: t(mapMode === "yoy" ? "map_mode_yoy" : "map_mode_con"),
         hovertemplate: `<b>%{customdata[0]}</b><br>${t("map_h_yoy")}: %{customdata[1]:.1f}%<br>${t("map_h_con")}: %{customdata[2]:.2f} ${t("pp")}<extra></extra>`,
-        colorbar: Object.assign({ thickness: 10, len: 0.7, ticksuffix: mapMode === "yoy" ? "" : " " + t("pp"),
-          tickfont: { color: css("--text-secondary"), size: 11 } }, tick) },
+        colorbar: Object.assign({ thickness: 14, len: 0.75, x: 0.98, ticksuffix: mapMode === "yoy" ? "" : " " + t("pp"),
+          tickfont: { color: css("--text-secondary"), size: 13 } }, tick) },
     ], baseLayout({ hovermode: "closest", margin: { l: 0, r: 0, t: 0, b: 0 },
       geo: { visible: false, projection: { type: "azimuthal equal area", rotation: { lon: 12, lat: 52 } },
-        lonaxis: { range: [-12, 34] }, lataxis: { range: [34.5, 70] }, bgcolor: "rgba(0,0,0,0)" } }));
+        lonaxis: { range: [-10, 31] }, lataxis: { range: [35, 69] }, bgcolor: "rgba(0,0,0,0)" } }));
+    // One line to read first (D67): the highest and lowest member in the current view.
+    const order = ea.map((g, i) => [g, zs[i]]).sort((x, y) => y[1] - x[1]), top = order[0], bot = order[order.length - 1];
+    const f = (v) => (mapMode === "yoy" ? fmt(v, 1) + "%" : fmt(v, 2) + " " + t("pp"));
+    el("map-sum").textContent = t("map_sum", { hi: geo(top[0]), hv: f(top[1]), lo: geo(bot[0]), lv: f(bot[1]) });
     el("n-map").textContent = t("map_note", { date: monthLabel(date) });
     if (!mapBound) {
       el("p-map").on("plotly_click", (ev) => {
@@ -1169,14 +1180,18 @@
     const ex = el("nl-examples"); ex.replaceChildren();
     // Examples in the page's language only, in full (D65); all of them if none is recorded in this language.
     const mine = NL_EX.filter((e) => (e.lang || "en") === lang);
-    (mine.length ? mine : NL_EX).forEach((e) => {
+    // Two examples in view, the rest folded (D67), so the builder starts higher up the screen.
+    const more = node("details", { class: "more-ex" }); more.append(node("summary", {}, t("nl_more_ex")));
+    const moreBox = node("div", { class: "presets examples" }); more.append(moreBox);
+    (mine.length ? mine : NL_EX).forEach((e, i) => {
       const b = node("button", { type: "button" }, e.text);
       b.addEventListener("click", () => {
         el("nl-text").value = e.text;
         showInterpretation({ scenario: e.scenario, interpretation: e.interpretation }, t("nl_recorded", { model: e.model }));
       });
-      ex.appendChild(b);
+      (i < 2 ? ex : moreBox).appendChild(b);
     });
+    if (moreBox.children.length) ex.appendChild(more);
     if (!liveOk()) el("nl-status").textContent = t("nl_live_off");
     else if (el("nl-status").textContent === t("nl_live_off")) el("nl-status").textContent = "";
   }

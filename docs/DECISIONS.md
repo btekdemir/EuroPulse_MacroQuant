@@ -1032,3 +1032,18 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
 - **Small members:** Malta, Cyprus and Luxembourg are hard to see and click on a map. The note says so, and the panels and table below still list every member.
 - **Wired in:** PNG/CSV (the CSV lists all 21 members), "Explain this", the assistant's "Go to" (section `country_map`).
 - **Checked:** Python tests pass; end-to-end 165/165 (5 new, including "no outline fetched from the network").
+
+## D67. Map and simulator first screen, Beat the model tidy-up (22 Oct 2026)
+
+- **Map:**
+  - Taller (560 px; 420 on phones) and zoomed to the members, so less empty space at the sides.
+  - Legend text 13 px.
+  - A one-line summary under the title: "Highest: Lithuania 6.1% · Lowest: Malta 2.4%". In the contribution view it names the largest and smallest contributors.
+- **Simulator first screen:**
+  - The sentence box shows two examples; the rest are under "More examples". The builder starts higher up the screen.
+  - The reverse stress test is folded and sits below the impact chart: the main flow is "pick a shock → see the result", and solving backwards is the second step.
+- **Beat the model:**
+  - Guesses sit on one line above the band, each labelled "name value" while there are at most eight. The chart is 200 px tall instead of 280.
+  - The "Entered" column uses one format for every row (21 Oct 2026). The model's date is when the ledger recorded its forecast.
+  - The live site has no shared store (Upstash), so guesses stay in each reader's browser; the card says so.
+- **Checked:** end-to-end 165/165.

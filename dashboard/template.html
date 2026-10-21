@@ -88,6 +88,9 @@ a.dcode { color: inherit; text-decoration: underline dotted; text-underline-offs
 .presets.examples { margin-bottom: 8px; }
 .presets.examples button { white-space: normal; text-align: left; line-height: 1.35; }
 [hidden] { display: none !important; }  /* a label styled as flex must still hide (D65: "Months" showed for permanent shocks) */
+.more-ex { width: 100%; } .more-ex > summary { cursor: pointer; color: var(--text-secondary); font-size: 12.5px; margin: 2px 0 6px; }
+.more-ex .presets.examples { margin-top: 4px; }
+#rev-card > details > summary { cursor: pointer; }
 .card.plain { background: transparent; border: 0; padding: 4px 2px; }
 .tab-lede { grid-column: span 12; margin: 2px 0 0; color: var(--text-secondary); font-size: 14px; }
 .sec-head { grid-column: span 12; margin: 14px 2px -4px; font-size: 11.5px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
@@ -107,7 +110,7 @@ details.fold > summary h2 { margin: 0; }
 .kpi .sub { color: var(--text-secondary); font-size: 12.5px; }
 .answer { font-size: 15px; line-height: 1.55; margin: 0; }
 .plot { width: 100%; height: 360px; }
-.plot.tall { height: 460px; } .plot.short { height: 280px; }
+.plot.tall { height: 460px; } .plot.map { height: 560px; } .plot.mini { height: 200px; } @media (max-width: 700px) { .plot.map { height: 420px; } } .plot.short { height: 280px; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
 th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
 th { color: var(--text-secondary); font-weight: 600; font-size: 12px; }
@@ -290,7 +293,7 @@ input[type="range"] { min-width: 160px; }
           <label><span data-i18n="bm_value"></span><input type="number" id="bm-value" step="0.01" min="-5" max="15"></label>
           <button type="button" class="btn tour-primary" id="bm-go" data-i18n="bm_submit"></button>
           <span class="note" id="bm-status" role="status" style="margin:0"></span></div>
-        <div class="plot short" id="p-guess"></div>
+        <div class="plot mini" id="p-guess"></div>
         <div class="tablewrap" id="tbl-guess"></div><p class="note" id="bm-note"></p><p class="note" data-i18n="bm_privacy"></p></details></div>
       <h3 class="sec-head" data-i18n="sec_explore"></h3>
       <div class="card span-6"><details class="fold" id="mx-fold"><summary><h2 data-i18n="mx_title"></h2></summary>
@@ -336,8 +339,9 @@ input[type="range"] { min-width: 160px; }
     <div class="grid">
       <p class="tab-lede" data-i18n="lede_countries"></p>
       <div class="card" id="map-card"><h2 id="t-map"></h2>
+        <p class="answer" id="map-sum" style="margin:2px 0 8px"></p>
         <div class="row" style="margin:4px 0 6px"><div class="seg" id="map-mode" role="group"></div></div>
-        <div class="plot tall" id="p-map"></div><p class="note" id="n-map"></p><p class="src" data-src="src_eurostat"></p></div>
+        <div class="plot map" id="p-map"></div><p class="note" id="n-map"></p><p class="src" data-src="src_eurostat"></p></div>
       <div class="card"><h2 data-i18n="cc_title"></h2><p class="note" data-i18n="cc_intro" style="margin:0 0 8px"></p>
         <div class="row"><label><span data-i18n="cc_add"></span><select id="cc-add"></select></label><div class="chips" id="cc-chips"></div></div>
         <div class="plot" id="p-ccmp"></div><p class="src" data-src="src_eurostat"></p></div>
@@ -426,8 +430,10 @@ input[type="range"] { min-width: 160px; }
           <div class="kpi" style="grid-column: span 3" id="k-shocked"></div>
           <div class="kpi" style="grid-column: span 3" id="k-prob"></div>
         </div>
-        <div class="assume" id="rev-card" style="margin:10px 0">
-          <b data-i18n="rev_title"></b>
+        <h2 style="margin-top:12px" data-i18n="ch_shock"></h2><div class="plot" id="p-shock"></div>
+        <p class="note" data-i18n="ch_shock_note"></p><p class="src" data-src="src_shock"></p>
+        <div class="assume" id="rev-card" style="margin:10px 0"><details class="fold" id="rev-fold">
+          <summary><b data-i18n="rev_title"></b></summary>
           <p class="note" data-i18n="rev_intro" style="margin:2px 0 6px"></p>
           <div class="row">
             <label><span data-i18n="rev_solve"></span><select id="rev-solve"></select></label>
@@ -438,9 +444,7 @@ input[type="range"] { min-width: 160px; }
           </div>
           <p class="answer" id="rev-out" style="margin:8px 0 4px" role="status"></p>
           <button class="btn" id="rev-apply" type="button" hidden data-i18n="rev_apply"></button>
-        </div>
-        <h2 style="margin-top:12px" data-i18n="ch_shock"></h2><div class="plot" id="p-shock"></div>
-        <p class="note" data-i18n="ch_shock_note"></p><p class="src" data-src="src_shock"></p>
+        </details></div>
         <div id="legs-block" hidden><h2 style="margin-top:12px" data-i18n="leg_table_title"></h2>
           <div class="tablewrap" id="tbl-legs"></div><p class="note" data-i18n="leg_note"></p></div>
         <h2 style="margin-top:12px" data-i18n="ch_shock_path"></h2><div class="plot short" id="p-shockpath"></div>
