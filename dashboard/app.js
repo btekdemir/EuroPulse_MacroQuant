@@ -869,7 +869,17 @@
     if (multi || scenario.second_round) {
       tr.push({ x: xs, y: r.delta_yoy_pp, mode: "lines+markers", name: t("s_total"), line: { color: css("--text-primary"), width: 2 }, marker: { size: 6 }, hovertemplate: "%{y:+.3f} " + t("pp") });
     }
-    plot("p-shock", tr, baseLayout({ barmode: "relative", bargap: 0.3 }));
+    // A fixed minimum scale (±0.5 pp) so bar heights mean the same thing across scenarios: an autoscaled axis made a
+    // 0.008 pp shock fill the chart exactly like a 1 pp one. Larger impacts still widen the axis.
+    const vals = [...r.delta_yoy_pp, ...(scenario.second_round ? [...r.delta_total_low_pp, ...r.delta_total_high_pp] : [])];
+    const vmax = Math.max(0, ...vals), vmin = Math.min(0, ...vals), MIN_SPAN = 0.5;
+    const yr = [vmin < -1e-9 ? Math.min(-MIN_SPAN, vmin * 1.15) : -0.02, Math.max(vmax > 1e-9 ? MIN_SPAN : 0.1, vmax * 1.15)];
+    const pk = S.months.indexOf(r.peak_month);
+    plot("p-shock", tr, baseLayout({ barmode: "relative", bargap: 0.3,
+      yaxis: Object.assign(baseLayout().yaxis, { range: yr, autorange: false }),
+      annotations: pk >= 0 ? [{ x: toDate(r.peak_month), y: r.delta_yoy_pp[pk], text: `${t("sim_peak_short")} ${sgn(r.peak_pp, Math.abs(r.peak_pp) < 0.1 ? 3 : 2)} ${t("pp")}`,
+        showarrow: false, yanchor: r.delta_yoy_pp[pk] >= 0 ? "bottom" : "top", yshift: r.delta_yoy_pp[pk] >= 0 ? 4 : -4,
+        font: { size: 11, color: css("--text-secondary") } }] : [] }));
 
     const hist = F.history.slice(-12);
     const bx = [toDate(F.origin), ...P.map((p) => toDate(p.date))];

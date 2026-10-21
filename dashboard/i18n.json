@@ -63,7 +63,7 @@
   "sim_dec": "Impact on {date} y/y",
   "sim_shocked": "{date} y/y with shock",
   "ch_shock": "Impact on euro area* headline inflation, pp of y/y",
-  "ch_shock_note": "First-round = mechanical pass-through with effective weights. A permanent level shock lifts y/y for 12 months, then drops out (base effect).",
+  "ch_shock_note": "First-round = mechanical pass-through with effective weights. A permanent level shock lifts y/y for 12 months, then drops out (base effect). The axis always spans at least ±0.5 pp, so bar heights compare across scenarios.",
   "s_first": "First round",
   "s_second": "Second round (estimated)",
   "s_total": "Total",
@@ -543,7 +543,8 @@
   "code_saved": "Code saved for this tab. Ask again.",
   "code_unlock": "Unlock",
   "code_label": "Access code",
-  "code_placeholder": "Access code"
+  "code_placeholder": "Access code",
+  "sim_peak_short": "peak"
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -609,7 +610,7 @@
   "sim_dec": "Impact sur {date}",
   "sim_shocked": "{date} avec choc",
   "ch_shock": "Impact sur l'inflation globale de la zone euro*, pt",
-  "ch_shock_note": "Premier tour = transmission mécanique avec les pondérations effectives. Un choc permanent sur le niveau relève l'inflation sur un an pendant 12 mois, puis sort du calcul (effet de base).",
+  "ch_shock_note": "Premier tour = transmission mécanique avec les pondérations effectives. Un choc permanent sur le niveau relève l'inflation sur un an pendant 12 mois, puis sort du calcul (effet de base). L'axe couvre toujours au moins ±0,5 pt, pour que la hauteur des barres se compare d'un scénario à l'autre.",
   "s_first": "Premier tour",
   "s_second": "Second tour (estimé)",
   "s_total": "Total",
@@ -1089,6 +1090,7 @@
   "code_saved": "Code enregistré pour cet onglet. Reposez la question.",
   "code_unlock": "Déverrouiller",
   "code_label": "Code d’accès",
-  "code_placeholder": "Code d’accès"
+  "code_placeholder": "Code d’accès",
+  "sim_peak_short": "pic"
  }
 }

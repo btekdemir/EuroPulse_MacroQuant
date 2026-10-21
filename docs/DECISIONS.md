@@ -660,3 +660,9 @@ Committed to git before the code that runs it. It does not change after the resu
   - "Explain" on the track chart sent `horizon undefined` (it read `.value` from a button group).
   - The simulator form widened phones to 417px (449px in French). The causes were a fieldset's default min-content width, a grid column sized by its widest item, and a `nowrap` chip label.
 - **Bugs in the test itself, now fixed:** a dataset code read as an i18n key; the horizon button that was already selected; a stub that matched "Germany" before "what if"; a reverse test on a preset that starts after December (the page correctly says no size can reach the target).
+
+## D47. Shock impact chart on a comparable scale (21 Oct 2026)
+
+- **Problem (user-reported):** the impact bars looked the same in every scenario, always full height. The y-axis autoscaled to each scenario's maximum, so a +0.008pp shock filled the chart exactly like a +1pp one. A permanent shock is also, correctly, flat for 12 months, which made the effect stronger.
+- **Fix:** the axis always spans at least 0 to +0.5pp, or −0.5pp to 0 for negative shocks, and widens only when the impact is larger. Bar heights are now comparable across scenarios, and a label marks the peak with its value.
+- Checked: oil +0.46pp on a 0–0.52 axis, gas +1.07pp on 0–1.23, the French tariff +0.058pp on 0–0.50 (small bars), a −15% shock −0.14pp on −0.5–0.1. The end-to-end check is still 101/101.
