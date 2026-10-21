@@ -94,7 +94,7 @@ def main() -> int:
         log.info("  %s %-4s %s", g.gate, g.status.value.upper(), g.message)
 
     if report.blocking:
-        write_manifest(s, args, report, pulls, t0)
+        write_manifest(s, args, report, pulls, t0, version)
         log.error("critical validation gate(s) failed: %s. Stopping before the forecast.",
                   ", ".join(f"{g.gate} ({g.message})" for g in report.blocking))
         return 2
@@ -211,7 +211,7 @@ def main() -> int:
     except ImportError:
         log.warning("  dashboard builder not available")
 
-    write_manifest(s, args, report, pulls, t0)
+    write_manifest(s, args, report, pulls, t0, version)
     log.info("validation %s; done in %.1fs", report.summary, time.perf_counter() - t0)
     return 0 if scores.verified else 3
 
@@ -245,7 +245,7 @@ def _nan_to_none(r: dict) -> dict:
     return {k: (None if isinstance(v, float) and math.isnan(v) else v) for k, v in r.items()}
 
 
-def write_manifest(s, args, report, pulls, t0) -> None:
+def write_manifest(s, args, report, pulls, t0, version: str) -> None:
     manifest = RunManifest(
         run_at=datetime.now(timezone.utc), code_version=version, config_hash=s.config_hash(),
         python=platform.python_version(), offline=args.offline, last_period=report.last_period,
