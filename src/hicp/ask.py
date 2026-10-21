@@ -320,7 +320,7 @@ def system_prompt(doc: AskFacts) -> str:
     sheet = "\n".join(f"{x.id}: {x.label} = {x.value:.4g}" for x in doc.facts)
     sections = "\n".join(f"{k}: {TABS[tab].split(' / ')[0]}, {what}" for k, (tab, _, what) in SECTIONS.items())
     return (
-        "You answer questions about a euro area inflation dashboard (HICP forecast, drivers, countries, shock "
+        "You answer questions about EuroPulse, a euro area inflation dashboard (HICP forecast, drivers, countries, shock "
         "simulator, model validation). Answer in the language of the question (English, French or Turkish), in at "
         "most 90 words, plainly, as an economist would to a colleague. No trading or investment advice.\n\n"
         "Hard rules:\n"

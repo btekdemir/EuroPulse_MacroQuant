@@ -1883,7 +1883,7 @@ img{width:100%;display:block} table{border-collapse:collapse;font-size:9pt} td,t
 .foot{color:#666;font-size:7.5pt;border-top:1px solid #ddd;margin-top:8px;padding-top:4px} .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media screen{body{background:#f3f3f3}.wrap{background:#fff;padding:12mm;margin:10px auto;box-shadow:0 2px 12px rgba(0,0,0,.15)}.noprint{text-align:center;margin:10px}}
 @media print{.noprint{display:none}}</style></head><body>
-<div class="wrap"><h1>${esc(t("title"))}</h1><div class="sub">${esc(t("brief_sub", { origin: monthLabel(F.origin), run: M.run_at.slice(0, 10) }))}</div>
+<div class="wrap"><h1><svg viewBox="0 0 32 32" width="22" height="22" style="vertical-align:-3px;margin-right:6px" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#2a78d6"/><path d="M4 17.5h6l2.4-6.5 3.6 12 3.2-15 2.6 9.5H28" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>${esc(t("title"))} <span style="font-weight:400;color:#555;font-size:11pt">${esc(t("brief_title").split("·").pop().trim())}</span></h1><div class="sub">${esc(t("brief_sub", { origin: monthLabel(F.origin), run: M.run_at.slice(0, 10) }))}</div>
 <div class="kp">${kpis}</div>
 <h2>${esc(t("answer_title"))}</h2><p>${esc(el("answer").textContent)}</p>
 <h2>${esc(el("wc-title").textContent)}</h2><p>${esc(el("wc-text").textContent)}</p>

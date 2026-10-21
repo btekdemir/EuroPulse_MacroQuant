@@ -1,7 +1,7 @@
 {
  "en": {
-  "title": "Euro area inflation monitor",
-  "subtitle": "HICP headline forecast, drivers and shock simulator · euro area* (changing composition)",
+  "title": "EuroPulse",
+  "subtitle": "Euro area inflation monitor · HICP headline forecast, drivers and shock simulator · euro area* (changing composition)",
   "tab_overview": "Overview",
   "tab_drivers": "Drivers",
   "tab_countries": "Countries",
@@ -446,7 +446,7 @@
   "rng_3y": "3Y",
   "rng_all": "All",
   "brief_button": "Brief (PDF)",
-  "brief_title": "Euro area inflation brief",
+  "brief_title": "EuroPulse · Euro area inflation brief",
   "brief_building": "Preparing the brief…",
   "brief_blocked": "The browser blocked the new window. Allow pop-ups for this page and try again.",
   "brief_print": "Print / save as PDF",
@@ -793,8 +793,8 @@
   "nl_more_ex": "More examples"
  },
  "fr": {
-  "title": "Suivi de l'inflation en zone euro",
-  "subtitle": "Prévision de l'IPCH global, contributions et simulateur de chocs · zone euro* (composition évolutive)",
+  "title": "EuroPulse",
+  "subtitle": "Suivi de l'inflation en zone euro · prévision de l'IPCH global, contributions et simulateur de chocs · zone euro* (composition évolutive)",
   "tab_overview": "Synthèse",
   "tab_drivers": "Contributions",
   "tab_countries": "Pays",
@@ -1239,7 +1239,7 @@
   "rng_3y": "3 ans",
   "rng_all": "Tout",
   "brief_button": "Note (PDF)",
-  "brief_title": "Note sur l’inflation en zone euro",
+  "brief_title": "EuroPulse · Note sur l’inflation en zone euro",
   "brief_building": "Préparation de la note…",
   "brief_blocked": "Le navigateur a bloqué la nouvelle fenêtre. Autorisez les fenêtres pour cette page et réessayez.",
   "brief_print": "Imprimer / enregistrer en PDF",

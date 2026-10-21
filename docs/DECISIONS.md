@@ -1047,3 +1047,13 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
   - The "Entered" column uses one format for every row (21 Oct 2026). The model's date is when the ledger recorded its forecast.
   - The live site has no shared store (Upstash), so guesses stay in each reader's browser; the card says so.
 - **Checked:** end-to-end 165/165.
+
+## D68. The name EuroPulse and its mark (22 Oct 2026)
+
+- **Name:** the dashboard is called EuroPulse. The subtitle keeps the plain description ("Euro area inflation monitor · HICP headline forecast, drivers and shock simulator").
+- **Mark:** a rounded square in the page accent with a white pulse line. It is inline SVG, so it follows light and dark mode and needs no file.
+- **Where it appears:** the header (every tab), the browser tab icon, the Ask panel and the PDF brief.
+- **Animation:** the pulse line draws in once on load, and not at all for readers who ask for reduced motion.
+- **Files:** `docs/europulse_logo.svg` and `.png` (512 px) are there for the deck.
+- **Also named:** the README title and the assistant's description of itself.
+- **Checked:** Python tests pass; end-to-end 165/165.

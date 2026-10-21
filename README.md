@@ -1,4 +1,4 @@
-# Euro Area HICP: Bottom-up Forecast, Shock Simulation & Dashboard
+# EuroPulse: euro area HICP bottom-up forecast, shock simulation & dashboard
 
 > Status (21 Oct 2026): pipeline, validation, forecast, backtest, shock engine, dashboard and assistant are done
 > and pass a clean-clone test (below). Deck and defence notes are prepared separately.
