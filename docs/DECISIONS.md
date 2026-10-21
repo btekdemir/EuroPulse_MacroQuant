@@ -890,3 +890,26 @@ Two reviews were pasted in, one on method and consistency and one on looks. Thei
 - **Footer:** outputs are rebuilt from a clean tree, so the commit shown has no "-dirty".
 - **Checked:** Python 212/212; end-to-end 123/123 at 1280×900, at the narrow app pane (horizontal bridge) and at 375×812.
 - **Footer fix:** run.py read the git state after writing outputs/, so its own outputs marked it dirty. It now reads it once at the start and ignores outputs/, ledger/ and data/, as the ledger check already did.
+
+## D60. Third review: last consistency pass, model frozen (22 Oct 2026)
+
+- **Model frozen:** no round 5. The Model tab opens with an evidence box: RMSE ratio 0.79 at 3 months, DM p 0.016, largest contribution error 0.009 pp, 9 of 9 data checks without a failure (one warning, V8). Below it, one line: each rule was fixed before its round, every change is in the ledger, and from now on the ledger is the clean out-of-sample test.
+- **Charts:**
+  - Charts with range buttons fit their y-axis to the visible dates (a 1Y or 3Y view is not squeezed by the 2022 peak); "All" goes back to the full scale.
+  - The euro area reference line in the country comparison is dark grey and thicker.
+  - PNG / CSV / Explain buttons are always fully visible, with darker text and border (replaces the resting opacity of D58 and D59).
+- **Names:**
+  - "Hold-out (2020–)" → "Evaluation (2020–)": the later rounds used that period, so it is no longer held out.
+  - The first-release table's columns say "first releases"; the fan check says "past errors only" instead of "real time".
+  - The first-stage selection title says it was decided on 2010–2019 and that rounds 2–4 were tested on all origins.
+- **Readings tied to their model:**
+  - Round 2's candidates gained only from 2020.
+  - Round 4's B1 gains equally before and after (about 0.79 in both).
+- **Method text:** it now says services and goods (about 71% of the basket) are "no change in y/y" and lists the other components' models.
+- **Decision codes:** each D-code in the page links to a short list at the end of the Model tab.
+- **0.00 pp box:** the box now says that the base effect (−0.11) and momentum (+0.12) offset each other.
+- **Live routes:**
+  - If the assistant or the sentence interpreter fails (quota, outage, no network), the reader gets a plain message saying the rest of the page works without it.
+  - Beat the model says what it stores: the name, number and time.
+- **Interview notes:** `docs/DEFENCE_NOTES.md` has two sentences per method and the three likely questions.
+- **Checked:** Python 212/212; end-to-end 129/129 (6 new checks) in the app pane and at 375×812.

@@ -90,8 +90,35 @@
         buttons: [{ count: 1, step: "year", stepmode: "backward", label: t("rng_1y") },
           { count: 3, step: "year", stepmode: "backward", label: t("rng_3y") }, { step: "all", label: t("rng_all") }] } });
     }
-    return Plotly.react(el(id), data, layout, CFG);
+    const out = Plotly.react(el(id), data, layout, CFG);
+    if (RANGED.has(id)) {
+      const gd = el(id);
+      if (!gd._fitY) {
+        gd._fitY = true;
+        // The y-axis follows the visible dates (D60): a 1Y or 3Y view is not squeezed by the 2022 peak; "All" keeps the full scale.
+        gd.on("plotly_relayout", (ev) => {
+          if (ev["xaxis.autorange"]) Plotly.relayout(gd, { "yaxis.autorange": true });
+          else if (ev["xaxis.range[0]"] !== undefined || ev["xaxis.range"]) fitY(gd);
+        });
+      }
+      if (layout.xaxis && layout.xaxis.range) out.then(() => fitY(gd));
+    }
+    return out;
   };
+  function fitY(gd) {
+    const r = gd.layout.xaxis.range.map((x) => new Date(x).getTime());
+    let lo = Infinity, hi = -Infinity;
+    for (const tr of gd.data) {
+      if (!tr.x || !tr.y || tr.visible === "legendonly") continue;
+      tr.x.forEach((x, i) => {
+        const tx = new Date(x).getTime(), y = tr.y[i];
+        if (tx >= r[0] && tx <= r[1] && Number.isFinite(y)) { lo = Math.min(lo, y); hi = Math.max(hi, y); }
+      });
+    }
+    if (!Number.isFinite(lo)) return;
+    const pad = Math.max(0.3, 0.12 * (hi - lo));
+    Plotly.relayout(gd, { "yaxis.range": [lo - pad, hi + pad] });
+  }
 
   // ------------------------------------------------------------------ static text
   function applyText() {
@@ -250,7 +277,7 @@
       el("bm-go").disabled = true;
       const { r, body } = await apiPost("/api/guess", { name: g.name, value: g.value });
       el("bm-go").disabled = false;
-      el("bm-status").textContent = r.ok ? t("bm_saved_shared") : (body.error || t("bm_saved_local"));
+      el("bm-status").textContent = r.ok ? t("bm_saved_shared") : (r.status === 0 || r.status >= 500 ? t("bm_saved_local") : body.error || t("bm_saved_local"));
       if (r.ok) await bmLoad();
     } else el("bm-status").textContent = t("bm_saved_local");
     renderBeat();
@@ -278,6 +305,7 @@
       t("kpi_band", { lo: fmt(q.q16), hi: fmt(q.q84), lo90: fmt(q.q05), hi90: fmt(q.q95) }));
     el("kpi-dec").querySelector(".value").after(node("div", { class: "point" }, t("kpi_point", { v: pct(last.point, 2) })));  // 1 dp headline: the error is ~0.6 pp
     kpi("kpi-last", t("kpi_last", { date: origin }), sgn(last.point - F.last_actual_yoy, 2) + " " + t("pp"), `${origin}: ${pct(F.last_actual_yoy)}`);
+    el("kpi-last").querySelector(".value").after(node("div", { class: "point" }, t("kpi_last_why", { base: sgn(last.base_effect_pp), mom: sgn(last.momentum_pp) })));
     kpi("kpi-ecb", t("kpi_ecb"), sgn(last.point - F.ecb_target, 1) + " " + t("pp"), `${pct(last.point)} − ${pct(F.ecb_target)}`);
     kpi("kpi-base", t("kpi_locked", { date: dec }), sgn(last.base_effect_pp) + " " + t("pp"),
       `${t("kpi_locked_note")} · ${t("kpi_momentum", { date: dec })} ${sgn(last.momentum_pp)} ${t("pp")} (${t("kpi_momentum_note")})`);
@@ -578,7 +606,7 @@
       chips.appendChild(lab);
     }
     const xs = C.dates.map(toDate);
-    const tr = [{ x: xs, y: C.ea_yoy, mode: "lines", name: geo("EA"), line: { color: css("--axis"), width: 2.5 }, hovertemplate: "%{y:.1f}%" }];
+    const tr = [{ x: xs, y: C.ea_yoy, mode: "lines", name: geo("EA"), line: { color: css("--text-secondary"), width: 3 }, hovertemplate: "%{y:.1f}%" }];
     for (const [g, k] of ccSel) tr.push({ x: xs, y: C.yoy[g], mode: "lines", name: geo(g), line: { color: css(CC_SLOTS[k]), width: 2 }, hovertemplate: "%{y:.1f}%" });
     plot("p-ccmp", tr, baseLayout({ yaxis: Object.assign(baseLayout().yaxis, { ticksuffix: "%" }) }));
   }
@@ -1003,6 +1031,13 @@
   // "code required" answer, opens the code box in the Ask panel. The code lives in this tab only.
   let accessCode = "";
   try { accessCode = sessionStorage.getItem("hicp.code") || ""; } catch (e) { /* storage blocked */ }
+  // What a reader sees when a live route fails (D60): quota, rate limit, outage or no network. The rest of the page
+  // is computed in the browser and keeps working, so the message says so.
+  function liveError(r, body, kind) {
+    if (r.status === 429) return body.error || t("live_busy");
+    if (r.status === 0 || r.status >= 500) return t("live_down_" + kind);
+    return body.error || t("live_down_" + kind);
+  }
   async function apiPost(url, payload) {
     let r, body = {};
     try {
@@ -1040,7 +1075,7 @@
     try {
       const { r, body } = await apiPost("/api/scenario", { text });
       if (!r.ok || !body.scenario) {
-        el("nl-status").textContent = [404, 405, 501].includes(r.status) ? t("nl_live_off") : (body.error || `${t("nl_failed")} (${r.status})`);
+        el("nl-status").textContent = [404, 405, 501].includes(r.status) ? t("nl_live_off") : liveError(r, body, "nl");
         return;
       }
       el("nl-status").textContent = "";
@@ -1263,7 +1298,46 @@
     el("meta-note").textContent = t("meta_note", { n: S.countries.length, ds: [...new Set(M.vintages.map((v) => v.dataset))].join(", ") });
   }
 
+  function renderModelSummary() {
+    const r = B.metrics.find((x) => x.model === "bottom_up" && x.h === 3 && x.sample === "full");
+    const g = V.gates, pass = g.filter((x) => x.status === "pass").length, warn = g.filter((x) => x.status === "warn").map((x) => x.gate);
+    const tile = (v, l, s) => { const d = node("div"); d.append(node("div", { class: "v" }, v), node("div", { class: "l" }, l), node("div", { class: "s" }, s)); return d; };
+    el("msum").replaceChildren(
+      tile(fmt(r.rmse_ratio_vs_rw, 2), t("msum_ratio"), t("msum_ratio_s", { rmse: fmt(r.rmse, 2), rw: fmt(r.rmse_rw, 2) })),
+      tile(fmt(r.dm_p, 3), t("msum_dm"), t("msum_dm_s")),
+      tile(fmt(D.recon.stats.contrib_max_abs_err_pp, 3) + " " + t("pp"), t("msum_rc"), t("msum_rc_s", { h: fmt(D.recon.stats.yoy_max_abs_err_pp, 3) })),
+      tile(`${pass + warn.length}/${g.length}`, t("msum_val"), warn.length ? t("msum_val_warn", { p: pass, g: warn.join(", ") }) : t("msum_val_ok")));
+    el("msum-note").textContent = t("msum_note");
+  }
+  const DCODES = ["D27", "D28", "D29", "D44", "D56", "D57"];
+  function renderCodes() {
+    el("dc-list").replaceChildren(...DCODES.flatMap((c) => [node("dt", { id: "dc-" + c }, c), node("dd", {}, t("dc_" + c))]));
+  }
+  // Decision codes in any text become links to the list at the end of the Model tab (D60).
+  function linkCodes(root = document.querySelector("main")) {
+    const re = new RegExp(`\\b(${DCODES.join("|")})\\b`);
+    const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: (n) =>
+      (re.test(n.nodeValue) && !n.parentElement.closest("#dc-list, a, button, script, style, .js-plotly-plot, .ask-msg")) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT });
+    const hits = []; while (walk.nextNode()) hits.push(walk.currentNode);
+    for (const n of hits) {
+      const parts = n.nodeValue.split(new RegExp(`\\b(${DCODES.join("|")})\\b`));
+      n.replaceWith(...parts.map((s, i) => (i % 2 ? node("a", { class: "dcode", href: "#dc-" + s, "data-dc": s }, s) : document.createTextNode(s))));
+    }
+  }
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest("a.dcode"); if (!a) return;
+    e.preventDefault();
+    if (activeTab !== "model") document.querySelector("[data-tab=model]").click();
+    setTimeout(() => {
+      const dt = el("dc-" + a.dataset.dc); if (!dt) return;
+      dt.scrollIntoView({ behavior: "smooth", block: "center" });
+      [dt, dt.nextElementSibling].forEach((x) => { x.classList.add("flash"); setTimeout(() => x.classList.remove("flash"), 1800); });
+    }, 350);
+  });
+
   function renderModel() {
+    renderModelSummary();
+    renderCodes();
     renderRecon();
     renderMeta();
     const sel = el("bt-sample"), cur = sel.value || "full";
@@ -1454,8 +1528,9 @@
     if (tab === "countries") renderCountries();
     if (tab === "shocks") { refreshAll(); renderNL(); renderScenarioCompare(); renderHeat(); }
     if (tab === "model") renderModel();
+    linkCodes();
   }
-  function renderAll() { applyText(); renderAsk(); renderTab(activeTab); }
+  function renderAll() { applyText(); renderAsk(); renderTab(activeTab); linkCodes(); }
 
   function setTheme(th) {
     theme = th; store.set("hicp.theme", th);
@@ -1956,7 +2031,7 @@ ${note}
     try {
       const { r, body } = await apiPost("/api/ask", Object.assign({ question: q, history: askHist.slice(-4) }, extra || {}));
       el("ask-status").textContent = "";
-      if (!r.ok) { askLog(node("div", { class: "ask-msg bot muted" }, body.error || `${t("ask_failed")} (${r.status})`)); return; }
+      if (!r.ok) { askLog(node("div", { class: "ask-msg bot muted" }, liveError(r, body, "ask"))); return; }
       if (!body.verified) { askLog(node("div", { class: "ask-msg bot muted" }, t("ask_unverified"))); return; }
       askLog(askAnswerNode(body));
       askHist.push({ role: "user", content: q }, { role: "assistant", content: body.answer });

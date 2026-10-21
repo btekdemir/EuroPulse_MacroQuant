@@ -62,6 +62,17 @@ section[role="tabpanel"].active { display: block; }
 @media (max-width: 900px) { .span-6, .span-4, .span-8, .span-3 { grid-column: span 12; } header, main { padding-left: 16px; padding-right: 16px; } }
 .card h2 { font-size: 16px; margin: 0 0 6px; font-weight: 650; letter-spacing: -0.005em; }
 .kpi .value, td.num, .num { font-variant-numeric: tabular-nums; }
+.msum { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.msum > div { border-left: 3px solid var(--accent); padding: 2px 0 2px 10px; }
+.msum .v { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.msum .l { color: var(--text-secondary); font-size: 12.5px; }
+.msum .s { color: var(--text-muted); font-size: 12px; }
+@media (max-width: 700px) { .msum { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.dc { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; margin: 0; font-size: 13px; }
+.dc dt { font-weight: 600; font-variant-numeric: tabular-nums; }
+.dc dd { margin: 0; color: var(--text-secondary); }
+.dc :target, .dc dt.flash, .dc dd.flash { background: var(--band68); border-radius: 4px; }
+a.dcode { color: inherit; text-decoration: underline dotted; text-underline-offset: 2px; }
 .card.plain { background: transparent; border: 0; padding: 4px 2px; }
 .tab-lede { grid-column: span 12; margin: 2px 0 0; color: var(--text-secondary); font-size: 14px; }
 .sec-head { grid-column: span 12; margin: 14px 2px -4px; font-size: 11.5px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
@@ -118,11 +129,10 @@ input[type="number"], select { font: inherit; padding: 5px 8px; border: 1px soli
 .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
 footer { color: var(--text-muted); font-size: 12px; max-width: 1280px; margin: 0 auto; padding: 0 24px 24px; }
 b.sig { color: var(--text-primary); }
-.dl-bar { display: flex; gap: 6px; justify-content: flex-end; margin-top: 4px; opacity: 0.6; transition: opacity .15s ease; }
-.card:hover .dl-bar, .card:focus-within .dl-bar, .dl-bar:focus-within { opacity: 1; }
-@media (hover: none) { .dl-bar { opacity: 1; } }  /* touch: nothing to hover, keep them visible */
-.dl-btn { font: inherit; font-size: 11.5px; padding: 2px 8px; border: 1px solid var(--border); border-radius: 6px;
-  background: var(--surface-2); color: var(--text-secondary); cursor: pointer; }
+.dl-bar { display: flex; gap: 6px; justify-content: flex-end; margin-top: 4px; }
+.dl-btn { font: inherit; font-size: 12px; font-weight: 500; padding: 3px 10px; border: 1px solid var(--axis); border-radius: 6px;
+  background: var(--surface-1); color: var(--text-primary); cursor: pointer; }
+.dl-btn:hover { border-color: var(--accent); color: var(--accent); }
 .chips label, .row .chips label { display: inline-flex; white-space: nowrap; }
 #cc-chips { align-self: center; }
 .chips .chip-x { border: 0; background: none; color: var(--text-secondary); cursor: pointer; font: inherit; padding: 0 0 0 4px; }
@@ -261,7 +271,7 @@ input[type="range"] { min-width: 160px; }
           <button type="button" class="btn tour-primary" id="bm-go" data-i18n="bm_submit"></button>
           <span class="note" id="bm-status" role="status" style="margin:0"></span></div>
         <div class="plot short" id="p-guess"></div>
-        <div class="tablewrap" id="tbl-guess"></div><p class="note" id="bm-note"></p></details></div>
+        <div class="tablewrap" id="tbl-guess"></div><p class="note" id="bm-note"></p><p class="note" data-i18n="bm_privacy"></p></details></div>
       <h3 class="sec-head" data-i18n="sec_explore"></h3>
       <div class="card span-6"><details class="fold" id="mx-fold"><summary><h2 data-i18n="mx_title"></h2></summary>
         <div class="row" style="margin:4px 0 8px"><label><span data-i18n="mx_pick"></span><select id="mx-month"></select></label>
@@ -415,6 +425,7 @@ input[type="range"] { min-width: 160px; }
   <section role="tabpanel" id="tab-model">
     <div class="grid">
       <p class="tab-lede" data-i18n="lede_model"></p>
+      <div class="card" id="msum-card"><h2 data-i18n="msum_title"></h2><div class="msum" id="msum"></div><p class="note" id="msum-note" style="margin:8px 0 0"></p></div>
       <h3 class="sec-head" data-i18n="sec_accuracy"></h3>
       <div class="card"><h2 data-i18n="bt_title"></h2>
         <div class="row" style="margin:6px 0 10px"><label><span data-i18n="bt_sample"></span><select id="bt-sample"></select></label></div>
@@ -443,19 +454,19 @@ input[type="range"] { min-width: 160px; }
         <div class="tablewrap" id="tbl-r2"></div><p class="answer" id="r2-verdict" style="margin-top:8px"></p>
         <p class="note" data-i18n="r2_reading"></p></details></div>
       <h3 class="sec-head" data-i18n="sec_robust"></h3>
-      <div class="card"><h2 data-i18n="cal_title"></h2><p class="note" data-i18n="cal_intro"></p>
+      <div class="card" id="cal-card"><details class="fold" id="cal-fold"><summary><h2 data-i18n="cal_title"></h2></summary><p class="note" data-i18n="cal_intro"></p>
         <div class="plot short" id="p-sigma"></div>
         <div class="tablewrap" id="tbl-cal"></div><p class="answer" id="cal-verdict" style="margin-top:8px"></p>
-        <p class="note" id="cal-reading"></p></div>
-      <div class="card"><h2 data-i18n="rt_title"></h2><p class="note" data-i18n="rt_intro"></p>
-        <div class="tablewrap" id="tbl-rt"></div><p class="note" id="rt-reading"></p></div>
-      <div class="card"><h2 data-i18n="brk_title"></h2><p class="note" id="n-brk"></p>
+        <p class="note" id="cal-reading"></p></details></div>
+      <div class="card" id="rt-card"><details class="fold" id="rt-fold"><summary><h2 data-i18n="rt_title"></h2></summary><p class="note" data-i18n="rt_intro"></p>
+        <div class="tablewrap" id="tbl-rt"></div><p class="note" id="rt-reading"></p></details></div>
+      <div class="card" id="brk-card"><details class="fold" id="brk-fold"><summary><h2 data-i18n="brk_title"></h2></summary><p class="note" id="n-brk"></p>
         <div class="plot short" id="p-brk"></div><p class="note" data-i18n="brk_chart_note"></p>
         <div class="grid" style="gap:12px;margin-top:8px">
           <div class="span-6"><h2 data-i18n="brk_sub_title"></h2><div class="tablewrap" id="tbl-brk-sub"></div></div>
           <div class="span-6"><h2 data-i18n="brk_sens_title"></h2><div class="tablewrap" id="tbl-brk-sens"></div></div>
         </div>
-        <p class="note" data-i18n="brk_reading"></p><p class="src" data-src="src_eurostat"></p></div>
+        <p class="note" data-i18n="brk_reading"></p><p class="src" data-src="src_eurostat"></p></details></div>
       <h3 class="sec-head" data-i18n="sec_data"></h3>
       <div class="card" id="rc-card"><h2 data-i18n="rc_title"></h2><p class="answer" id="rc-text" style="margin:0 0 8px"></p>
         <div class="plot short" id="p-recon"></div>
@@ -466,6 +477,7 @@ input[type="range"] { min-width: 160px; }
       <div class="card" id="meta-card"><h2 data-i18n="meta_title"></h2><p class="note" data-i18n="meta_intro" style="margin:0 0 8px"></p>
         <div class="tablewrap" id="tbl-meta"></div><p class="note" id="meta-note"></p></div>
       <div class="card span-6"><h2 data-i18n="method_title"></h2><p class="note" data-i18n="method_text"></p></div>
+      <div class="card span-6" id="dc-card"><h2 data-i18n="dc_title"></h2><p class="note" data-i18n="dc_intro" style="margin:0 0 6px"></p><dl class="dc" id="dc-list"></dl></div>
     </div>
   </section>
 </main>

@@ -77,6 +77,8 @@ SECTIONS = {
     "compare": ("shocks", "cmp-card", "compare scenarios: save scenarios and show up to four side by side, with their December impact and probability"),
     "reconciliation": ("model", "rc-card", "reconciliation: our headline and contributions rebuilt from components against Eurostat's published figures"),
     "heatmap": ("shocks", "p-heat", "sensitivity heatmap: which country and component moves euro area* inflation most"),
+    "evidence": ("model", "msum-card", "one-line evidence summary: RMSE ratio, DM p-value, reconciliation error, data checks; the model is frozen"),
+    "decision_codes": ("model", "dc-card", "what the decision codes like D27 or D57 mean"),
     "ledger": ("model", "n-led", "forecast ledger: every published forecast and its score"),
     "backtest": ("model", "tbl-bt", "backtest accuracy vs random walk and direct AR, by horizon and sample"),
     "track_record": ("model", "p-track", "forecasts vs outcomes over time"),
@@ -86,7 +88,7 @@ SECTIONS = {
     "round3": ("model", "r3-card", "pre-registered round 3: SARIMA, Elastic Net, gradient boosting and an ensemble against the random walk; none passed"),
     "round2": ("model", "tbl-r2", "pre-registered round 2 model candidates and the verdict"),
     "calibration": ("model", "tbl-cal", "fan calibration: band coverage, fixed vs scaled width"),
-    "realtime": ("model", "tbl-rt", "real-time check against first releases"),
+    "realtime": ("model", "tbl-rt", "check of the forecasts against first releases instead of revised data"),
     "model_selection": ("model", "tbl-sel", "selected model per component and the selection rule"),
     "validation": ("model", "tbl-val", "data validation gates"),
     "methodology": ("model", "meta-card", "what is pulled: COICOP ver.2 codes, unit I25 (2025 = 100), weights, and each component's model"),
@@ -296,7 +298,7 @@ def build_ask_facts(out: Path) -> AskFacts:
         "it is known in advance. Momentum = the part from new monthly price changes.\n"
         "The bands are empirical quantiles of the model's own past out-of-sample errors, not model-implied.\n"
         "The shock simulator moves price levels per country and component; second-round effects are an estimated "
-        "distributed lag. Actuals are final Eurostat releases; flash estimates are used only in the real-time check.\n"
+        "distributed lag. Actuals are final Eurostat releases; flash estimates are used only in the first-release check.\n"
         "Model history: rounds 2 and 3 (pre-registered; round 3 tried SARIMA, Elastic Net, gradient boosting and an "
         "ensemble) found nothing that beat the random walk at three months. Round 4 (pre-registered) forecast services "
         "and non-energy industrial goods as 'no change in y/y' (their monthly changes repeat last year's); it passed the "

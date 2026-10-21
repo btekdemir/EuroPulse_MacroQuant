@@ -107,6 +107,8 @@
   });
   await step("overview: range buttons on the headline chart", async () => {
     ok("rangeselector present", !!(el("p-headline").layout.xaxis.rangeselector || {}).buttons);
+    const yr = el("p-headline").layout.yaxis.range || [];
+    ok("y-axis fitted to the visible two years", yr.length === 2 && yr[1] - yr[0] < 7, JSON.stringify(yr));
   });
 
   // Floating-bar bridge (D59): each step is a bar of |change| from the running total; walk it and land on the end bar.
@@ -261,6 +263,14 @@
 
   // ---------------------------------------------------------------- F. model
   await tab("model");
+  await step("model: evidence summary and decision-code links (D60)", async () => {
+    ok("four summary tiles with numbers", $$("#msum > div").length === 4 && /0\.\d\d/.test(visibleText(el("msum"))));
+    ok("six decision codes listed", $$("#dc-list dt").length === 6);
+    const a = $("a.dcode");
+    ok("codes in the text are links", !!a);
+    if (a) { a.click(); await sleep(700); ok("a code link lands on its entry", document.activeElement && el("dc-" + a.dataset.dc) && $("[role=tab][aria-selected=true]").dataset.tab === "model"); }
+    ok("old 'Hold-out' label gone", !$$("#bt-sample option").some((o) => /Hold-out|Hors sélection/.test(o.textContent)));
+  });
   await step("model: tables, sample menu, horizons, time machine", async () => {
     for (const id of ["tbl-led", "tbl-bt", "tbl-r2", "tbl-cal", "tbl-rt", "tbl-sel", "tbl-val", "tbl-vin"]) ok(`${id} has rows`, $$(`#${id} tbody tr`).length > 0);
     const opts = [...el("bt-sample").options].map((o) => o.value);
