@@ -13,10 +13,10 @@ in `.env`. Without a key, or in the offline file, those buttons are simply hidde
 
 ## Answer first
 
-**Euro area\* headline HICP, Dec 2026 (h = 3 from the Sep 2026 release): 3.8% YoY**
-(68% band 3.5–4.4%, 90% band 3.2–5.1%; Sep actual 3.8%). Path: Oct 3.7%, Nov 3.7%.
-The base effect subtracts 0.11pp by December and is already locked in; momentum adds 0.16pp.
-Fuels contribute 1.3pp (fuel prices +32% YoY) and services 1.4pp.
+**Euro area\* headline HICP, Dec 2026 (h = 3 from the Sep 2026 release): 3.8% YoY (3.77%)**
+(68% band 3.4–4.2%, 90% band 3.0–5.1%; Sep actual 3.8%). Path: Oct 3.8%, Nov 3.7%.
+The base effect subtracts 0.11pp by December and is already locked in; momentum adds 0.12pp.
+Fuels contribute 1.3pp (fuel prices +32% YoY) and services 1.5pp.
 Source: `outputs/forecast.json`.
 
 ## Quickstart
@@ -60,29 +60,39 @@ outputs were identical to the committed ones (no numeric difference above 1e−8
 keep the simpler model unless a richer one beats it with Diebold-Mariano p < 0.05. Selection
 uses 2010–2019 origins only; 2020 onwards is a hold-out.
 
+Published model since round 4 (D57): services and non-energy industrial goods as "no change in y/y", the other
+four components with their D9 models.
+
 | h | RMSE | Ratio vs random walk | DM p | vs direct AR, p |
 |---|---|---|---|---|
-| 1 | 0.27pp | 0.72 | 0.009 | 0.013 |
-| 2 | 0.49pp | 0.81 | 0.057 | 0.099 |
-| 3 | 0.67pp | 0.84 | 0.140 | 0.552 |
+| 1 | 0.23pp | 0.63 | <0.001 | <0.001 |
+| 2 | 0.44pp | 0.73 | 0.001 | <0.001 |
+| 3 | 0.63pp | 0.79 | 0.016 | 0.056 |
+
+Before round 4, the D9 models gave 0.27 / 0.49 / 0.67pp (ratios 0.72 / 0.81 / 0.84, h = 3 DM p 0.14).
 
 **Round 3 (pre-registered, D56):** SARIMA (airline), Elastic Net, gradient boosting (LightGBM-style, from scikit-learn)
 and their ensemble, forecasting headline directly. None passes Holm against the random walk at h = 3. The bottom-up
-model stays the most accurate (RMSE 0.671 against 0.710 for the best alternative, Elastic Net), and gradient boosting is
+model of the time stayed the most accurate (RMSE 0.671 against 0.710 for the best alternative, Elastic Net), and gradient boosting is
 worse than the random walk.
 
-The model beats the random walk significantly at h = 1. At h = 3 the RMSE is lower, but not
-significantly. It under-predicted the 2021–22 surge (2020–2023 h = 3 bias −0.64pp).
-See D14.
+**Round 4 (pre-registered, D57):** bottom-up variants. Forecasting services and goods as "no change in y/y" (B1) passed
+Holm narrowly (p 0.016 against a threshold of 0.0167) and beat the earlier bottom-up model (RMSE 0.632 against 0.671),
+so under the pre-registered rule it became the published model. Checks before adoption: a variant that replaces nothing
+reproduces the old bottom-up exactly, and the gain is the same in 2010–2019 and since 2020.
+
+The model beats the random walk at every horizon; at h = 3 significantly only since round 4, and narrowly. It
+under-predicted the 2021–22 surge (2020–2023 h = 3 bias −0.37pp; −0.64pp before round 4). See D14, D57.
 
 ## Core inflation (by-product, D44)
 
 Core HICP (`TOT_X_NRG_FOOD`) is built from the same goods and services forecasts, with no new model.
 Rebuilding it from the two components matches Eurostat's core within 0.05pp.
 
-Its backtest is shown honestly: **a random walk is more accurate for core at every horizon** (RMSE 0.29 vs 0.24
-at h = 1, DM p 0.015; 0.49 vs 0.41 at h = 3, p 0.12). The dashboard says so and recommends the last print. No model
-was re-selected after seeing this.
+With the D9 models, **a random walk was more accurate for core at every horizon** (RMSE 0.29 vs 0.24 at h = 1,
+DM p 0.015; 0.49 vs 0.41 at h = 3, p 0.12). The dashboard said so, and no model was re-selected after seeing it.
+That finding motivated round 4 (D57), which was pre-registered and switched goods and services to "no change in y/y".
+Core is now forecast essentially as a random walk (RMSE 0.40 vs 0.41 at h = 3).
 
 ## Shock simulator
 

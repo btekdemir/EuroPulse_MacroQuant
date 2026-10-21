@@ -88,3 +88,33 @@ def run_round4(inp: bt.Inputs, res: bt.BacktestResult) -> dict:
               for k, df in heads.items()}
     return {"metrics": metrics, "holm": decision, "best_passing": best, "adopted": adopted, "latest": latest, "checks": checks,
             "origin": f"{origin:%Y-%m}", "headline": pd.concat(heads.values(), ignore_index=True)}
+
+
+# --------------------------------------------------------------------------- adoption (D57's rule)
+NC = "NC"  # "no change in y/y" for a component: its next monthly changes repeat last year's same-month changes
+
+
+def adopt(inp: bt.Inputs, res: bt.BacktestResult, variant: str, first_origin: str, sel_start: str, sel_end: str) -> bt.BacktestResult:
+    """The backtest result with ``variant`` as the published bottom-up model: its components become model NC in
+    the choice, the bottom-up headline rows and metrics are recomputed with the same code, and the selection log
+    records the switch. Everything downstream (fan, calibration, real time, forecast, decomposition, shock basis,
+    ledger) then uses it unchanged."""
+    s = inp.settings
+    kind, comps = VARIANTS[variant]
+    comps = comps or [c for c in s.components if c != "FUEL"]
+    if kind != "nochange":
+        raise ValueError("only no-change variants are adoptable as a model choice")
+    vc = variant_components(inp, res, "nochange", comps)
+    nc = vc[vc.coicop.isin(comps)].assign(model=NC)
+    comp = pd.concat([res.comp_fc, nc], ignore_index=True)
+    old = dict(res.choice)
+    choice = old | {c: NC for c in comps}
+    bu = bt.attach_actual_yoy(bt.bottom_up(inp, comp, choice), inp).assign(model="bottom_up")
+    head = pd.concat([res.headline[res.headline.model != "bottom_up"], bu], ignore_index=True)
+    names = list(dict.fromkeys(res.headline.model))
+    metrics = bt.headline_metrics_table(inp, head, names, first_origin, sel_start, sel_end)
+    steps = pd.DataFrame([{"coicop": c, "candidate": f"{NC} (D57 round 4)", "vs": old[c], "accepted": True} for c in comps])
+    sel = res.selection.copy()
+    sel.loc[(sel.candidate == "SELECTED") & sel.coicop.isin(comps), "vs"] = NC
+    selection = pd.concat([sel[sel.candidate != "SELECTED"], steps, sel[sel.candidate == "SELECTED"]], ignore_index=True)
+    return bt.BacktestResult(comp_fc=comp, selection=selection, choice=choice, headline=head, metrics=metrics)

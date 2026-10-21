@@ -297,11 +297,18 @@ def run_backtest(inp: Inputs, first_origin: str, sel_start: str, sel_end: str, r
         "RW": rw,
     }
     head = pd.concat([attach_actual_yoy(df, inp).assign(model=name) for name, df in models.items()], ignore_index=True)
-    rw_a = attach_actual_yoy(rw, inp)
+    metrics = headline_metrics_table(inp, head, list(models), first_origin, sel_start, sel_end)
+    return BacktestResult(comp_fc=comp, selection=selection, choice=choice, headline=head, metrics=metrics)
+
+
+def headline_metrics_table(inp: Inputs, head: pd.DataFrame, names: list[str], first_origin: str, sel_start: str,
+                           sel_end: str) -> pd.DataFrame:
+    """Metrics for every headline model vs the random walk, by horizon and sample (also used after D57's adoption)."""
+    rw_a = head[head.model == "RW"]
     rows = []
     samples = {"full": (first_origin, "2100-12"), "selection": (sel_start, sel_end),
                "holdout": (f"{int(sel_end[:4]) + 1}-01", "2100-12"), **SUBPERIODS}
-    for name in models:
+    for name in names:
         if name == "RW":
             continue
         for h in range(1, H + 1):
@@ -321,5 +328,4 @@ def run_backtest(inp: Inputs, first_origin: str, sel_start: str, sel_end: str, r
             if len(e) > 10:
                 vs.append({"model": "bottom_up", "h": h, "sample": sname,
                            "dm_p_vs_direct_AR": diebold_mariano(e.bottom_up.to_numpy(), e.direct_AR.to_numpy(), h)[1]})
-    metrics = metrics.merge(pd.DataFrame(vs), on=["model", "h", "sample"], how="left")
-    return BacktestResult(comp_fc=comp, selection=selection, choice=choice, headline=head, metrics=metrics)
+    return metrics.merge(pd.DataFrame(vs), on=["model", "h", "sample"], how="left")

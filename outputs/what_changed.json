@@ -3,46 +3,46 @@
   "origin": "2026-09",
   "surprise": {
     "target": "2026-09",
-    "total_pp": 0.03781128316775462,
+    "total_pp": 0.1428438358507922,
     "by_component": {
       "FUEL": -0.021252832661974308,
       "ELC_GAS": 0.07003186575077641,
       "FOOD_P": -0.030461997819883506,
       "FOOD_NP": 0.05355473727767013,
-      "IGD_NNRG": -0.13127346697059372,
-      "SERV": 0.10325485462248074
+      "IGD_NNRG": -0.024185800091899745,
+      "SERV": 0.10120151690270052
     },
-    "forecast": 3.7325826682846897,
+    "forecast": 3.627550115601652,
     "actual": 3.7703939514524443
   },
   "revisions": [
     {
       "target": "2026-10",
-      "total_pp": -0.046095310595717365,
+      "total_pp": 0.059764459691180605,
       "by_component": {
         "FUEL": -0.09131435598694981,
         "ELC_GAS": 0.07063330460177819,
         "FOOD_P": -0.044030507229198775,
         "FOOD_NP": 0.0536604606171997,
-        "IGD_NNRG": -0.13192454629018063,
-        "SERV": 0.10291693402244606
+        "IGD_NNRG": -0.024262432967764147,
+        "SERV": 0.10112069019648207
       },
-      "previous": 3.750228269648992,
-      "current": 3.7041329590532746
+      "previous": 3.7183798093922915,
+      "current": 3.778144269083472
     },
     {
       "target": "2026-11",
-      "total_pp": -0.05938168892465345,
+      "total_pp": 0.0469564104439657,
       "by_component": {
         "FUEL": -0.08973455706711153,
         "ELC_GAS": 0.07099989161246617,
         "FOOD_P": -0.058500444581362235,
         "FOOD_NP": 0.0539304089195512,
-        "IGD_NNRG": -0.13245633276540414,
-        "SERV": 0.10241412143107431
+        "IGD_NNRG": -0.024310841398867078,
+        "SERV": 0.10060927861677649
       },
-      "previous": 3.7360462605042777,
-      "current": 3.6766645715796242
+      "previous": 3.6426016751853085,
+      "current": 3.6895580856292742
     }
   ],
   "note": "Previous forecast = the same models re-run as of 2026-08 on today's data vintage (pseudo-real-time). The forecast ledger keeps the headline numbers as recorded at the time, so data revisions since then can be checked there."

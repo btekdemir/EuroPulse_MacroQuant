@@ -345,7 +345,9 @@
     await tab("overview");
     el("brief-open").click(); await sleep(4000);
     const d = el("brief-frame").contentDocument;
-    ok("brief shown with 2 images and the note", !el("brief-view").hidden && d.images.length === 2 && [...d.images].every((i) => i.naturalWidth > 0) && d.querySelectorAll("h2").length >= 4);
+    const noteFresh = D.research_note && !D.research_note.stale;  // a stale note is left out on purpose (D42)
+    ok("brief shown with 2 images", !el("brief-view").hidden && d.images.length === 2 && [...d.images].every((i) => i.naturalWidth > 0));
+    ok("brief includes the note only when it is current", d.querySelectorAll("h2").length === (noteFresh ? 4 : 3), `h2=${d.querySelectorAll("h2").length}, fresh=${noteFresh}`);
     el("brief-close").click(); await sleep(200);
     ok("brief button usable again", !el("brief-open").disabled);
   });

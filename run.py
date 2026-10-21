@@ -26,7 +26,7 @@ from hicp import backtest as bt  # noqa: E402
 from hicp import ledger  # noqa: E402
 from hicp.round2 import run_round2  # noqa: E402
 from hicp.round3 import run_round3  # noqa: E402
-from hicp.round4 import run_round4  # noqa: E402
+from hicp.round4 import adopt, run_round4  # noqa: E402
 from hicp import calibration, realtime  # noqa: E402
 from hicp.clean import clean_all  # noqa: E402
 from hicp.config import ROOT, load_settings  # noqa: E402
@@ -102,6 +102,22 @@ def main() -> int:
     cfg = s.raw["backtest"]
     inp = bt.make_inputs(data, s, pump_index(ext.pump))
     res = bt.run_backtest(inp, cfg["first_origin"], *cfg["selection_sample"], rolling=cfg["rolling_window"])
+    log.info("round 4 (pre-registered, D57): bottom-up variants")
+    r4 = run_round4(inp, res)
+    write_json(Round4Report(rule=ROUND4_RULE, holm=r4["holm"], best_passing=r4["best_passing"], adopted=r4["adopted"], checks=r4["checks"],
+                            origin=r4["origin"], latest=r4["latest"],
+                            metrics=[_nan_to_none(r) for r in r4["metrics"].to_dict("records")]), out / "round4.json")
+    for r in r4["metrics"][(r4["metrics"].h == 3) & (r4["metrics"]["sample"] == "full")].itertuples():
+        log.info("  %-24s h=3 RMSE %.3f vs RW %.3f (ratio %.2f, DM p %.3f; bottom-up %.3f, p %.3f)", r.model, r.rmse, r.rmse_rw,
+                 r.rmse_ratio_vs_rw, r.dm_p, r.rmse_bottom_up, r.dm_p_vs_bottom_up)
+    for d in r4["holm"]:
+        log.info("  Holm %-24s p=%.3f threshold %.4f %s", d["name"], d["p"], d["threshold"], "REJECT" if d["rejected"] else "no")
+    log.info("  checks: %s", {k: f"{v:.2e}" for k, v in r4["checks"].items()})
+    log.info("  adopted: %s", r4["adopted"] or "none (current bottom-up stays, as D57 says)")
+    res_pre = res  # rounds 2 and 3 were pre-registered against the model of their day
+    if r4["adopted"]:
+        res = adopt(inp, res, r4["adopted"], cfg["first_origin"], *cfg["selection_sample"])
+        log.info("  ADOPTED %s as the published model (D57): choice now %s", r4["adopted"], res.choice)
     cal = calibration.build(res.headline[res.headline.model == "bottom_up"])
     adopt_b = cal["decision"]["adopt_B"]
     log.info("  fan calibration (D28): scaled fan pinball %.4f vs %.4f fixed, DM p %.3f -> %s",
@@ -138,7 +154,7 @@ def main() -> int:
         log.info("  bottom-up h=%d: RMSE %.2fpp, ratio vs RW %.2f, DM p %.3f", r.h, r.rmse, r.rmse_ratio_vs_rw, r.dm_p)
 
     log.info("round 2 (pre-registered, D27): can any candidate beat the random walk at h=3?")
-    r2 = run_round2(inp, res, *cfg["selection_sample"])
+    r2 = run_round2(inp, res_pre, *cfg["selection_sample"])
     write_json(Round2Report(
         rule=ROUND2_RULE, gate={k: (None if isinstance(v, float) and math.isnan(v) else v) for k, v in r2["gate"].items()},
         holm=r2["holm"], adopted=r2["adopted"],
@@ -151,7 +167,7 @@ def main() -> int:
     log.info("  adopted: %s", r2["adopted"] or "none (current model stays, as the rule says)")
 
     log.info("round 3 (pre-registered, D56): naive, SARIMA, Elastic Net, gradient boosting, ensemble")
-    r3 = run_round3(inp, res)
+    r3 = run_round3(inp, res_pre)
     write_json(Round3Report(rule=ROUND3_RULE, holm=r3["holm"], candidate=r3["candidate"],
                             naive_equals_rw_max_gap=r3["naive_equals_rw_max_gap"], origin=r3["origin"], latest=r3["latest"],
                             metrics=[_nan_to_none(r) for r in r3["metrics"].to_dict("records")]), out / "round3.json")
@@ -165,18 +181,6 @@ def main() -> int:
     log.info("  seasonal naive vs no-change max gap %.2e pp; candidate: %s", r3["naive_equals_rw_max_gap"],
              r3["candidate"] or "none (nothing changes, as D56 says)")
 
-    log.info("round 4 (pre-registered, D57): bottom-up variants")
-    r4 = run_round4(inp, res)
-    write_json(Round4Report(rule=ROUND4_RULE, holm=r4["holm"], best_passing=r4["best_passing"], adopted=r4["adopted"], checks=r4["checks"],
-                            origin=r4["origin"], latest=r4["latest"],
-                            metrics=[_nan_to_none(r) for r in r4["metrics"].to_dict("records")]), out / "round4.json")
-    for r in r4["metrics"][(r4["metrics"].h == 3) & (r4["metrics"]["sample"] == "full")].itertuples():
-        log.info("  %-24s h=3 RMSE %.3f vs RW %.3f (ratio %.2f, DM p %.3f; bottom-up %.3f, p %.3f)", r.model, r.rmse, r.rmse_rw,
-                 r.rmse_ratio_vs_rw, r.dm_p, r.rmse_bottom_up, r.dm_p_vs_bottom_up)
-    for d in r4["holm"]:
-        log.info("  Holm %-24s p=%.3f threshold %.4f %s", d["name"], d["p"], d["threshold"], "REJECT" if d["rejected"] else "no")
-    log.info("  checks: %s", {k: f"{v:.2e}" for k, v in r4["checks"].items()})
-    log.info("  adopted: %s", r4["adopted"] or "none (current bottom-up stays, as D57 says)")
 
     log.info("forecast ledger")
     code_version = git_version().removesuffix("-dirty")

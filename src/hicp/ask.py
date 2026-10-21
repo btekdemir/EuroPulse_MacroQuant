@@ -35,7 +35,7 @@ COUNTRY_NAMES = {"AT": "Austria", "BE": "Belgium", "BG": "Bulgaria", "CY": "Cypr
                  "ES": "Spain", "FI": "Finland", "FR": "France", "GR": "Greece", "HR": "Croatia", "IE": "Ireland",
                  "IT": "Italy", "LT": "Lithuania", "LU": "Luxembourg", "LV": "Latvia", "MT": "Malta",
                  "NL": "Netherlands", "PT": "Portugal", "SI": "Slovenia", "SK": "Slovakia"}
-MODEL_NAMES = {"SM": "seasonal mean of monthly changes", "AR1": "AR(1) on monthly changes",
+MODEL_NAMES = {"NC": "no change in y/y (last year's monthly changes repeated; round 4, D57)", "SM": "seasonal mean of monthly changes", "AR1": "AR(1) on monthly changes",
                "ARP": "AR(p) chosen by AIC", "PUMP": "Weekly Oil Bulletin pump prices",
                "SM_R120": "seasonal mean, rolling 120-month window", "ARP_R120": "AR(p), rolling 120-month window"}
 
@@ -82,6 +82,7 @@ SECTIONS = {
     "track_record": ("model", "p-track", "forecasts vs outcomes over time"),
     "time_machine": ("model", "tm-card", "time machine: go back to any past forecast date and see the forecast, the fan known then and the outcome"),
     "break_test": ("model", "n-brk", "structural break test on forecast errors"),
+    "round4": ("model", "r4-card", "pre-registered round 4: bottom-up variants; services and goods as no change in y/y passed and became the published model"),
     "round3": ("model", "r3-card", "pre-registered round 3: SARIMA, Elastic Net, gradient boosting and an ensemble against the random walk; none passed"),
     "round2": ("model", "tbl-r2", "pre-registered round 2 model candidates and the verdict"),
     "calibration": ("model", "tbl-cal", "fan calibration: band coverage, fixed vs scaled width"),
@@ -129,6 +130,7 @@ TABLES = {
     "tbl-sel": ("model_selection", "table: the pre-committed model selection steps per component and which model was kept"),
     "tbl-val": ("validation", "table: the data validation gates and their results"),
     "tbl-compare": ("compare", "table: each compared scenario's peak impact, December impact and level, and the probability above the threshold"),
+    "tbl-r4": ("round4", "table: pre-registered round 4 bottom-up variants against the random walk and the earlier bottom-up model; B1 passed and was adopted"),
     "tbl-r3": ("round3", "table: pre-registered round 3, SARIMA, Elastic Net, gradient boosting and their ensemble against the random walk and the bottom-up model"),
     "tbl-recon": ("reconciliation", "table: latest-month contributions, ours against Eurostat's official ones"),
     "tbl-vin": ("vintages", "table: the Eurostat and external data vintages used in this run"),
@@ -294,10 +296,11 @@ def build_ask_facts(out: Path) -> AskFacts:
         "The bands are empirical quantiles of the model's own past out-of-sample errors, not model-implied.\n"
         "The shock simulator moves price levels per country and component; second-round effects are an estimated "
         "distributed lag. Actuals are final Eurostat releases; flash estimates are used only in the real-time check.\n"
-        "Round 3 (pre-registered): SARIMA, Elastic Net, gradient boosting and their ensemble were tested against the "
-        "random walk at three months; none passed the Holm test, and the bottom-up model remains the most accurate. "
-        "Core inflation is shown as a by-product of the goods and services forecasts; a random walk is more accurate "
-        "for core at every horizon, and the dashboard says so. Not modelled: country forecasts (only the euro area* "
+        "Model history: rounds 2 and 3 (pre-registered; round 3 tried SARIMA, Elastic Net, gradient boosting and an "
+        "ensemble) found nothing that beat the random walk at three months. Round 4 (pre-registered) forecast services "
+        "and non-energy industrial goods as 'no change in y/y' (their monthly changes repeat last year's); it passed the "
+        "Holm test narrowly and beat the earlier bottom-up model, so it is now the published model. Core inflation is a "
+        "by-product of the goods and services forecasts, so it is now forecast essentially as a random walk. Not modelled: country forecasts (only the euro area* "
         "headline is forecast and selected), ECB policy decisions, anything after the three-month horizon.\n"
         "Italy: its published total differs from the weighted sum of its components by up to about a tenth of a "
         "point; the cause is not identified."

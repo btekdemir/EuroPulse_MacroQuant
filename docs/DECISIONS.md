@@ -829,3 +829,18 @@ Written and committed **before any of these variants was run**. Results are repo
   - A first run failed on a lookup error (last year's month read from a shifted table that ends at the last release). It was fixed before any result existed.
 - **Reading it:** services and goods inflation is persistent enough that last year's monthly pattern beats the seasonal-mean and AR models chosen under D9. This is consistent with the core finding (D44). Energy and food keep their models, which do add information (pump prices, food dynamics).
 - **Adoption:** pending at this commit. Switching the published model changes the forecast, fan, decomposition, shock baseline, ledger and research note, so it is done as a separate, reviewed step.
+- **Adoption (22 Oct 2026), as the rule says:**
+  - `run.py` now runs round 4 right after the backtest, on the model of the day. When a variant is adopted, `round4.adopt` makes it the published model. Services and non-energy industrial goods become model `NC` in the choice; the bottom-up headline and its metrics are recomputed by the same code (`backtest.headline_metrics_table`); and the selection log records the switch.
+  - The fan, calibration (D28), real-time check (D29), forecast, What changed, core view, shock basis, reconciliation, ledger and dashboard then all use it unchanged.
+  - Rounds 2 and 3 keep running on the pre-adoption model, because their pre-registrations compare against it.
+- **What changed in the published numbers:**
+  - December forecast 3.82% → 3.77% (68% band 3.4–4.2%, 90% band 3.0–5.1%).
+  - Momentum to December +0.16 → +0.12pp. The base effect, −0.11pp, is unchanged, since it is known.
+  - Backtest RMSE 0.27/0.49/0.67 → 0.23/0.44/0.63pp; at h = 3, DM p against the random walk 0.14 → 0.016.
+  - 2020–2023 h = 3 bias −0.64 → −0.37pp.
+  - The scaled fan (D28) still does not pass (p 0.053), so the fan stays empirical as before.
+  - Core is now forecast essentially as a random walk (RMSE 0.40 vs 0.41 at h = 3), and the core card says why.
+- **Texts updated where they stated the old three-month result:** tour, demo, core card, Round 2/3 labels ("the model of the time"), assistant context, README.
+- **The ledger:** it keeps the forecasts recorded before adoption (3.82%), and the next clean run records the adopted model's.
+- **Research note:** it was written for the old numbers, so it is marked stale and left out of the brief until it is regenerated (a paid call).
+- **Tests:** 211 Python; end-to-end 122/122 at desktop and phone width. The brief check now expects the note only when it is current.

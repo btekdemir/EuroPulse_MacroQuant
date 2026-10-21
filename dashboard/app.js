@@ -415,7 +415,9 @@
       [1, 2, 3].map((h) => { const m = met(h); return [String(h), fmt(m.rmse, 2), fmt(m.rmse_rw, 2), fmt(m.rmse_ratio_vs_rw, 2), m.dm_p === null ? "–" : fmt(m.dm_p, 3), String(m.n)]; }),
       [1, 2, 3, 4, 5]);
     const worse = [1, 2, 3].filter((h) => met(h).rmse_ratio_vs_rw > 1), sig = worse.filter((h) => met(h).dm_p !== null && met(h).dm_p < 0.05);
-    el("core-verdict").textContent = worse.length === 3
+    el("core-verdict").textContent = (K.models.IGD_NNRG === "NC" && K.models.SERV === "NC")
+      ? t("core_verdict_nc", { r: fmt(met(3).rmse_ratio_vs_rw, 2) })
+      : worse.length === 3
       ? t("core_verdict_rw", { sig: sig.length ? t("core_sig", { hs: sig.join(", ") }) : t("core_nosig"), rw: pct(K.last_actual, 2) })
       : t("core_verdict_model");
     el("core-note").textContent = t("core_note", { goods: K.models.IGD_NNRG, serv: K.models.SERV, gap: fmt(K.max_abs_gap_pp, 3), n: K.n_origins });
@@ -1251,6 +1253,7 @@
     renderLedger();
     renderRound2();
     renderRound3();
+    renderRound4();
     renderCalibration();
     renderRealtime();
     table(el("tbl-sel"), [t("sel_component"), t("sel_candidate"), t("sel_vs"), t("sel_p"), t("sel_accepted")],
@@ -1273,7 +1276,7 @@
   // ------------------------------------------------------------------ round 3 (D56): direct and ML models
   let r3H = 3;
   function renderRound3() {
-    const R3 = D.round3, bu = (h) => B.metrics.find((r) => r.model === "bottom_up" && r.h === h && r.sample === "full");
+    const R3 = D.round3, bu = (h) => R2.metrics.find((r) => r.model === "bottom_up" && r.h === h && r.sample === "full");  // the model of its time
     const seg = el("r3-h"); seg.replaceChildren(...[1, 2, 3].map((h) => {
       const b = node("button", { type: "button", "aria-pressed": String(h === r3H) }, t("r3_h", { h }));
       b.addEventListener("click", () => { r3H = h; renderRound3(); });
@@ -1296,6 +1299,21 @@
       : t("r3_verdict_none", { best: best ? NAME[best.model] : "–", rb: fmt(best ? best.rmse : NaN, 3), bu: fmt(b0.rmse, 3), h: r3H });
     const lastPts = Object.entries(R3.latest).map(([k, v]) => `${NAME[k]} ${pct(v[v.length - 1].fc, 2)}`).join(" · ");
     el("r3-latest").textContent = t("r3_latest", { d: monthLabel(last.date), list: lastPts, bu: pct(last.point, 2) });
+  }
+
+  // ------------------------------------------------------------------ round 4 (D57): bottom-up variants
+  function renderRound4() {
+    const R4 = D.round4, NAME = { B1_core_nochange: t("r4_b1"), B2_allbutfuel_nochange: t("r4_b2"), B3_allbutfuel_shrink: t("r4_b3") };
+    const rows = R4.metrics.filter((r) => r.h === 3 && r.sample === "full").sort((a, b) => a.rmse - b.rmse);
+    const hs = (m) => R4.holm.find((d) => d.name === m);
+    table(el("tbl-r4"), [t("r3_col_model"), t("r3_col_rmse"), t("r3_col_ratio"), t("r3_col_p"), t("r3_col_pbu"), t("r3_col_holm")],
+      [[t("r4_bu"), fmt(rows[0].rmse_bottom_up, 3), fmt(rows[0].rmse_bottom_up / rows[0].rmse_rw, 2), "–", "–", "–"],
+        ...rows.map((r) => [NAME[r.model] + (R4.adopted === r.model ? " ★" : ""), fmt(r.rmse, 3), fmt(r.rmse_ratio_vs_rw, 2), fmt(r.dm_p, 3),
+          fmt(r.dm_p_vs_bottom_up, 3), hs(r.model).rejected ? `${t("r3_pass")} (${fmt(hs(r.model).threshold, 4)})` : `${t("r3_fail")} (${fmt(hs(r.model).threshold, 4)})`]),
+        [t("r3_rw"), fmt(rows[0].rmse_rw, 3), "1.00", "–", "–", "–"]], [1, 2, 3, 4]);
+    const a = R4.adopted && rows.find((r) => r.model === R4.adopted);
+    el("r4-verdict").textContent = a ? t("r4_verdict", { m: NAME[a.model], p: fmt(a.dm_p, 3), thr: fmt(hs(a.model).threshold, 4), r: fmt(a.rmse, 3), rb: fmt(a.rmse_bottom_up, 3) })
+      : t("r4_verdict_none");
   }
 
   function renderRound2() {
@@ -1680,7 +1698,7 @@ ${note}
 
   // Tables: every table gets its own CSV (exactly what it shows), and the tables that carry a card on their own
   // (no chart beside them) also get "Explain this", with the same chart-context mechanism as the charts.
-  const EXPLAIN_TABLES = new Set(["tbl-wc", "tbl-prob", "tbl-oct", "tbl-led", "tbl-bt", "tbl-r2", "tbl-rt", "tbl-sel", "tbl-val", "tbl-vin", "tbl-compare", "tbl-recon", "tbl-r3"]);
+  const EXPLAIN_TABLES = new Set(["tbl-wc", "tbl-prob", "tbl-oct", "tbl-led", "tbl-bt", "tbl-r2", "tbl-rt", "tbl-sel", "tbl-val", "tbl-vin", "tbl-compare", "tbl-recon", "tbl-r3", "tbl-r4"]);
   function tableCsv(w) {
     const q = (v) => { const s = String(v).replace(/\s+/g, " ").trim(); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
     return [...w.querySelectorAll("tr")].map((tr) => [...tr.children].map((c) => q(c.textContent)).join(",")).join("\n") + "\n";
