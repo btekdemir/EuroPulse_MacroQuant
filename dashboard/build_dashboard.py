@@ -13,7 +13,7 @@ from pathlib import Path
 import plotly
 
 from hicp.schemas import (BacktestMetrics, CalibrationReport, CountryView, RealtimeReport, Forecast, LedgerScores, NLExamples, ResearchNotes, Round2Report,
-                          RunManifest, ShockBasis, ValidationReport, WhatChanged, CoreView)
+                          RunManifest, ShockBasis, ValidationReport, WhatChanged, CoreView, ReconciliationView)
 
 HERE = Path(__file__).resolve().parent
 
@@ -30,6 +30,7 @@ INPUTS = {
     "realtime": ("realtime.json", RealtimeReport),
     "changed": ("what_changed.json", WhatChanged),
     "core": ("core.json", CoreView),
+    "recon": ("reconciliation.json", ReconciliationView),
 }
 
 

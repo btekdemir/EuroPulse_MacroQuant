@@ -167,6 +167,32 @@
     rows.push([t("wc_total"), ...cols.map((x) => sgn(x.k.total_pp))]);
     table(el("tbl-wc"), [t("wc_col_comp"), ...cols.map((x) => x.lab)], rows, cols.map((_, i) => i + 1));
     el("wc-note").textContent = t("wc_note", { prev: monthLabel(W.previous_origin) });
+    renderRevision();
+  }
+
+  // Revision waterfall (D53): from last month's forecast to the outcome / the new forecast, component by component.
+  let wcIdx = 0;
+  function renderRevision() {
+    const W = D.changed, items = [{ k: W.surprise, from: W.surprise.forecast, to: W.surprise.actual, lab: t("wc_pick_surprise", { m: monthLabel(W.surprise.target) }),
+      a: t("wc_from_fc", { o: monthLabel(W.previous_origin) }), b: t("wc_to_actual") },
+      ...W.revisions.map((r) => ({ k: r, from: r.previous, to: r.current, lab: t("wc_pick_rev", { m: monthLabel(r.target) }),
+        a: t("wc_from_fc", { o: monthLabel(W.previous_origin) }), b: t("wc_to_new", { o: monthLabel(W.origin) }) }))];
+    wcIdx = Math.min(wcIdx, items.length - 1);
+    const seg = el("wc-pick"); seg.replaceChildren(...items.map((it, i) => {
+      const b = node("button", { type: "button", "aria-pressed": String(i === wcIdx) }, it.lab);
+      b.addEventListener("click", () => { wcIdx = i; renderRevision(); });
+      return b;
+    }));
+    const it = items[wcIdx], bc = it.k.by_component;
+    const steps = COMPS.map((c) => [comp(c), bc[c]]);
+    steps.push([t("wc_resid"), it.to - it.from - COMPS.reduce((s, c) => s + bc[c], 0)]);
+    const x = [it.a, ...steps.map((s) => s[0]), it.b], y = [it.from, ...steps.map((s) => s[1]), it.to];
+    plot("p-revision", [{ type: "waterfall", x, y, measure: ["absolute", ...steps.map(() => "relative"), "total"],
+      text: y.map((v, i) => (i === 0 || i === y.length - 1 ? pct(v, 2) : sgn(v))), textposition: "outside", cliponaxis: false,
+      increasing: { marker: { color: css("--s2") } }, decreasing: { marker: { color: css("--s1") } }, totals: { marker: { color: css("--text-secondary") } },
+      connector: { line: { color: css("--axis"), width: 1, dash: "dot" } }, hovertemplate: "%{x}: %{text}<extra></extra>" }],
+    baseLayout({ showlegend: false, margin: { l: 44, r: 16, t: 20, b: 70 }, xaxis: Object.assign(baseLayout().xaxis, { tickangle: -25 }),
+      yaxis: Object.assign(baseLayout().yaxis, { ticksuffix: "%", range: [Math.min(it.from, it.to) - 0.25, Math.max(it.from, it.to) + 0.25] }) }));
   }
 
   // ------------------------------------------------------------------ beat the model (D51)
@@ -1095,7 +1121,25 @@
   }
   const addM = (ym, k) => ShockEngine.addMonths(ym, k);
 
+  // ------------------------------------------------------------------ reconciliation with Eurostat (D52)
+  function renderRecon() {
+    const R = D.recon, st = R.stats, bp = (v) => (v === null ? null : 100 * v);
+    el("rc-text").textContent = t("rc_text", { n: st.n_months, from: monthLabel(R.dates[0]), max: fmt(st.yoy_max_abs_err_pp, 3),
+      mean: fmt(st.yoy_mean_abs_err_pp, 3), share: fmt(100 * st.match_official_1dp_share, 0), cmax: fmt(st.contrib_max_abs_err_pp, 3) });
+    const x = R.dates.map(toDate);
+    plot("p-recon", [
+      { type: "bar", x, y: R.dates.map((_, i) => (R.yoy_rebuilt[i] === null || R.yoy_published[i] === null ? null : bp(R.yoy_rebuilt[i] - R.yoy_published[i]))),
+        name: t("rc_s_head"), marker: { color: css("--s1") }, hovertemplate: "%{y:+.2f} bp<extra></extra>" },
+      { type: "scatter", mode: "lines", x, y: R.contrib_max_abs_err_pp.map(bp), name: t("rc_s_contrib"), line: { color: css("--s2"), width: 1.5 },
+        hovertemplate: "%{y:.2f} bp<extra></extra>", connectgaps: false },
+    ], baseLayout({ hovermode: "x unified", bargap: 0, yaxis: Object.assign(baseLayout().yaxis, { title: { text: "bp" }, zeroline: true }) }));
+    table(el("tbl-recon"), [t("rc_col_comp"), t("rc_col_ours"), t("rc_col_off"), t("rc_col_diff")],
+      Object.entries(R.latest_contributions).map(([c, [o, f]]) => [D.i18n[lang]["c_" + c] || (c === "NRG" ? t("rc_nrg") : c === "FOOD" ? t("rc_food") : c),
+        fmt(o, 3), fmt(f, 2), sgn(o - f, 3)]), [1, 2, 3]);
+  }
+
   function renderModel() {
+    renderRecon();
     const sel = el("bt-sample"), cur = sel.value || "full";
     sel.replaceChildren(...SAMPLES.map((s) => node("option", { value: s }, t("sample_" + s)))); sel.value = cur;
     const rows = [];

@@ -598,7 +598,23 @@
   "demo_beat_t": "Beat the model",
   "demo_beat_n": "Invite them to enter a December guess now; the model's guess is the recorded one. The board is scored when Eurostat publishes December, which makes the forecast a live, checkable bet.",
   "demo_bridge_t": "The bridge to December",
-  "demo_bridge_n": "Walk the bars: which components push December up and which pull it down. Switch to 'Base effect vs momentum' to show what is already known today."
+  "demo_bridge_n": "Walk the bars: which components push December up and which pull it down. Switch to 'Base effect vs momentum' to show what is already known today.",
+  "rc_title": "Does our arithmetic match Eurostat's?",
+  "rc_text": "Rebuilding headline y/y from the six components with the published weights, over {n} months since {from}: largest gap {max} pp, average {mean} pp; rounded to 0.1, it equals Eurostat's published rate in {share}% of months. Our component contributions match Eurostat's official ones within {cmax} pp.",
+  "rc_s_head": "Headline y/y: rebuilt − published",
+  "rc_s_contrib": "Contributions: largest |ours − official| that month",
+  "rc_col_comp": "Contribution, latest month",
+  "rc_col_ours": "Ours, pp",
+  "rc_col_off": "Eurostat (prc_hicp_ctr), pp",
+  "rc_col_diff": "Difference, pp",
+  "rc_nrg": "Energy (fuels + electricity & gas)",
+  "rc_food": "Food (processed + unprocessed)",
+  "rc_note": "In basis points (1 bp = 0.01 pp). For scale: the indices are published with 2 decimals (a step of 0.01 at a level near 100 moves y/y by about 0.01 pp), and Eurostat's contributions with 2 decimals. These are gates V4 and V5, run on every pull; the simulator and every contribution on this page use the same formulas.",
+  "wc_pick_surprise": "Surprise, {m}",
+  "wc_pick_rev": "Revision, {m}",
+  "wc_from_fc": "Forecast made in {o}",
+  "wc_to_actual": "Published",
+  "wc_to_new": "Forecast now ({o})"
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -1199,6 +1215,22 @@
   "demo_beat_t": "Battez le modèle",
   "demo_beat_n": "Les inviter à saisir une prévision pour décembre maintenant ; celle du modèle est celle enregistrée. Le tableau est noté à la publication de décembre : la prévision devient un pari vérifiable.",
   "demo_bridge_t": "Le pont vers décembre",
-  "demo_bridge_n": "Parcourir les barres : quelles composantes poussent décembre vers le haut, lesquelles le tirent vers le bas. Passer à « Effet de base et dynamique » pour montrer ce qui est déjà connu."
+  "demo_bridge_n": "Parcourir les barres : quelles composantes poussent décembre vers le haut, lesquelles le tirent vers le bas. Passer à « Effet de base et dynamique » pour montrer ce qui est déjà connu.",
+  "rc_title": "Nos calculs retrouvent-ils ceux d’Eurostat ?",
+  "rc_text": "En reconstruisant le glissement annuel global à partir des six composantes et des pondérations publiées, sur {n} mois depuis {from} : écart maximal {max} pt, moyen {mean} pt ; arrondi à 0,1, il égale le taux publié par Eurostat dans {share} % des mois. Nos contributions par composante retrouvent les contributions officielles d’Eurostat à {cmax} pt près.",
+  "rc_s_head": "Glissement global : reconstruit − publié",
+  "rc_s_contrib": "Contributions : plus grand |nôtre − officiel| du mois",
+  "rc_col_comp": "Contribution, dernier mois",
+  "rc_col_ours": "Nôtre, pt",
+  "rc_col_off": "Eurostat (prc_hicp_ctr), pt",
+  "rc_col_diff": "Écart, pt",
+  "rc_nrg": "Énergie (carburants + électricité et gaz)",
+  "rc_food": "Alimentation (transformée + non transformée)",
+  "rc_note": "En points de base (1 pb = 0,01 pt). Pour l’ordre de grandeur : les indices sont publiés avec 2 décimales (un pas de 0,01 à un niveau proche de 100 déplace le glissement d’environ 0,01 pt), et les contributions d’Eurostat avec 2 décimales. Ce sont les contrôles V4 et V5, exécutés à chaque extraction ; le simulateur et toutes les contributions de cette page utilisent les mêmes formules.",
+  "wc_pick_surprise": "Surprise, {m}",
+  "wc_pick_rev": "Révision, {m}",
+  "wc_from_fc": "Prévision faite en {o}",
+  "wc_to_actual": "Publié",
+  "wc_to_new": "Prévision actuelle ({o})"
  }
 }

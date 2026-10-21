@@ -380,6 +380,19 @@ class ResearchNotes(Strict):
 
 
 
+
+# --------------------------------------------------------------------------- reconciliation (D52)
+class ReconciliationView(Strict):
+    """Our arithmetic against Eurostat's: headline rebuilt from the six components (V4) and contributions (V5)."""
+    dates: list[str]
+    yoy_published: list[float | None] = Field(description="y/y from the published headline index, %")
+    yoy_rebuilt: list[float | None] = Field(description="y/y of the headline rebuilt from the six components, %")
+    yoy_official_1dp: list[float | None] = Field(description="Eurostat's published y/y (RCH_A, rounded to 0.1), %")
+    contrib_max_abs_err_pp: list[float | None] = Field(description="per month, max |our contribution − official| over components, pp")
+    latest_month: str
+    latest_contributions: dict[str, tuple[float, float]] = Field(description="component -> (ours, official), pp")
+    stats: dict[str, float]
+
 # --------------------------------------------------------------------------- core inflation (D44)
 class CorePoint(Strict):
     date: str

@@ -9,7 +9,7 @@ import pandas as pd
 from hicp.chainlink import exact_contributions, yoy
 from hicp.clean import CleanData
 from hicp.config import ROOT, Settings
-from hicp.schemas import CountryView, TrackPoint, write_json
+from hicp.schemas import CountryView, ReconciliationView, TrackPoint, write_json
 from hicp.shocks import simulate
 
 
@@ -63,3 +63,28 @@ def write_shock_outputs(basis, out_dir) -> list:
         write_json(sc, scen_dir / f"preset_{k}.json")
         results.append(simulate(sc, basis))
     return results
+
+
+def reconciliation_view(d: CleanData, s: Settings) -> ReconciliationView:
+    """The V4 and V5 checks as monthly series, for the dashboard's reconciliation chart (D52)."""
+    from hicp.validate import reconcile_headline
+    r = reconcile_headline(d, s).dropna(subset=["yoy_rebuilt", "yoy_published_index"])
+    ix = d.index_wide(s.ea)
+    ours = exact_contributions(ix, d.weights_wide(s.ea), s.components, s.headline)
+    ours["NRG"], ours["FOOD"] = ours["FUEL"] + ours["ELC_GAS"], ours["FOOD_P"] + ours["FOOD_NP"]
+    off = d.contributions.pivot(index="date", columns="coicop", values="value")
+    cols = [c for c in s.components + ["NRG", "FOOD"] if c in off.columns]
+    common = ours.index.intersection(off.index)
+    err = (ours.loc[common, cols] - off.loc[common, cols]).abs().max(axis=1).reindex(r.index)
+    last = common.max()
+    gap = (r.yoy_rebuilt - r.yoy_published_index).abs()
+    match = (r.yoy_rebuilt.round(1) == r.yoy_published_rounded).loc[r.yoy_published_rounded.notna()]
+    return ReconciliationView(
+        dates=[f"{t:%Y-%m}" for t in r.index],
+        yoy_published=[_none(v) for v in r.yoy_published_index], yoy_rebuilt=[_none(v) for v in r.yoy_rebuilt],
+        yoy_official_1dp=[_none(v) for v in r.yoy_published_rounded], contrib_max_abs_err_pp=[_none(v) for v in err],
+        latest_month=f"{last:%Y-%m}",
+        latest_contributions={c: (float(ours.at[last, c]), float(off.at[last, c])) for c in cols},
+        stats={"n_months": float(len(gap)), "yoy_max_abs_err_pp": float(gap.max()), "yoy_mean_abs_err_pp": float(gap.mean()),
+               "match_official_1dp_share": float(match.mean()),
+               "contrib_max_abs_err_pp": float(err.max()), "contrib_mean_abs_err_pp": float(err.mean())})

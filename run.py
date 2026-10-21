@@ -31,7 +31,7 @@ from hicp.config import ROOT, load_settings  # noqa: E402
 from hicp.external import pull_external, pump_index  # noqa: E402
 from hicp.ingest import pull_all  # noqa: E402
 from hicp.ask import build_ask_facts  # noqa: E402
-from hicp.export import country_view, track, write_shock_outputs  # noqa: E402
+from hicp.export import country_view, reconciliation_view, track, write_shock_outputs  # noqa: E402
 from hicp.core import core_view  # noqa: E402
 from hicp.outlook import build_outlook, what_changed  # noqa: E402
 from hicp.passthrough import estimate_all  # noqa: E402
@@ -168,6 +168,7 @@ def main() -> int:
     for r in write_shock_outputs(basis, out):
         log.info("  preset %-42s peak %+.2fpp in %s", r.scenario.name, r.peak_pp, r.peak_month)
     write_json(country_view(data, s), out / "countries.json")
+    write_json(reconciliation_view(data, s), out / "reconciliation.json")
     write_json(build_ask_facts(out), out / "ask_facts.json")  # what the dashboard assistant may say (D34)
     try:
         from dashboard.build_dashboard import build
