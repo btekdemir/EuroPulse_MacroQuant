@@ -205,13 +205,13 @@ def main() -> int:
     write_json(country_view(data, s), out / "countries.json")
     write_json(reconciliation_view(data, s), out / "reconciliation.json")
     write_json(build_ask_facts(out), out / "ask_facts.json")  # what the dashboard assistant may say (D34)
+    # The manifest goes first: the dashboard embeds it, and built before it the footer showed the previous run (D60).
+    write_manifest(s, args, report, pulls, t0, version)
     try:
         from dashboard.build_dashboard import build
         log.info("  dashboard -> %s", build(out).relative_to(ROOT))
     except ImportError:
         log.warning("  dashboard builder not available")
-
-    write_manifest(s, args, report, pulls, t0, version)
     log.info("validation %s; done in %.1fs", report.summary, time.perf_counter() - t0)
     return 0 if scores.verified else 3
 

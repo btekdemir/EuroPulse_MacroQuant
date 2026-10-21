@@ -913,3 +913,4 @@ Two reviews were pasted in, one on method and consistency and one on looks. Thei
   - Beat the model says what it stores: the name, number and time.
 - **Interview notes:** `docs/DEFENCE_NOTES.md` has two sentences per method and the three likely questions.
 - **Checked:** Python 212/212; end-to-end 129/129 (6 new checks) in the app pane and at 375×812.
+- **Footer, second fix:** run.py built the dashboard before writing the run's manifest, so the footer always showed the previous run's commit. The manifest is now written first.
