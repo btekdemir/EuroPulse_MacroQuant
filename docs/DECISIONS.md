@@ -985,3 +985,6 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
   - Chat what-if failed. The reply was withheld after 2 attempts, apparently because it repeated the reader's "30%", which is no dashboard fact; so the scenario was never built. A what-if reply may now repeat numbers from the question (marked "from your question"); every other number is still checked, and a test covers both cases. Not yet re-run live.
   - French sentence box passed. Readable French names and the gas note appear; size, countries, start and profile are right. The interpreter's other notes ("You wrote", "Assumed…") are still English on the French page.
 - **Sentence box:** Interpret and "Run this scenario" are primary buttons. The example sentences sit below as quiet chips under "Or try an example".
+- **Re-run of the chat what-if (2 requests): passed.**
+  - The reply came through on the first attempt and the scenario was built: names, gas note, "Largest impact", +0.41 pp.
+  - The caption "1 numbers checked against the dashboard" counted the reader's own 30%. It now counts only dashboard-checked numbers, with a singular form.

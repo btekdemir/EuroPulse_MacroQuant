@@ -1969,8 +1969,8 @@ ${note}
       go.addEventListener("click", () => askGoto(res.goto));
       box.append(node("br"), go);
     }
-    const nNum = (res.numbers || []).length;
-    box.append(node("span", { class: "meta" }, nNum ? t("ask_checked", { n: nNum, model: res.model }) : t("ask_model", { model: res.model })));
+    const nNum = (res.numbers || []).filter((n) => n.ok && n.fact_label !== "from your question").length;  // the reader's own numbers are not checks
+    box.append(node("span", { class: "meta" }, nNum ? t(nNum === 1 ? "ask_checked_1" : "ask_checked", { n: nNum, model: res.model }) : t("ask_model", { model: res.model })));
     return box;
   }
 
