@@ -938,3 +938,7 @@ Two reviews were pasted in, one on method and consistency and one on looks. Thei
   - The KPI and bridge say "cumulative momentum"; "One month explained" says "monthly momentum".
   - Preset names follow the language everywhere: risk line, comparison, assistant.
 - **Checked:** Python 213/213; end-to-end 143/143 (14 new checks).
+- **Follow-up:**
+  - The contributions chart still drew only its last 36 months inside a 6-year window, which left the left half empty on first load. It now draws the whole history and opens on the last 3 years.
+  - The y-axis fit uses stacked bar totals, not single parts.
+  - The end-to-end access-code check no longer depends on a code kept from an earlier run. Now 145 checks.

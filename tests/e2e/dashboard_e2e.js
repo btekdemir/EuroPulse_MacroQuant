@@ -25,12 +25,12 @@
   // ---- stubs for the paid routes (records what the page sends)
   const sent = [];
   const realFetch = window.fetch;
-  let stubMode = "normal";
+  let stubMode = "normal", codeIssued = false;  // "locked": like a site with a code; only the code issued in this run works
   window.fetch = async (u, o = {}) => {
     if (o.method !== "POST") return realFetch(u, o);
     const b = JSON.parse(o.body); sent.push([u, b]);
     const J = (x, s = 200) => new Response(JSON.stringify(x), { status: s, headers: { "Content-Type": "application/json" } });
-    if (stubMode === "locked" && !b.access_code) return J({ error: "Access code required.", code_required: true }, 401);
+    if (stubMode === "locked" && !(codeIssued && b.access_code === "e2e-code")) return J({ error: "Access code required.", code_required: true }, 401);
     if (u === "/api/ask") {
       const q = b.question || "";
       if (/what if|shock/i.test(q)) return J({ answerable: true, verified: true, answer: "Building it.", numbers: [], goto: null, scenario_request: true, preset: null, model: "stub", attempts: 1 });
@@ -377,13 +377,16 @@
   await step("assistant: access code flow", async () => {
     await sleep(1000);  // let the previous request finish: the page rightly refuses a new one while busy
     stubMode = "locked"; sent.length = 0;
-    try { sessionStorage.removeItem("hicp.code"); } catch (e) { /* ignore */ }
+    // A code kept from an earlier visit is sent, refused, and forgotten: the box opens (D61 keeps codes across reloads).
     setVal(el("ask-text"), "Stub question"); el("ask-go").click(); await sleep(500);
     ok("code box appears on 401", !el("ask-code-row").hidden);
+    ok("a refused code is forgotten", (() => { try { return !localStorage.getItem("hicp.code"); } catch (e) { return true; } })());
+    codeIssued = true;
     el("ask-code").value = "e2e-code"; el("ask-code-go").click();
     setVal(el("ask-text"), "Stub question"); el("ask-go").click(); await sleep(500);
     ok("code is sent with the next call", sent.slice(-1)[0][1].access_code === "e2e-code");
-    stubMode = "normal"; try { sessionStorage.removeItem("hicp.code"); } catch (e) { /* ignore */ }
+    ok("code kept in this browser", (() => { try { return localStorage.getItem("hicp.code") === "e2e-code"; } catch (e) { return true; } })());
+    stubMode = "normal"; codeIssued = false; try { localStorage.removeItem("hicp.code"); } catch (e) { /* ignore */ }
     el("ask-close").click();
   });
 

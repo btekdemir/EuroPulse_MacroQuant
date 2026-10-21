@@ -4483,13 +4483,14 @@ return Plotly;
   const CFG = { displayModeBar: false, responsive: true };
   // Long time-series charts get range buttons (1Y / 3Y / all) above the plot.
   const RANGED = new Set(["p-headline", "p-contrib", "p-ccmp", "p-cp-drivers", "p-track", "p-core"]);
-  // Charts whose history now goes back to 2002/2010 (D61) open on the last six years; "All" shows everything.
-  const OPEN6 = new Set(["p-contrib", "p-ccmp", "p-cp-drivers", "p-core"]);
+  // Charts whose history now goes back to 1998/2010 (D61) open on recent years; "All" shows everything.
+  // Years shown on opening: the contribution bars get 3, so each month stays readable.
+  const OPEN_YEARS = { "p-contrib": 3, "p-ccmp": 6, "p-cp-drivers": 6, "p-core": 6 };
   const plot = (id, data, layout) => {
-    if (OPEN6.has(id) && !(layout.xaxis && layout.xaxis.range)) {
+    if (OPEN_YEARS[id] && !(layout.xaxis && layout.xaxis.range)) {
       const xs = data.flatMap((tr) => tr.x || []).map((x) => new Date(x).getTime()).filter(Number.isFinite);
       if (xs.length) {
-        const hi = new Date(Math.max(...xs)), lo = new Date(hi); lo.setUTCFullYear(hi.getUTCFullYear() - 6);
+        const hi = new Date(Math.max(...xs)), lo = new Date(hi); lo.setUTCFullYear(hi.getUTCFullYear() - OPEN_YEARS[id]);
         layout = Object.assign({}, layout, { xaxis: Object.assign({}, layout.xaxis || baseLayout().xaxis,
           { range: [lo.toISOString().slice(0, 10), new Date(hi.getTime() + 20 * 864e5).toISOString().slice(0, 10)] }) });
       }
@@ -4520,6 +4521,20 @@ return Plotly;
   function fitY(gd) {
     const r = gd.layout.xaxis.range.map((x) => new Date(x).getTime());
     let lo = Infinity, hi = -Infinity;
+    // Stacked bars reach the sum of their positive (or negative) parts, not any single part.
+    if (["relative", "stack"].includes(gd.layout.barmode)) {
+      const pos = new Map(), neg = new Map();
+      for (const tr of gd.data) {
+        if (tr.type !== "bar" || !tr.x || tr.visible === "legendonly") continue;
+        tr.x.forEach((x, i) => {
+          const tx = new Date(x).getTime(), y = tr.y[i];
+          if (!(tx >= r[0] && tx <= r[1]) || !Number.isFinite(y)) return;
+          const m = y >= 0 ? pos : neg; m.set(tx, (m.get(tx) || 0) + y);
+        });
+      }
+      for (const v of pos.values()) hi = Math.max(hi, v);
+      for (const v of neg.values()) lo = Math.min(lo, v);
+    }
     for (const tr of gd.data) {
       if (!tr.x || !tr.y || tr.visible === "legendonly") continue;
       tr.x.forEach((x, i) => {
@@ -4943,7 +4958,7 @@ return Plotly;
   function renderDrivers() {
     renderBridge();
     renderCore();
-    const hist = F.history.slice(-36);
+    const hist = F.history;  // the whole history, so "All" means all (D61); the chart opens on the last 3 years
     const xs = [...hist.map((h) => toDate(h.date)), ...P.map((p) => toDate(p.date))];
     const nH = hist.length;
     const traces = COMPS.map((c) => ({
