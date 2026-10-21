@@ -140,7 +140,17 @@ def fuel_from_brent(brent_pct: float, basis: ShockBasis) -> tuple[float, list[fl
 
 def _start(sh: ShockIntent, basis: ShockBasis, notes: list[str], tag: str) -> str:
     if sh.start_month and sh.start_in_months is not None:
-        raise NLError(f"{tag}Give either a start date or a delay, not both.")
+        # "start in October, 4 months lag": the delay counts from the stated start (said back to the user)
+        if sh.start_month not in basis.months:
+            raise NLError(f"{tag}Start month {sh.start_month} is outside the simulation window "
+                          f"({basis.months[0]} to {basis.months[-1]}).")
+        k = basis.months.index(sh.start_month) + round(sh.start_in_months)
+        if k < 0 or k >= len(basis.months):
+            raise NLError(f"{tag}{sh.start_month} plus a delay of {sh.start_in_months:g} months is outside the "
+                          f"simulation window ({basis.months[0]} to {basis.months[-1]}).")
+        notes.append(f"{tag}Start {sh.start_month} plus a delay of {round(sh.start_in_months)} month(s): the shock "
+                     f"starts in {basis.months[k]}. If you meant a gradual build-up instead, say 'ramp over N months'.")
+        return basis.months[k]
     if sh.start_in_months is not None:
         k = round(sh.start_in_months)
         if k < 0 or k >= len(basis.months):

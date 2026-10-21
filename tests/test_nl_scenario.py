@@ -129,7 +129,7 @@ def test_profile_phrases(basis, profile, months, kind, field, value):
     (dict(size_pct=500.0), "supported range"),
     (dict(start_in_months=60), "outside the simulation window"),
     (dict(start_in_months=-2), "outside the simulation window"),
-    (dict(start_in_months=3, start_month="2027-01"), "either a start date or a delay"),
+    (dict(start_in_months=40, start_month="2027-01"), "plus a delay of 40 months is outside"),  # start + delay combine (D49)
 ])
 def test_bad_intents_are_rejected_not_repaired(basis, kw, match):
     with pytest.raises(NLError, match=match):
@@ -225,3 +225,17 @@ def test_score_case_multi_leg():
     assert score_case(exp, got, None)["leg1"] is False and score_case(exp, got, None)["leg2"] is True
     got["scenario"]["legs"] = legs[:1]
     assert score_case(exp, got, None)["n_legs"] is False
+
+
+def test_start_date_plus_delay_counts_from_the_start():
+    """'October start, 4 months lag' (user report, 21 Oct 2026): used to be refused; now Oct + 4 = Feb, said back."""
+    from hicp.nl_scenario import ShockIntent, _start, load_basis
+    basis = load_basis(ROOT / "outputs" / "shock_basis.json")
+    sh = ShockIntent(driver="direct", components=["FOOD_P"], countries=["DE"], size_pct=20, profile="permanent",
+                     profile_months=None, start_month="2026-10", start_in_months=4)
+    notes = []
+    assert _start(sh, basis, notes, "") == "2027-02"
+    assert "2026-10" in notes[0] and "2027-02" in notes[0] and "ramp" in notes[0]
+    far = sh.model_copy(update={"start_in_months": 500})
+    with pytest.raises(Exception, match="outside the simulation window"):
+        _start(far, basis, [], "")

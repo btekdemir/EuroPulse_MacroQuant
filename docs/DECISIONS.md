@@ -674,3 +674,8 @@ Committed to git before the code that runs it. It does not change after the resu
 - **Demo:** 19 steps, with the same additions. The texts name the page's own button labels ("Show the check").
 - The end-to-end check now also covers table CSV on every table and Explain on the table-only cards: 104/104.
 - **Fix after a user report (21 Oct 2026):** on the live site, "Interpret" in the sentence box seemed to do nothing without the access code. The page showed a small status line and opened the code box in the chat panel, in the opposite corner. The code box now opens right under the sentence box when the request came from there, and entering the code re-runs the sentence. Checked against the local server started with a test code: a wrong code reopens the box, and the right one is attached to the retried request (answered by a stub, no paid call). End-to-end check 104/104.
+
+## D49. "Start in October, 4 months lag" is no longer refused (21 Oct 2026)
+
+- **User report:** "processed food %20 increase in germany and slovakia unprocessed food %10 decrease in france 2026 october start 4 months lag" was refused live with "Give either a start date or a delay, not both". The LLM filled both fields, and D22's rule rejected the combination.
+- **Change:** a stated start month plus a delay now combine: the delay counts from that month (October 2026 + 4 = February 2027). The interpretation says so and suggests "ramp over N months" if a gradual build-up was meant. The reader still confirms the interpretation before anything runs, so nothing is applied silently. A combination outside the window is still refused. Tested (`tests/test_nl_scenario.py`).
