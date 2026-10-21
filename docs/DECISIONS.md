@@ -701,3 +701,43 @@ Committed to git before the code that runs it. It does not change after the resu
   - At most 500 guesses are kept.
   - No LLM is involved, so posting costs nothing.
 - **Tested:** `tests/test_guess.py` with a fake store covers the target, round trip and cleaning, six kinds of bad input, the access code and rate limit, and the no-store mode. The end-to-end check covers the local mode: save, draw, list, refuse out of range. Total 109/109.
+
+## D52. Reconciliation chart (21 Oct 2026)
+
+- **What:** a Model & validation card showing gates V4 and V5 as monthly series (`outputs/reconciliation.json`, from `export.reconciliation_view`).
+  - The headline y/y rebuilt from the six components minus the published one, in basis points.
+  - The largest |our contribution − Eurostat's official contribution| in each month.
+  - A latest-month table of ours against `prc_hicp_ctr`, including the energy and food aggregates, because Eurostat publishes energy as one block.
+- **Figures (the same as the gates):** 309 months from Jan 2001. Largest headline gap 0.030pp, mean 0.007pp. Rounded to 0.1, the rebuilt y/y equals Eurostat's published rate in 93% of months. Contributions are within 0.009pp of the official ones.
+- **Note on the card:** it states the precision of the published data (indices and contributions to 2 decimals) rather than claiming a cause for the gaps.
+
+## D53. Revision waterfall (21 Oct 2026)
+
+- In What changed, a waterfall from last month's forecast to the published figure (the surprise) or to this month's forecast (each revision), component by component, with the chain-link residual so it adds up exactly.
+- For example, the November forecast went from 3.74% to 3.68%: non-energy industrial goods −0.13, fuels −0.09, services +0.10.
+- A picker switches between the surprise and each revised month. The end-to-end check verifies that every view adds up.
+
+## D54. Scenario comparison (21 Oct 2026)
+
+- **What:** a Shock simulator card.
+  - "Save current scenario" stores the scenario under a name (re-validated through the share-link decoder) in this browser. The presets are always listed.
+  - Up to four scenarios are drawn together as impact paths on euro area\* headline y/y.
+  - A table gives, for the baseline and each scenario: the peak impact and month, the December impact and level, P(December > threshold), and the number of shocks.
+  - ↗ loads a scenario into the simulator; × deletes a saved one.
+- **Colour follows the scenario:** a colour slot is held while a scenario stays selected, as in the country comparison.
+- The assistant's Explain on this chart receives each compared scenario's numbers as page facts.
+- **Bug found by the end-to-end check:** the new render function was first named `renderCompare`, the same name as the country comparison's, so the later declaration silently replaced the country chart. It was renamed, and `tests/test_dashboard.py` now fails on any duplicate function name in `app.js`.
+
+## D55. Reverse stress test across all shocks (21 Oct 2026)
+
+- **What:** the reverse stress test can now solve for every shock of the scenario at once (`solve_multi` in Python, `solveMulti` in the browser, same algorithm and iteration count, parity-tested to 1e−9).
+  - **"Smallest combination":** sizes proportional to each shock's marginal effect on the target month, measured with the engine at +1%. For a linear response this minimises Σ size², and one common scale is found by bisection to hit the target exactly.
+  - **"Same size":** one common size on every shock that has an effect.
+- **Example:** for German services, Italian electricity & gas and Maltese unprocessed food, reaching 4.4% in December takes +4.3%, +0.4% and +0.0% (smallest combination), against +4.0% each (same size).
+- **Tested** (`tests/test_reverse_stress.py`):
+  - The target is hit.
+  - Same-size gives equal sizes.
+  - Smallest-combination has the smaller Σ size².
+  - The no-effect and out-of-range cases are handled.
+  - JS and Python agree.
+- **Limit:** "smallest" is exact only to first order. The engine's response is close to linear in size, so the result is near-minimal, and the card says "in proportion to its effect".

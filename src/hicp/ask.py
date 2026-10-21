@@ -74,6 +74,8 @@ SECTIONS = {
     "shock_builder": ("shocks", "sim-form", "build a shock: components, countries, size, profile, second round"),
     "reverse_stress": ("shocks", "rev-card", "reverse stress test: what shock size reaches a target"),
     "shock_result": ("shocks", "p-shock", "impact of the current shock on headline y/y"),
+    "compare": ("shocks", "cmp-card", "compare scenarios: save scenarios and show up to four side by side, with their December impact and probability"),
+    "reconciliation": ("model", "rc-card", "reconciliation: our headline and contributions rebuilt from components against Eurostat's published figures"),
     "heatmap": ("shocks", "p-heat", "sensitivity heatmap: which country and component moves euro area* inflation most"),
     "ledger": ("model", "n-led", "forecast ledger: every published forecast and its score"),
     "backtest": ("model", "tbl-bt", "backtest accuracy vs random walk and direct AR, by horizon and sample"),
@@ -109,6 +111,9 @@ CHARTS = {
     "p-core": ("core", "core inflation (ex energy, food, alcohol, tobacco): history vs headline, bottom-up forecast with fan, and the random walk"),
     "p-bridge": ("bridge", "waterfall bridge from the last print to December: each component's change in contribution, or base effect vs momentum"),
     "p-guess": ("beat_model", "readers' guesses for December against the model's recorded forecast and its 68%/90% band"),
+    "p-recon": ("reconciliation", "monthly gap, in basis points, between the headline y/y rebuilt from six components and the published one, and between our and Eurostat's contributions"),
+    "p-revision": ("what_changed", "waterfall from last month's forecast to the outcome or the new forecast, component by component"),
+    "p-compare": ("compare", "impact paths of up to four saved scenarios on euro area* headline y/y"),
     "p-heat": ("heatmap", "heatmap: euro area* December y/y response, in basis points, to +1% in each country and component"),
 }
 # Tables that stand on their own in a card get "Explain this" too: table id -> (section, what it shows).
@@ -122,6 +127,8 @@ TABLES = {
     "tbl-rt": ("realtime", "table: the backtest scored against figures as first published instead of revised data"),
     "tbl-sel": ("model_selection", "table: the pre-committed model selection steps per component and which model was kept"),
     "tbl-val": ("validation", "table: the data validation gates and their results"),
+    "tbl-compare": ("compare", "table: each compared scenario's peak impact, December impact and level, and the probability above the threshold"),
+    "tbl-recon": ("reconciliation", "table: latest-month contributions, ours against Eurostat's official ones"),
     "tbl-vin": ("vintages", "table: the Eurostat and external data vintages used in this run"),
 }
 MAX_PAGE_FACTS = 30
@@ -229,6 +236,14 @@ def build_ask_facts(out: Path) -> AskFacts:
             if v is not None:
                 add(f"{g}_contrib_{c}", f"Contribution of {cname} to {name} y/y, {d}, pp", v)
 
+    rc_path = out / "reconciliation.json"
+    if rc_path.exists():
+        rc = json.loads(rc_path.read_text())["stats"]
+        add("rc_months", "Months in the headline reconciliation (rebuilt vs published)", rc["n_months"])
+        add("rc_yoy_max", "Largest gap, rebuilt vs published headline y/y, pp", rc["yoy_max_abs_err_pp"])
+        add("rc_yoy_mean", "Average gap, rebuilt vs published headline y/y, pp", rc["yoy_mean_abs_err_pp"])
+        add("rc_match_1dp", "Share of months where the rebuilt y/y rounded to 0.1 equals Eurostat's, %", 100 * rc["match_official_1dp_share"])
+        add("rc_contrib_max", "Largest gap between our and Eurostat's official contributions, pp", rc["contrib_max_abs_err_pp"])
     core_path = out / "core.json"
     if core_path.exists():
         k = json.loads(core_path.read_text())

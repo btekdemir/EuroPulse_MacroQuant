@@ -712,10 +712,10 @@
   let cmpBound = false;
   const cmpAll = () => [...S.presets.map((p, i) => ({ id: `preset-${i}`, name: p.name, scenario: p, builtin: true })), ...cmpSaved];
   function cmpToggle(id) {
-    if (cmpSel.has(id)) { cmpSel.delete(id); renderCompare(); return; }
+    if (cmpSel.has(id)) { cmpSel.delete(id); renderScenarioCompare(); return; }
     if (cmpSel.size >= CMP_MAX) { el("cmp-status").textContent = t("cmp_max", { n: CMP_MAX }); return; }
     const used = new Set(cmpSel.values()); cmpSel.set(id, [0, 1, 2, 3].find((k) => !used.has(k)));
-    renderCompare();
+    renderScenarioCompare();
   }
   function cmpSave() {
     const name = (el("cmp-name").value || scenario.name || "").trim().slice(0, 60) || t("cmp_unnamed");
@@ -725,9 +725,9 @@
     cmpSaved.push({ id, name, scenario: clean });
     const persisted = cmpStore(cmpSaved);
     el("cmp-status").textContent = persisted ? t("cmp_saved", { name }) : t("cmp_saved_session", { name });
-    if (cmpSel.size < CMP_MAX) cmpToggle(id); else renderCompare();
+    if (cmpSel.size < CMP_MAX) cmpToggle(id); else renderScenarioCompare();
   }
-  function renderCompare() {
+  function renderScenarioCompare() {
     if (!cmpBound) {
       el("cmp-save").addEventListener("click", cmpSave);
       el("cmp-name").addEventListener("keydown", (e) => { if (e.key === "Enter") cmpSave(); });
@@ -746,7 +746,7 @@
       lab.appendChild(load);
       if (!x.builtin) {
         const del = node("button", { type: "button", class: "chip-x", title: t("cmp_delete"), "aria-label": t("cmp_delete") }, "×");
-        del.addEventListener("click", (e) => { e.preventDefault(); cmpSaved = cmpSaved.filter((y) => y.id !== x.id); cmpSel.delete(x.id); cmpStore(cmpSaved); renderCompare(); });
+        del.addEventListener("click", (e) => { e.preventDefault(); cmpSaved = cmpSaved.filter((y) => y.id !== x.id); cmpSel.delete(x.id); cmpStore(cmpSaved); renderScenarioCompare(); });
         lab.appendChild(del);
       }
       list.appendChild(lab);
@@ -1347,7 +1347,7 @@
     if (tab === "overview") renderOverview();
     if (tab === "drivers") renderDrivers();
     if (tab === "countries") renderCountries();
-    if (tab === "shocks") { refreshAll(); renderNL(); renderCompare(); renderHeat(); }
+    if (tab === "shocks") { refreshAll(); renderNL(); renderScenarioCompare(); renderHeat(); }
     if (tab === "model") renderModel();
   }
   function renderAll() { applyText(); renderAsk(); renderTab(activeTab); }
@@ -1393,10 +1393,12 @@
     { key: "profile", tab: "countries", sel: "#cp-summary", self: true },  // the whole card is taller than the screen
     { key: "shock", tab: "shocks", sel: "#sim-form" },
     { key: "reverse", tab: "shocks", sel: "#rev-card", self: true },
+    { key: "compare", tab: "shocks", sel: "#cmp-card", self: true },
     { key: "heat", tab: "shocks", sel: "#hm-card", self: true },
     { key: "backtest", tab: "model", sel: "#tbl-bt" },
     { key: "timemachine", tab: "model", sel: "#tm-card", self: true },
     { key: "trust", tab: "model", sel: "#tbl-r2" },
+    { key: "recon", tab: "model", sel: "#rc-card", self: true },
     { key: "ledger", tab: "model", sel: "#n-led" },
     { key: "ask", tab: "overview", sel: "#ask-open", self: true, when: () => !el("ask-open").hidden },
     { key: "brief", tab: "overview", sel: "#brief-open", self: true },
@@ -1576,10 +1578,12 @@ ${note}
     { key: "shock", run: () => {
       showTab("shocks"); scenario = JSON.parse(JSON.stringify(S.presets[1])); scenario.second_round = true; presetIdx = -1; activeLeg = 0;
       refreshAll(); focusCard("#p-shock"); } },
-    { key: "reverse", run: () => { showTab("shocks"); focusCard("#rev-card"); } },
+    { key: "reverse", run: () => { showTab("shocks"); el("rev-solve").value = "min"; renderReverse(); focusCard("#rev-card"); } },
+    { key: "compare", run: () => { showTab("shocks"); focusCard("#cmp-card"); } },
     { key: "backtest", run: () => { showTab("model"); focusCard("#tbl-bt"); } },
     { key: "timemachine", run: () => { showTab("model"); tmIdx = Math.max(0, tmOrigins.indexOf("2022-06")); renderTM(); focusCard("#tm-card"); } },
     { key: "trust", run: () => { showTab("model"); focusCard("#tbl-r2"); } },
+    { key: "recon", run: () => { showTab("model"); focusCard("#rc-card"); } },
     { key: "ledger", run: () => { showTab("model"); focusCard("#n-led"); } },
     { key: "ask", when: () => !el("ask-open").hidden, run: () => {
       if (el("ask-panel").hidden) askToggle(true, "ask-fab");
@@ -1647,7 +1651,7 @@ ${note}
 
   // Tables: every table gets its own CSV (exactly what it shows), and the tables that carry a card on their own
   // (no chart beside them) also get "Explain this", with the same chart-context mechanism as the charts.
-  const EXPLAIN_TABLES = new Set(["tbl-wc", "tbl-prob", "tbl-oct", "tbl-led", "tbl-bt", "tbl-r2", "tbl-rt", "tbl-sel", "tbl-val", "tbl-vin"]);
+  const EXPLAIN_TABLES = new Set(["tbl-wc", "tbl-prob", "tbl-oct", "tbl-led", "tbl-bt", "tbl-r2", "tbl-rt", "tbl-sel", "tbl-val", "tbl-vin", "tbl-compare", "tbl-recon"]);
   function tableCsv(w) {
     const q = (v) => { const s = String(v).replace(/\s+/g, " ").trim(); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
     return [...w.querySelectorAll("tr")].map((tr) => [...tr.children].map((c) => q(c.textContent)).join(",")).join("\n") + "\n";
@@ -1784,6 +1788,16 @@ ${note}
           F_("dec_second_pp", `Second-round part of that impact, pp`, r.delta_second_round_pp[k]),
           F_("dec_shocked", `Headline y/y in ${last.date} with the shock, %`, r.shocked_yoy[k]),
           F_("n_legs", "Number of shocks (legs) in the scenario", scenario.legs.length)] };
+    }
+    if (pid === "p-compare" || pid === "tbl-compare") {
+      const k = S.months.indexOf(last.date), all = Object.fromEntries(cmpAll().map((x) => [x.id, x])), facts = [];
+      [...cmpSel.keys()].forEach((id, i) => {
+        const x = all[id]; if (!x) return;
+        const r = ShockEngine.simulate(x.scenario, S);
+        facts.push(F_(`s${i + 1}_peak`, `Peak impact of scenario '${x.name}', pp`, r.peak_pp), F_(`s${i + 1}_dec`, `Impact of '${x.name}' on ${last.date}, pp`, r.delta_yoy_pp[k]),
+          F_(`s${i + 1}_level`, `${last.date} y/y under '${x.name}', %`, r.shocked_yoy[k]));
+      });
+      return { state: `compared: ${[...cmpSel.keys()].map((id) => (all[id] || {}).name).join("; ")}`, facts };
     }
     if (pid === "p-month") {
       const m = el("mx-month").value, ex = ShockEngine.explainMonth(F.headline_index, m);

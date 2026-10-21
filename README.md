@@ -114,6 +114,10 @@ Assumptions are listed in `src/hicp/shocks.py` and shown in the dashboard. See D
 - **Time machine:** any past origin's forecast, the fan known then, and the outcome. June 2022 shows the model's biggest miss (D40).
 - **Shareable scenarios:** "Copy link" puts the scenario in the URL; links are validated on load (D35).
 - **One-page brief:** "Brief (PDF)" prints an A4 summary (D42).
+- **Reconciliation:** our headline rebuilt from six components and our contributions, month by month against Eurostat's, in basis points (D52).
+- **Revision waterfall:** last month's forecast to the outcome or the new forecast, by component (D53).
+- **Scenario comparison:** save scenarios and show up to four side by side, with December impact, level and probability (D54).
+- **Reverse stress test across all shocks:** the smallest combination, or the same size on each (D55).
 - **Bridge to December:** a waterfall from the last print to December, by component or base effect vs momentum (D50).
 - **Beat the model:** readers enter a December guess, scored with the model's once Eurostat publishes (D51).
 - **Interview demo:** `#demo` in the URL or Shift+D opens a 21-step presenter script with speaker notes (D43, D48).

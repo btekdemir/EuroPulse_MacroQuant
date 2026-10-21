@@ -1,6 +1,6 @@
 {
   "origin": "2026-09",
-  "facts_hash": "c69c281d5b3a5a38",
+  "facts_hash": "3e47afab2c338dbe",
   "context": "Data: Eurostat HICP, euro area* = the 21 current members at every date, chain-linked bottom-up from six components. Last published month: Sep 2026. The forecast covers the next three months.\nSelected component models (pre-committed rule: keep the simpler model unless a richer one is significantly better, Diebold-Mariano test, chosen on 2010-2019 origins): fuels: Weekly Oil Bulletin pump prices; electricity and gas: seasonal mean of monthly changes; processed food: AR(p) chosen by AIC; unprocessed food: seasonal mean of monthly changes; non-energy industrial goods: AR(p), rolling 120-month window; services: seasonal mean, rolling 120-month window.\nBase effect = the part of the change in y/y that comes from the monthly change a year earlier dropping out; it is known in advance. Momentum = the part from new monthly price changes.\nThe bands are empirical quantiles of the model's own past out-of-sample errors, not model-implied.\nThe shock simulator moves price levels per country and component; second-round effects are an estimated distributed lag. Actuals are final Eurostat releases; flash estimates are used only in the real-time check.\nCore inflation is shown as a by-product of the goods and services forecasts; a random walk is more accurate for core at every horizon, and the dashboard says so. Not modelled: country forecasts (only the euro area* headline is forecast and selected), ECB policy decisions, anything after the three-month horizon.\nItaly: its published total differs from the weighted sum of its components by up to about a tenth of a point; the cause is not identified.",
   "facts": [
     {
@@ -2467,6 +2467,31 @@
       "id": "SK_contrib_SERV",
       "label": "Contribution of services to Slovakia y/y, Sep 2026, pp",
       "value": 1.2561364221540317
+    },
+    {
+      "id": "rc_months",
+      "label": "Months in the headline reconciliation (rebuilt vs published)",
+      "value": 309.0
+    },
+    {
+      "id": "rc_yoy_max",
+      "label": "Largest gap, rebuilt vs published headline y/y, pp",
+      "value": 0.03035643962729928
+    },
+    {
+      "id": "rc_yoy_mean",
+      "label": "Average gap, rebuilt vs published headline y/y, pp",
+      "value": 0.0066126187750078416
+    },
+    {
+      "id": "rc_match_1dp",
+      "label": "Share of months where the rebuilt y/y rounded to 0.1 equals Eurostat's, %",
+      "value": 93.20388349514563
+    },
+    {
+      "id": "rc_contrib_max",
+      "label": "Largest gap between our and Eurostat's official contributions, pp",
+      "value": 0.009308181040089125
     },
     {
       "id": "core_last",

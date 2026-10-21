@@ -48,3 +48,11 @@ def test_every_i18n_key_used_in_the_page_exists_in_both_languages():
                | {f"sample_{s}" for s in ("full", "selection", "holdout", "2010-2019", "2020-2023", "2024-now")}
                | {f"m_{m}" for m in ("bottom_up", "bottom_up_SM", "direct_AR", "direct_SM", "RW")})
     assert dynamic - set(i18n["en"]) == set()
+
+
+def test_no_duplicate_function_names_in_app_js():
+    """Two `function x()` declarations in one scope silently keep only the last (this broke the country comparison
+    once, when the scenario comparison was added with the same name)."""
+    src = (ROOT / "dashboard" / "app.js").read_text()
+    names = re.findall(r"^\s*(?:async\s+)?function\s+([A-Za-z0-9_]+)\s*\(", src, re.M)
+    assert len(names) == len(set(names)), sorted({n for n in names if names.count(n) > 1})

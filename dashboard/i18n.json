@@ -476,7 +476,7 @@
   "tour_shock_t": "Simulate a shock",
   "tour_shock_b": "Pick a preset, build up to six shocks (each with its own countries, size, start and profile), or describe one in a sentence. The engine computes everything; 'Copy link' shares the exact scenario.",
   "tour_reverse_t": "What would it take?",
-  "tour_reverse_b": "The reverse stress test finds the size of the selected shock that brings a month's inflation to a target, or makes the probability of exceeding a threshold equal to a value you choose.",
+  "tour_reverse_b": "The reverse stress test finds the size of the selected shock that brings a month's inflation to a target, or makes the probability of exceeding a threshold equal to a value you choose. It can also solve for all shocks at once: the smallest combination, or the same size on each.",
   "tour_heat_t": "Where is inflation most sensitive?",
   "tour_heat_b": "Each cell: the euro area* December response to +1% in one country and component. Click a cell to open a +10% version in the simulator.",
   "tour_timemachine_t": "Time machine",
@@ -506,7 +506,7 @@
   "demo_shock_t": "A shock with second round",
   "demo_shock_n": "The European gas spike preset with second-round effects (regime-dependent distributed lag). Show first vs second round and the shocked path; 'Copy link' shares it exactly.",
   "demo_reverse_t": "Reverse stress test",
-  "demo_reverse_n": "Ask the other way round: what size of this shock takes December to a target, or makes P(above threshold) a chosen value? The engine solves it.",
+  "demo_reverse_n": "Ask the other way round: what size of this shock takes December to a target, or makes P(above threshold) a chosen value? The engine solves it. 'Solve for: all shocks, smallest combination' spreads it across every shock in proportion to its effect.",
   "demo_timemachine_t": "Where the model failed",
   "demo_timemachine_n": "June 2022: the three-month forecast was far below the outcome, outside even the 90% band known then, and the random walk did better. This is why the fan is built from past errors, and why the calibration test exists.",
   "demo_trust_t": "How far to trust it",
@@ -639,7 +639,15 @@
   "rev_solve_equal": "All shocks: same size",
   "rev_multi_min": "To {goal}, the smallest combination of this scenario's shocks (each in proportion to its effect on that month) is: {list}.",
   "rev_multi_equal": "To {goal}, with the same size on every shock of this scenario: {list}.",
-  "rev_multi_range": "Even at the limits of the simulator (−50% to +200%), this scenario's shocks move {month} only between {ylo}% and {yhi}%."
+  "rev_multi_range": "Even at the limits of the simulator (−50% to +200%), this scenario's shocks move {month} only between {ylo}% and {yhi}%.",
+  "tour_compare_t": "Compare scenarios",
+  "tour_compare_b": "Save the scenarios you build (Base, Bull, Bear, or any shock) and show up to four side by side: their impact paths and what each means for December.",
+  "tour_recon_t": "Our arithmetic against Eurostat's",
+  "tour_recon_b": "Headline rebuilt from six components and our contributions, month by month against Eurostat's published figures, in basis points. Every other number on the page uses the same formulas.",
+  "demo_compare_t": "Scenario comparison",
+  "demo_compare_n": "Save the current scenario under a name and tick it next to the presets: four paths on one chart, and the December level and probability for each in the table. This is the risk-scenarios slide, live.",
+  "demo_recon_t": "Reconciliation",
+  "demo_recon_n": "The answer to 'can I trust your contributions?': rebuilt headline within a few hundredths of a point of Eurostat's over 25 years, contributions within 0.01 pp of the official ones."
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -1118,7 +1126,7 @@
   "tour_shock_t": "Simuler un choc",
   "tour_shock_b": "Choisissez un scénario prédéfini, construisez jusqu'à six chocs (chacun avec ses pays, sa taille, son début et son profil), ou décrivez-en un en une phrase. Le moteur calcule tout ; « Copier le lien » partage le scénario exact.",
   "tour_reverse_t": "Que faudrait-il ?",
-  "tour_reverse_b": "Le test de résistance inversé trouve la taille du choc sélectionné qui amène l'inflation d'un mois à une cible, ou qui rend la probabilité de dépasser un seuil égale à la valeur choisie.",
+  "tour_reverse_b": "Le test de résistance inversé trouve la taille du choc sélectionné qui amène l'inflation d'un mois à une cible, ou qui rend la probabilité de dépasser un seuil égale à la valeur choisie. Il peut aussi résoudre pour tous les chocs à la fois : la plus petite combinaison, ou la même taille sur chacun.",
   "tour_heat_t": "Où l'inflation est-elle la plus sensible ?",
   "tour_heat_b": "Chaque case : la réponse de décembre de la zone euro* à +1 % dans un pays et une composante. Cliquez sur une case pour ouvrir une version à +10 % dans le simulateur.",
   "tour_timemachine_t": "Machine à remonter le temps",
@@ -1148,7 +1156,7 @@
   "demo_shock_t": "Un choc avec second tour",
   "demo_shock_n": "Le scénario de flambée du gaz européen avec effets de second tour (retards distribués selon le régime). Montrer premier et second tour et la trajectoire choquée ; « Copier le lien » le partage à l'identique.",
   "demo_reverse_t": "Test de résistance inversé",
-  "demo_reverse_n": "La question à l'envers : quelle taille de ce choc amène décembre à une cible, ou rend P(au-dessus du seuil) égale à une valeur choisie ? Le moteur la résout.",
+  "demo_reverse_n": "La question à l'envers : quelle taille de ce choc amène décembre à une cible, ou rend P(au-dessus du seuil) égale à une valeur choisie ? Le moteur la résout. « Résoudre pour : tous les chocs, plus petite combinaison » le répartit sur chaque choc en proportion de son effet.",
   "demo_timemachine_t": "Là où le modèle a échoué",
   "demo_timemachine_n": "Juin 2022 : la prévision à trois mois était très en dessous du chiffre réalisé, hors même de l'intervalle à 90 % connu alors, et la marche aléatoire a fait mieux. D'où un éventail construit sur les erreurs passées, et le test de calibration.",
   "demo_trust_t": "Quel degré de confiance ?",
@@ -1281,6 +1289,14 @@
   "rev_solve_equal": "Tous les chocs : même taille",
   "rev_multi_min": "Pour {goal}, la plus petite combinaison des chocs de ce scénario (chacun en proportion de son effet sur ce mois) est : {list}.",
   "rev_multi_equal": "Pour {goal}, avec la même taille sur chaque choc de ce scénario : {list}.",
-  "rev_multi_range": "Même aux limites du simulateur (−50 % à +200 %), les chocs de ce scénario ne déplacent {month} qu’entre {ylo} % et {yhi} %."
+  "rev_multi_range": "Même aux limites du simulateur (−50 % à +200 %), les chocs de ce scénario ne déplacent {month} qu’entre {ylo} % et {yhi} %.",
+  "tour_compare_t": "Comparer des scénarios",
+  "tour_compare_b": "Enregistrez les scénarios construits (central, haussier, baissier, ou tout choc) et affichez-en jusqu’à quatre côte à côte : leurs trajectoires d’effet et ce que chacun implique pour décembre.",
+  "tour_recon_t": "Nos calculs face à ceux d’Eurostat",
+  "tour_recon_b": "L’indice global reconstruit à partir des six composantes et nos contributions, mois par mois face aux chiffres publiés par Eurostat, en points de base. Tous les autres chiffres de la page utilisent les mêmes formules.",
+  "demo_compare_t": "Comparaison de scénarios",
+  "demo_compare_n": "Enregistrer le scénario courant sous un nom et le cocher à côté des scénarios prédéfinis : quatre trajectoires sur un graphique, et le niveau et la probabilité de décembre pour chacun dans le tableau. C’est la diapositive des scénarios de risque, en direct.",
+  "demo_recon_t": "Rapprochement",
+  "demo_recon_n": "La réponse à « peut-on se fier à vos contributions ? » : l’indice reconstruit à quelques centièmes de point de celui d’Eurostat sur 25 ans, les contributions à 0,01 pt des officielles près."
  }
 }

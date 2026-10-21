@@ -109,6 +109,15 @@
     ok("rangeselector present", !!(el("p-headline").layout.xaxis.rangeselector || {}).buttons);
   });
 
+  await step("overview: revision waterfall adds up for each choice", async () => {
+    const btns = $$("#wc-pick button"), bad = [];
+    for (const b of btns) {
+      b.click(); await sleep(250);
+      const y = el("p-revision").data[0].y;
+      if (Math.abs(y.slice(1, -1).reduce((s, v) => s + v, 0) - (y[y.length - 1] - y[0])) > 1e-9) bad.push(b.textContent);
+    }
+    ok(`${btns.length} surprise/revision waterfalls add up`, btns.length >= 2 && bad.length === 0, bad.join(","));
+  });
   await step("overview: beat the model (no shared store locally)", async () => {
     try { localStorage.removeItem("hicp.guess"); } catch (e) { /* ignore */ }
     el("bm-name").value = "E2E tester"; el("bm-value").value = "3.95"; el("bm-go").click(); await sleep(600);
@@ -199,6 +208,34 @@
       ok("apply sets the size", el("f-size").value !== s0, `${s0} → ${el("f-size").value}`);
     } else ok("apply button available", false, "hidden");
   });
+  await step("shocks: reverse stress across all shocks", async () => {
+    $$("#presets button")[0].click(); await sleep(250);
+    el("leg-add").click(); await sleep(250);
+    setVal(el("rev-y"), "4.6"); setVal(el("rev-solve"), "min"); await sleep(500);
+    ok("smallest-combination sentence lists both shocks", /1\..*2\./.test(visibleText(el("rev-out"))) && !el("rev-apply").hidden, visibleText(el("rev-out")).slice(0, 90));
+    el("rev-apply").click(); await sleep(400);
+    ok("applying reaches the target", /4[.,]6/.test(visibleText(el("k-shocked"))), visibleText(el("k-shocked")));
+    setVal(el("rev-solve"), "equal"); await sleep(400);
+    const sizes = (visibleText(el("rev-out")).match(/[+−-]\d+[.,]\d%/g) || []);
+    ok("same-size mode gives equal sizes", sizes.length >= 2 && new Set(sizes).size === 1, sizes.join(" "));
+    setVal(el("rev-solve"), "one"); el("leg-del").click(); await sleep(250);
+  });
+  await step("shocks: scenario comparison save / select / colours", async () => {
+    try { localStorage.removeItem("hicp.scenarios"); } catch (e) { /* ignore */ }
+    $$("#presets button")[1].click(); await sleep(250);
+    setVal(el("f-size"), "33"); await sleep(250);
+    el("cmp-name").value = "E2E bear"; el("cmp-save").click(); await sleep(400);
+    const names = () => el("p-compare").data.map((tr) => tr.name);
+    ok("saved scenario is drawn", names().includes("E2E bear"), names().join(","));
+    const colour = (n) => (el("p-compare").data.find((tr) => tr.name === n) || {}).line?.color;
+    const c0 = colour("E2E bear");
+    $$("#cmp-list input")[0].click(); await sleep(300);
+    ok("unticking another keeps this colour", colour("E2E bear") === c0);
+    ok("comparison table: baseline + rows", $$("#tbl-compare tbody tr").length === names().length + 1);
+    const del = $$("#cmp-list .chip-x").filter((b) => b.textContent === "×")[0]; if (del) { del.click(); await sleep(300); }
+    ok("delete removes it", !names().includes("E2E bear"));
+    try { localStorage.removeItem("hicp.scenarios"); } catch (e) { /* ignore */ }
+  });
   await step("shocks: heatmap click opens the cell", async () => {
     el("p-heat").emit("plotly_click", { points: [{ customdata: ["FR", "SERV"] }] }); await sleep(400);
     ok("FR services +10% loaded", el("f-size").value === "10" && $("#f-countries input[value=FR]").checked);
@@ -231,6 +268,8 @@
       const d0 = sig(); hb[0].click(); await sleep(300);
       ok("horizon buttons change the track", sig() !== d0);
     }
+    ok("reconciliation chart: 2 series over all months", el("p-recon").data.length === 2 && el("p-recon").data[0].x.length === D.recon.dates.length);
+    ok("reconciliation table rows", $$("#tbl-recon tbody tr").length >= 6);
     const jumps = $$("#tm-jump button"); jumps[2].click(); await sleep(300);
     ok("time machine Jun 2022 readout", /2022/.test(visibleText(el("tm-read"))), visibleText(el("tm-read")).slice(0, 60));
     setVal(el("tm-range"), "10"); await sleep(300);
