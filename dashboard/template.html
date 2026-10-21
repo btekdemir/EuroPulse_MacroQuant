@@ -74,10 +74,13 @@ td.num, th.num { text-align: right; }
 .status { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
 .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 .st-pass .dot { background: var(--good); } .st-warn .dot { background: var(--warning); } .st-fail .dot { background: var(--critical); }
-.form { display: grid; gap: 12px; }
-.form fieldset { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin: 0; }
+.form { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }  /* let items shrink on phones */
+select { max-width: 100%; }
+.form fieldset { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin: 0; min-width: 0; }  /* browsers default fieldsets to min-content width, which overflowed phones */
 .form legend { color: var(--text-secondary); font-size: 12px; padding: 0 4px; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips label { max-width: 100%; }  /* long labels (second round) wrap instead of widening the page */
+.chips label > span { min-width: 0; white-space: normal; }
 .chips label { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border: 1px solid var(--border);
   border-radius: 999px; background: var(--surface-2); cursor: pointer; font-size: 12.5px; }
 .chips input { margin: 0; }

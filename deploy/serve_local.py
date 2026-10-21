@@ -60,6 +60,8 @@ class Local(BaseHTTPRequestHandler):
     def do_GET(self):  # noqa: N802
         if self.path.split("?")[0] in ("/", "/index.html", "/dashboard.html"):
             self._send(200, PAGE_FILE.read_bytes(), "text/html; charset=utf-8")
+        elif self.path == "/e2e.js":  # the end-to-end check (tests/e2e), local runs only
+            self._send(200, (ROOT / "tests" / "e2e" / "dashboard_e2e.js").read_bytes(), "text/javascript; charset=utf-8")
         elif self.path in ROUTES:
             self._send(405, b'{"error":"POST only."}')  # same as Vercel: tells the page the route exists
         else:

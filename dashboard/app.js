@@ -1514,7 +1514,7 @@ ${note}
     }
     if (pid === "p-cp-drivers" || pid === "p-cp-basket") return { state: `country ${geo(cpGeo)} (${cpGeo})`, facts: [] };
     if (pid === "p-ccmp") return { state: `countries ${[...ccSel.keys()].map((g) => `${geo(g)} (${g})`).join(", ") || "none selected"}`, facts: [] };
-    if (pid === "p-track") return { state: `horizon ${el("track-h").value}`, facts: [] };
+    if (pid === "p-track") return { state: `horizon ${trackH} months`, facts: [] };  // track-h is a button group, not an input
     return { state: "", facts: [] };
   }
 
