@@ -632,7 +632,14 @@
   "cmp_col_level": "{d} y/y",
   "cmp_col_prob": "P({d} > {thr}%)",
   "cmp_col_legs": "Shocks",
-  "cmp_note": "Every row is run by the same engine as the simulator. The probability uses the model's past errors around each scenario's December level; the dashed line marks December."
+  "cmp_note": "Every row is run by the same engine as the simulator. The probability uses the model's past errors around each scenario's December level; the dashed line marks December.",
+  "rev_solve": "Solve for",
+  "rev_solve_one": "The selected shock",
+  "rev_solve_min": "All shocks: smallest combination",
+  "rev_solve_equal": "All shocks: same size",
+  "rev_multi_min": "To {goal}, the smallest combination of this scenario's shocks (each in proportion to its effect on that month) is: {list}.",
+  "rev_multi_equal": "To {goal}, with the same size on every shock of this scenario: {list}.",
+  "rev_multi_range": "Even at the limits of the simulator (−50% to +200%), this scenario's shocks move {month} only between {ylo}% and {yhi}%."
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -1267,6 +1274,13 @@
   "cmp_col_level": "{d} sur un an",
   "cmp_col_prob": "P({d} > {thr} %)",
   "cmp_col_legs": "Chocs",
-  "cmp_note": "Chaque ligne est calculée par le même moteur que le simulateur. La probabilité utilise les erreurs passées du modèle autour du niveau de décembre de chaque scénario ; la ligne pointillée marque décembre."
+  "cmp_note": "Chaque ligne est calculée par le même moteur que le simulateur. La probabilité utilise les erreurs passées du modèle autour du niveau de décembre de chaque scénario ; la ligne pointillée marque décembre.",
+  "rev_solve": "Résoudre pour",
+  "rev_solve_one": "Le choc sélectionné",
+  "rev_solve_min": "Tous les chocs : plus petite combinaison",
+  "rev_solve_equal": "Tous les chocs : même taille",
+  "rev_multi_min": "Pour {goal}, la plus petite combinaison des chocs de ce scénario (chacun en proportion de son effet sur ce mois) est : {list}.",
+  "rev_multi_equal": "Pour {goal}, avec la même taille sur chaque choc de ce scénario : {list}.",
+  "rev_multi_range": "Même aux limites du simulateur (−50 % à +200 %), les chocs de ce scénario ne déplacent {month} qu’entre {ylo} % et {yhi} %."
  }
 }

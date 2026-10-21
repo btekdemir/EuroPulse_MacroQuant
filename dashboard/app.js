@@ -683,8 +683,9 @@
       if (scenario.legs.length <= 1) return;
       scenario.legs.splice(activeLeg, 1); activeLeg = Math.min(activeLeg, scenario.legs.length - 1); markCustom(); refreshAll();
     });
-    ["rev-mode", "rev-month", "rev-y", "rev-p"].forEach((id) => el(id).addEventListener("input", renderReverse));
+    ["rev-solve", "rev-mode", "rev-month", "rev-y", "rev-p"].forEach((id) => el(id).addEventListener("input", renderReverse));
     el("rev-apply").addEventListener("click", () => {
+      if (revSolvedAll) { scenario.legs.forEach((x, i) => { x.size_pct = Math.round(revSolvedAll[i] * 1000) / 1000; }); markCustom(); refreshAll(); return; }
       if (revSolved === null) return;
       activeShock().size_pct = Math.round(revSolved * 1000) / 1000; markCustom(); refreshAll();
     });
@@ -874,7 +875,7 @@
   }
 
   // ------------------------------------------------------------------ reverse stress test
-  let revSolved = null;
+  let revSolved = null; let revSolvedAll = null;  // sizes for all legs (D55)
   const gasRise2122 = (() => {  // judgemental yardstick quoted in preset 2's rationale: +75% retail energy, Jun 2021 -> Oct 2022
     const m = /(\d+)% from Jun 2021/.exec((S.presets[1] || {}).rationale || ""); return m ? Number(m[1]) : null;
   })();
@@ -886,6 +887,9 @@
       month.value = last.date;
     }
     mode.options[0].textContent = t("rev_mode_yoy"); mode.options[1].textContent = t("rev_mode_prob");
+    const solve = el("rev-solve");
+    if (!solve.options.length) solve.replaceChildren(node("option", { value: "one" }, ""), node("option", { value: "min" }, ""), node("option", { value: "equal" }, ""));
+    solve.options[0].textContent = t("rev_solve_one"); solve.options[1].textContent = t("rev_solve_min"); solve.options[2].textContent = t("rev_solve_equal");
     [...month.options].forEach((o) => { o.textContent = monthLabel(o.value); });
     el("w-rev-y").hidden = mode.value !== "yoy"; el("w-rev-p").hidden = mode.value !== "prob";
     const lg = activeShock(), m = month.value;
@@ -897,8 +901,22 @@
       goal = t("rev_goal_prob", { month: monthLabel(m), thr: fmt(thr, 1), p: fmt(100 * q, 0) });
     }
     const out = el("rev-out"), apply = el("rev-apply");
-    revSolved = null; apply.hidden = true;
-    if (!Number.isFinite(target) || lg.components.length === 0) { out.textContent = ""; return; }
+    revSolved = null; revSolvedAll = null; apply.hidden = true;
+    if (!Number.isFinite(target) || scenario.legs.some((x) => x.components.length === 0)) { out.textContent = ""; return; }
+    if (solve.value !== "one") {  // all shocks together (D55)
+      const rm = ShockEngine.solveMulti(scenario, S, m, target, solve.value);
+      const baseNote0 = t("rev_baseline_note", { b: fmt(S.baseline_yoy[S.months.indexOf(m)], 2) });
+      if (!rm.feasible) {
+        out.textContent = (rm.reason === "no_effect" ? t("rev_none", { month: monthLabel(m) })
+          : t("rev_multi_range", { month: monthLabel(m), ylo: fmt(rm.reach_low, 2), yhi: fmt(rm.reach_high, 2) })) + baseNote0;
+        return;
+      }
+      const parts = scenario.legs.map((x, i) => `${i + 1}. ${legLabel(Object.assign({}, x, { size_pct: rm.sizes_pct[i] })).split(" · ").slice(0, 2).join(" · ")} ${sgn(rm.sizes_pct[i], 1)}%`);
+      out.textContent = t(solve.value === "min" ? "rev_multi_min" : "rev_multi_equal", { goal, list: parts.join("; ") }) + baseNote0
+        + (mode.value === "prob" ? " " + t("rev_prob_point", { pt: fmt(target, 2) }) : "");
+      revSolvedAll = rm.sizes_pct; apply.hidden = false;
+      return;
+    }
     const r = ShockEngine.solveSize(scenario, S, activeLeg, m, target);
     const baseNote = t("rev_baseline_note", { b: fmt(S.baseline_yoy[S.months.indexOf(m)], 2) });
     if (!r.feasible) {

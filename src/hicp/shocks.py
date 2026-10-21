@@ -191,6 +191,52 @@ def solve_size(sc: Scenario, basis: ShockBasis, leg_idx: int, month: str, target
     return out | {"feasible": True, "reason": None, "size_pct": size, "achieved": at(size)}
 
 
+def solve_multi(sc: Scenario, basis: ShockBasis, month: str, target_yoy: float, mode: str = "min") -> dict:
+    """Sizes for ALL legs that bring the shocked headline y/y in ``month`` to ``target_yoy`` (D55).
+
+    Each leg's marginal effect a_i is measured with the engine: its impact in ``month`` at +1% with every other leg
+    at zero. The direction of the sizes is then fixed and one common scale is found by bisection:
+      - mode "min":   sizes proportional to a_i, the smallest combination in the least-squares sense to first
+                      order (for y = y0 + Σ a_i s_i, min Σ s_i² subject to the target gives s ∝ a);
+      - mode "equal": the same size on every leg.
+    The direction is normalised so the largest |size| is the scale, which bisection keeps inside the schema's
+    range. Legs with no effect in ``month`` get size 0 in "min" mode. Same algorithm and iteration count as the
+    browser's ``solveMulti``."""
+    t = basis.months.index(month)
+    if basis.baseline_yoy[t] is None:
+        raise ValueError(f"no baseline forecast for {month}")
+
+    def with_sizes(sizes):
+        return sc.model_copy(update={"legs": [lg.model_copy(update={"size_pct": s}) for lg, s in zip(sc.legs, sizes)]})
+
+    def at(sizes) -> float:
+        return simulate(with_sizes(sizes), basis).shocked_yoy[t]
+
+    n = len(sc.legs)
+    y0 = at([0.0] * n)
+    a = [at([1.0 if j == i else 0.0 for j in range(n)]) - y0 for i in range(n)]
+    out = {"month": month, "target_yoy": target_yoy, "mode": mode, "marginal_pp": a}
+    if max(abs(x) for x in a) < 1e-12:
+        return out | {"feasible": False, "reason": "no_effect", "sizes_pct": None}
+    d = [x for x in a] if mode == "min" else [1.0 if abs(x) > 1e-12 else 0.0 for x in a]
+    m = max(abs(x) for x in d)
+    d = [x / m for x in d]
+    y_lo, y_hi = at([SIZE_LOW * x for x in d]), at([SIZE_HIGH * x for x in d])
+    out |= {"reach_low": y_lo, "reach_high": y_hi}
+    if not (y_lo <= target_yoy <= y_hi):
+        return out | {"feasible": False, "reason": "out_of_range", "sizes_pct": None}
+    lo, hi = SIZE_LOW, SIZE_HIGH
+    for _ in range(SOLVER_ITERATIONS):
+        mid = (lo + hi) / 2
+        if at([mid * x for x in d]) < target_yoy:
+            lo = mid
+        else:
+            hi = mid
+    lam = (lo + hi) / 2
+    sizes = [lam * x for x in d]
+    return out | {"feasible": True, "reason": None, "sizes_pct": sizes, "achieved": at(sizes)}
+
+
 def brent_equivalent(fuel_pct: float, basis: ShockBasis) -> float:
     """Inverse of nl_scenario.fuel_from_brent: the Brent change (%) that moves fuel prices by ``fuel_pct``."""
     eps = float(basis.fuel_brent_elasticity["total"])

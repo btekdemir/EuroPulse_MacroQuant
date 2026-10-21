@@ -136,6 +136,29 @@
     return Object.assign(out, { feasible: true, reason: null, size_pct: size, achieved: at(size) });
   }
 
+  // Sizes for all legs at once (D55): direction from each leg's marginal effect ("min", the smallest combination to
+  // first order) or the same size everywhere ("equal"), then one common scale by bisection. Mirrors solve_multi.
+  function solveMulti(sc, basis, month, targetYoy, mode) {
+    const t = basis.months.indexOf(month), n = sc.legs.length;
+    const at = (sizes) => simulate(Object.assign({}, sc, { legs: sc.legs.map((lg, k) => Object.assign({}, lg, { size_pct: sizes[k] })) }), basis).shocked_yoy[t];
+    const y0 = at(sc.legs.map(() => 0));
+    const a = sc.legs.map((_, i) => at(sc.legs.map((__, j) => (j === i ? 1 : 0))) - y0);
+    const out = { month, target_yoy: targetYoy, mode, marginal_pp: a };
+    if (Math.max(...a.map(Math.abs)) < 1e-12) return Object.assign(out, { feasible: false, reason: "no_effect", sizes_pct: null });
+    let d = mode === "min" ? a.slice() : a.map((x) => (Math.abs(x) > 1e-12 ? 1 : 0));
+    const m = Math.max(...d.map(Math.abs)); d = d.map((x) => x / m);
+    const yLo = at(d.map((x) => SIZE_LOW * x)), yHi = at(d.map((x) => SIZE_HIGH * x));
+    Object.assign(out, { reach_low: yLo, reach_high: yHi });
+    if (!(yLo <= targetYoy && targetYoy <= yHi)) return Object.assign(out, { feasible: false, reason: "out_of_range", sizes_pct: null });
+    let lo = SIZE_LOW, hi = SIZE_HIGH;
+    for (let i = 0; i < SOLVER_ITERATIONS; i++) {
+      const mid = (lo + hi) / 2;
+      if (at(d.map((x) => mid * x)) < targetYoy) lo = mid; else hi = mid;
+    }
+    const lam = (lo + hi) / 2, sizes = d.map((x) => lam * x);
+    return Object.assign(out, { feasible: true, reason: null, sizes_pct: sizes, achieved: at(sizes) });
+  }
+
   function brentEquivalent(fuelPct, basis) {
     const eps = basis.fuel_brent_elasticity.total;
     return 100 * Math.expm1(Math.log1p(fuelPct / 100) / eps);
@@ -218,7 +241,7 @@
       mapping: typeof sc.mapping === "string" ? sc.mapping.slice(0, 600) : null } };
   }
 
-  const api = { encodeScenario, decodeScenario, simulate, profileFraction, monthsSince, probAbove, solveSize, requiredPoint, quantile, brentEquivalent,
+  const api = { encodeScenario, decodeScenario, solveMulti, simulate, profileFraction, monthsSince, probAbove, solveSize, requiredPoint, quantile, brentEquivalent,
                 explainMonth, conditionalPath, addMonths };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.ShockEngine = api;

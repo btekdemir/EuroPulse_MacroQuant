@@ -9,7 +9,7 @@ import pytest
 from hicp.config import ROOT
 from hicp.outlook import prob_above
 from hicp.schemas import Leg, Profile, Scenario, ShockBasis
-from hicp.shocks import SIZE_HIGH, SIZE_LOW, brent_equivalent, required_point, simulate, solve_size
+from hicp.shocks import SIZE_HIGH, SIZE_LOW, brent_equivalent, required_point, simulate, solve_multi, solve_size
 
 REF = json.loads((ROOT / "tests" / "data_single_leg_reference.json").read_text())
 BASIS = ShockBasis.model_validate(REF["basis"])
@@ -112,3 +112,46 @@ def test_js_required_point_matches_python():
     """], capture_output=True, text=True, check=True).stdout)
     for (thr, p), v in zip(cases, js, strict=True):
         assert required_point(thr, errs, p) == pytest.approx(v, abs=1e-12)
+
+
+
+def test_solve_multi_hits_target_and_min_mode_is_smaller():
+    s = sc(leg(["SERV"], ["DE"], 1.0), leg(["ELC_GAS"], ["IT"], 1.0), leg(["FOOD_NP"], ["MT"], 1.0))
+    base = simulate(s.model_copy(update={"legs": [lg.model_copy(update={"size_pct": 0.0}) for lg in s.legs]}), BASIS).shocked_yoy[BASIS.months.index(DEC)]
+    goal = base + 0.5
+    rm, re = solve_multi(s, BASIS, DEC, goal, "min"), solve_multi(s, BASIS, DEC, goal, "equal")
+    assert rm["feasible"] and re["feasible"]
+    assert rm["achieved"] == pytest.approx(goal, abs=1e-6) and re["achieved"] == pytest.approx(goal, abs=1e-6)
+    assert re["sizes_pct"][0] == pytest.approx(re["sizes_pct"][1]) == pytest.approx(re["sizes_pct"][2])
+    assert sum(x * x for x in rm["sizes_pct"]) < sum(x * x for x in re["sizes_pct"])  # smallest combination
+    assert rm["sizes_pct"][0] > rm["sizes_pct"][2]  # German services carry more than Maltese food
+
+
+def test_solve_multi_infeasible_cases():
+    late = sc(leg(["FUEL"], start="2027-03"))
+    assert solve_multi(late, BASIS, DEC, 5.0, "min")["reason"] == "no_effect"
+    tiny = sc(leg(["FOOD_NP"], ["MT"]))
+    assert solve_multi(tiny, BASIS, DEC, 9.0, "min")["reason"] == "out_of_range"
+
+
+@pytest.mark.skipif(shutil.which("node") is None, reason="node not installed")
+def test_js_solve_multi_matches_python():
+    cases = [(sc(leg(["SERV"], ["DE"]), leg(["ELC_GAS"], ["IT"]), leg(["FOOD_NP"], ["MT"])), 4.4, "min"),
+             (sc(leg(["SERV"], ["DE"]), leg(["ELC_GAS"], ["IT"])), 4.2, "equal"),
+             (sc(leg(["FUEL"]), leg(["FUEL"], start="2027-03")), 4.3, "min"),
+             (sc(leg(["FOOD_NP"], ["MT"])), 9.0, "min")]
+    payload = [{"scenario": s.model_dump(mode="json"), "target": tg, "mode": md} for s, tg, md in cases]
+    script = f"""
+      const E = require({json.dumps(str(ROOT / 'dashboard' / 'shock_engine.js'))});
+      const basis = {json.dumps(REF['basis'])};
+      const cs = JSON.parse(require('fs').readFileSync(0, 'utf8'));
+      process.stdout.write(JSON.stringify(cs.map(c => E.solveMulti(c.scenario, basis, {json.dumps(DEC)}, c.target, c.mode))));
+    """
+    js = json.loads(subprocess.run(["node", "-e", script], input=json.dumps(payload), capture_output=True,
+                                   text=True, check=True).stdout)
+    for (s, tg, md), r_js in zip(cases, js, strict=True):
+        r_py = solve_multi(s, BASIS, DEC, tg, md)
+        assert r_py["feasible"] == r_js["feasible"] and r_py["reason"] == r_js["reason"], (md, tg)
+        if r_py["feasible"]:
+            for a, b in zip(r_py["sizes_pct"], r_js["sizes_pct"], strict=True):
+                assert a == pytest.approx(b, abs=1e-9)
