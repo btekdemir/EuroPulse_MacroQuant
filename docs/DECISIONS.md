@@ -858,3 +858,34 @@ Written and committed **before any of these variants was run**. Results are repo
 - **Charts:** dotted, sparser grid lines (at most 6 y ticks), card titles 16px, tabular figures.
 - **Not changed:** the validated colour palette, interactions and content.
 - **Checked:** end-to-end 122/122 at 1280×800 and 375×812; Python 211/211.
+
+## D59. Two outside reviews: consistency first, then calmer charts (22 Oct 2026)
+
+Two reviews were pasted in, one on method and consistency and one on looks. Their points and what was done:
+
+- **Numbers that disagreed between text and table:**
+  - Calibration (29/48 in the text vs 31/46 in the table) and real-time (59 vs 60) readings were hard-coded. They are now computed from the data the page shows, so they cannot drift again.
+  - Pass-through 0.090 (break test) vs 0.074 (simulator): both are right, for different samples and specifications. The break-test reading now says which is which and why the simulator uses its own.
+- **Wording:**
+  - "Real time" → "Scored against first releases (latest-vintage inputs, D29)": the inputs are not true vintages, and the title now says so.
+  - Round 4 states the selection-optimism caveat: the adopted variant was the best of three, so its backtest gain is an upper bound.
+- **Probabilities:** shown as whole percentages, with ">99%" and "<1%" at the ends, never "100%" or "0%".
+- **Research note precision:**
+  - The note is checked for precision as well as for its numbers: probabilities as whole percentages, rates to one decimal, p-values to three.
+  - The stale note (94.95%, 5.075%, 0.003 pp) fails that check and must be regenerated, which is a paid call left to the user.
+- **Overview shorter:**
+  - What changed, the research note, Beat the model, Month explained and the October scenario are folds.
+  - All rounds are folded by default, each with a one-line status.
+  - A one-line risk sentence (largest preset) with "open in simulator" replaces part of the text.
+- **Methodology table:** a short table lists each component's COICOP ver.2 code, its official and effective weight and its forecast model. The line above it gives the unit (I25, 2025 = 100), the classification and the euro area* definition.
+- **Charts (look):**
+  - The bridge and revision charts are floating bars in each component's fixed colour (Plotly's waterfall cannot colour bars one by one).
+  - Their labels are horizontal and wrapped. On narrow screens (under 640px) the bars turn horizontal so every label has its own row.
+  - The headline chart opens on the last two years, with the forecast months shaded and labelled.
+  - Signs follow the rounded value, so a tiny change reads "0.00", never "−0.00".
+- **Boxes and buttons:**
+  - The text-only answer card has no frame.
+  - The tour banner is smaller.
+  - The PNG / CSV / Explain buttons rest at 60% opacity instead of 18%: the review found them too hard to see. This replaces that part of D58.
+- **Footer:** outputs are rebuilt from a clean tree, so the commit shown has no "-dirty".
+- **Checked:** Python 212/212; end-to-end 123/123 at 1280×900, at the narrow app pane (horizontal bridge) and at 375×812.

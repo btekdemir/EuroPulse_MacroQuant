@@ -89,6 +89,7 @@ SECTIONS = {
     "realtime": ("model", "tbl-rt", "real-time check against first releases"),
     "model_selection": ("model", "tbl-sel", "selected model per component and the selection rule"),
     "validation": ("model", "tbl-val", "data validation gates"),
+    "methodology": ("model", "meta-card", "what is pulled: COICOP ver.2 codes, unit I25 (2025 = 100), weights, and each component's model"),
     "vintages": ("model", "tbl-vin", "data vintages pulled from Eurostat"),
 }
 

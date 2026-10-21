@@ -109,12 +109,19 @@
     ok("rangeselector present", !!(el("p-headline").layout.xaxis.rangeselector || {}).buttons);
   });
 
+  // Floating-bar bridge (D59): each step is a bar of |change| from the running total; walk it and land on the end bar.
+  const bridgeAddsUp = (tr) => {
+    const y = tr.orientation === "h" ? tr.x : tr.y, b = tr.base; let cum = y[0];
+    for (let i = 1; i < y.length - 1; i++) {
+      if (Math.abs(b[i] - cum) < 1e-9) cum += y[i]; else if (Math.abs(b[i] + y[i] - cum) < 1e-9) cum -= y[i]; else return false;
+    }
+    return Math.abs(cum - y[y.length - 1]) < 1e-6;
+  };
   await step("overview: revision waterfall adds up for each choice", async () => {
     const btns = $$("#wc-pick button"), bad = [];
     for (const b of btns) {
       b.click(); await sleep(250);
-      const y = el("p-revision").data[0].y;
-      if (Math.abs(y.slice(1, -1).reduce((s, v) => s + v, 0) - (y[y.length - 1] - y[0])) > 1e-9) bad.push(b.textContent);
+      if (!bridgeAddsUp(el("p-revision").data[0])) bad.push(b.textContent);
     }
     ok(`${btns.length} surprise/revision waterfalls add up`, btns.length >= 2 && bad.length === 0, bad.join(","));
   });
@@ -132,12 +139,10 @@
   await tab("drivers");
   await step("drivers: bridge chart, both modes add up", async () => {
     const tr = () => el("p-bridge").data[0];
-    const sum = (y) => y.slice(1, -1).reduce((s, v) => s + v, 0);
-    const y = tr().y, delta = y[y.length - 1] - y[0];
-    ok("by component sums to the change", Math.abs(sum(y) - delta) < 1e-9, `${sum(y)} vs ${delta}`);
+    ok("by component sums to the change", bridgeAddsUp(tr()));
+    ok("bars coloured per component", new Set(tr().marker.color).size >= 4);
     $("[data-br=bm]").click(); await sleep(300);
-    const y2 = tr().y;
-    ok("base effect + momentum sums to the change", y2.length === 4 && Math.abs(sum(y2) - (y2[3] - y2[0])) < 1e-6);
+    ok("base effect + momentum sums to the change", tr().base.length === 4 && bridgeAddsUp(tr()));
     $("[data-br=comp]").click(); await sleep(200);
   });
   await step("drivers: contributions click → month explained", async () => {

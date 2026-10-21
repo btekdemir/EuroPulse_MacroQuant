@@ -27,7 +27,8 @@
   const nf = (d) => new Intl.NumberFormat(lang === "fr" ? "fr-FR" : "en-GB", { minimumFractionDigits: d, maximumFractionDigits: d });
   const fmt = (x, d = 1) => (x === null || x === undefined || Number.isNaN(x) ? "–" : nf(d).format(x));
   const pct = (x, d = 1) => fmt(x, d) + (lang === "fr" ? "\u00a0%" : "%");
-  const sgn = (x, d = 2) => (x > 0 ? "+" : x < 0 ? "−" : "") + fmt(Math.abs(x), d);
+  // The sign follows the rounded value, so a tiny change reads "0.00", never "−0.00" or "+0.00".
+  const sgn = (x, d = 2) => { const r = Number(Number(x).toFixed(d)); return (r > 0 ? "+" : r < 0 ? "−" : "") + fmt(Math.abs(x), d); };
   const monthLabel = (ym) => {
     const [y, m] = ym.split("-").map(Number);
     return new Date(Date.UTC(y, m - 1, 1)).toLocaleDateString(lang === "fr" ? "fr-FR" : "en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
@@ -110,6 +111,8 @@
   let thr = 4.0;
   const ERR3 = F.error_samples["3"];
   const probOf = (point, x) => ShockEngine.probAbove(point, ERR3, x);
+  // From ~200 past errors a 0% or 100% is "none / all of the past errors", not certainty: show "<1" / ">99".
+  const probTxt = (p) => (p >= 0.995 ? ">99" : p <= 0.005 ? "<1" : fmt(100 * p, 0));
   function bindThreshold() {
     document.querySelectorAll("input.thr").forEach((inp) => inp.addEventListener("input", () => {
       const v = Number(inp.value);
@@ -122,10 +125,10 @@
   function renderProb() {
     const dec = monthLabel(last.date);
     el("t-prob").textContent = t("prob_title", { date: dec });
-    el("prob-sentence").textContent = t("prob_sentence", { date: dec, thr: fmt(thr, 1), p: fmt(100 * probOf(last.point, thr), 0) });
+    el("prob-sentence").textContent = t("prob_sentence", { date: dec, thr: fmt(thr, 1), p: probTxt(probOf(last.point, thr)) });
     el("n-prob").textContent = t("prob_note", { n: ERR3.length });
     table(el("tbl-prob"), [t("prob_col_thr"), t("prob_col_p")],
-      [2, 3, 3.5, 4, 4.5, 5].map((x) => [fmt(x, 1) + "%", fmt(100 * probOf(last.point, x), 0) + "%"]), [1]);
+      [2, 3, 3.5, 4, 4.5, 5].map((x) => [fmt(x, 1) + "%", probTxt(probOf(last.point, x)) + "%"]), [1]);
   }
 
   // ------------------------------------------------------------------ research note (numbers verified)
@@ -187,12 +190,8 @@
     const steps = COMPS.map((c) => [comp(c), bc[c]]);
     steps.push([t("wc_resid"), it.to - it.from - COMPS.reduce((s, c) => s + bc[c], 0)]);
     const x = [it.a, ...steps.map((s) => s[0]), it.b], y = [it.from, ...steps.map((s) => s[1]), it.to];
-    plot("p-revision", [{ type: "waterfall", x, y, measure: ["absolute", ...steps.map(() => "relative"), "total"],
-      text: y.map((v, i) => (i === 0 || i === y.length - 1 ? pct(v, 2) : sgn(v))), textposition: "outside", cliponaxis: false,
-      increasing: { marker: { color: css("--s2") } }, decreasing: { marker: { color: css("--s1") } }, totals: { marker: { color: css("--text-secondary") } },
-      connector: { line: { color: css("--axis"), width: 1, dash: "dot" } }, hovertemplate: "%{x}: %{text}<extra></extra>" }],
-    baseLayout({ showlegend: false, margin: { l: 44, r: 16, t: 20, b: 70 }, xaxis: Object.assign(baseLayout().xaxis, { tickangle: -25 }),
-      yaxis: Object.assign(baseLayout().yaxis, { ticksuffix: "%", range: [Math.min(it.from, it.to) - 0.25, Math.max(it.from, it.to) + 0.25] }) }));
+    floatBridge("p-revision", { lab: it.a, v: it.from },
+      steps.map((s, i) => ({ lab: s[0], v: s[1], color: i < COMPS.length ? SLOT[COMPS[i]] : "--neutral" })), { lab: it.b, v: it.to });
   }
 
   // ------------------------------------------------------------------ beat the model (D51)
@@ -257,7 +256,17 @@
     renderBeat();
   }
 
+  function renderRiskLine() {
+    const k = S.months.indexOf(last.date);
+    const best = S.presets.map((p, i) => ({ i, p, r: ShockEngine.simulate(p, S) })).sort((a, b) => Math.abs(b.r.peak_pp) - Math.abs(a.r.peak_pp))[0];
+    const line = el("risk-line"); line.replaceChildren(t("risk_line", { name: best.p.name, peak: sgn(best.r.peak_pp), m: monthLabel(best.r.peak_month), dec: pct(best.r.shocked_yoy[k], 1) }) + " ");
+    const go = node("button", { type: "button", class: "linkbtn" }, t("risk_open"));
+    go.addEventListener("click", () => { showTab("shocks"); el("presets").querySelectorAll("button")[best.i].click(); el("p-shock").closest(".card").scrollIntoView({ block: "start" }); });
+    line.appendChild(go);
+  }
+
   function renderOverview() {
+    renderRiskLine();
     renderChanged();
     renderBeat();
     const dec = monthLabel(last.date), origin = monthLabel(F.origin);
@@ -314,10 +323,14 @@
       ...extra,
     ], baseLayout({
       yaxis: Object.assign(baseLayout().yaxis, { ticksuffix: "%" }),
-      xaxis: Object.assign(baseLayout().xaxis, { range: [`${Number(F.origin.slice(0, 4)) - 3}-01-01`, `${last.date}-20`] }),
-      margin: { l: 48, r: 56, t: 8, b: 36 },
-      annotations: [{ x: fx[fx.length - 1], y: last.point, text: `<b>${fmt(last.point)}%</b>`, xanchor: "left", xshift: 8,
+      xaxis: Object.assign(baseLayout().xaxis, { range: [`${Number(F.origin.slice(0, 4)) - 2}-${F.origin.slice(5, 7)}-01`, `${last.date}-25`] }),
+      shapes: [{ type: "rect", xref: "x", yref: "paper", x0: `${F.origin}-16`, x1: `${last.date}-25`, y0: 0, y1: 1, fillcolor: css("--surface-2"), line: { width: 0 }, layer: "below" },
+        { type: "line", xref: "x", yref: "paper", x0: `${F.origin}-16`, x1: `${F.origin}-16`, y0: 0, y1: 1, line: { color: css("--axis"), width: 1, dash: "dot" } }],
+      annotations: [{ xref: "x", yref: "paper", x: `${F.origin}-20`, y: 1, text: t("fc_region"), showarrow: false, xanchor: "left", yanchor: "top",
+        font: { size: 11, color: css("--text-secondary") } },
+      { x: fx[fx.length - 1], y: last.point, text: `<b>${fmt(last.point)}%</b>`, xanchor: "left", xshift: 8,
         showarrow: false, font: { color: css("--text-primary"), size: 13 } }],
+      margin: { l: 48, r: 56, t: 8, b: 36 },
     }));
     table(el("tbl-headline"), [t("month"), t("s_forecast"), "q05", "q16", "q84", "q95", t("s_base"), t("s_mom")],
       P.map((p) => [monthLabel(p.date), fmt(p.point, 2), fmt(p.quantiles.q05, 2), fmt(p.quantiles.q16, 2), fmt(p.quantiles.q84, 2),
@@ -382,7 +395,7 @@
     const err2 = F.error_samples["2"];
     el("oct-sentence").textContent = t("oct_sentence", { v: fmt(v, 1), d: fmt(cond[decP.date], 2), dd: sgn(cond[decP.date] - decP.point),
       b: fmt(decP.point, 2), thr: fmt(thr, 1), p: fmt(100 * ShockEngine.probAbove(cond[decP.date], err2, thr), 0),
-      p0: fmt(100 * probOf(decP.point, thr), 0) });
+      p0: probTxt(probOf(decP.point, thr)) });
     table(el("tbl-oct"), [t("oct_col_month"), t("oct_col_base"), t("oct_col_cond", { v: fmt(v, 1) }), t("oct_col_diff")],
       P.map((p) => [monthLabel(p.date), fmt(p.point, 2), fmt(cond[p.date], 2), sgn(cond[p.date] - p.point)]), [1, 2, 3]);
   }
@@ -424,6 +437,33 @@
     el("core-note").textContent = t("core_note", { goods: K.models.IGD_NNRG, serv: K.models.SERV, gap: fmt(K.max_abs_gap_pp, 3), n: K.n_origins });
   }
 
+  // A bridge as floating bars (D59): Plotly's waterfall cannot colour bars one by one, so each step is a bar from the
+  // running total, coloured like its component everywhere else; labels are horizontal and wrapped, values on top.
+  const wrapLab = (s, n = 13) => s.split(" ").reduce((acc, w) => {
+    const lines = acc.split("<br>"), lastL = lines[lines.length - 1];
+    return acc ? (lastL.length + w.length + 1 > n ? acc + "<br>" + w : acc + " " + w) : w;
+  }, "");
+  function floatBridge(id, start, steps, end) {
+    let cum = start.v;
+    const base = [0], y = [start.v], col = [css("--text-secondary")], text = [pct(start.v, 2)];
+    steps.forEach((s) => { base.push(s.v >= 0 ? cum : cum + s.v); y.push(Math.abs(s.v)); col.push(css(s.color)); text.push(sgn(s.v)); cum += s.v; });
+    base.push(0); y.push(end.v); col.push(css("--text-secondary")); text.push(pct(end.v, 2));
+    const labs = [start.lab, ...steps.map((s) => s.lab), end.lab];
+    const lo = Math.min(start.v, end.v, ...base.slice(1, -1)) - 0.25, hi = Math.max(start.v, end.v, ...base.slice(1, -1).map((b, i) => b + y[i + 1])) + 0.25;
+    // Narrow screens: horizontal bars, so each label gets a row of its own instead of colliding under the bars.
+    const flat = (el(id).clientWidth || 800) < 640;
+    const val = { ticksuffix: "%", range: [lo, hi] }, cat = { tickangle: 0, tickfont: { size: flat ? 11 : 11.5, color: css("--text-secondary") } };
+    if (flat) Object.assign(cat, { autorange: "reversed", tickmode: "array", tickvals: labs, ticktext: labs, nticks: 0 });
+    const tr = { type: "bar", base, text, textposition: "outside", cliponaxis: false, marker: { color: col, line: { width: 0 } },
+      textfont: { size: 12, color: css("--text-secondary") }, hovertemplate: (flat ? "%{y}" : "%{x}") + ": %{text}<extra></extra>", width: 0.62 };
+    if (flat) Object.assign(tr, { orientation: "h", x: y, y: labs }); else Object.assign(tr, { x: labs.map((l) => wrapLab(l)), y });
+    plot(id, [tr], baseLayout({ showlegend: false, bargap: 0.35, hovermode: "closest", ...(flat ? { height: 340 } : {}),
+      margin: flat ? { l: 130, r: 48, t: 8, b: 32 } : { l: 44, r: 16, t: 24, b: 64 },
+      [flat ? "xaxis" : "yaxis"]: Object.assign(baseLayout()[flat ? "xaxis" : "yaxis"], val),
+      [flat ? "yaxis" : "xaxis"]: Object.assign(baseLayout()[flat ? "yaxis" : "xaxis"], cat) }));
+  }
+
+
   // ------------------------------------------------------------------ bridge: last print → December (D50)
   // By component: change in each exact chain-linked contribution (they add up to the change in y/y, apart from a
   // small chain-link residual, shown). Base effect vs momentum: the exact log split of the same change.
@@ -440,15 +480,9 @@
     }
     const x = [monthLabel(h0.date), ...steps.map((s) => s[0]), monthLabel(d.date)];
     const y = [h0.yoy, ...steps.map((s) => s[1]), d.point];
-    plot("p-bridge", [{ type: "waterfall", orientation: "v", x, y, measure: ["absolute", ...steps.map(() => "relative"), "total"],
-      text: y.map((v, i) => (i === 0 || i === y.length - 1 ? pct(v, 2) : sgn(v))), textposition: "outside", cliponaxis: false,
-      increasing: { marker: { color: css("--s2") } }, decreasing: { marker: { color: css("--s1") } },
-      totals: { marker: { color: css("--text-secondary") } }, connector: { line: { color: css("--axis"), width: 1, dash: "dot" } },
-      hovertemplate: "%{x}: %{text}<extra></extra>" }],
-    baseLayout({ showlegend: false, margin: { l: 44, r: 16, t: 24, b: 70 },
-      yaxis: Object.assign(baseLayout().yaxis, { ticksuffix: "%", range: [Math.min(...y.filter((_, i) => i === 0 || i === y.length - 1)) - 0.35,
-        Math.max(...y.filter((_, i) => i === 0 || i === y.length - 1)) + 0.35] }),
-      xaxis: Object.assign(baseLayout().xaxis, { tickangle: -25 }) }));
+    const colorOf = (lab) => (brMode === "comp" ? (COMPS.find((c) => comp(c) === lab) ? SLOT[COMPS.find((c) => comp(c) === lab)] : "--neutral")
+      : (lab === t("s_base") ? "--axis" : "--accent"));
+    floatBridge("p-bridge", { lab: monthLabel(h0.date), v: h0.yoy }, steps.map((s) => ({ lab: s[0], v: s[1], color: colorOf(s[0]) })), { lab: monthLabel(d.date), v: d.point });
     const up = steps.filter((s) => s[1] > 0.005).sort((a, b) => b[1] - a[1]), dn = steps.filter((s) => s[1] < -0.005).sort((a, b) => a[1] - b[1]);
     el("br-text").textContent = t("br_text", { from: pct(h0.yoy, 2), to: pct(d.point, 2), d: sgn(d.point - h0.yoy),
       up: up.slice(0, 2).map((s) => `${s[0].toLowerCase()} ${sgn(s[1])}`).join(", ") || "–",
@@ -761,9 +795,9 @@
     baseLayout({ yaxis: Object.assign(baseLayout().yaxis, { title: { text: t("pp") }, zeroline: true }),
       shapes: [{ type: "line", x0: toDate(last.date), x1: toDate(last.date), yref: "paper", y0: 0, y1: 1, line: { color: css("--axis"), width: 1, dash: "dash" } }] }));
     table(el("tbl-compare"), [t("cmp_col_name"), t("cmp_col_peak"), t("cmp_col_when"), t("cmp_col_dec", { d: monthLabel(last.date) }), t("cmp_col_level", { d: monthLabel(last.date) }), t("cmp_col_prob", { thr: fmt(thr, 1), d: monthLabel(last.date) }), t("cmp_col_legs")],
-      [[t("s_baseline"), "–", "–", "0.00", pct(last.point, 2), fmt(100 * probOf(last.point, thr), 0) + "%", "0"],
+      [[t("s_baseline"), "–", "–", "0.00", pct(last.point, 2), probTxt(probOf(last.point, thr)) + "%", "0"],
         ...chosen.map(({ x, r }) => [x.name, sgn(r.peak_pp), monthLabel(r.peak_month), sgn(r.delta_yoy_pp[k]), pct(r.shocked_yoy[k], 2),
-          fmt(100 * probOf(r.shocked_yoy[k], thr), 0) + "%", String(x.scenario.legs.length)])], [1, 3, 4, 5, 6]);
+          probTxt(probOf(r.shocked_yoy[k], thr)) + "%", String(x.scenario.legs.length)])], [1, 3, 4, 5, 6]);
   }
 
   // ---- sensitivity heatmap: euro area* December y/y response to +1% in one (country, component) cell.
@@ -1069,8 +1103,8 @@
       scenario.second_round ? `${t("s_first")} ${sgn(r.delta_first_round_pp[decIdx])} · ${t("s_second")} ${sgn(r.delta_second_round_pp[decIdx])}`
         : scenario.legs.length > 1 ? t("sim_n_shocks", { n: scenario.legs.length }) : t("s_first"));
     kpi("k-shocked", t("sim_shocked", { date: monthLabel(last.date) }), pct(r.shocked_yoy[decIdx]), `${t("s_baseline")}: ${pct(last.point)}`);
-    kpi("k-prob", t("k_prob", { date: monthLabel(last.date), thr: fmt(thr, 1) }), fmt(100 * probOf(r.shocked_yoy[decIdx], thr), 0) + "%",
-      `${t("k_prob_sub", { b: fmt(100 * probOf(last.point, thr), 0) })} · ${t("prob_shock_note")}`);
+    kpi("k-prob", t("k_prob", { date: monthLabel(last.date), thr: fmt(thr, 1) }), probTxt(probOf(r.shocked_yoy[decIdx], thr)) + "%",
+      `${t("k_prob_sub", { b: probTxt(probOf(last.point, thr)) })} · ${t("prob_shock_note")}`);
 
     const xs = r.months.map(toDate);
     const multi = scenario.legs.length > 1;
@@ -1220,8 +1254,18 @@
         fmt(o, 3), fmt(f, 2), sgn(o - f, 3)]), [1, 2, 3]);
   }
 
+  // What is pulled, in the brief's own terms (D59): COICOP ver.2 codes, unit I25 (2025 = 100), weights, model.
+  function renderMeta() {
+    const MODEL = { NC: t("meta_m_nc"), SM: t("meta_m_sm"), ARP: t("meta_m_arp"), PUMP: t("meta_m_pump"), SM_R120: t("meta_m_sm"), ARP_R120: t("meta_m_arp") };
+    const rows = COMPS.map((c) => [c, comp(c), fmt(1000 * F.official_weights[c], 1), fmt(100 * F.effective_weights[c], 1), MODEL[F.selected_models[c]] || F.selected_models[c]]);
+    rows.push(["TOTAL", t("meta_total"), "1000.0", "100.0", t("meta_m_bu")], ["TOT_X_NRG_FOOD", t("meta_core"), "–", "–", t("meta_m_core")]);
+    table(el("tbl-meta"), [t("meta_code"), t("meta_label"), t("meta_w", { y: F.origin.slice(0, 4) }), t("meta_eff"), t("meta_model")], rows, [2, 3]);
+    el("meta-note").textContent = t("meta_note", { n: S.countries.length, ds: [...new Set(M.vintages.map((v) => v.dataset))].join(", ") });
+  }
+
   function renderModel() {
     renderRecon();
+    renderMeta();
     const sel = el("bt-sample"), cur = sel.value || "full";
     sel.replaceChildren(...SAMPLES.map((s) => node("option", { value: s }, t("sample_" + s)))); sel.value = cur;
     const rows = [];
@@ -1349,6 +1393,10 @@
       CAL.rows.filter((r) => r.h === 3).map((r) => [t("fan_" + r.fan), t(per[r.period]), String(r.n), fmt(r.pinball, 3),
         fmt(100 * r.in68, 0) + "%", fmt(100 * r.in90, 0) + "%"]), [2, 3, 4, 5]);
     const dcs = CAL.decision;
+    // Reading, computed from the rows above (a hand-written version went stale when the model changed, D59).
+    const cr = (fan, per) => (CAL.rows.find((r) => r.fan === fan && r.h === 3 && r.period === per) || {});
+    el("cal-reading").textContent = t("cal_reading", { b: fmt(100 * cr("B", "2020-2023").in68, 0), a: fmt(100 * cr("A", "2020-2023").in68, 0),
+      ar: fmt(100 * cr("A", "all scored").in68, 0), cur: fmt(100 * cr("current", "all scored").in68, 0) });
     el("cal-verdict").textContent = dcs.adopt_B ? t("cal_verdict_adopt", { p: fmt(dcs.dm_p, 3) })
       : t("cal_verdict_keep", { pct: fmt(100 * (1 - dcs.mean_loss_B / dcs.mean_loss_A), 0), a: fmt(dcs.mean_loss_A, 3), b: fmt(dcs.mean_loss_B, 3), p: fmt(dcs.dm_p, 2) });
   }
@@ -1358,6 +1406,9 @@
       RT.rows.map((r) => [r.target === "flash" ? t("rt_fls") : t("rt_fin"), t("m_" + r.model), String(r.h), String(r.n),
         fmt(r.ratio, 3), r.dm_p === null ? "–" : fmt(r.dm_p, 3), fmt(r.ratio_latest_vintage, 3), r.dm_p_latest_vintage === null ? "–" : fmt(r.dm_p_latest_vintage, 3)]),
       [2, 3, 4, 5, 6, 7]);
+    const bu = RT.rows.filter((r) => r.model === "bottom_up" && r.ratio !== null && r.ratio_latest_vintage !== null);
+    const dmax = Math.max(...bu.map((r) => Math.abs(r.ratio - r.ratio_latest_vintage)));
+    el("rt-reading").textContent = t("rt_reading", { d: fmt(dmax, 2) });
   }
 
   function renderLedger() {
@@ -1570,7 +1621,7 @@
       const k = el(id);
       return `<div class="k"><div class="l">${esc(k.querySelector(".label").textContent)}</div><div class="v">${esc(k.querySelector(".value").textContent)}</div><div class="s">${esc(k.querySelector(".sub").textContent)}</div></div>`;
     }).join("");
-    const probs = [3, 3.5, 4, 4.5, 5].map((x) => `<td>${fmt(100 * probOf(last.point, x), 0)}%</td>`).join("");
+    const probs = [3, 3.5, 4, 4.5, 5].map((x) => `<td>${probTxt(probOf(last.point, x))}%</td>`).join("");
     const m = (B.metrics || []).find((r) => r.model === "bottom_up" && r.h === 3 && r.sample === "full");
     const n = RN && RN.notes.find((x) => x.lang === lang);
     const note = n && n.verified && !RN.stale ? `<h2>${esc(n.title)}</h2>${n.body.split(/\n{2,}/).map((p) => `<p>${esc(p)}</p>`).join("")}` : "";
@@ -1762,7 +1813,7 @@ ${note}
   }
 
   // Switch tab, open the right country if asked, scroll the section into view and flash it.
-  const openFold = (e) => { const f = e && e.closest("details.fold"); if (f) f.open = true; };
+  const openFold = (e) => { const f = e && (e.closest("details.fold") || e.querySelector("details.fold")); if (f) f.open = true; };
   function askGoto(g) {
     showTab(g.tab);
     openFold(el(g.target));
@@ -1811,7 +1862,7 @@ ${note}
     const lines = [
       t("ask_sc_peak", { pp: sgn(res.peak_pp), month: monthLabel(res.peak_month) }),
       t("ask_sc_dec", { date: monthLabel(last.date), pp: sgn(res.delta_yoy_pp[k]), y: pct(res.shocked_yoy[k]), base: pct(last.point) }),
-      t("ask_sc_prob", { thr: fmt(thr, 1), p: fmt(100 * probOf(res.shocked_yoy[k], thr), 0), b: fmt(100 * probOf(last.point, thr), 0) }),
+      t("ask_sc_prob", { thr: fmt(thr, 1), p: probTxt(probOf(res.shocked_yoy[k], thr)), b: probTxt(probOf(last.point, thr)) }),
     ];
     lines.forEach((l) => box.append(node("div", {}, l)));
     const open = node("button", { type: "button", class: "btn ask-goto" }, t("ask_sc_open"));
@@ -1965,6 +2016,9 @@ ${note}
     else if (e.key === "Escape") askToggle(false);
   });
 
+  document.querySelectorAll("details.fold").forEach((f) => f.addEventListener("toggle", () => {
+    if (f.open) setTimeout(() => f.querySelectorAll(".plot").forEach((p) => { if (p.data) Plotly.Plots.resize(p); }), 0);
+  }));
   el("mx-month").addEventListener("change", renderMonth);
   el("oct-in").addEventListener("input", () => setOct(Number(el("oct-in").value)));
   el("oct-range").addEventListener("input", () => setOct(Number(el("oct-range").value)));

@@ -75,8 +75,8 @@ class FakeClient:
         return types.SimpleNamespace(parsed_output=self.queue.pop(0), stop_reason="end_turn")
 
 
-GOOD = DraftNote(title="Outlook", body="Forecast 3.8% versus 3.77%.", citations=cite(("3.8", "dec"), ("3.77", "last")))
-BAD = DraftNote(title="Outlook", body="Forecast 4.7% versus 3.77%.", citations=cite(("4.7", "dec"), ("3.77", "last")))
+GOOD = DraftNote(title="Outlook", body="Forecast 3.8%; base effect -0.11 pp.", citations=cite(("3.8", "dec"), ("0.11", "base")))
+BAD = DraftNote(title="Outlook", body="Forecast 4.7%; base effect -0.11 pp.", citations=cite(("4.7", "dec"), ("0.11", "base")))
 
 
 def test_write_note_accepts_first_good_draft():
@@ -117,3 +117,14 @@ def test_real_fact_sheet_contains_what_the_prompt_asks_for():
     ids = {f.id for f in build_facts()}
     assert {"forecast_h3", "band68_lo", "band68_level", "threshold_4", "p_above_4", "base_effect_pp", "momentum_pp",
             "ratio_h3", "dm_p_h3", "coverage_crisis_68", "horizon_months"} <= ids
+
+
+def test_note_precision_rule():
+    from hicp.note import allowed_decimals, precision_problems
+    from hicp.schemas import VerifiedNumber
+    assert allowed_decimals("p_above_4", "Probability ... %") == 0
+    assert allowed_decimals("forecast_h3", "Forecast headline y/y, %") == 1
+    assert allowed_decimals("base_effect_pp", "Base effect, pp (known today)") == 2
+    vn = lambda tok, fid, lab: VerifiedNumber(token=tok, fact_id=fid, fact_label=lab, fact_value=1.0, ok=True)  # noqa: E731
+    assert precision_problems([vn("94.95", "p_above_3", "P, %"), vn("5.075", "band90_hi", "90% band upper end, %")])
+    assert not precision_problems([vn("95", "p_above_3", "P, %"), vn("5.1", "band90_hi", "upper, %"), vn("0.12", "momentum_pp", "Momentum, pp")])
