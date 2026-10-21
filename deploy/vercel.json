@@ -7,6 +7,9 @@
     },
     "api/ask.py": {
       "maxDuration": 30
+    },
+    "api/guess.py": {
+      "maxDuration": 15
     }
   },
   "headers": [

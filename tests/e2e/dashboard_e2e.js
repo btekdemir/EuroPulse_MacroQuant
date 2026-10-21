@@ -109,8 +109,28 @@
     ok("rangeselector present", !!(el("p-headline").layout.xaxis.rangeselector || {}).buttons);
   });
 
+  await step("overview: beat the model (no shared store locally)", async () => {
+    try { localStorage.removeItem("hicp.guess"); } catch (e) { /* ignore */ }
+    el("bm-name").value = "E2E tester"; el("bm-value").value = "3.95"; el("bm-go").click(); await sleep(600);
+    ok("guess saved and listed", $$("#tbl-guess tbody tr").some((r) => r.textContent.includes("E2E tester")), visibleText(el("bm-status")));
+    ok("guess drawn on the band chart", (el("p-guess").data[3].x || []).includes(3.95));
+    el("bm-value").value = "99"; el("bm-go").click(); await sleep(200);
+    ok("out-of-range guess refused", /between|entre/.test(visibleText(el("bm-status"))));
+    try { localStorage.removeItem("hicp.guess"); } catch (e) { /* ignore */ }
+  });
+
   // ---------------------------------------------------------------- C. drivers
   await tab("drivers");
+  await step("drivers: bridge chart, both modes add up", async () => {
+    const tr = () => el("p-bridge").data[0];
+    const sum = (y) => y.slice(1, -1).reduce((s, v) => s + v, 0);
+    const y = tr().y, delta = y[y.length - 1] - y[0];
+    ok("by component sums to the change", Math.abs(sum(y) - delta) < 1e-9, `${sum(y)} vs ${delta}`);
+    $("[data-br=bm]").click(); await sleep(300);
+    const y2 = tr().y;
+    ok("base effect + momentum sums to the change", y2.length === 4 && Math.abs(sum(y2) - (y2[3] - y2[0])) < 1e-6);
+    $("[data-br=comp]").click(); await sleep(200);
+  });
   await step("drivers: contributions click → month explained", async () => {
     el("p-contrib").emit("plotly_click", { points: [{ x: "2022-10-01" }] }); await sleep(500);
     ok("switched to overview at Oct 2022", $("[role=tab][aria-selected=true]").dataset.tab === "overview" && el("mx-month").value === "2022-10");

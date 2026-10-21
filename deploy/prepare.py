@@ -21,4 +21,10 @@ for name in ("shock_basis.json", "ask_facts.json"):
 for name in ("schemas.py", "nl_scenario.py", "numcheck.py", "ask.py", "access.py"):
     shutil.copy(ROOT / "src" / "hicp" / name, lib / "hicp" / name)
 (lib / "hicp" / "__init__.py").write_text("")
+# the "Beat the model" target: the forecast's three-month-ahead month and the model's own point (D51)
+import json  # noqa: E402
+fc = json.loads((ROOT / "outputs" / "forecast.json").read_text())
+p3 = fc["points"][-1]
+(lib / "guess_target.json").write_text(json.dumps({"target": p3["date"], "origin": fc["origin"], "model": p3["point"],
+                                                   "band68": [p3["quantiles"]["q16"], p3["quantiles"]["q84"]]}))
 print("deploy/ ready:", sorted(str(p.relative_to(D)) for p in D.rglob("*") if p.is_file() and "__pycache__" not in str(p)))

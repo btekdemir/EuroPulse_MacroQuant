@@ -30,6 +30,10 @@ code of your choice, at least 12 characters, and redeploy. The dashboard stays p
 this" and the sentence box ask for the code once per browser tab, and without it no paid call is made (D45).
 Send the code together with the link.
 
+**Beat the model, shared board (optional):** in the Vercel project, open Storage, add an Upstash Redis
+database (the free plan is enough) and connect it to the project; it adds `KV_REST_API_URL` and
+`KV_REST_API_TOKEN`. Redeploy. Without it, guesses stay in each reader's browser (D51).
+
 Optional variables: `HICP_NL_MODEL` (default `claude-haiku-5-5`), `HICP_NL_PER_MINUTE` (default 6),
 `HICP_NL_PER_DAY_INSTANCE` (default 200); for the assistant `HICP_ASK_MODEL`, `HICP_ASK_PER_MINUTE` (default 6),
 `HICP_ASK_PER_DAY_INSTANCE` (default 300).

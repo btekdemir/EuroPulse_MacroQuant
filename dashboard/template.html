@@ -224,6 +224,14 @@ input[type="range"] { min-width: 160px; }
         <p class="answer" id="prob-sentence"></p>
         <div class="tablewrap" id="tbl-prob"></div>
         <p class="note" id="n-prob"></p></div>
+      <div class="card" id="bm-card"><h2 id="bm-title"></h2><p class="answer" id="bm-intro" style="margin:0 0 8px"></p>
+        <div class="row" style="margin:0 0 8px">
+          <label><span data-i18n="bm_name"></span><input type="text" id="bm-name" maxlength="40" autocomplete="off" class="nl-text" style="min-width:140px"></label>
+          <label><span data-i18n="bm_value"></span><input type="number" id="bm-value" step="0.01" min="-5" max="15"></label>
+          <button type="button" class="btn tour-primary" id="bm-go" data-i18n="bm_submit"></button>
+          <span class="note" id="bm-status" role="status" style="margin:0"></span></div>
+        <div class="plot short" id="p-guess"></div>
+        <div class="tablewrap" id="tbl-guess"></div><p class="note" id="bm-note"></p></div>
       <div class="card"><h2 id="t-headline"></h2><div class="plot tall" id="p-headline"></div>
         <p class="note" data-i18n="ch_headline_note"></p><p class="src" data-src="src_eurostat"></p>
         <button class="toggle-table" data-table="tbl-headline"></button><div class="tablewrap" id="tbl-headline" hidden></div></div>
@@ -242,6 +250,13 @@ input[type="range"] { min-width: 160px; }
   </section>
   <section role="tabpanel" id="tab-drivers">
     <div class="grid">
+      <div class="card" id="br-card"><h2 id="br-title"></h2>
+        <div class="row" style="margin:4px 0 8px"><div class="seg" id="br-mode" role="group">
+          <button type="button" data-br="comp" aria-pressed="true" data-i18n="br_by_comp"></button>
+          <button type="button" data-br="bm" aria-pressed="false" data-i18n="br_by_bm"></button></div></div>
+        <div class="plot" id="p-bridge"></div>
+        <p class="answer" id="br-text" style="margin:8px 0 4px"></p><p class="note" id="br-note"></p><p class="src" data-src="src_eurostat"></p>
+        <div class="tablewrap" id="tbl-bridge" hidden></div><button class="toggle-table" data-table="tbl-bridge"></button></div>
       <div class="card"><h2 data-i18n="ch_contrib"></h2><div class="plot tall" id="p-contrib"></div>
         <p class="note" data-i18n="ch_contrib_note"></p><p class="src" data-src="src_eurostat"></p>
         <button class="toggle-table" data-table="tbl-contrib"></button><div class="tablewrap" id="tbl-contrib" hidden></div></div>

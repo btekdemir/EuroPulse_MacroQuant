@@ -45,7 +45,7 @@ def _load(name: str):
     return mod
 
 
-ROUTES = {"/api/scenario": _load("scenario"), "/api/ask": _load("ask")}
+ROUTES = {"/api/scenario": _load("scenario"), "/api/ask": _load("ask"), "/api/guess": _load("guess")}
 PAGE_FILE = ROOT / "outputs" / "dashboard.html"  # read on every request: always the latest build
 
 
@@ -62,6 +62,8 @@ class Local(BaseHTTPRequestHandler):
             self._send(200, PAGE_FILE.read_bytes(), "text/html; charset=utf-8")
         elif self.path == "/e2e.js":  # the end-to-end check (tests/e2e), local runs only
             self._send(200, (ROOT / "tests" / "e2e" / "dashboard_e2e.js").read_bytes(), "text/javascript; charset=utf-8")
+        elif self.path == "/api/guess":  # the only route that answers GET (reading the guesses)
+            self._send(*ROUTES["/api/guess"].handle_get())
         elif self.path in ROUTES:
             self._send(405, b'{"error":"POST only."}')  # same as Vercel: tells the page the route exists
         else:
@@ -72,7 +74,8 @@ class Local(BaseHTTPRequestHandler):
         if fn is None:
             return self._send(404, b'{"error":"not found"}')
         n = min(int(self.headers.get("content-length") or 0), fn.MAX_BODY + 1)
-        self._send(*fn.handle(self.rfile.read(n), self.client_address[0]))
+        handle = fn.handle_post if self.path == "/api/guess" else fn.handle
+        self._send(*handle(self.rfile.read(n), self.client_address[0]))
 
     def log_message(self, *a):  # keep the terminal quiet (and free of request bodies)
         pass

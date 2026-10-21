@@ -58,6 +58,8 @@ SECTIONS = {
     "headline_chart": ("overview", "p-headline", "headline y/y history and forecast fan chart"),
     "month_explained": ("overview", "mx-month", "any past month explained: momentum vs base effect, biggest mover"),
     "october_whatif": ("overview", "oct-in", "what if October prints differently: Nov/Dec path and probabilities"),
+    "bridge": ("drivers", "br-card", "bridge from the last print to December: which components push it up or down, or base effect vs momentum"),
+    "beat_model": ("overview", "bm-card", "beat the model: enter your own December guess; scored against Eurostat's print"),
     "contributions": ("drivers", "p-contrib", "euro area* contributions by component over time and in the forecast"),
     "base_momentum": ("drivers", "p-basemom", "base effect vs momentum in the forecast"),
     "core": ("drivers", "core-card", "core inflation: bottom-up forecast, its backtest against a random walk, and the honest verdict"),
@@ -105,6 +107,8 @@ CHARTS = {
     "p-sigma": ("calibration", "recent forecast error size used by the scaled fan vs the fixed fan"),
     "p-tm": ("time_machine", "time machine: a past origin's three-month forecast, the fan known then, and the outcome"),
     "p-core": ("core", "core inflation (ex energy, food, alcohol, tobacco): history vs headline, bottom-up forecast with fan, and the random walk"),
+    "p-bridge": ("bridge", "waterfall bridge from the last print to December: each component's change in contribution, or base effect vs momentum"),
+    "p-guess": ("beat_model", "readers' guesses for December against the model's recorded forecast and its 68%/90% band"),
     "p-heat": ("heatmap", "heatmap: euro area* December y/y response, in basis points, to +1% in each country and component"),
 }
 # Tables that stand on their own in a card get "Explain this" too: table id -> (section, what it shows).

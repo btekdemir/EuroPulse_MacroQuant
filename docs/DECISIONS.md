@@ -679,3 +679,25 @@ Committed to git before the code that runs it. It does not change after the resu
 
 - **User report:** "processed food %20 increase in germany and slovakia unprocessed food %10 decrease in france 2026 october start 4 months lag" was refused live with "Give either a start date or a delay, not both". The LLM filled both fields, and D22's rule rejected the combination.
 - **Change:** a stated start month plus a delay now combine: the delay counts from that month (October 2026 + 4 = February 2027). The interpretation says so and suggests "ramp over N months" if a gradual build-up was meant. The reader still confirms the interpretation before anything runs, so nothing is applied silently. A combination outside the window is still refused. Tested (`tests/test_nl_scenario.py`).
+
+## D50. Bridge from the last print to December (21 Oct 2026)
+
+- **What:** a waterfall chart at the top of the Drivers tab, from September (3.77%) to December (3.82%), with two views:
+  - **By component:** the change in each component's exact chain-linked contribution between the two months, plus the chain-link residual, so the bars add up exactly.
+  - **Base effect vs momentum:** −0.11 and +0.16, the exact log split already used elsewhere.
+- A sentence names the two largest moves up and down: goods +0.14 and electricity & gas +0.06 up; services −0.10 and fuels −0.07 down. The chart has a table, CSV, Explain, a tour step and a demo step.
+- The end-to-end check verifies that both views add up to the change.
+
+## D51. Beat the model (21 Oct 2026)
+
+- **What:** an Overview card where a reader enters a name and a December guess.
+  - The guess is drawn against the model's recorded forecast and its 68%/90% band.
+  - When the month is in the data (Eurostat publishes, the pipeline runs again), everyone, the model included, is ranked by the size of the miss. The model's own guess is the one recorded in the ledger before the figure existed.
+- **Storage:** `deploy/api/guess.py` keeps guesses in a Redis list through the Upstash REST API when `KV_REST_API_URL` and `KV_REST_API_TOKEN` are set (Vercel → Storage → Upstash Redis). It uses only `urllib`, no new dependency. Without a store, the route says `shared: false` and the page keeps the guess in that browser only, and says so.
+- **Guards:**
+  - The access code (D45) is required to post; reading stays open.
+  - Limit of 3 posts per minute per IP (per instance).
+  - Names are trimmed to 40 printable characters; values must be between −5 and 15.
+  - At most 500 guesses are kept.
+  - No LLM is involved, so posting costs nothing.
+- **Tested:** `tests/test_guess.py` with a fake store covers the target, round trip and cleaning, six kinds of bad input, the access code and rate limit, and the no-store mode. The end-to-end check covers the local mode: save, draw, list, refuse out of range. Total 109/109.

@@ -169,8 +169,71 @@
     el("wc-note").textContent = t("wc_note", { prev: monthLabel(W.previous_origin) });
   }
 
+  // ------------------------------------------------------------------ beat the model (D51)
+  // Readers post their own guess for the target month; the model's is the recorded forecast. When Eurostat has
+  // published the month (a later run), every guess is scored against it. Shared on a site with a store, else local.
+  const BM_KEY = "hicp.guess";
+  let bmShared = null, bmBound = false;
+  const bmLocal = () => { try { return JSON.parse(localStorage.getItem(BM_KEY) || "null"); } catch (e) { return null; } };
+  async function bmLoad() {
+    if (!liveOk()) { bmShared = { shared: false, guesses: [] }; return; }
+    try { const r = await fetch("/api/guess"); bmShared = r.ok ? await r.json() : { shared: false, guesses: [] }; }
+    catch (e) { bmShared = { shared: false, guesses: [] }; }
+  }
+  function renderBeat() {
+    const tgt = last.date, actualRow = F.history.find((h) => h.date === tgt), actual = actualRow ? actualRow.yoy : null;
+    el("bm-title").textContent = t("bm_title", { m: monthLabel(tgt) });
+    el("bm-intro").textContent = t("bm_intro", { m: monthLabel(tgt), v: pct(last.point, 2), lo: fmt(last.quantiles.q16, 1), hi: fmt(last.quantiles.q84, 1) });
+    el("bm-name").placeholder = t("bm_name_ph");
+    const mine = bmLocal();
+    const list = ((bmShared && bmShared.guesses) || []).map((g) => Object.assign({}, g));
+    if (mine && !list.some((g) => g.name === mine.name && Math.abs(g.value - mine.value) < 1e-9)) list.push(Object.assign({ local: true }, mine));
+    const rows = [{ name: t("bm_model"), value: last.point, model: true }, ...list];
+    if (actual !== null) rows.forEach((r) => { r.err = Math.abs(r.value - actual); });
+    rows.sort((a, b) => (actual !== null ? a.err - b.err : 0));
+    const q = last.quantiles;
+    const tr = [
+      { x: [q.q05, q.q95], y: [0, 0], mode: "lines", line: { color: css("--band90"), width: 18 }, name: t("s_band90"), hoverinfo: "skip" },
+      { x: [q.q16, q.q84], y: [0, 0], mode: "lines", line: { color: css("--band68"), width: 18 }, name: t("s_band68"), hoverinfo: "skip" },
+      { x: [last.point], y: [0], mode: "markers", name: t("bm_model"), marker: { symbol: "diamond", size: 14, color: css("--accent"), line: { color: css("--surface-1"), width: 2 } },
+        hovertemplate: `${t("bm_model")}: %{x:.2f}%<extra></extra>` },
+      { x: list.map((g) => g.value), y: list.map((_, i) => 0.28 + 0.1 * ((i * 7) % 5) / 4), mode: "markers", name: t("bm_guesses"), text: list.map((g) => g.name),
+        marker: { size: 10, color: css("--s2"), line: { color: css("--surface-1"), width: 1.5 } }, hovertemplate: "%{text}: %{x:.2f}%<extra></extra>" },
+    ];
+    const shapes = actual !== null ? [{ type: "line", x0: actual, x1: actual, yref: "paper", y0: 0, y1: 1, line: { color: css("--text-primary"), width: 2 } }] : [];
+    const xs = [q.q05, q.q95, ...list.map((g) => g.value), ...(actual !== null ? [actual] : [])];
+    plot("p-guess", tr, baseLayout({ hovermode: "closest", margin: { l: 16, r: 16, t: 8, b: 36 }, shapes,
+      yaxis: Object.assign(baseLayout().yaxis, { visible: false, range: [-0.3, 0.6] }),
+      xaxis: Object.assign(baseLayout().xaxis, { ticksuffix: "%", range: [Math.min(...xs) - 0.3, Math.max(...xs) + 0.3] }) }));
+    table(el("tbl-guess"), [t("bm_col_rank"), t("bm_col_name"), t("bm_col_guess"), actual !== null ? t("bm_col_err") : t("bm_col_when")],
+      rows.map((r, i) => [actual !== null ? String(i + 1) : "–", r.model ? `${r.name} ★` : r.name + (r.local ? ` (${t("bm_local")})` : ""), pct(r.value, 2),
+        actual !== null ? fmt(r.err, 2) : (r.model ? monthLabel(F.origin) : (r.at || "").slice(0, 10))]), [2, 3]);
+    el("bm-note").textContent = (actual !== null ? t("bm_scored", { m: monthLabel(tgt), a: pct(actual, 2) }) : t("bm_pending", { m: monthLabel(tgt) }))
+      + " " + (bmShared && bmShared.shared ? t("bm_shared", { n: list.length }) : t("bm_localonly"));
+    if (!bmBound) {
+      el("bm-go").addEventListener("click", bmSubmit);
+      el("bm-value").addEventListener("keydown", (e) => { if (e.key === "Enter") bmSubmit(); });
+      bmBound = true;
+    }
+  }
+  async function bmSubmit() {
+    const name = el("bm-name").value.trim().slice(0, 40), value = Number(el("bm-value").value);
+    if (!name || !el("bm-value").value || !Number.isFinite(value) || value < -5 || value > 15) { el("bm-status").textContent = t("bm_invalid"); return; }
+    const g = { name, value: Math.round(value * 100) / 100, at: new Date().toISOString().slice(0, 16) + "Z" };
+    try { localStorage.setItem(BM_KEY, JSON.stringify(g)); } catch (e) { /* this browser only, if at all */ }
+    if (liveOk() && bmShared && bmShared.shared) {
+      el("bm-go").disabled = true;
+      const { r, body } = await apiPost("/api/guess", { name: g.name, value: g.value });
+      el("bm-go").disabled = false;
+      el("bm-status").textContent = r.ok ? t("bm_saved_shared") : (body.error || t("bm_saved_local"));
+      if (r.ok) await bmLoad();
+    } else el("bm-status").textContent = t("bm_saved_local");
+    renderBeat();
+  }
+
   function renderOverview() {
     renderChanged();
+    renderBeat();
     const dec = monthLabel(last.date), origin = monthLabel(F.origin);
     const kpi = (id, label, value, sub) => {
       const c = el(id); c.replaceChildren(node("div", { class: "label" }, label), node("div", { class: "value" }, value), node("div", { class: "sub" }, sub));
@@ -332,7 +395,49 @@
     el("core-note").textContent = t("core_note", { goods: K.models.IGD_NNRG, serv: K.models.SERV, gap: fmt(K.max_abs_gap_pp, 3), n: K.n_origins });
   }
 
+  // ------------------------------------------------------------------ bridge: last print → December (D50)
+  // By component: change in each exact chain-linked contribution (they add up to the change in y/y, apart from a
+  // small chain-link residual, shown). Base effect vs momentum: the exact log split of the same change.
+  let brMode = "comp", brBound = false;
+  function renderBridge() {
+    const h0 = F.history[F.history.length - 1], d = last, steps = [];
+    el("br-title").textContent = t("br_title", { from: monthLabel(h0.date), to: monthLabel(d.date) });
+    if (brMode === "comp") {
+      COMPS.forEach((c) => steps.push([comp(c), d.contributions[c] - h0.contributions[c]]));
+      const resid = (d.point - h0.yoy) - steps.reduce((s, x) => s + x[1], 0);
+      steps.push([t("wc_resid"), resid]);
+    } else {
+      steps.push([t("s_base"), d.base_effect_pp], [t("s_mom"), d.momentum_pp]);
+    }
+    const x = [monthLabel(h0.date), ...steps.map((s) => s[0]), monthLabel(d.date)];
+    const y = [h0.yoy, ...steps.map((s) => s[1]), d.point];
+    plot("p-bridge", [{ type: "waterfall", orientation: "v", x, y, measure: ["absolute", ...steps.map(() => "relative"), "total"],
+      text: y.map((v, i) => (i === 0 || i === y.length - 1 ? pct(v, 2) : sgn(v))), textposition: "outside", cliponaxis: false,
+      increasing: { marker: { color: css("--s2") } }, decreasing: { marker: { color: css("--s1") } },
+      totals: { marker: { color: css("--text-secondary") } }, connector: { line: { color: css("--axis"), width: 1, dash: "dot" } },
+      hovertemplate: "%{x}: %{text}<extra></extra>" }],
+    baseLayout({ showlegend: false, margin: { l: 44, r: 16, t: 24, b: 70 },
+      yaxis: Object.assign(baseLayout().yaxis, { ticksuffix: "%", range: [Math.min(...y.filter((_, i) => i === 0 || i === y.length - 1)) - 0.35,
+        Math.max(...y.filter((_, i) => i === 0 || i === y.length - 1)) + 0.35] }),
+      xaxis: Object.assign(baseLayout().xaxis, { tickangle: -25 }) }));
+    const up = steps.filter((s) => s[1] > 0.005).sort((a, b) => b[1] - a[1]), dn = steps.filter((s) => s[1] < -0.005).sort((a, b) => a[1] - b[1]);
+    el("br-text").textContent = t("br_text", { from: pct(h0.yoy, 2), to: pct(d.point, 2), d: sgn(d.point - h0.yoy),
+      up: up.slice(0, 2).map((s) => `${s[0].toLowerCase()} ${sgn(s[1])}`).join(", ") || "–",
+      dn: dn.slice(0, 2).map((s) => `${s[0].toLowerCase()} ${sgn(s[1])}`).join(", ") || "–" });
+    el("br-note").textContent = t(brMode === "comp" ? "br_note_comp" : "br_note_bm");
+    table(el("tbl-bridge"), [t("br_step"), t("br_value")], x.map((lab, i) => [lab, i === 0 || i === x.length - 1 ? pct(y[i], 2) : sgn(y[i])]), [1]);
+    if (!brBound) {
+      el("br-mode").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+        brMode = b.dataset.br;
+        el("br-mode").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+        renderBridge();
+      }));
+      brBound = true;
+    }
+  }
+
   function renderDrivers() {
+    renderBridge();
     renderCore();
     const hist = F.history.slice(-36);
     const xs = [...hist.map((h) => toDate(h.date)), ...P.map((p) => toDate(p.date))];
@@ -1153,10 +1258,12 @@
     { key: "changed", tab: "overview", sel: "#wc-card", self: true },
     { key: "note", tab: "overview", sel: "#note-title", when: () => !el("note-card").hidden },
     { key: "prob", tab: "overview", sel: "#t-prob" },
+    { key: "beat", tab: "overview", sel: "#bm-title" },
     { key: "fan", tab: "overview", sel: "#p-headline", corner: "left" },  // the fan sits at the right of the chart
     { key: "month", tab: "overview", sel: "#mx-month" },
     { key: "october", tab: "overview", sel: "#oct-in" },
     { key: "drivers", tab: "drivers", sel: "#p-contrib" },
+    { key: "bridge", tab: "drivers", sel: "#br-title" },
     { key: "basemom", tab: "drivers", sel: "#p-basemom" },
     { key: "core", tab: "drivers", sel: "#core-card", self: true },
     { key: "countries", tab: "countries", sel: "#p-csm" },
@@ -1334,10 +1441,12 @@ ${note}
     { key: "changed", run: () => { showTab("overview"); focusCard("#wc-card"); } },
     { key: "note", when: () => !el("note-card").hidden, run: () => { showTab("overview"); focusCard("#note-card"); } },
     { key: "prob", run: () => { showTab("overview"); focusCard("#t-prob"); } },
+    { key: "beat", run: () => { showTab("overview"); focusCard("#bm-card"); el("bm-name").focus({ preventScroll: true }); } },
     { key: "fan", run: () => { showTab("overview"); focusCard("#p-headline"); } },
     { key: "month", run: () => { showTab("overview"); el("mx-month").value = "2022-10"; renderMonth(); focusCard("#mx-month"); } },
     { key: "october", run: () => { showTab("overview"); setOct(4.0); focusCard("#oct-in"); } },
-    { key: "drivers", run: () => { setOct(P[0].point); showTab("drivers"); focusCard("#p-contrib"); } },
+    { key: "bridge", run: () => { setOct(P[0].point); showTab("drivers"); focusCard("#br-card"); } },
+    { key: "drivers", run: () => { showTab("drivers"); focusCard("#p-contrib"); } },
     { key: "core", run: () => { showTab("drivers"); focusCard("#core-card"); } },
     { key: "profile", run: () => { showTab("countries"); cpGeo = "IT"; el("cp-country").value = "IT"; renderProfile(); focusCard("#cp-card"); } },
     { key: "heat", run: () => { showTab("shocks"); focusCard("#hm-card"); } },
@@ -1641,6 +1750,7 @@ ${note}
 
   if (liveOk()) {
     fetch("/api/ask", { method: "GET" }).then((r) => {
+      bmLoad().then(() => { if (activeTab === "overview") renderBeat(); });
       if (r.status === 405) {
         el("ask-open").hidden = false; el("ask-fab").hidden = false;
         document.querySelectorAll(".ask-explain").forEach((b) => { b.hidden = false; });
