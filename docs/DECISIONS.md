@@ -914,3 +914,27 @@ Two reviews were pasted in, one on method and consistency and one on looks. Thei
 - **Interview notes:** `docs/DEFENCE_NOTES.md` has two sentences per method and the three likely questions.
 - **Checked:** Python 212/212; end-to-end 129/129 (6 new checks) in the app pane and at 375×812.
 - **Footer, second fix:** run.py built the dashboard before writing the run's manifest, so the footer always showed the previous run's commit. The manifest is now written first.
+
+## D61. Fourth review: input checks, heatmap, quiet console, shorter tour (22 Oct 2026)
+
+- **Inputs:**
+  - Shock size is bounded to −50% … +100%. Beyond that a linear pass-through says nothing useful (−100% gave December −18.7%, +1000% gave +229 pp).
+  - An empty or non-numeric size no longer counts as 0%. Out-of-range or invalid entries show a message and keep the last valid size.
+  - The October box is checked the same way as Beat the model: 0–8%, no silent 0 or clipping.
+- **Heatmap:**
+  - Every country and component is labelled. The default 6-tick axis showed one country in four. Component names are now at the top, and rows are sized to fit.
+  - A click now says it replaced the scenario, offers Undo, and scrolls to the numbers.
+- **Console:** the page probed `GET /api/ask`, which answers 405 and shows as a red error. A new `/api/health` always answers 200 and says whether the assistant is live and whether it needs the code (never their values).
+- **Access code:**
+  - It is kept in the browser (localStorage), not the tab, so a reload does not ask again. A wrong code is forgotten on the first 401.
+  - Without the code, "Explain this" shows the card's own written reading and opens the code box, so it is never a dead end and makes no paid call.
+  - The README says the code comes with the submission email.
+- **Tour:** 8 stops instead of 25. Skip leaves the reader where they are. The presenter demo (Shift+D, `#demo`) keeps every feature.
+- **History:**
+  - The headline and contribution history now runs from 1998, and the country comparison and core from 2010, so "All" means all. These charts open on the last six years; the headline chart still opens on two.
+  - Over the longer country window the largest reconciliation gaps are in 2011–2013 (Cyprus 0.037 pp, Jul 2012). The test is now 0.04 pp over the whole window and 0.02 pp since 2020. The Italy caution threshold moved with it.
+- **Words:**
+  - "Peak impact" → "Largest impact" (it can be negative).
+  - The KPI and bridge say "cumulative momentum"; "One month explained" says "monthly momentum".
+  - Preset names follow the language everywhere: risk line, comparison, assistant.
+- **Checked:** Python 213/213; end-to-end 143/143 (14 new checks).

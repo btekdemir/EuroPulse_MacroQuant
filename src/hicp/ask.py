@@ -132,7 +132,7 @@ TABLES = {
     "tbl-rt": ("realtime", "table: the backtest scored against figures as first published instead of revised data"),
     "tbl-sel": ("model_selection", "table: the pre-committed model selection steps per component and which model was kept"),
     "tbl-val": ("validation", "table: the data validation gates and their results"),
-    "tbl-compare": ("compare", "table: each compared scenario's peak impact, December impact and level, and the probability above the threshold"),
+    "tbl-compare": ("compare", "table: each compared scenario's largest impact, December impact and level, and the probability above the threshold"),
     "tbl-r4": ("round4", "table: pre-registered round 4 bottom-up variants against the random walk and the earlier bottom-up model; B1 passed and was adopted"),
     "tbl-r3": ("round3", "table: pre-registered round 3, SARIMA, Elastic Net, gradient boosting and their ensemble against the random walk and the bottom-up model"),
     "tbl-recon": ("reconciliation", "table: latest-month contributions, ours against Eurostat's official ones"),

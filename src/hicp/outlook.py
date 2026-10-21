@@ -82,8 +82,10 @@ def build_outlook(inp: Inputs, bt: BacktestResult, fan_errors: dict[int, list[fl
             "component_mom": {c: float(mom.at[t, c]) for c in comps},
         })
 
-    hist_months = contrib.index[(contrib.index <= origin) & (contrib.index >= origin - pd.DateOffset(years=6))]
-    history = [{"date": f"{t:%Y-%m}", "yoy": float(yoy(head_pub)[t]),
+    # The whole published history (D61): the charts' "All" button should mean all, not the last six years.
+    hy = yoy(head_pub)
+    hist_months = [t for t in contrib.index[contrib.index <= origin] if pd.notna(hy.get(t)) and contrib.loc[t].notna().all()]
+    history = [{"date": f"{t:%Y-%m}", "yoy": float(hy[t]),
                 "contributions": {c: float(contrib.at[t, c]) for c in comps}} for t in hist_months]
 
     pump = pump_feature(inp, origin) if inp.pump_w is not None else None

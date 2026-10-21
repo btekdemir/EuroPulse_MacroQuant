@@ -5,11 +5,16 @@
 
 **Dashboard:** open `outputs/dashboard.html`. It is one self-contained file that works offline,
 with an FR/EN toggle and five tabs: Overview, Drivers, Countries, Shock simulator, Model &
-validation. Press **Tour** for a 25-step guide to every feature. Every chart and table has CSV export (charts also PNG) and "Explain this".
+validation. Press **Tour** for an 8-step first look (Shift+D, or `#demo` in the address, runs the full presenter demo). Every chart and table has CSV export (charts also PNG) and "Explain this".
 
 For the LLM features too (the Ask panel, "Explain this" and natural-language scenarios), run
 `.venv/bin/python deploy/serve_local.py` and open http://127.0.0.1:8812. This needs `ANTHROPIC_API_KEY`
 in `.env`. Without a key, or in the offline file, those buttons are simply hidden.
+
+**Live site:** https://hicpinflationshocksimulator.vercel.app. Everything works without a login. The LLM
+features (Ask, "Explain this" answers, sentence scenarios) need an **access code**, which is given in the
+submission email; it is asked for once and then kept in that browser. Without it, "Explain this" shows the
+card's own written reading instead. The code only protects the paid API quota.
 
 ## Answer first
 

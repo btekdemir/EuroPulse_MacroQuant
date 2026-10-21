@@ -46,6 +46,7 @@ def _load(name: str):
 
 
 ROUTES = {"/api/scenario": _load("scenario"), "/api/ask": _load("ask"), "/api/guess": _load("guess")}
+HEALTH = _load("health")
 PAGE_FILE = ROOT / "outputs" / "dashboard.html"  # read on every request: always the latest build
 
 
@@ -62,7 +63,9 @@ class Local(BaseHTTPRequestHandler):
             self._send(200, PAGE_FILE.read_bytes(), "text/html; charset=utf-8")
         elif self.path == "/e2e.js":  # the end-to-end check (tests/e2e), local runs only
             self._send(200, (ROOT / "tests" / "e2e" / "dashboard_e2e.js").read_bytes(), "text/javascript; charset=utf-8")
-        elif self.path == "/api/guess":  # the only route that answers GET (reading the guesses)
+        elif self.path == "/api/health":  # what the page probes on load (D61)
+            self._send(*HEALTH.handle_get())
+        elif self.path == "/api/guess":  # the other route that answers GET (reading the guesses)
             self._send(*ROUTES["/api/guess"].handle_get())
         elif self.path in ROUTES:
             self._send(405, b'{"error":"POST only."}')  # same as Vercel: tells the page the route exists

@@ -73,6 +73,8 @@ section[role="tabpanel"].active { display: block; }
 .dc dd { margin: 0; color: var(--text-secondary); }
 .dc :target, .dc dt.flash, .dc dd.flash { background: var(--band68); border-radius: 4px; }
 a.dcode { color: inherit; text-decoration: underline dotted; text-underline-offset: 2px; }
+.infomsg { margin: 6px 0 10px; padding: 8px 12px; border-radius: 8px; background: var(--surface-2); border-left: 3px solid var(--accent); font-size: 13.5px; }
+.infomsg .linkbtn { margin-left: 6px; }
 .card.plain { background: transparent; border: 0; padding: 4px 2px; }
 .tab-lede { grid-column: span 12; margin: 2px 0 0; color: var(--text-secondary); font-size: 14px; }
 .sec-head { grid-column: span 12; margin: 14px 2px -4px; font-size: 11.5px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
@@ -279,9 +281,10 @@ input[type="range"] { min-width: 160px; }
         <p class="answer" id="mx-sentence"></p>
         <div class="plot short" id="p-month"></div><p class="note" data-i18n="mx_note"></p></details></div>
       <div class="card span-6"><details class="fold" id="oct-fold"><summary><h2 id="t-oct"></h2></summary><p class="note" data-i18n="oct_intro" style="margin:0 0 8px"></p>
-        <div class="row"><label><span data-i18n="oct_input"></span><input type="number" id="oct-in" step="0.1"></label>
+        <div class="row"><label><span data-i18n="oct_input"></span><input type="number" id="oct-in" step="0.1" min="0" max="8"></label>
           <label><span data-i18n="oct_slider"></span><input type="range" id="oct-range" min="2.5" max="5" step="0.05"></label>
           <button class="btn" id="oct-reset" type="button" data-i18n="oct_reset"></button></div>
+        <div class="warnmsg" id="oct-warn" role="alert" hidden></div>
         <p class="answer" id="oct-sentence" style="margin:10px 0 6px"></p>
         <div class="tablewrap" id="tbl-oct"></div><p class="note" data-i18n="oct_note"></p></details></div>
     </div>
@@ -364,9 +367,10 @@ input[type="range"] { min-width: 160px; }
             <div class="chips"><label><input type="checkbox" id="f-allea" checked> <span data-i18n="sim_all_ea"></span></label></div>
             <div class="chips" id="f-countries" style="margin-top:6px"></div></fieldset>
           <div class="row">
-            <label><span data-i18n="sim_size"></span><input type="number" id="f-size" step="0.5" value="10"></label>
+            <label><span data-i18n="sim_size"></span><input type="number" id="f-size" step="0.5" value="10" min="-50" max="100"></label>
             <label><span data-i18n="sim_start"></span><select id="f-start"></select></label>
           </div>
+          <div class="warnmsg" id="size-warn" role="alert" hidden></div>
           <div class="row">
             <label><span data-i18n="sim_profile"></span><select id="f-profile"></select></label>
             <label id="w-param"><span id="l-param"></span><input type="number" id="f-param" min="1" max="24" step="1" value="6"></label>
@@ -382,6 +386,7 @@ input[type="range"] { min-width: 160px; }
       <div class="card span-8">
         <div class="row" style="margin-bottom:8px"><label><span data-i18n="prob_threshold"></span>
           <input type="number" class="thr" step="0.1" value="4.0"></label></div>
+        <div class="infomsg" id="heat-notice" role="status" hidden></div>
         <div class="grid" style="gap:12px">
           <div class="kpi" style="grid-column: span 3" id="k-peak"></div>
           <div class="kpi" style="grid-column: span 3" id="k-dec"></div>

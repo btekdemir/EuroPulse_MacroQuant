@@ -78,7 +78,7 @@ def core_view(inp: Inputs, bt: BacktestResult) -> dict:
     # aggregation check: goods + services contributions vs the published core y/y
     hist = contrib.index[(contrib.index <= origin) & (contrib.index >= pd.Timestamp("2010-01-01"))]
     gap = float((contrib.loc[hist, ITEMS].sum(axis=1) - cy.reindex(hist)).abs().max())
-    window = [t for t in hist if t >= origin - pd.DateOffset(years=6)]
+    window = list(hist)  # from 2010, so the "All" button shows the whole scored period (D61)
     history = [{"date": f"{t:%Y-%m}", "core_yoy": float(cy[t]), "headline_yoy": float(hy[t]),
                 "contributions": {c: float(contrib.at[t, c]) for c in ITEMS}} for t in window]
     return {"origin": f"{origin:%Y-%m}", "last_actual": float(cy[origin]), "points": points, "history": history,

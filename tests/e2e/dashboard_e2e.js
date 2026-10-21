@@ -105,6 +105,19 @@
     el("oct-reset").click(); await sleep(300);
     ok("reset restores", el("p-headline").data.length === n0);
   });
+  await step("overview: October box validates its input (D61)", async () => {
+    const s0 = visibleText(el("oct-sentence"));
+    for (const bad of ["", "-1", "12"]) {
+      setVal(el("oct-in"), bad); await sleep(150);
+      ok(`October '${bad}' refused with a message`, !el("oct-warn").hidden && visibleText(el("oct-sentence")) === s0);
+    }
+    el("oct-reset").click(); await sleep(200);
+    ok("reset clears the message", el("oct-warn").hidden);
+  });
+  await step("live: health route answers 200 (D61)", async () => {
+    const r = await fetch("/api/health"); const h = await r.json();
+    ok("GET /api/health is 200 with live=true", r.status === 200 && h.live === true);
+  });
   await step("overview: range buttons on the headline chart", async () => {
     ok("rangeselector present", !!(el("p-headline").layout.xaxis.rangeselector || {}).buttons);
     const yr = el("p-headline").layout.yaxis.range || [];
@@ -243,9 +256,28 @@
     ok("delete removes it", !names().includes("E2E bear"));
     try { localStorage.removeItem("hicp.scenarios"); } catch (e) { /* ignore */ }
   });
+  await step("shocks: shock size is bounded, never silently zero (D61)", async () => {
+    const dec0 = visibleText(el("k-dec")), size0 = el("f-size").value;
+    for (const bad of ["-100", "1000", "", "abc"]) {
+      setVal(el("f-size"), bad); await sleep(150);
+      ok(`size '${bad}' refused with a message`, !el("size-warn").hidden && visibleText(el("k-dec")) === dec0);
+    }
+    setVal(el("f-size"), size0); await sleep(150);
+    ok("valid size clears the message", el("size-warn").hidden);
+  });
+  await step("shocks: heatmap labels every row and column (D61)", async () => {
+    const H = el("p-heat");
+    ok("every country labelled", (H.layout.yaxis.tickvals || []).length === H.data[0].y.length && H.data[0].y.length === 21);
+    ok("component names on top", H.layout.xaxis.side === "top");
+  });
   await step("shocks: heatmap click opens the cell", async () => {
+    const before = JSON.stringify(D.basis.presets[0].legs[0]);
     el("p-heat").emit("plotly_click", { points: [{ customdata: ["FR", "SERV"] }] }); await sleep(400);
     ok("FR services +10% loaded", el("f-size").value === "10" && $("#f-countries input[value=FR]").checked);
+    ok("replacement is announced with Undo", !el("heat-notice").hidden && !!$("#heat-notice button"));
+    $("#heat-notice button").click(); await sleep(300);
+    ok("Undo restores the previous scenario", el("heat-notice").hidden && !($("#f-countries input[value=FR]").checked && el("f-size").value === "10"), before.slice(0, 40));
+    el("p-heat").emit("plotly_click", { points: [{ customdata: ["FR", "SERV"] }] }); await sleep(400);
   });
   await step("shocks: share link round trip", async () => {
     el("sim-share").click(); await sleep(300);
@@ -375,7 +407,7 @@
       if (el("tour-next").textContent === D.i18n.en.tour_done || el("tour-next").textContent === D.i18n.fr.tour_done) { el("tour-next").click(); break; }
       el("tour-next").click();
     }
-    ok(`tour ran ${n} steps and closed`, n >= 15 && el("tour-box").hidden, n);
+    ok(`tour ran ${n} steps and closed`, n >= 6 && n <= 8 && el("tour-box").hidden, n);
     ok("all tour targets on screen", bad.length === 0, bad.join(","));
   });
   await step("demo: every step and exit", async () => {

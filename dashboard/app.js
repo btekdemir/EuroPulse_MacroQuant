@@ -81,7 +81,17 @@
   const CFG = { displayModeBar: false, responsive: true };
   // Long time-series charts get range buttons (1Y / 3Y / all) above the plot.
   const RANGED = new Set(["p-headline", "p-contrib", "p-ccmp", "p-cp-drivers", "p-track", "p-core"]);
+  // Charts whose history now goes back to 2002/2010 (D61) open on the last six years; "All" shows everything.
+  const OPEN6 = new Set(["p-contrib", "p-ccmp", "p-cp-drivers", "p-core"]);
   const plot = (id, data, layout) => {
+    if (OPEN6.has(id) && !(layout.xaxis && layout.xaxis.range)) {
+      const xs = data.flatMap((tr) => tr.x || []).map((x) => new Date(x).getTime()).filter(Number.isFinite);
+      if (xs.length) {
+        const hi = new Date(Math.max(...xs)), lo = new Date(hi); lo.setUTCFullYear(hi.getUTCFullYear() - 6);
+        layout = Object.assign({}, layout, { xaxis: Object.assign({}, layout.xaxis || baseLayout().xaxis,
+          { range: [lo.toISOString().slice(0, 10), new Date(hi.getTime() + 20 * 864e5).toISOString().slice(0, 10)] }) });
+      }
+    }
     if (RANGED.has(id)) {
       layout = Object.assign({}, layout, { margin: Object.assign({}, layout.margin || {}, { t: 34 }) });
       layout.xaxis = Object.assign({}, layout.xaxis, { rangeselector: { x: 0, y: 1.02, yanchor: "bottom",
@@ -286,7 +296,7 @@
   function renderRiskLine() {
     const k = S.months.indexOf(last.date);
     const best = S.presets.map((p, i) => ({ i, p, r: ShockEngine.simulate(p, S) })).sort((a, b) => Math.abs(b.r.peak_pp) - Math.abs(a.r.peak_pp))[0];
-    const line = el("risk-line"); line.replaceChildren(t("risk_line", { name: best.p.name, peak: sgn(best.r.peak_pp), m: monthLabel(best.r.peak_month), dec: pct(best.r.shocked_yoy[k], 1) }) + " ");
+    const line = el("risk-line"); line.replaceChildren(t("risk_line", { name: t("preset_" + best.i), peak: sgn(best.r.peak_pp), m: monthLabel(best.r.peak_month), dec: pct(best.r.shocked_yoy[k], 1) }) + " ");
     const go = node("button", { type: "button", class: "linkbtn" }, t("risk_open"));
     go.addEventListener("click", () => { showTab("shocks"); el("presets").querySelectorAll("button")[best.i].click(); el("p-shock").closest(".card").scrollIntoView({ block: "start" }); });
     line.appendChild(go);
@@ -429,6 +439,7 @@
   }
   function setOct(v) {
     if (!Number.isFinite(v)) return;
+    el("oct-warn").hidden = true; el("oct-in").setAttribute("aria-invalid", "false");
     octPrint = Math.abs(v - P[0].point) < 1e-6 ? null : Math.min(8, Math.max(0, v));
     renderOverview();
   }
@@ -626,7 +637,7 @@
       prev: monthLabel(prev), mo: ex ? sgn(ex.momentum_pp) : "–", b: ex ? sgn(ex.base_effect_pp) : "–",
       w: fmt(C.weights_latest[g] || 0, 1), yr: C.weights_year, ct: fmt(C.contributions[g][n] || 0, 2), r: ranked.indexOf(g) + 1, n: ranked.length });
     const warn = el("cp-warn");
-    warn.hidden = prof.max_abs_gap_pp <= 0.02;
+    warn.hidden = prof.max_abs_gap_pp <= 0.04;  // 2010-on rounding stays below this; only Italy (D33) exceeds it
     warn.textContent = warn.hidden ? "" : t("cp_warn", { c: geo(g), g: fmt(prof.max_abs_gap_pp, 2) });
 
     const k0 = Math.max(0, C.dates.length - 36), xs = C.dates.slice(k0).map(toDate);
@@ -775,7 +786,7 @@
   let cmpSaved = cmpLoad().filter((x) => x && x.id && x.scenario && ShockEngine.decodeScenario(ShockEngine.encodeScenario(x.scenario), S).scenario);
   const cmpSel = new Map([["preset-0", 0], ["preset-1", 1]]);  // id -> colour slot
   let cmpBound = false;
-  const cmpAll = () => [...S.presets.map((p, i) => ({ id: `preset-${i}`, name: p.name, scenario: p, builtin: true })), ...cmpSaved];
+  const cmpAll = () => [...S.presets.map((p, i) => ({ id: `preset-${i}`, name: t("preset_" + i), scenario: p, builtin: true })), ...cmpSaved];
   function cmpToggle(id) {
     if (cmpSel.has(id)) { cmpSel.delete(id); renderScenarioCompare(); return; }
     if (cmpSel.size >= CMP_MAX) { el("cmp-status").textContent = t("cmp_max", { n: CMP_MAX }); return; }
@@ -798,7 +809,7 @@
       el("cmp-name").addEventListener("keydown", (e) => { if (e.key === "Enter") cmpSave(); });
       cmpBound = true;
     }
-    el("cmp-name").placeholder = scenario.name || "";
+    el("cmp-name").placeholder = presetIdx >= 0 ? t("preset_" + presetIdx) : scenario.name || "";
     const all = cmpAll(), byId = Object.fromEntries(all.map((x) => [x.id, x]));
     [...cmpSel.keys()].forEach((id) => { if (!byId[id]) cmpSel.delete(id); });
     const list = el("cmp-list"); list.replaceChildren();
@@ -844,25 +855,42 @@
   }
   function renderHeat() {
     const { z, order } = heatData(), ys = order.map(geo), xs = COMPS.map(comp);
-    Plotly.react(el("p-heat"), [{ type: "heatmap", x: xs, y: ys, z: order.map((g) => z[g]), customdata: order.map((g) => COMPS.map((c) => [g, c])),
+    // Every country and every component labelled (D61): the default 6-tick axis showed one country in four.
+    // Component names sit on top, like a table header; rows are sized so every name fits.
+    const narrow = el("p-heat").clientWidth < 560, xl = xs.map((l) => wrapLab(l, narrow ? 9 : 14));
+    const hh = Math.max(360, 22 * ys.length + 110); el("p-heat").style.height = hh + "px";
+    Plotly.react(el("p-heat"), [{ type: "heatmap", x: xl, y: ys, z: order.map((g) => z[g]), customdata: order.map((g) => COMPS.map((c) => [g, c])),
       colorscale: [[0, css("--surface-2")], [1, css("--accent")]], zmin: 0, xgap: 2, ygap: 2,
       texttemplate: "%{z:.1f}", textfont: { size: 10 }, colorbar: { title: { text: "bp" }, thickness: 10, len: 0.6 },
       hovertemplate: `%{y} · %{x}<br>${t("hm_hover")}: %{z:.2f} bp<extra></extra>` }],
-    baseLayout({ margin: { l: 10, r: 10, t: 8, b: 60 }, yaxis: Object.assign(baseLayout().yaxis, { autorange: "reversed", automargin: true }),
-      xaxis: Object.assign(baseLayout().xaxis, { side: "bottom", automargin: true, tickangle: -20 }) }), CFG);
+    baseLayout({ height: hh, hovermode: "closest", margin: { l: 10, r: 10, t: 10, b: 10 },
+      yaxis: Object.assign(baseLayout().yaxis, { autorange: "reversed", automargin: true, tickmode: "array", tickvals: ys, ticktext: ys, nticks: 0, gridcolor: "rgba(0,0,0,0)" }),
+      xaxis: Object.assign(baseLayout().xaxis, { side: "top", automargin: true, tickangle: 0, tickmode: "array", tickvals: xl, ticktext: xl, gridcolor: "rgba(0,0,0,0)",
+        tickfont: { size: narrow ? 10 : 11, color: css("--text-secondary") } }) }), CFG);
     table(el("tbl-heat"), [t("hm_country"), ...xs], order.map((g) => [geo(g), ...z[g].map((v) => fmt(v, 2))]), COMPS.map((_, i) => i + 1));
     if (!heatBound) {
       el("p-heat").on("plotly_click", (ev) => {
         const pt = ev.points && ev.points[0];
         if (!pt) return;
         const [g, c] = pt.customdata;
+        const before = { scenario: JSON.parse(JSON.stringify(scenario)), presetIdx };  // for Undo (D61)
         scenario = { name: `${comp(c)} · ${geo(g)} +10%`, legs: [{ components: [c], countries: [g], size_pct: 10, profile: { kind: "permanent" }, start: S.months[0] }],
           second_round: false, second_round_regime: "post2020", mapping: null, sources: ["Sensitivity heatmap"],
           rationale: "Opened from the sensitivity heatmap: a +10% permanent price-level shock in one country and component, to read the size of the response; not a forecast of any event." };
         presetIdx = -1; activeLeg = 0;
         el("presets").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", "false"));
         refreshAll();
-        el("p-shock").closest(".card").scrollIntoView({ block: "start", behavior: "smooth" });
+        // Say what happened and offer the way back, then bring the result into view (the card is long: aim at the numbers).
+        const note = el("heat-notice");
+        note.replaceChildren(t("hm_replaced", { name: scenario.name }));
+        const undo = node("button", { type: "button", class: "linkbtn" }, t("hm_undo"));
+        undo.addEventListener("click", () => {
+          scenario = before.scenario; presetIdx = before.presetIdx; activeLeg = 0;
+          el("presets").querySelectorAll("button").forEach((b, i) => b.setAttribute("aria-pressed", String(i === presetIdx)));
+          note.hidden = true; refreshAll();
+        });
+        note.append(undo); note.hidden = false;
+        requestAnimationFrame(() => note.scrollIntoView({ block: "start", behavior: "smooth" }));
       });
       heatBound = true;
     }
@@ -930,7 +958,7 @@
     el("f-comps").querySelectorAll("input").forEach((i) => { i.checked = lg.components.includes(i.value); });
     el("f-countries").querySelectorAll("input").forEach((i) => { i.checked = lg.countries.includes(i.value); });
     el("f-allea").checked = lg.countries.length === 0;
-    el("f-size").value = lg.size_pct;
+    el("f-size").value = lg.size_pct; el("size-warn").hidden = true; el("f-size").setAttribute("aria-invalid", "false");
     el("f-start").value = lg.start;
     el("f-profile").value = lg.profile.kind;
     el("f-param").value = lg.profile.half_life_months || lg.profile.months || 6;
@@ -1028,9 +1056,10 @@
   }
 
   // ---- every paid API call goes through here: adds the access code (if the site has one) and, on a
-  // "code required" answer, opens the code box in the Ask panel. The code lives in this tab only.
-  let accessCode = "";
-  try { accessCode = sessionStorage.getItem("hicp.code") || ""; } catch (e) { /* storage blocked */ }
+  // "code required" answer, opens the code box in the Ask panel. The code is kept in this browser (D61), so a
+  // reload does not ask again; a wrong or changed code is forgotten on the first 401.
+  let accessCode = "", codeRequired = false;
+  try { accessCode = localStorage.getItem("hicp.code") || ""; } catch (e) { /* storage blocked */ }
   // What a reader sees when a live route fails (D60): quota, rate limit, outage or no network. The rest of the page
   // is computed in the browser and keeps working, so the message says so.
   function liveError(r, body, kind) {
@@ -1046,7 +1075,7 @@
       try { body = await r.json(); } catch (e) { /* non-JSON error page */ }
     } catch (e) { r = { ok: false, status: 0 }; }
     if (r.status === 401 && body.code_required) {
-      accessCode = ""; try { sessionStorage.removeItem("hicp.code"); } catch (e) { /* ignore */ }
+      accessCode = ""; codeRequired = true; try { localStorage.removeItem("hicp.code"); } catch (e) { /* ignore */ }
       if (url === "/api/scenario" && !el("ask-panel").contains(document.activeElement) && el("ask-panel").hidden) {
         el("nl-code-row").hidden = false; el("nl-code").focus();  // ask right under the sentence box
       } else {
@@ -1061,7 +1090,7 @@
   function unlock(fromSentenceBox) {
     const inp = el(fromSentenceBox ? "nl-code" : "ask-code"), v = inp.value.trim();
     if (!v) return;
-    accessCode = v; try { sessionStorage.setItem("hicp.code", v); } catch (e) { /* ignore */ }
+    accessCode = v; try { localStorage.setItem("hicp.code", v); } catch (e) { /* ignore */ }
     inp.value = ""; el("ask-code-row").hidden = true; el("nl-code-row").hidden = true;
     if (fromSentenceBox) nlInterpret();  // retry the sentence straight away
     else { el("ask-status").textContent = t("code_saved"); el("ask-text").focus(); }
@@ -1106,9 +1135,21 @@
     el("presets").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", "false"));
   }
 
+  // Shock size bounds (D61): a −100% price cut or +1000% spike is outside anything the linear pass-through can
+  // speak to, and an empty or non-numeric box must not silently mean 0%.
+  const SIZE_MIN = -50, SIZE_MAX = 100;
+  function readSize() {
+    const raw = el("f-size").value.trim().replace(",", "."), v = Number(raw);
+    const ok = raw !== "" && Number.isFinite(v) && v >= SIZE_MIN && v <= SIZE_MAX;
+    el("f-size").setAttribute("aria-invalid", String(!ok));
+    el("size-warn").hidden = ok;
+    if (!ok) el("size-warn").textContent = t("size_invalid", { lo: SIZE_MIN, hi: SIZE_MAX, v: sgn(activeShock().size_pct, 1) });
+    return ok ? v : null;
+  }
   function fromForm() {
     paramVisibility();
     const lg = activeShock();
+    const size = readSize();
     const k = el("f-profile").value, v = Math.max(1, Number(el("f-param").value) || 1);
     const profile = { kind: k };
     if (k === "decaying") profile.half_life_months = v;
@@ -1117,7 +1158,7 @@
     Object.assign(lg, {
       components: [...el("f-comps").querySelectorAll("input:checked")].map((i) => i.value),
       countries: [...el("f-countries").querySelectorAll("input:checked")].map((i) => i.value),
-      size_pct: Number(el("f-size").value) || 0, profile, start: el("f-start").value,
+      size_pct: size === null ? lg.size_pct : size, profile, start: el("f-start").value,
     });
     scenario.second_round = el("f-second").checked;
     scenario.second_round_regime = el("f-regime").value;
@@ -1556,32 +1597,17 @@
   // ------------------------------------------------------------------ guided tour
   // Never opens by itself: a one-line banner offers it on the first visit, the Tour button restarts it.
   // Every feature, in reading order. Steps with `when` appear only where that feature is available.
+  // Eight stops (D61): the tour is for a first look; the demo mode still walks through every feature.
   const TOUR_ALL = [
     { key: "answer", tab: "overview", sel: "#answer" },
-    { key: "changed", tab: "overview", sel: "#wc-card", self: true },
-    { key: "note", tab: "overview", sel: "#note-title", when: () => !el("note-card").hidden },
-    { key: "prob", tab: "overview", sel: "#t-prob" },
-    { key: "beat", tab: "overview", sel: "#bm-title" },
     { key: "fan", tab: "overview", sel: "#p-headline", corner: "left" },  // the fan sits at the right of the chart
-    { key: "month", tab: "overview", sel: "#mx-month" },
-    { key: "october", tab: "overview", sel: "#oct-in" },
     { key: "drivers", tab: "drivers", sel: "#p-contrib" },
-    { key: "bridge", tab: "drivers", sel: "#br-title" },
-    { key: "basemom", tab: "drivers", sel: "#p-basemom" },
-    { key: "core", tab: "drivers", sel: "#core-card", self: true },
     { key: "countries", tab: "countries", sel: "#p-csm" },
-    { key: "profile", tab: "countries", sel: "#cp-summary", self: true },  // the whole card is taller than the screen
     { key: "shock", tab: "shocks", sel: "#sim-form" },
-    { key: "reverse", tab: "shocks", sel: "#rev-card", self: true },
-    { key: "compare", tab: "shocks", sel: "#cmp-card", self: true },
-    { key: "heat", tab: "shocks", sel: "#hm-card", self: true },
-    { key: "backtest", tab: "model", sel: "#tbl-bt" },
-    { key: "timemachine", tab: "model", sel: "#tm-card", self: true },
-    { key: "trust", tab: "model", sel: "#tbl-r2" },
-    { key: "recon", tab: "model", sel: "#rc-card", self: true },
-    { key: "ledger", tab: "model", sel: "#n-led" },
+    { key: "backtest", tab: "model", sel: "#msum-card", self: true },
+    { key: "trust", tab: "model", sel: "#r4-card", self: true },
     { key: "ask", tab: "overview", sel: "#ask-open", self: true, when: () => !el("ask-open").hidden },
-    { key: "brief", tab: "overview", sel: "#brief-open", self: true },
+    { key: "brief", tab: "overview", sel: "#brief-open", self: true, when: () => el("ask-open").hidden },
   ];
   let TOUR = TOUR_ALL;
   let tourIdx = -1, tourEl = null;
@@ -1628,15 +1654,14 @@
     box.style.left = left + "px";
   }
 
-  function tourEnd() {
+  function tourEnd(skipped) {  // Skip leaves the reader where they are; finishing goes back to the top (D61)
     if (tourEl) tourEl.classList.remove("tour-target");
     tourIdx = -1; tourEl = null;
     el("tour-shade").hidden = true;
     el("tour-box").hidden = true;
     el("tour-banner").hidden = true;
     store.set("hicp.tour", "done");
-    showTab("overview");
-    window.scrollTo(0, 0);
+    if (skipped !== true) { showTab("overview"); window.scrollTo(0, 0); }
     el("tour-open").focus({ preventScroll: true });
   }
 
@@ -1645,7 +1670,7 @@
   el("tour-dismiss").addEventListener("click", () => { store.set("hicp.tour", "dismissed"); el("tour-banner").hidden = true; });
   el("tour-next").addEventListener("click", () => (tourIdx >= TOUR.length - 1 ? tourEnd() : tourShow(tourIdx + 1)));
   el("tour-back").addEventListener("click", () => { if (tourIdx > 0) tourShow(tourIdx - 1); });
-  el("tour-skip").addEventListener("click", tourEnd);
+  el("tour-skip").addEventListener("click", () => tourEnd(true));
   window.addEventListener("resize", tourPlace);
   window.addEventListener("scroll", tourPlace, { passive: true });
   document.addEventListener("keydown", (e) => {
@@ -1966,7 +1991,7 @@ ${note}
     if (pid === "p-shock" || pid === "p-shockpath") {
       const r = ShockEngine.simulate(scenario, S), k = S.months.indexOf(last.date);
       return { state: `${scenario.name}: ${scenario.legs.map(legLabel).join("; ")}${scenario.second_round ? " (with second round)" : ""}`,
-        facts: [F_("peak_pp", `Peak impact of the current shock on headline y/y (${r.peak_month}), pp`, r.peak_pp),
+        facts: [F_("peak_pp", `Largest impact (largest in absolute value) of the current shock on headline y/y (${r.peak_month}), pp`, r.peak_pp),
           F_("dec_pp", `Impact of the current shock on ${last.date} headline y/y, pp`, r.delta_yoy_pp[k]),
           F_("dec_first_pp", `First-round part of that impact, pp`, r.delta_first_round_pp[k]),
           F_("dec_second_pp", `Second-round part of that impact, pp`, r.delta_second_round_pp[k]),
@@ -1978,7 +2003,7 @@ ${note}
       [...cmpSel.keys()].forEach((id, i) => {
         const x = all[id]; if (!x) return;
         const r = ShockEngine.simulate(x.scenario, S);
-        facts.push(F_(`s${i + 1}_peak`, `Peak impact of scenario '${x.name}', pp`, r.peak_pp), F_(`s${i + 1}_dec`, `Impact of '${x.name}' on ${last.date}, pp`, r.delta_yoy_pp[k]),
+        facts.push(F_(`s${i + 1}_peak`, `Largest impact of scenario '${x.name}', pp`, r.peak_pp), F_(`s${i + 1}_dec`, `Impact of '${x.name}' on ${last.date}, pp`, r.delta_yoy_pp[k]),
           F_(`s${i + 1}_level`, `${last.date} y/y under '${x.name}', %`, r.shocked_yoy[k]));
       });
       return { state: `compared: ${[...cmpSel.keys()].map((id) => (all[id] || {}).name).join("; ")}`, facts };
@@ -1999,6 +2024,15 @@ ${note}
   function askExplain(p) {
     const card = p.closest(".card"), h = card && card.querySelector("h2");
     const title = (h && h.textContent.trim()) || p.id;
+    if (codeRequired && !accessCode) {  // no dead end: the card's own reading, then the code box (D61)
+      if (el("ask-panel").hidden) askToggle(true, "ask-fab");
+      const said = [...(card ? card.querySelectorAll("p.answer, p.note") : [])].map((n) => n.textContent.trim()).filter((s) => s.length > 30).slice(0, 2);
+      const msg = node("div", { class: "ask-msg bot" });
+      msg.append(node("b", {}, title), node("p", {}, said.length ? said.join(" ") : t("ask_offline_none")), node("p", { class: "note" }, t("ask_offline_code")));
+      askLog(msg);
+      el("ask-code-row").hidden = false; el("ask-code").focus();
+      return;
+    }
     const ctx = chartContext(p.id);
     if (el("ask-panel").hidden) askToggle(true, "ask-fab");
     // What is drawn, read from the chart itself so the explanation never guesses at styles.
@@ -2041,7 +2075,7 @@ ${note}
         const k = k0 >= 0 && presetAsIs(q, k0) ? k0 : -1;  // any other number (a size, a date) goes to the interpreter
         if (k >= 0) {
           const pre = S.presets[k];
-          askScenarioResult(JSON.parse(JSON.stringify(pre)), [t("ask_sc_preset", { name: pre.name }), pre.rationale], t("ask_sc_meta_preset"));
+          askScenarioResult(JSON.parse(JSON.stringify(pre)), [t("ask_sc_preset", { name: t("preset_" + k) }), pre.rationale], t("ask_sc_meta_preset"));
         } else await askScenario(q);
       }
     } catch (e) {
@@ -2070,9 +2104,12 @@ ${note}
   }
 
   if (liveOk()) {
-    fetch("/api/ask", { method: "GET" }).then((r) => {
+    // One GET to /api/health (D61): it always answers 200, so the console stays clean, and it says whether the
+    // assistant is live and needs the access code.
+    fetch("/api/health").then((r) => (r.ok ? r.json() : null)).then((h) => {
       bmLoad().then(() => { if (activeTab === "overview") renderBeat(); });
-      if (r.status === 405) {
+      if (h && h.live) {
+        codeRequired = !!h.code_required;
         el("ask-open").hidden = false; el("ask-fab").hidden = false;
         document.querySelectorAll(".ask-explain").forEach((b) => { b.hidden = false; });
       }
@@ -2095,7 +2132,12 @@ ${note}
     if (f.open) setTimeout(() => f.querySelectorAll(".plot").forEach((p) => { if (p.data) Plotly.Plots.resize(p); }), 0);
   }));
   el("mx-month").addEventListener("change", renderMonth);
-  el("oct-in").addEventListener("input", () => setOct(Number(el("oct-in").value)));
+  el("oct-in").addEventListener("input", () => {  // validated like Beat the model (D61): no silent 0 or clipping
+    const raw = el("oct-in").value.trim().replace(",", "."), v = Number(raw), ok = raw !== "" && Number.isFinite(v) && v >= 0 && v <= 8;
+    el("oct-in").setAttribute("aria-invalid", String(!ok));
+    el("oct-warn").hidden = ok;
+    if (ok) setOct(v); else el("oct-warn").textContent = t("oct_invalid");
+  });
   el("oct-range").addEventListener("input", () => setOct(Number(el("oct-range").value)));
   el("oct-reset").addEventListener("click", () => setOct(P[0].point));
   el("cc-add").addEventListener("change", () => { const g = el("cc-add").value; if (g) ccToggle(g); });

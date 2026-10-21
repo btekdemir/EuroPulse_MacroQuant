@@ -17,7 +17,7 @@ def _none(v: float) -> float | None:
     return None if v is None or (isinstance(v, float) and math.isnan(v)) else float(v)
 
 
-def country_view(d: CleanData, s: Settings, years: int = 6) -> CountryView:
+def country_view(d: CleanData, s: Settings, years: int = 16) -> CountryView:  # from 2010 (D61)
     ix = d.country_index(s.headline)[s.countries]
     ea = d.index_wide(s.ea)[s.headline]
     cw = d.country_weights_wide()

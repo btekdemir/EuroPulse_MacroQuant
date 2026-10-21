@@ -78,3 +78,17 @@ def test_real_http_server_roundtrip(fn, monkeypatch):
         assert e.value.code == 405
     finally:
         srv.shutdown()
+
+
+def test_health_route_answers_200_and_reveals_no_secret(monkeypatch):
+    spec = importlib.util.spec_from_file_location("health_fn", ROOT / "deploy" / "api" / "health.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    monkeypatch.setenv("HICP_ACCESS_CODE", "secret-value-123")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test-value")
+    status, body = mod.handle_get()
+    out = json.loads(body)
+    assert status == 200 and out["ok"] and out["code_required"] is True and out["assistant"] is True
+    assert b"secret-value-123" not in body and b"sk-test-value" not in body
+    monkeypatch.delenv("HICP_ACCESS_CODE")
+    assert json.loads(mod.handle_get()[1])["code_required"] is False

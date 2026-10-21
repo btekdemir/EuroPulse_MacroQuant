@@ -19,9 +19,19 @@ def test_every_member_has_a_profile(view):
     assert set(view["profiles"]) == set(view["yoy"]) and len(view["profiles"]) == 21
 
 
+def _gaps_since(view, c, start):
+    p, y, dates = view["profiles"][c], view["yoy"][c], view["dates"]
+    out = [abs(sum(p["contributions"][k][i] for k in p["contributions"]) - y[i]) for i, d in enumerate(dates)
+           if d >= start and y[i] is not None and all(p["contributions"][k][i] is not None for k in p["contributions"])]
+    return max(out)
+
+
 def test_contributions_add_up_to_each_countrys_yoy(view):
     gaps = {c: p["max_abs_gap_pp"] for c, p in view["profiles"].items()}
-    assert all(g < 0.02 for c, g in gaps.items() if c != "IT"), gaps
+    # Since the window starts in 2010 (D61), the largest gaps are in 2011-2013 (Cyprus 0.037 pp, Jul 2012),
+    # rounding of the published series of that time; in recent years every country stays within 0.02 pp.
+    assert all(g < 0.04 for c, g in gaps.items() if c != "IT"), gaps
+    assert all(_gaps_since(view, c, "2020-09") < 0.02 for c in gaps if c != "IT")
     # Italy's published headline is not exactly the weighted sum of its published components (D33):
     # documented and flagged in the dashboard, pinned here so a change is noticed.
     assert 0.05 < gaps["IT"] < 0.2
