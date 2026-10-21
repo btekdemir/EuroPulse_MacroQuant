@@ -108,7 +108,9 @@
         gd._fitY = true;
         // The y-axis follows the visible dates (D60): a 1Y or 3Y view is not squeezed by the 2022 peak; "All" keeps the full scale.
         gd.on("plotly_relayout", (ev) => {
-          if (ev["xaxis.autorange"]) Plotly.relayout(gd, { "yaxis.autorange": true });
+          // "All" must end at the data, not where autorange puts it: Plotly widens the axis to fit end labels
+          // (the 3.8% annotation pushed it to 2030), and 1Y / 3Y then count back from there into empty space (D62).
+          if (ev["xaxis.autorange"]) Plotly.relayout(gd, { "xaxis.range": dataSpan(gd) });
           else if (ev["xaxis.range[0]"] !== undefined || ev["xaxis.range"]) fitY(gd);
         });
       }
@@ -116,6 +118,11 @@
     }
     return out;
   };
+  function dataSpan(gd) {
+    const xs = gd.data.flatMap((tr) => tr.x || []).map((x) => new Date(x).getTime()).filter(Number.isFinite);
+    const iso = (ms) => new Date(ms).toISOString().slice(0, 10);
+    return [iso(Math.min(...xs) - 15 * 864e5), iso(Math.max(...xs) + 25 * 864e5)];
+  }
   function fitY(gd) {
     const r = gd.layout.xaxis.range.map((x) => new Date(x).getTime());
     let lo = Infinity, hi = -Infinity;
@@ -184,6 +191,20 @@
   }
 
   // ------------------------------------------------------------------ research note (numbers verified)
+  // The fact sheet is written in English; in French the check table shows each fact's French label (D62).
+  function factLabel(x) {
+    if (lang === "en" || !x.fact_id) return x.fact_label || x.fact_id || "–";
+    const id = x.fact_id, dec = monthLabel(last.date), L = D.i18n[lang];
+    let m, key = "nf_" + id, v = { d: dec, o: monthLabel(F.origin) };
+    if ((m = /^forecast_h(\d)$/.exec(id))) { key = "nf_forecast"; v = { d: monthLabel(P[m[1] - 1].date), h: m[1] }; }
+    else if ((m = /^band(68|90)_(lo|hi)$/.exec(id))) { key = "nf_band_" + m[2]; v = { b: m[1], d: dec }; }
+    else if ((m = /^band(68|90)_level$/.exec(id))) { key = "nf_band_level"; v = { b: m[1] }; }
+    else if ((m = /^contrib_(.+)$/.exec(id))) { key = "nf_contrib"; v = { c: comp(m[1]).toLowerCase(), d: dec }; }
+    else if ((m = /^(threshold|p_above)_(.+)$/.exec(id))) { key = "nf_" + m[1]; v = { thr: fmt(Number(m[2].replace("_", ".")), 1), d: dec }; }
+    else if ((m = /^(rmse|rmse_rw|ratio|dm_p)_h(\d)$/.exec(id))) { key = "nf_" + m[1]; v = { h: m[2] }; }
+    else if ((m = /^preset_(\d)_peak$/.exec(id))) { key = "nf_preset_peak"; v = { s: t("preset_" + m[1]) }; }
+    return L[key] ? t(key, v) : x.fact_label || id;
+  }
   function renderNote() {
     const card = el("note-card");
     if (!RN) { card.hidden = true; return; }
@@ -200,7 +221,7 @@
     tog.hidden = !n.numbers.length;
     tog.textContent = chk.hidden ? t("note_show") : t("note_hide");
     table(chk, [t("note_col_num"), t("note_col_fact"), t("note_col_val"), t("note_col_ok")],
-      n.numbers.map((x) => [x.token, x.fact_label || x.fact_id || "–", x.fact_value === null ? "–" : fmt(x.fact_value, 3), x.ok ? "✓" : "✗"]), [2]);
+      n.numbers.map((x) => [x.token, factLabel(x), x.fact_value === null ? "–" : fmt(x.fact_value, 3), x.ok ? "✓" : "✗"]), [2]);
   }
 
   // ------------------------------------------------------------------ overview
@@ -358,6 +379,16 @@
         showlegend: false, hovertemplate: `${name}: %{customdata:.1f}–%{y:.1f}%<extra></extra>`, meta: { csv: false } },
     ];
     const extra = [];
+    // While an October what-if is drawn, say so above the chart with a way to remove it (D62): the card that set it
+    // may be folded away by now.
+    const chip = el("oct-chip");
+    chip.hidden = octPrint === null;
+    if (octPrint !== null) {
+      chip.replaceChildren(t("oct_chip", { v: fmt(octPrint, 1) }));
+      const rm = node("button", { type: "button", class: "linkbtn", id: "oct-chip-rm" }, t("oct_chip_rm"));
+      rm.addEventListener("click", () => setOct(P[0].point));
+      chip.append(rm);
+    }
     if (octPrint !== null) {
       const cond = ShockEngine.conditionalPath(F.headline_index, P[0].date, octPrint, P.map((p) => p.date));
       extra.push({ x: [toDate(F.origin), ...P.map((p) => toDate(p.date))], y: [F.last_actual_yoy, ...P.map((p) => cond[p.date])],

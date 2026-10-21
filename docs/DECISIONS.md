@@ -944,3 +944,20 @@ Two reviews were pasted in, one on method and consistency and one on looks. Thei
   - The end-to-end access-code check no longer depends on a code kept from an earlier run. Now 145 checks.
   - The country profile's drivers chart had the same 36-month cut. It now draws from 2010 and opens on 3 years.
   - A new end-to-end check fails if any dated chart opens on an empty stretch. Now 146 checks.
+
+## D62. Fifth review: range buttons, French note wording (22 Oct 2026)
+
+- **Range buttons (headline chart):**
+  - After "All", Plotly's autorange stretched the axis to 2030 to fit the "3.8%" end label. 1Y and 3Y then counted back from 2030 and showed an empty chart.
+  - "All" now sets an explicit window from the first to the last data point, on every chart with range buttons.
+  - The end-to-end test clicks All → 1Y → 3Y → All → 1Y and checks the window ends at the data.
+- **French research note:**
+  - It called the 0.12 pp cumulative momentum "dynamique mensuelle" and wrote "pp".
+  - Those two wording errors were corrected by hand ("dynamique cumulée", "pt"). The number check was re-run on the edited text: all 24 numbers match their facts, so it stays verified. No number was changed, and no paid call was made.
+  - For future notes, the fact sheet now says "cumulative momentum … not a monthly rate", and the French instructions require "pt" and "dynamique cumulée". The preset fact says "largest impact".
+- **French number check:** the check table shows French labels for every fact (in English mode it shows the fact sheet's own labels).
+- **What if October:**
+  - The slider covers the same 0–8% as the box.
+  - While a what-if line is drawn, a line above the headline chart says so and has a Remove button.
+- **Not changed:** Plotly's range buttons are SVG and cannot be reached by keyboard. Low priority; noted.
+- **Checked:** Python 213/213; end-to-end 150/150.

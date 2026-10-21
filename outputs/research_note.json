@@ -449,7 +449,7 @@
     {
       "lang": "fr",
       "title": "Zone euro : inflation attendue \u00e0 3,8 % en d\u00e9cembre 2026",
-      "body": "Notre mod\u00e8le bottom-up anticipe une inflation IPCH de la zone euro \u00e0 3,8 % en glissement annuel en d\u00e9cembre 2026. Ce niveau est stable par rapport \u00e0 septembre (3,8 %) et reste 1,77 pp au-dessus de la cible de 2 % de la BCE. Un effet de base favorable (-0,11 pp) est compens\u00e9 par la dynamique mensuelle (0,12 pp). Les principales contributions proviennent des services (1,52 pp) et des carburants (1,30 pp), dont les prix progressent de 32,3 % sur un an.\n\nLa probabilit\u00e9 d'un taux sup\u00e9rieur \u00e0 3 % atteint 95 %, contre 27 % au-del\u00e0 de 4 % et 7 % au-del\u00e0 de 5 %. L'intervalle \u00e0 90 % s'\u00e9tend de 3,0 % \u00e0 5,1 %. Selon notre sc\u00e9nario, une flamb\u00e9e des prix europ\u00e9ens du gaz ajouterait jusqu'\u00e0 1,07 pp.\n\n\u00c0 un horizon de 3 mois, l'erreur quadratique moyenne (0,63 pp) est inf\u00e9rieure \u00e0 celle d'une marche al\u00e9atoire (0,80 pp). Principale limite : sur 2020-2023, seuls 35 % des r\u00e9alisations se sont situ\u00e9es dans la bande \u00e0 68 %, l'inflation ayant \u00e9t\u00e9 sous-estim\u00e9e.",
+      "body": "Notre mod\u00e8le bottom-up anticipe une inflation IPCH de la zone euro \u00e0 3,8 % en glissement annuel en d\u00e9cembre 2026. Ce niveau est stable par rapport \u00e0 septembre (3,8 %) et reste 1,77 pt au-dessus de la cible de 2 % de la BCE. Un effet de base favorable (-0,11 pt) est compens\u00e9 par la dynamique cumul\u00e9e (0,12 pt). Les principales contributions proviennent des services (1,52 pt) et des carburants (1,30 pt), dont les prix progressent de 32,3 % sur un an.\n\nLa probabilit\u00e9 d'un taux sup\u00e9rieur \u00e0 3 % atteint 95 %, contre 27 % au-del\u00e0 de 4 % et 7 % au-del\u00e0 de 5 %. L'intervalle \u00e0 90 % s'\u00e9tend de 3,0 % \u00e0 5,1 %. Selon notre sc\u00e9nario, une flamb\u00e9e des prix europ\u00e9ens du gaz ajouterait jusqu'\u00e0 1,07 pt.\n\n\u00c0 un horizon de 3 mois, l'erreur quadratique moyenne (0,63 pt) est inf\u00e9rieure \u00e0 celle d'une marche al\u00e9atoire (0,80 pt). Principale limite : sur 2020-2023, seuls 35 % des r\u00e9alisations se sont situ\u00e9es dans la bande \u00e0 68 %, l'inflation ayant \u00e9t\u00e9 sous-estim\u00e9e.",
       "verified": true,
       "attempts": 1,
       "numbers": [
@@ -491,7 +491,7 @@
         {
           "token": "0,12",
           "fact_id": "momentum_pp",
-          "fact_label": "Momentum effect on the change in y/y to 2026-12, pp (forecast)",
+          "fact_label": "Cumulative momentum to 2026-12: sum of the new monthly changes, not a monthly rate, pp (forecast)",
           "fact_value": 0.11667854084371886,
           "ok": true
         },
@@ -582,7 +582,7 @@
         {
           "token": "1,07",
           "fact_id": "preset_1_peak",
-          "fact_label": "Peak impact on headline y/y of the scenario 'European gas price spike', pp",
+          "fact_label": "Largest impact on headline y/y of the scenario 'European gas price spike', pp",
           "fact_value": 1.066166817641559,
           "ok": true
         },

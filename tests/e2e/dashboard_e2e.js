@@ -113,6 +113,12 @@
     }
     el("oct-reset").click(); await sleep(200);
     ok("reset clears the message", el("oct-warn").hidden);
+    setVal(el("oct-in"), "4.2"); await sleep(250);
+    ok("a what-if shows a chip above the chart", !el("oct-chip").hidden && el("p-headline").data.length > 0);
+    const n1 = el("p-headline").data.length;
+    el("oct-chip-rm").click(); await sleep(300);
+    ok("Remove takes the what-if line off", el("oct-chip").hidden && el("p-headline").data.length === n1 - 1);
+    ok("slider covers the same 0–8 range", el("oct-range").min === "0" && el("oct-range").max === "8");
   });
   await step("live: health route answers 200 (D61)", async () => {
     const r = await fetch("/api/health"); const h = await r.json();
@@ -120,8 +126,19 @@
   });
   await step("overview: range buttons on the headline chart", async () => {
     ok("rangeselector present", !!(el("p-headline").layout.xaxis.rangeselector || {}).buttons);
+    // All → 1Y → 3Y must stay on the data (D62: autorange had pushed the end to 2030, leaving 1Y empty).
+    const g = el("p-headline"), rb = (lab) => [...g.querySelectorAll(".rangeselector .button")].find((b) => b.textContent.trim() === lab);
+    const dmax = Math.max(...g.data.flatMap((d) => d.x || []).map((x) => new Date(x).getTime()).filter(Number.isFinite));
+    const ends = [];
+    for (const lab of ["All", "1Y", "3Y", "All", "1Y"]) {
+      if (!rb(lab)) continue;
+      rb(lab).dispatchEvent(new MouseEvent("click", { bubbles: true })); await sleep(350);
+      ends.push(Math.round((new Date(g.layout.xaxis.range[1]).getTime() - dmax) / 864e5));
+    }
+    ok("range buttons in any order end at the data", ends.length === 5 && ends.every((d) => d >= 0 && d <= 40), ends.join(","));
+    rb("3Y") && rb("3Y").dispatchEvent(new MouseEvent("click", { bubbles: true })); await sleep(300);
     const yr = el("p-headline").layout.yaxis.range || [];
-    ok("y-axis fitted to the visible two years", yr.length === 2 && yr[1] - yr[0] < 7, JSON.stringify(yr));
+    ok("y-axis fitted to the visible window", yr.length === 2 && yr[1] - yr[0] < 7, JSON.stringify(yr));
   });
 
   // Floating-bar bridge (D59): each step is a bar of |change| from the running total; walk it and land on the end bar.

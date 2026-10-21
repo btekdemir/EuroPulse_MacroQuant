@@ -67,7 +67,7 @@ def build_facts(out: Path = OUT) -> list[Fact]:
     add("vs_last_pp", f"Change in y/y from {f['origin']} to {dec['date']}, pp", dec["point"] - f["last_actual_yoy"])
     add("vs_target_pp", f"Forecast {dec['date']} minus ECB target, pp", dec["point"] - f["ecb_target"])
     add("base_effect_pp", f"Base effect on the change in y/y to {dec['date']}, pp (known today)", dec["base_effect_pp"])
-    add("momentum_pp", f"Momentum effect on the change in y/y to {dec['date']}, pp (forecast)", dec["momentum_pp"])
+    add("momentum_pp", f"Cumulative momentum to {dec['date']}: sum of the new monthly changes, not a monthly rate, pp (forecast)", dec["momentum_pp"])
     names = {"FUEL": "fuels", "ELC_GAS": "electricity and gas", "FOOD_P": "processed food", "FOOD_NP": "unprocessed food",
              "IGD_NNRG": "non-energy industrial goods", "SERV": "services"}
     for c, label in names.items():
@@ -92,7 +92,7 @@ def build_facts(out: Path = OUT) -> list[Fact]:
     add("coverage_calm_68", "Share of 2010-2019 outcomes inside the 68% band (h=3), %", 100 * cov[("2010-2019", 3)]["in68"])
     add("coverage_crisis_68", "Share of 2020-2023 outcomes inside the 68% band (h=3), %", 100 * cov[("2020-2023", 3)]["in68"])
     for k, pre in enumerate(basis.presets):
-        add(f"preset_{k}_peak", f"Peak impact on headline y/y of the scenario '{pre.name}', pp", simulate(pre, basis).peak_pp)
+        add(f"preset_{k}_peak", f"Largest impact on headline y/y of the scenario '{pre.name}', pp", simulate(pre, basis).peak_pp)
     add("brent_elasticity", "Estimated pass-through of Brent (EUR) to fuel consumer prices", basis.fuel_brent_elasticity["total"])
     add("horizon_months", "Forecast horizon, months", 3)
     add("n_components", "Number of modelled components", len(basis.components))
@@ -111,7 +111,8 @@ from hicp.numcheck import NUM, is_year, matches, verify  # noqa: E402,F401
 
 
 # --------------------------------------------------------------------------- writing
-LANGS = {"en": "English", "fr": "French (use a decimal comma and French typographic conventions)"}
+LANGS = {"en": "English", "fr": "French (use a decimal comma and French typographic conventions; write percentage points "
+                                 "as 'pt', never 'pp'; momentum to December is 'dynamique cumulée', never 'mensuelle')"}
 
 
 def system_prompt(lang: str) -> str:

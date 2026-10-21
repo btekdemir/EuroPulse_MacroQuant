@@ -245,7 +245,7 @@ input[type="range"] { min-width: 160px; }
       <div class="card span-3 kpi" id="kpi-base"></div>
       <div class="card plain"><h2 data-i18n="answer_title"></h2><p class="answer" id="answer"></p>
         <p class="note" id="risk-line" style="margin-top:8px"></p></div>
-      <div class="card"><h2 id="t-headline"></h2><div class="plot tall" id="p-headline"></div>
+      <div class="card"><h2 id="t-headline"></h2><div class="infomsg" id="oct-chip" hidden></div><div class="plot tall" id="p-headline"></div>
         <p class="note" data-i18n="ch_headline_note"></p><p class="src" data-src="src_eurostat"></p>
         <button class="toggle-table" data-table="tbl-headline"></button><div class="tablewrap" id="tbl-headline" hidden></div></div>
       <h3 class="sec-head" data-i18n="sec_changed"></h3>
@@ -282,7 +282,7 @@ input[type="range"] { min-width: 160px; }
         <div class="plot short" id="p-month"></div><p class="note" data-i18n="mx_note"></p></details></div>
       <div class="card span-6"><details class="fold" id="oct-fold"><summary><h2 id="t-oct"></h2></summary><p class="note" data-i18n="oct_intro" style="margin:0 0 8px"></p>
         <div class="row"><label><span data-i18n="oct_input"></span><input type="number" id="oct-in" step="0.1" min="0" max="8"></label>
-          <label><span data-i18n="oct_slider"></span><input type="range" id="oct-range" min="2.5" max="5" step="0.05"></label>
+          <label><span data-i18n="oct_slider"></span><input type="range" id="oct-range" min="0" max="8" step="0.05"></label>
           <button class="btn" id="oct-reset" type="button" data-i18n="oct_reset"></button></div>
         <div class="warnmsg" id="oct-warn" role="alert" hidden></div>
         <p class="answer" id="oct-sentence" style="margin:10px 0 6px"></p>
