@@ -23,8 +23,8 @@ Source: `outputs/forecast.json`.
 
 ```bash
 python3.11 -m venv .venv && .venv/bin/pip install -r requirements.txt
-.venv/bin/python run.py            # live pull → clean → validate → backtest → forecast (~3 min, mostly Eurostat latency)
-.venv/bin/python run.py --offline  # replay the cached vintages (~2 min)
+.venv/bin/python run.py            # live pull → clean → validate → backtest → forecast (~6 min)
+.venv/bin/python run.py --offline  # replay the cached vintages (~5 min, most of it Round 3's 200 refits)
 .venv/bin/python -m pytest         # tests (data-dependent ones skip until run.py has been run once)
 ```
 
@@ -65,6 +65,11 @@ uses 2010–2019 origins only; 2020 onwards is a hold-out.
 | 1 | 0.27pp | 0.72 | 0.009 | 0.013 |
 | 2 | 0.49pp | 0.81 | 0.057 | 0.099 |
 | 3 | 0.67pp | 0.84 | 0.140 | 0.552 |
+
+**Round 3 (pre-registered, D56):** SARIMA (airline), Elastic Net, gradient boosting (LightGBM-style, from scikit-learn)
+and their ensemble, forecasting headline directly. None passes Holm against the random walk at h = 3. The bottom-up
+model stays the most accurate (RMSE 0.671 against 0.710 for the best alternative, Elastic Net), and gradient boosting is
+worse than the random walk.
 
 The model beats the random walk significantly at h = 1. At h = 3 the RMSE is lower, but not
 significantly. It under-predicted the 2021–22 surge (2020–2023 h = 3 bias −0.64pp).

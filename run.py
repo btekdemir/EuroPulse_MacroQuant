@@ -25,6 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from hicp import backtest as bt  # noqa: E402
 from hicp import ledger  # noqa: E402
 from hicp.round2 import run_round2  # noqa: E402
+from hicp.round3 import run_round3  # noqa: E402
 from hicp import calibration, realtime  # noqa: E402
 from hicp.clean import clean_all  # noqa: E402
 from hicp.config import ROOT, load_settings  # noqa: E402
@@ -37,7 +38,7 @@ from hicp.outlook import build_outlook, what_changed  # noqa: E402
 from hicp.passthrough import estimate_all  # noqa: E402
 from hicp.shocks import build_basis, make_presets  # noqa: E402
 from hicp.schemas import (CoreView, WhatChanged, BacktestMetrics, CalibrationReport, DataVintage, Forecast, RealtimeReport,  # noqa: E402
-                          Round2Report, RunManifest, SelectionStep,
+                          Round2Report, Round3Report, RunManifest, SelectionStep,
                           export_json_schemas, write_json)
 from hicp.validate import run_all  # noqa: E402
 
@@ -148,6 +149,21 @@ def main() -> int:
                  d["threshold"], "PASS" if d["rejected"] else "no")
     log.info("  adopted: %s", r2["adopted"] or "none (current model stays, as the rule says)")
 
+    log.info("round 3 (pre-registered, D56): naive, SARIMA, Elastic Net, gradient boosting, ensemble")
+    r3 = run_round3(inp, res)
+    write_json(Round3Report(rule=ROUND3_RULE, holm=r3["holm"], candidate=r3["candidate"],
+                            naive_equals_rw_max_gap=r3["naive_equals_rw_max_gap"], origin=r3["origin"], latest=r3["latest"],
+                            metrics=[_nan_to_none(r) for r in r3["metrics"].to_dict("records")]), out / "round3.json")
+    r3["headline"].to_csv(out / "round3_headline_forecasts.csv", index=False, date_format="%Y-%m")
+    m3 = r3["metrics"][(r3["metrics"].h == 3) & (r3["metrics"]["sample"] == "full")]
+    for r in m3.itertuples():
+        log.info("  %-12s h=3 RMSE %.3f vs RW %.3f (ratio %.2f, DM p %.3f; vs bottom-up p %.3f)", r.model, r.rmse, r.rmse_rw,
+                 r.rmse_ratio_vs_rw, r.dm_p, r.dm_p_vs_bottom_up)
+    for d in r3["holm"]:
+        log.info("  Holm %-12s p=%.3f threshold %.4f %s", d["name"], d["p"], d["threshold"], "REJECT" if d["rejected"] else "no")
+    log.info("  seasonal naive vs no-change max gap %.2e pp; candidate: %s", r3["naive_equals_rw_max_gap"],
+             r3["candidate"] or "none (nothing changes, as D56 says)")
+
     log.info("forecast ledger")
     code_version = git_version().removesuffix("-dirty")
     entry, why = ledger.record(outlook, {p.name: p.sha256 for p in pulls}, code_version, s.config_hash(), tree_is_dirty())
@@ -185,6 +201,11 @@ CALIBRATION_RULE = ("Pre-registered (D28, commit e0bfd11): recursive fans, A fix
                     "last 12 known one-month errors; h=3 pinball loss over q=.05/.16/.84/.95; adopt B if lower with DM p<0.05.")
 REALTIME_NOTE = ("D29: forecasts (latest-vintage inputs) scored against first releases as published: legacy prc_hicp_fp "
                  "(ver.1, CP00) to Dec 2025, prc_hicp_fpd from Jan 2026; random walk = last print as first published.")
+
+ROUND3_RULE = ("Pre-registered (D56, commit a55dbf6): M2 SARIMA airline, M3 Elastic Net, M4 histogram gradient boosting, "
+               "M5 equal-weight M3+M4; direct change in y/y, expanding window, fixed settings. DM vs random walk at h=3 on "
+               "all origins, Holm at 5% over M2..M5; a model passes if rejected with MSE below the random walk; the "
+               "lowest-MSE passing model is reported as a candidate, otherwise nothing changes. M1 naive = random walk.")
 
 ROUND2_RULE = ("Pre-registered (D27, commit 0fb7156): C1 PPI-led ELC_GAS (gated by the D9 rule), C2 equal-weight "
                "bottom-up + direct AR, C3 intercept correction (mean of last 3 known 1-month errors). Family = current "

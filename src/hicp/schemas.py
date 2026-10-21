@@ -236,6 +236,31 @@ class Round2Report(Strict):
     metrics: list[Round2Row]
 
 
+
+class Round3Row(Strict):
+    model: str
+    h: int = Field(ge=1, le=3)
+    sample: str
+    n: int
+    rmse: float
+    mae: float
+    rmse_rw: float
+    rmse_ratio_vs_rw: float
+    dm_p: float | None
+    bias: float
+    dm_p_vs_bottom_up: float | None
+
+
+class Round3Report(Strict):
+    """Pre-registered round 3 (docs/DECISIONS.md D56): naive, SARIMA, Elastic Net, gradient boosting, ensemble."""
+    rule: str
+    holm: list[HolmStep]
+    candidate: str | None = Field(description="Lowest-MSE model passing Holm with MSE below the random walk, or None")
+    naive_equals_rw_max_gap: float = Field(description="max |seasonal naive − no change| in y/y, pp (should be ~0)")
+    origin: str
+    latest: dict[str, list[dict[str, Any]]] = Field(description="each model's forecasts from the latest origin")
+    metrics: list[Round3Row]
+
 # --------------------------------------------------------------------------- calibration (D28) and real time (D29)
 class CalibrationRow(Strict):
     fan: Literal["A", "B", "current"]

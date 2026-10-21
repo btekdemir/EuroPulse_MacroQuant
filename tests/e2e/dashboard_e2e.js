@@ -268,6 +268,10 @@
       const d0 = sig(); hb[0].click(); await sleep(300);
       ok("horizon buttons change the track", sig() !== d0);
     }
+    ok("round 3 table: bottom-up, 4 models, random walk", $$("#tbl-r3 tbody tr").length === 6 && /Verdict|Verdict/.test(visibleText(el("r3-verdict"))));
+    $$("#r3-h button")[0].click(); await sleep(250);
+    ok("round 3 horizon switch", $$("#tbl-r3 tbody tr").length === 6 && $$("#r3-h button")[0].getAttribute("aria-pressed") === "true");
+    $$("#r3-h button")[2].click(); await sleep(200);
     ok("reconciliation chart: 2 series over all months", el("p-recon").data.length === 2 && el("p-recon").data[0].x.length === D.recon.dates.length);
     ok("reconciliation table rows", $$("#tbl-recon tbody tr").length >= 6);
     const jumps = $$("#tm-jump button"); jumps[2].click(); await sleep(300);

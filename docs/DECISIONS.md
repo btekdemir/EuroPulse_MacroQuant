@@ -770,3 +770,27 @@ Written and committed **before any of these models was run**. Results are report
   - If any passes, the lowest-MSE one is reported as the candidate headline forecast next to the bottom-up one. The decomposition, fan and shock basis stay bottom-up, because only the bottom-up model has components.
   - If none passes, nothing changes. Also reported, not used for the decision: DM against the current bottom-up model, and the 2010–2019 and 2020-on samples.
 - **Not done, on purpose:** hyperparameter search, feature selection after seeing results, or more model families. All three would be selection on the evaluation sample.
+- **Results (run after the commit above; reported as they came out):**
+
+  | h = 3, all 198 origins | RMSE, pp | vs random walk | DM p vs RW | Holm |
+  |---|---|---|---|---|
+  | Bottom-up (current, for reference) | 0.671 | 0.84 | 0.140 | (D27) |
+  | M3 Elastic Net | 0.710 | 0.89 | 0.170 | no |
+  | M2 SARIMA airline | 0.722 | 0.90 | 0.253 | no |
+  | M5 ensemble | 0.755 | 0.94 | 0.461 | no |
+  | M4 gradient boosting | 0.837 | 1.05 | 0.559 | no |
+  | Random walk (= M1, seasonal naive) | 0.801 | 1.00 | – | – |
+
+  - None passes, so nothing changes, as the rule says. The bottom-up model remains the most accurate at h = 3.
+  - At h = 1, SARIMA beats the random walk significantly (p 0.019) and Elastic Net has a lower error but not significantly (p 0.072). Neither beats bottom-up at h = 1 (RMSE 0.316 and 0.322 against 0.267).
+  - Seasonal naive equals the random walk to 2.3×10⁻¹⁴pp, as expected.
+- **Implementation notes, not anticipated in the pre-registration:**
+  - With the default thread pools, the run crashed (segfault) about one time in two on macOS, when scikit-learn's OpenMP and the BLAS behind numpy and statsmodels ran side by side. Round 3 now runs under `threadpool_limits(1)`. Three consecutive full runs then succeeded with identical results.
+  - The cost: the offline pipeline takes about 5 minutes instead of 2.
+  - scikit-learn 1.7.2 was added to `requirements.txt`.
+- **Tested** (`tests/test_round3.py`):
+  - No look-ahead: changing all data after the origin leaves the origin's features unchanged.
+  - The base-effect feature is computed correctly.
+  - The seasonal naive identity holds.
+  - The report follows the rule: Holm thresholds and order, and the candidate selection.
+- **Dashboard:** a Round 3 card under Round 2, with a table by horizon, the verdict and each model's December forecast (SARIMA 4.07%, Elastic Net 3.90%, boosting 3.87%, ensemble 3.89%, against bottom-up 3.82%). The tour, demo, assistant facts and end-to-end check cover it: 121/121.

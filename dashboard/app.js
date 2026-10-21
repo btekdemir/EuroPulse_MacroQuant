@@ -1250,6 +1250,7 @@
     renderTM();
     renderLedger();
     renderRound2();
+    renderRound3();
     renderCalibration();
     renderRealtime();
     table(el("tbl-sel"), [t("sel_component"), t("sel_candidate"), t("sel_vs"), t("sel_p"), t("sel_accepted")],
@@ -1267,6 +1268,34 @@
       }));
     table(el("tbl-vin"), [t("vin_source"), t("vin_dataset"), t("vin_updated")],
       M.vintages.map((v) => [v.name, v.dataset, v.updated]));
+  }
+
+  // ------------------------------------------------------------------ round 3 (D56): direct and ML models
+  let r3H = 3;
+  function renderRound3() {
+    const R3 = D.round3, bu = (h) => B.metrics.find((r) => r.model === "bottom_up" && r.h === h && r.sample === "full");
+    const seg = el("r3-h"); seg.replaceChildren(...[1, 2, 3].map((h) => {
+      const b = node("button", { type: "button", "aria-pressed": String(h === r3H) }, t("r3_h", { h }));
+      b.addEventListener("click", () => { r3H = h; renderRound3(); });
+      return b;
+    }));
+    const NAME = { M2_sarima: t("r3_m2"), M3_enet: t("r3_m3"), M4_gbm: t("r3_m4"), M5_ensemble: t("r3_m5") };
+    const rows = R3.metrics.filter((r) => r.h === r3H && r.sample === "full");
+    const b0 = bu(r3H);
+    const body = [[t("r3_bu"), fmt(b0.rmse, 3), fmt(b0.rmse_ratio_vs_rw, 2), fmt(b0.dm_p, 3), "–", "–"],
+      ...rows.sort((a, b) => a.rmse - b.rmse).map((r) => {
+        const hs = R3.holm.find((d) => d.name === r.model);
+        return [NAME[r.model] || r.model, fmt(r.rmse, 3), fmt(r.rmse_ratio_vs_rw, 2), r.dm_p === null ? "–" : fmt(r.dm_p, 3),
+          r.dm_p_vs_bottom_up === null ? "–" : fmt(r.dm_p_vs_bottom_up, 3), r3H === 3 ? (hs && hs.rejected ? t("r3_pass") : t("r3_fail")) : "–"];
+      }),
+      [t("r3_rw"), fmt(rows[0] ? rows[0].rmse_rw : NaN, 3), "1.00", "–", "–", "–"]];
+    table(el("tbl-r3"), [t("r3_col_model"), t("r3_col_rmse"), t("r3_col_ratio"), t("r3_col_p"), t("r3_col_pbu"), t("r3_col_holm")], body, [1, 2, 3, 4]);
+    const best = rows.slice().sort((a, b) => a.rmse - b.rmse)[0];
+    el("r3-verdict").textContent = R3.candidate
+      ? t("r3_verdict_pass", { m: NAME[R3.candidate] })
+      : t("r3_verdict_none", { best: best ? NAME[best.model] : "–", rb: fmt(best ? best.rmse : NaN, 3), bu: fmt(b0.rmse, 3), h: r3H });
+    const lastPts = Object.entries(R3.latest).map(([k, v]) => `${NAME[k]} ${pct(v[v.length - 1].fc, 2)}`).join(" · ");
+    el("r3-latest").textContent = t("r3_latest", { d: monthLabel(last.date), list: lastPts, bu: pct(last.point, 2) });
   }
 
   function renderRound2() {
@@ -1651,7 +1680,7 @@ ${note}
 
   // Tables: every table gets its own CSV (exactly what it shows), and the tables that carry a card on their own
   // (no chart beside them) also get "Explain this", with the same chart-context mechanism as the charts.
-  const EXPLAIN_TABLES = new Set(["tbl-wc", "tbl-prob", "tbl-oct", "tbl-led", "tbl-bt", "tbl-r2", "tbl-rt", "tbl-sel", "tbl-val", "tbl-vin", "tbl-compare", "tbl-recon"]);
+  const EXPLAIN_TABLES = new Set(["tbl-wc", "tbl-prob", "tbl-oct", "tbl-led", "tbl-bt", "tbl-r2", "tbl-rt", "tbl-sel", "tbl-val", "tbl-vin", "tbl-compare", "tbl-recon", "tbl-r3"]);
   function tableCsv(w) {
     const q = (v) => { const s = String(v).replace(/\s+/g, " ").trim(); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
     return [...w.querySelectorAll("tr")].map((tr) => [...tr.children].map((c) => q(c.textContent)).join(",")).join("\n") + "\n";

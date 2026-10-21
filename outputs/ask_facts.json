@@ -1,7 +1,7 @@
 {
   "origin": "2026-09",
-  "facts_hash": "3e47afab2c338dbe",
-  "context": "Data: Eurostat HICP, euro area* = the 21 current members at every date, chain-linked bottom-up from six components. Last published month: Sep 2026. The forecast covers the next three months.\nSelected component models (pre-committed rule: keep the simpler model unless a richer one is significantly better, Diebold-Mariano test, chosen on 2010-2019 origins): fuels: Weekly Oil Bulletin pump prices; electricity and gas: seasonal mean of monthly changes; processed food: AR(p) chosen by AIC; unprocessed food: seasonal mean of monthly changes; non-energy industrial goods: AR(p), rolling 120-month window; services: seasonal mean, rolling 120-month window.\nBase effect = the part of the change in y/y that comes from the monthly change a year earlier dropping out; it is known in advance. Momentum = the part from new monthly price changes.\nThe bands are empirical quantiles of the model's own past out-of-sample errors, not model-implied.\nThe shock simulator moves price levels per country and component; second-round effects are an estimated distributed lag. Actuals are final Eurostat releases; flash estimates are used only in the real-time check.\nCore inflation is shown as a by-product of the goods and services forecasts; a random walk is more accurate for core at every horizon, and the dashboard says so. Not modelled: country forecasts (only the euro area* headline is forecast and selected), ECB policy decisions, anything after the three-month horizon.\nItaly: its published total differs from the weighted sum of its components by up to about a tenth of a point; the cause is not identified.",
+  "facts_hash": "eca2383c0dab18f6",
+  "context": "Data: Eurostat HICP, euro area* = the 21 current members at every date, chain-linked bottom-up from six components. Last published month: Sep 2026. The forecast covers the next three months.\nSelected component models (pre-committed rule: keep the simpler model unless a richer one is significantly better, Diebold-Mariano test, chosen on 2010-2019 origins): fuels: Weekly Oil Bulletin pump prices; electricity and gas: seasonal mean of monthly changes; processed food: AR(p) chosen by AIC; unprocessed food: seasonal mean of monthly changes; non-energy industrial goods: AR(p), rolling 120-month window; services: seasonal mean, rolling 120-month window.\nBase effect = the part of the change in y/y that comes from the monthly change a year earlier dropping out; it is known in advance. Momentum = the part from new monthly price changes.\nThe bands are empirical quantiles of the model's own past out-of-sample errors, not model-implied.\nThe shock simulator moves price levels per country and component; second-round effects are an estimated distributed lag. Actuals are final Eurostat releases; flash estimates are used only in the real-time check.\nRound 3 (pre-registered): SARIMA, Elastic Net, gradient boosting and their ensemble were tested against the random walk at three months; none passed the Holm test, and the bottom-up model remains the most accurate. Core inflation is shown as a by-product of the goods and services forecasts; a random walk is more accurate for core at every horizon, and the dashboard says so. Not modelled: country forecasts (only the euro area* headline is forecast and selected), ECB policy decisions, anything after the three-month horizon.\nItaly: its published total differs from the weighted sum of its components by up to about a tenth of a point; the cause is not identified.",
   "facts": [
     {
       "id": "last_actual",
@@ -2467,6 +2467,86 @@
       "id": "SK_contrib_SERV",
       "label": "Contribution of services to Slovakia y/y, Sep 2026, pp",
       "value": 1.2561364221540317
+    },
+    {
+      "id": "r3_rmse_M2_sarima",
+      "label": "Round 3, SARIMA airline model: RMSE at h=3, pp",
+      "value": 0.7216068140121338
+    },
+    {
+      "id": "r3_ratio_M2_sarima",
+      "label": "Round 3, SARIMA airline model: RMSE ratio vs random walk at h=3",
+      "value": 0.9013195235277514
+    },
+    {
+      "id": "r3_p_M2_sarima",
+      "label": "Round 3, SARIMA airline model: Diebold-Mariano p-value vs random walk at h=3",
+      "value": 0.25331010949609295
+    },
+    {
+      "id": "r3_rmse_M3_enet",
+      "label": "Round 3, Elastic Net: RMSE at h=3, pp",
+      "value": 0.709972958703862
+    },
+    {
+      "id": "r3_ratio_M3_enet",
+      "label": "Round 3, Elastic Net: RMSE ratio vs random walk at h=3",
+      "value": 0.8867883124587467
+    },
+    {
+      "id": "r3_p_M3_enet",
+      "label": "Round 3, Elastic Net: Diebold-Mariano p-value vs random walk at h=3",
+      "value": 0.17025240666043714
+    },
+    {
+      "id": "r3_rmse_M4_gbm",
+      "label": "Round 3, gradient boosting: RMSE at h=3, pp",
+      "value": 0.8373129223103108
+    },
+    {
+      "id": "r3_ratio_M4_gbm",
+      "label": "Round 3, gradient boosting: RMSE ratio vs random walk at h=3",
+      "value": 1.0458416820987342
+    },
+    {
+      "id": "r3_p_M4_gbm",
+      "label": "Round 3, gradient boosting: Diebold-Mariano p-value vs random walk at h=3",
+      "value": 0.5588945842673144
+    },
+    {
+      "id": "r3_rmse_M5_ensemble",
+      "label": "Round 3, Elastic Net + boosting ensemble: RMSE at h=3, pp",
+      "value": 0.7547606703269126
+    },
+    {
+      "id": "r3_ratio_M5_ensemble",
+      "label": "Round 3, Elastic Net + boosting ensemble: RMSE ratio vs random walk at h=3",
+      "value": 0.9427301884445624
+    },
+    {
+      "id": "r3_p_M5_ensemble",
+      "label": "Round 3, Elastic Net + boosting ensemble: Diebold-Mariano p-value vs random walk at h=3",
+      "value": 0.46070490330048297
+    },
+    {
+      "id": "r3_dec_M2_sarima",
+      "label": "Round 3, SARIMA airline model: forecast for Dec 2026, %",
+      "value": 4.065941002056417
+    },
+    {
+      "id": "r3_dec_M3_enet",
+      "label": "Round 3, Elastic Net: forecast for Dec 2026, %",
+      "value": 3.902837480089058
+    },
+    {
+      "id": "r3_dec_M4_gbm",
+      "label": "Round 3, gradient boosting: forecast for Dec 2026, %",
+      "value": 3.86995152798886
+    },
+    {
+      "id": "r3_dec_M5_ensemble",
+      "label": "Round 3, Elastic Net + boosting ensemble: forecast for Dec 2026, %",
+      "value": 3.886394504038959
     },
     {
       "id": "rc_months",

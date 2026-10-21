@@ -82,6 +82,7 @@ SECTIONS = {
     "track_record": ("model", "p-track", "forecasts vs outcomes over time"),
     "time_machine": ("model", "tm-card", "time machine: go back to any past forecast date and see the forecast, the fan known then and the outcome"),
     "break_test": ("model", "n-brk", "structural break test on forecast errors"),
+    "round3": ("model", "r3-card", "pre-registered round 3: SARIMA, Elastic Net, gradient boosting and an ensemble against the random walk; none passed"),
     "round2": ("model", "tbl-r2", "pre-registered round 2 model candidates and the verdict"),
     "calibration": ("model", "tbl-cal", "fan calibration: band coverage, fixed vs scaled width"),
     "realtime": ("model", "tbl-rt", "real-time check against first releases"),
@@ -128,6 +129,7 @@ TABLES = {
     "tbl-sel": ("model_selection", "table: the pre-committed model selection steps per component and which model was kept"),
     "tbl-val": ("validation", "table: the data validation gates and their results"),
     "tbl-compare": ("compare", "table: each compared scenario's peak impact, December impact and level, and the probability above the threshold"),
+    "tbl-r3": ("round3", "table: pre-registered round 3, SARIMA, Elastic Net, gradient boosting and their ensemble against the random walk and the bottom-up model"),
     "tbl-recon": ("reconciliation", "table: latest-month contributions, ours against Eurostat's official ones"),
     "tbl-vin": ("vintages", "table: the Eurostat and external data vintages used in this run"),
 }
@@ -236,6 +238,17 @@ def build_ask_facts(out: Path) -> AskFacts:
             if v is not None:
                 add(f"{g}_contrib_{c}", f"Contribution of {cname} to {name} y/y, {d}, pp", v)
 
+    r3_path = out / "round3.json"
+    if r3_path.exists():
+        r3 = json.loads(r3_path.read_text())
+        names = {"M2_sarima": "SARIMA airline model", "M3_enet": "Elastic Net", "M4_gbm": "gradient boosting", "M5_ensemble": "Elastic Net + boosting ensemble"}
+        for m in r3["metrics"]:
+            if m["sample"] == "full" and m["h"] == 3:
+                add(f"r3_rmse_{m['model']}", f"Round 3, {names[m['model']]}: RMSE at h=3, pp", m["rmse"])
+                add(f"r3_ratio_{m['model']}", f"Round 3, {names[m['model']]}: RMSE ratio vs random walk at h=3", m["rmse_ratio_vs_rw"])
+                add(f"r3_p_{m['model']}", f"Round 3, {names[m['model']]}: Diebold-Mariano p-value vs random walk at h=3", m["dm_p"])
+        for k, v in r3["latest"].items():
+            add(f"r3_dec_{k}", f"Round 3, {names[k]}: forecast for {_mon(v[-1]['target'])}, %", v[-1]["fc"])
     rc_path = out / "reconciliation.json"
     if rc_path.exists():
         rc = json.loads(rc_path.read_text())["stats"]
@@ -281,6 +294,8 @@ def build_ask_facts(out: Path) -> AskFacts:
         "The bands are empirical quantiles of the model's own past out-of-sample errors, not model-implied.\n"
         "The shock simulator moves price levels per country and component; second-round effects are an estimated "
         "distributed lag. Actuals are final Eurostat releases; flash estimates are used only in the real-time check.\n"
+        "Round 3 (pre-registered): SARIMA, Elastic Net, gradient boosting and their ensemble were tested against the "
+        "random walk at three months; none passed the Holm test, and the bottom-up model remains the most accurate. "
         "Core inflation is shown as a by-product of the goods and services forecasts; a random walk is more accurate "
         "for core at every horizon, and the dashboard says so. Not modelled: country forecasts (only the euro area* "
         "headline is forecast and selected), ECB policy decisions, anything after the three-month horizon.\n"
