@@ -678,7 +678,22 @@
   "r4_bu": "Bottom-up before round 4",
   "r4_verdict": "Verdict: {m} passes Holm (p {p} against a threshold of {thr}) and beats the earlier bottom-up model (RMSE {r} against {rb} pp), so under the pre-registered rule it is now the published model: every forecast, fan and decomposition on this page uses it.",
   "r4_verdict_none": "Verdict: no variant passes, so the bottom-up model stays.",
-  "r4_reading": "Checks before adoption: a variant that replaces nothing reproduces the published bottom-up exactly, and 'no change' keeps each core component's y/y unchanged to about 2×10⁻¹³. The pass is narrow; the gain is the same in 2010–2019 and since 2020 (ratio about 0.79 to the random walk in both)."
+  "r4_reading": "Checks before adoption: a variant that replaces nothing reproduces the published bottom-up exactly, and 'no change' keeps each core component's y/y unchanged to about 2×10⁻¹³. The pass is narrow; the gain is the same in 2010–2019 and since 2020 (ratio about 0.79 to the random walk in both).",
+  "kpi_point": "point forecast {v}",
+  "sec_forecast": "The forecast",
+  "sec_changed": "What changed this month",
+  "sec_risks": "Risks and your view",
+  "sec_explore": "Explore the numbers",
+  "sec_accuracy": "How accurate",
+  "sec_rounds": "Pre-registered model rounds",
+  "sec_robust": "Robustness checks",
+  "sec_data": "Data and method",
+  "lede_drivers": "Why headline is where it is: the bridge to December, each component's contribution, base effect versus momentum, weights, and core.",
+  "lede_countries": "The 21 members behind the euro area*: compare countries, see each one's own drivers, and how much each moves the total.",
+  "lede_shocks": "What if prices move? Describe a shock in words or build it, see its pass-through to euro area* headline, compare scenarios, and solve backwards for a target.",
+  "lede_model": "How far to trust the forecast: accuracy against simple benchmarks, four pre-registered model rounds, robustness checks, and the data checks behind every number.",
+  "fold_passed": "passed · now the published model",
+  "fold_none": "none passed · nothing changed"
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -1359,6 +1374,21 @@
   "r4_bu": "Agrégé avant le tour 4",
   "r4_verdict": "Verdict : {m} passe Holm (p {p} contre un seuil de {thr}) et bat l'ancien modèle agrégé (RMSE {r} contre {rb} pt) : selon la règle pré-enregistrée, c'est désormais le modèle publié, et toutes les prévisions, éventails et décompositions de cette page l'utilisent.",
   "r4_verdict_none": "Verdict : aucune variante ne passe, le modèle agrégé reste.",
-  "r4_reading": "Vérifications avant adoption : une variante qui ne remplace rien reproduit exactement le modèle agrégé publié, et « sans changement » laisse le glissement de chaque composante sous-jacente inchangé à environ 2×10⁻¹³ près. Le passage est de justesse ; le gain est le même sur 2010–2019 et depuis 2020 (ratio d'environ 0,79 face à la marche aléatoire dans les deux)."
+  "r4_reading": "Vérifications avant adoption : une variante qui ne remplace rien reproduit exactement le modèle agrégé publié, et « sans changement » laisse le glissement de chaque composante sous-jacente inchangé à environ 2×10⁻¹³ près. Le passage est de justesse ; le gain est le même sur 2010–2019 et depuis 2020 (ratio d'environ 0,79 face à la marche aléatoire dans les deux).",
+  "kpi_point": "prévision ponctuelle {v}",
+  "sec_forecast": "La prévision",
+  "sec_changed": "Ce qui a changé ce mois-ci",
+  "sec_risks": "Risques et votre avis",
+  "sec_explore": "Explorer les chiffres",
+  "sec_accuracy": "Quelle précision",
+  "sec_rounds": "Tours de modèles pré-enregistrés",
+  "sec_robust": "Tests de robustesse",
+  "sec_data": "Données et méthode",
+  "lede_drivers": "Pourquoi l’indice global est là : le pont vers décembre, la contribution de chaque composante, effet de base et dynamique, pondérations et sous-jacente.",
+  "lede_countries": "Les 21 membres derrière la zone euro* : comparer les pays, voir les moteurs de chacun et son poids dans le total.",
+  "lede_shocks": "Et si les prix bougent ? Décrivez un choc en mots ou construisez-le, voyez sa transmission à l’indice global de la zone euro*, comparez des scénarios et résolvez à rebours pour une cible.",
+  "lede_model": "Quel degré de confiance : précision face à des références simples, quatre tours de modèles pré-enregistrés, tests de robustesse et contrôles des données derrière chaque chiffre.",
+  "fold_passed": "passé · désormais le modèle publié",
+  "fold_none": "aucun n’a passé · rien n’a changé"
  }
 }

@@ -844,3 +844,17 @@ Written and committed **before any of these variants was run**. Results are repo
 - **The ledger:** it keeps the forecasts recorded before adoption (3.82%), and the next clean run records the adopted model's.
 - **Research note:** it was written for the old numbers, so it is marked stale and left out of the brief until it is regenerated (a paid call).
 - **Tests:** 211 Python; end-to-end 122/122 at desktop and phone width. The brief check now expects the note only when it is current.
+
+## D58. A calmer layout (22 Oct 2026)
+
+- **Toolbars:** PNG / CSV / Explain under charts and tables stay faint until the card is hovered or focused. On touch screens, where nothing can be hovered, they stay fully visible.
+- **Header:** Ask is the primary button and Brief the secondary one; Tour is a text link; language and theme are a smaller group behind a divider.
+- **Headline KPI:** it shows 3.8% (one decimal: the three-month RMSE is about 0.6 pp, and Eurostat and market convention quote y/y to one decimal), with "point forecast 3.77%" underneath. Tables and the assistant keep two decimals.
+- **Structure:**
+  - Overview: The forecast / What changed this month / Risks and your view / Explore. The headline chart moved up, next to the answer.
+  - Model & validation: How accurate / Pre-registered model rounds / Robustness checks / Data and method.
+  - The other tabs open with a one-line lede.
+- **Rounds:** rounds 2 and 3 are folded with a one-line status ("none passed · nothing changed"). Round 4 is open ("passed · now the published model"). The tour, the demo, Go to and Explain open a folded round when they point into it.
+- **Charts:** dotted, sparser grid lines (at most 6 y ticks), card titles 16px, tabular figures.
+- **Not changed:** the validated colour palette, interactions and content.
+- **Checked:** end-to-end 122/122 at 1280×800 and 375×812; Python 211/211.

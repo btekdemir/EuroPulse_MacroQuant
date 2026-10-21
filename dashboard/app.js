@@ -65,7 +65,7 @@
 
   function baseLayout(extra = {}) {
     const ink = css("--text-secondary"), grid = css("--grid"), axis = css("--axis");
-    const ax = { gridcolor: grid, linecolor: axis, zerolinecolor: axis, tickfont: { color: ink, size: 11 },
+    const ax = { gridcolor: grid, griddash: "dot", linecolor: axis, zerolinecolor: axis, tickfont: { color: ink, size: 11 },
       title: { font: { color: ink, size: 12 } }, automargin: true };
     return Object.assign({
       paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
@@ -73,7 +73,7 @@
       margin: { l: 48, r: 16, t: 8, b: 36 }, hovermode: "x unified",
       hoverlabel: { bgcolor: css("--surface-1"), bordercolor: css("--axis"), font: { color: css("--text-primary") } },
       legend: { orientation: "h", y: -0.16, font: { color: ink, size: 11.5 } },
-      xaxis: Object.assign({}, ax), yaxis: Object.assign({ ticksuffix: "" }, ax),
+      xaxis: Object.assign({}, ax), yaxis: Object.assign({ ticksuffix: "", nticks: 6 }, ax),
       separators: lang === "fr" ? ", " : ".,",
     }, extra);
   }
@@ -267,6 +267,7 @@
     const q = last.quantiles;
     kpi("kpi-dec", t("kpi_dec", { date: dec }), pct(last.point),
       t("kpi_band", { lo: fmt(q.q16), hi: fmt(q.q84), lo90: fmt(q.q05), hi90: fmt(q.q95) }));
+    el("kpi-dec").querySelector(".value").after(node("div", { class: "point" }, t("kpi_point", { v: pct(last.point, 2) })));  // 1 dp headline: the error is ~0.6 pp
     kpi("kpi-last", t("kpi_last", { date: origin }), sgn(last.point - F.last_actual_yoy, 2) + " " + t("pp"), `${origin}: ${pct(F.last_actual_yoy)}`);
     kpi("kpi-ecb", t("kpi_ecb"), sgn(last.point - F.ecb_target, 1) + " " + t("pp"), `${pct(last.point)} − ${pct(F.ecb_target)}`);
     kpi("kpi-base", t("kpi_locked", { date: dec }), sgn(last.base_effect_pp) + " " + t("pp"),
@@ -1276,6 +1277,7 @@
   // ------------------------------------------------------------------ round 3 (D56): direct and ML models
   let r3H = 3;
   function renderRound3() {
+    foldStatus("r3-status", D.round3.candidate);
     const R3 = D.round3, bu = (h) => R2.metrics.find((r) => r.model === "bottom_up" && r.h === h && r.sample === "full");  // the model of its time
     const seg = el("r3-h"); seg.replaceChildren(...[1, 2, 3].map((h) => {
       const b = node("button", { type: "button", "aria-pressed": String(h === r3H) }, t("r3_h", { h }));
@@ -1302,7 +1304,11 @@
   }
 
   // ------------------------------------------------------------------ round 4 (D57): bottom-up variants
+  function foldStatus(id, passed) {
+    const s = el(id); s.textContent = passed ? t("fold_passed") : t("fold_none"); s.classList.toggle("ok", !!passed);
+  }
   function renderRound4() {
+    foldStatus("r4-status", D.round4.adopted);
     const R4 = D.round4, NAME = { B1_core_nochange: t("r4_b1"), B2_allbutfuel_nochange: t("r4_b2"), B3_allbutfuel_shrink: t("r4_b3") };
     const rows = R4.metrics.filter((r) => r.h === 3 && r.sample === "full").sort((a, b) => a.rmse - b.rmse);
     const hs = (m) => R4.holm.find((d) => d.name === m);
@@ -1317,6 +1323,7 @@
   }
 
   function renderRound2() {
+    foldStatus("r2-status", R2.adopted);
     const row = (m) => R2.metrics.find((x) => x.model === m && x.h === 3 && x.sample === "full");
     const holm = Object.fromEntries(R2.holm.map((h) => [h.name, h]));
     const order = ["bottom_up", "C1_ppi", "C2_combo", "C3_ic"];
@@ -1461,6 +1468,7 @@
     if (activeTab !== s.tab) showTab(s.tab);
     if (tourEl) tourEl.classList.remove("tour-target");
     tourEl = tourTarget(s);
+    { const f = tourEl.closest("details.fold") || tourEl.querySelector("details.fold"); if (f) f.open = true; }
     tourEl.classList.add("tour-target");
     el("tour-step").textContent = t("tour_step", { i: i + 1, n: TOUR.length });
     el("tour-title").textContent = t(`tour_${s.key}_t`);
@@ -1604,6 +1612,7 @@ ${note}
   // charts are still resizing ends up in the wrong place.
   const focusCard = (sel) => setTimeout(() => {
     const e = document.querySelector(sel); if (!e) return;
+    openFold(e);
     const card = e.closest(".card") || e;
     window.scrollTo(0, Math.max(0, card.getBoundingClientRect().top + window.scrollY - 12));
     card.classList.add("ask-flash"); setTimeout(() => card.classList.remove("ask-flash"), 1800);
@@ -1753,8 +1762,10 @@ ${note}
   }
 
   // Switch tab, open the right country if asked, scroll the section into view and flash it.
+  const openFold = (e) => { const f = e && e.closest("details.fold"); if (f) f.open = true; };
   function askGoto(g) {
     showTab(g.tab);
+    openFold(el(g.target));
     if (g.country) { cpGeo = g.country; el("cp-country").value = g.country; renderProfile(); }
     const tgt = el(g.target);
     if (!tgt) return;

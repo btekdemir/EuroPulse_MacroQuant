@@ -41,6 +41,11 @@ header { padding: 20px 24px 0; max-width: 1280px; margin: 0 auto; }
 h1 { font-size: 22px; margin: 0; font-weight: 650; letter-spacing: -0.01em; }
 .subtitle { color: var(--text-secondary); margin: 4px 0 0; }
 .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.controls .primary { border-color: var(--accent); background: var(--accent); color: #fff; font-weight: 600; }
+.controls .secondary { border-color: var(--accent); color: var(--accent); background: transparent; font-weight: 600; }
+.controls .quiet { border: 0; background: none; color: var(--text-secondary); text-decoration: underline; text-underline-offset: 3px; padding: 6px 4px; }
+.controls .seg button { padding: 4px 8px; font-size: 12.5px; }
+.controls .sep { width: 1px; height: 22px; background: var(--border); margin: 0 2px; }
 .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface-1); }
 .seg button { border: 0; background: transparent; color: var(--text-secondary); padding: 6px 10px; font: inherit; cursor: pointer; }
 .seg button[aria-pressed="true"] { background: var(--surface-2); color: var(--text-primary); font-weight: 600; }
@@ -55,11 +60,23 @@ section[role="tabpanel"].active { display: block; }
 .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; padding: 16px; grid-column: span 12; min-width: 0; }
 .span-6 { grid-column: span 6; } .span-4 { grid-column: span 4; } .span-8 { grid-column: span 8; } .span-3 { grid-column: span 3; }
 @media (max-width: 900px) { .span-6, .span-4, .span-8, .span-3 { grid-column: span 12; } header, main { padding-left: 16px; padding-right: 16px; } }
-.card h2 { font-size: 15px; margin: 0 0 4px; font-weight: 600; }
+.card h2 { font-size: 16px; margin: 0 0 6px; font-weight: 650; letter-spacing: -0.005em; }
+.kpi .value, td.num, .num { font-variant-numeric: tabular-nums; }
+.tab-lede { grid-column: span 12; margin: 2px 0 0; color: var(--text-secondary); font-size: 14px; }
+.sec-head { grid-column: span 12; margin: 14px 2px -4px; font-size: 11.5px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
+.sec-head:first-child { margin-top: 0; }
+.kpi .point { color: var(--text-secondary); font-size: 12px; margin: -2px 0 2px; }
+details.fold > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::before { content: "▸"; color: var(--text-muted); font-size: 12px; transition: transform .15s ease; }
+details.fold[open] > summary::before { transform: rotate(90deg); }
+details.fold > summary h2 { margin: 0; }
+.fold-status { font-size: 12.5px; color: var(--text-secondary); }
+.fold-status.ok { color: var(--good-text); font-weight: 600; }
 .note { color: var(--text-secondary); font-size: 12.5px; margin: 6px 0 0; }
 .src { color: var(--text-muted); font-size: 11.5px; margin-top: 6px; }
 .kpi .label { color: var(--text-secondary); font-size: 12.5px; }
-.kpi .value { font-size: 30px; font-weight: 650; margin: 2px 0; letter-spacing: -0.02em; }
+.kpi .value { font-size: 32px; font-weight: 700; margin: 2px 0; letter-spacing: -0.02em; }
 .kpi .sub { color: var(--text-muted); font-size: 12px; }
 .answer { font-size: 15px; line-height: 1.55; margin: 0; }
 .plot { width: 100%; height: 360px; }
@@ -100,7 +117,9 @@ input[type="number"], select { font: inherit; padding: 5px 8px; border: 1px soli
 .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
 footer { color: var(--text-muted); font-size: 12px; max-width: 1280px; margin: 0 auto; padding: 0 24px 24px; }
 b.sig { color: var(--text-primary); }
-.dl-bar { display: flex; gap: 6px; justify-content: flex-end; margin-top: 4px; }
+.dl-bar { display: flex; gap: 6px; justify-content: flex-end; margin-top: 4px; opacity: 0.18; transition: opacity .15s ease; }
+.card:hover .dl-bar, .card:focus-within .dl-bar, .dl-bar:focus-within { opacity: 1; }
+@media (hover: none) { .dl-bar { opacity: 1; } }  /* touch: nothing to hover, keep them visible */
 .dl-btn { font: inherit; font-size: 11.5px; padding: 2px 8px; border: 1px solid var(--border); border-radius: 6px;
   background: var(--surface-2); color: var(--text-secondary); cursor: pointer; }
 .chips label, .row .chips label { display: inline-flex; white-space: nowrap; }
@@ -175,9 +194,10 @@ input[type="range"] { min-width: 160px; }
   <div class="top">
     <div><h1 data-i18n="title"></h1><p class="subtitle" data-i18n="subtitle"></p></div>
     <div class="controls">
-      <button type="button" class="btn tour-btn" id="ask-open" data-i18n="ask_button" aria-controls="ask-panel" aria-expanded="false" hidden></button>
-      <button type="button" class="btn tour-btn" id="brief-open" data-i18n="brief_button"></button>
-      <button type="button" class="btn tour-btn" id="tour-open" data-i18n="tour_button"></button>
+      <button type="button" class="btn tour-btn primary" id="ask-open" data-i18n="ask_button" aria-controls="ask-panel" aria-expanded="false" hidden></button>
+      <button type="button" class="btn tour-btn secondary" id="brief-open" data-i18n="brief_button"></button>
+      <button type="button" class="btn tour-btn quiet" id="tour-open" data-i18n="tour_button"></button>
+      <span class="sep" aria-hidden="true"></span>
       <div class="seg" role="group" aria-label="Language">
         <button type="button" data-lang="en" aria-pressed="true">EN</button>
         <button type="button" data-lang="fr" aria-pressed="false">FR</button>
@@ -205,11 +225,16 @@ input[type="range"] { min-width: 160px; }
 <main>
   <section role="tabpanel" id="tab-overview" class="active">
     <div class="grid">
+      <h3 class="sec-head" data-i18n="sec_forecast"></h3>
       <div class="card span-3 kpi" id="kpi-dec"></div>
       <div class="card span-3 kpi" id="kpi-last"></div>
       <div class="card span-3 kpi" id="kpi-ecb"></div>
       <div class="card span-3 kpi" id="kpi-base"></div>
       <div class="card"><h2 data-i18n="answer_title"></h2><p class="answer" id="answer"></p></div>
+      <div class="card"><h2 id="t-headline"></h2><div class="plot tall" id="p-headline"></div>
+        <p class="note" data-i18n="ch_headline_note"></p><p class="src" data-src="src_eurostat"></p>
+        <button class="toggle-table" data-table="tbl-headline"></button><div class="tablewrap" id="tbl-headline" hidden></div></div>
+      <h3 class="sec-head" data-i18n="sec_changed"></h3>
       <div class="card" id="wc-card"><h2 id="wc-title"></h2><p class="answer" id="wc-text" style="margin:0 0 8px"></p>
         <div class="row" style="margin:0 0 6px"><div class="seg" id="wc-pick" role="group"></div></div>
         <div class="plot short" id="p-revision"></div>
@@ -220,6 +245,7 @@ input[type="range"] { min-width: 160px; }
         <button class="btn" id="note-toggle" type="button" style="margin-top:8px;padding:4px 8px;font-size:12px"></button>
         <div class="tablewrap" id="note-check" hidden></div>
         <p class="note" data-i18n="note_caveat"></p></div>
+      <h3 class="sec-head" data-i18n="sec_risks"></h3>
       <div class="card"><h2 id="t-prob"></h2>
         <div class="row" style="margin:6px 0 10px"><label><span data-i18n="prob_threshold"></span>
           <input type="number" class="thr" step="0.1" value="4.0"></label></div>
@@ -234,9 +260,7 @@ input[type="range"] { min-width: 160px; }
           <span class="note" id="bm-status" role="status" style="margin:0"></span></div>
         <div class="plot short" id="p-guess"></div>
         <div class="tablewrap" id="tbl-guess"></div><p class="note" id="bm-note"></p></div>
-      <div class="card"><h2 id="t-headline"></h2><div class="plot tall" id="p-headline"></div>
-        <p class="note" data-i18n="ch_headline_note"></p><p class="src" data-src="src_eurostat"></p>
-        <button class="toggle-table" data-table="tbl-headline"></button><div class="tablewrap" id="tbl-headline" hidden></div></div>
+      <h3 class="sec-head" data-i18n="sec_explore"></h3>
       <div class="card span-6"><h2 data-i18n="mx_title"></h2>
         <div class="row" style="margin:4px 0 8px"><label><span data-i18n="mx_pick"></span><select id="mx-month"></select></label>
           <span class="note" data-i18n="mx_hint" style="margin:0"></span></div>
@@ -252,6 +276,7 @@ input[type="range"] { min-width: 160px; }
   </section>
   <section role="tabpanel" id="tab-drivers">
     <div class="grid">
+      <p class="tab-lede" data-i18n="lede_drivers"></p>
       <div class="card" id="br-card"><h2 id="br-title"></h2>
         <div class="row" style="margin:4px 0 8px"><div class="seg" id="br-mode" role="group">
           <button type="button" data-br="comp" aria-pressed="true" data-i18n="br_by_comp"></button>
@@ -276,6 +301,7 @@ input[type="range"] { min-width: 160px; }
   </section>
   <section role="tabpanel" id="tab-countries">
     <div class="grid">
+      <p class="tab-lede" data-i18n="lede_countries"></p>
       <div class="card"><h2 data-i18n="cc_title"></h2><p class="note" data-i18n="cc_intro" style="margin:0 0 8px"></p>
         <div class="row"><label><span data-i18n="cc_add"></span><select id="cc-add"></select></label><div class="chips" id="cc-chips"></div></div>
         <div class="plot" id="p-ccmp"></div><p class="src" data-src="src_eurostat"></p></div>
@@ -299,6 +325,7 @@ input[type="range"] { min-width: 160px; }
   </section>
   <section role="tabpanel" id="tab-shocks">
     <div class="grid">
+      <p class="tab-lede" data-i18n="lede_shocks"></p>
       <div class="card span-4">
         <h2 data-i18n="nl_title"></h2>
         <p class="note" data-i18n="nl_intro" style="margin:0 0 6px"></p>
@@ -385,8 +412,8 @@ input[type="range"] { min-width: 160px; }
   </section>
   <section role="tabpanel" id="tab-model">
     <div class="grid">
-      <div class="card"><h2 data-i18n="led_title"></h2><p class="note" id="n-led"></p>
-        <div class="tablewrap" id="tbl-led"></div><p class="note" data-i18n="led_note"></p></div>
+      <p class="tab-lede" data-i18n="lede_model"></p>
+      <h3 class="sec-head" data-i18n="sec_accuracy"></h3>
       <div class="card"><h2 data-i18n="bt_title"></h2>
         <div class="row" style="margin:6px 0 10px"><label><span data-i18n="bt_sample"></span><select id="bt-sample"></select></label></div>
         <div class="tablewrap" id="tbl-bt"></div><p class="note" data-i18n="bt_note"></p><p class="src" data-src="src_backtest"></p></div>
@@ -400,6 +427,26 @@ input[type="range"] { min-width: 160px; }
         <p class="answer" id="tm-read" role="status" style="margin:8px 0"></p>
         <div class="plot" id="p-tm"></div>
         <p class="note" data-i18n="tm_note"></p><p class="src" data-src="src_backtest"></p></div>
+      <div class="card"><h2 data-i18n="led_title"></h2><p class="note" id="n-led"></p>
+        <div class="tablewrap" id="tbl-led"></div><p class="note" data-i18n="led_note"></p></div>
+      <h3 class="sec-head" data-i18n="sec_rounds"></h3>
+      <div class="card" id="r4-card"><details class="fold" id="r4-fold" open><summary><h2 data-i18n="r4_title"></h2><span class="fold-status" id="r4-status"></span></summary><p class="note" data-i18n="r4_intro"></p>
+        <div class="tablewrap" id="tbl-r4"></div><p class="answer" id="r4-verdict" style="margin-top:8px"></p>
+        <p class="note" data-i18n="r4_reading"></p></details></div>
+      <div class="card" id="r3-card"><details class="fold" id="r3-fold"><summary><h2 data-i18n="r3_title"></h2><span class="fold-status" id="r3-status"></span></summary><p class="note" data-i18n="r3_intro"></p>
+        <div class="row" style="margin:6px 0"><div class="seg" id="r3-h" role="group"></div></div>
+        <div class="tablewrap" id="tbl-r3"></div><p class="answer" id="r3-verdict" style="margin-top:8px"></p>
+        <p class="note" id="r3-latest"></p><p class="note" data-i18n="r3_reading"></p></details></div>
+      <div class="card" id="r2-card"><details class="fold" id="r2-fold"><summary><h2 data-i18n="r2_title"></h2><span class="fold-status" id="r2-status"></span></summary><p class="note" data-i18n="r2_intro"></p>
+        <div class="tablewrap" id="tbl-r2"></div><p class="answer" id="r2-verdict" style="margin-top:8px"></p>
+        <p class="note" data-i18n="r2_reading"></p></details></div>
+      <h3 class="sec-head" data-i18n="sec_robust"></h3>
+      <div class="card"><h2 data-i18n="cal_title"></h2><p class="note" data-i18n="cal_intro"></p>
+        <div class="plot short" id="p-sigma"></div>
+        <div class="tablewrap" id="tbl-cal"></div><p class="answer" id="cal-verdict" style="margin-top:8px"></p>
+        <p class="note" data-i18n="cal_reading"></p></div>
+      <div class="card"><h2 data-i18n="rt_title"></h2><p class="note" data-i18n="rt_intro"></p>
+        <div class="tablewrap" id="tbl-rt"></div><p class="note" data-i18n="rt_reading"></p></div>
       <div class="card"><h2 data-i18n="brk_title"></h2><p class="note" id="n-brk"></p>
         <div class="plot short" id="p-brk"></div><p class="note" data-i18n="brk_chart_note"></p>
         <div class="grid" style="gap:12px;margin-top:8px">
@@ -407,26 +454,11 @@ input[type="range"] { min-width: 160px; }
           <div class="span-6"><h2 data-i18n="brk_sens_title"></h2><div class="tablewrap" id="tbl-brk-sens"></div></div>
         </div>
         <p class="note" data-i18n="brk_reading"></p><p class="src" data-src="src_eurostat"></p></div>
-      <div class="card"><h2 data-i18n="r2_title"></h2><p class="note" data-i18n="r2_intro"></p>
-        <div class="tablewrap" id="tbl-r2"></div><p class="answer" id="r2-verdict" style="margin-top:8px"></p>
-        <p class="note" data-i18n="r2_reading"></p></div>
-      <div class="card" id="r4-card"><h2 data-i18n="r4_title"></h2><p class="note" data-i18n="r4_intro"></p>
-        <div class="tablewrap" id="tbl-r4"></div><p class="answer" id="r4-verdict" style="margin-top:8px"></p>
-        <p class="note" data-i18n="r4_reading"></p></div>
-      <div class="card" id="r3-card"><h2 data-i18n="r3_title"></h2><p class="note" data-i18n="r3_intro"></p>
-        <div class="row" style="margin:6px 0"><div class="seg" id="r3-h" role="group"></div></div>
-        <div class="tablewrap" id="tbl-r3"></div><p class="answer" id="r3-verdict" style="margin-top:8px"></p>
-        <p class="note" id="r3-latest"></p><p class="note" data-i18n="r3_reading"></p></div>
-      <div class="card"><h2 data-i18n="cal_title"></h2><p class="note" data-i18n="cal_intro"></p>
-        <div class="plot short" id="p-sigma"></div>
-        <div class="tablewrap" id="tbl-cal"></div><p class="answer" id="cal-verdict" style="margin-top:8px"></p>
-        <p class="note" data-i18n="cal_reading"></p></div>
-      <div class="card"><h2 data-i18n="rt_title"></h2><p class="note" data-i18n="rt_intro"></p>
-        <div class="tablewrap" id="tbl-rt"></div><p class="note" data-i18n="rt_reading"></p></div>
-      <div class="card span-6"><h2 data-i18n="sel_title"></h2><p class="note" data-i18n="sel_rule"></p><div class="tablewrap" id="tbl-sel"></div></div>
+      <h3 class="sec-head" data-i18n="sec_data"></h3>
       <div class="card" id="rc-card"><h2 data-i18n="rc_title"></h2><p class="answer" id="rc-text" style="margin:0 0 8px"></p>
         <div class="plot short" id="p-recon"></div>
         <div class="tablewrap" id="tbl-recon"></div><p class="note" data-i18n="rc_note"></p><p class="src" data-src="src_eurostat"></p></div>
+      <div class="card span-6"><h2 data-i18n="sel_title"></h2><p class="note" data-i18n="sel_rule"></p><div class="tablewrap" id="tbl-sel"></div></div>
       <div class="card span-6"><h2 data-i18n="val_title"></h2><div class="tablewrap" id="tbl-val"></div></div>
       <div class="card span-6"><h2 data-i18n="vin_title"></h2><div class="tablewrap" id="tbl-vin"></div></div>
       <div class="card span-6"><h2 data-i18n="method_title"></h2><p class="note" data-i18n="method_text"></p></div>
