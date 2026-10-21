@@ -942,3 +942,5 @@ Two reviews were pasted in, one on method and consistency and one on looks. Thei
   - The contributions chart still drew only its last 36 months inside a 6-year window, which left the left half empty on first load. It now draws the whole history and opens on the last 3 years.
   - The y-axis fit uses stacked bar totals, not single parts.
   - The end-to-end access-code check no longer depends on a code kept from an earlier run. Now 145 checks.
+  - The country profile's drivers chart had the same 36-month cut. It now draws from 2010 and opens on 3 years.
+  - A new end-to-end check fails if any dated chart opens on an empty stretch. Now 146 checks.

@@ -4485,7 +4485,7 @@ return Plotly;
   const RANGED = new Set(["p-headline", "p-contrib", "p-ccmp", "p-cp-drivers", "p-track", "p-core"]);
   // Charts whose history now goes back to 1998/2010 (D61) open on recent years; "All" shows everything.
   // Years shown on opening: the contribution bars get 3, so each month stays readable.
-  const OPEN_YEARS = { "p-contrib": 3, "p-ccmp": 6, "p-cp-drivers": 6, "p-core": 6 };
+  const OPEN_YEARS = { "p-contrib": 3, "p-ccmp": 6, "p-cp-drivers": 3, "p-core": 6 };
   const plot = (id, data, layout) => {
     if (OPEN_YEARS[id] && !(layout.xaxis && layout.xaxis.range)) {
       const xs = data.flatMap((tr) => tr.x || []).map((x) => new Date(x).getTime()).filter(Number.isFinite);
@@ -5057,7 +5057,7 @@ return Plotly;
     warn.hidden = prof.max_abs_gap_pp <= 0.04;  // 2010-on rounding stays below this; only Italy (D33) exceeds it
     warn.textContent = warn.hidden ? "" : t("cp_warn", { c: geo(g), g: fmt(prof.max_abs_gap_pp, 2) });
 
-    const k0 = Math.max(0, C.dates.length - 36), xs = C.dates.slice(k0).map(toDate);
+    const k0 = 0, xs = C.dates.map(toDate);  // whole window (from 2010); the chart opens on the last 3 years (D61)
     const tr = COMPS.map((c) => ({ type: "bar", name: comp(c), x: xs, y: prof.contributions[c].slice(k0),
       marker: { color: css(SLOT[c]), line: { color: css("--surface-1"), width: 1 } }, hovertemplate: "%{y:.2f} " + t("pp") }));
     tr.push({ type: "scatter", mode: "lines", name: geo(g) + " (% y/y)", x: xs, y: C.yoy[g].slice(k0), line: { color: css("--text-primary"), width: 2 }, hovertemplate: "%{y:.2f}%" });

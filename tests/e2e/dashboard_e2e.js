@@ -390,6 +390,20 @@
     el("ask-close").click();
   });
 
+  await step("charts: no time window opens on an empty stretch (D61)", async () => {
+    const bad = [];
+    for (const tb of ["overview", "drivers", "countries", "shocks", "model"]) {
+      await tab(tb);
+      for (const g of $$(`#tab-${tb} .js-plotly-plot`)) {
+        const xr = g.layout && g.layout.xaxis && g.layout.xaxis.range;
+        if (!xr || !/^\d{4}-/.test(String(xr[0]))) continue;
+        const xs = (g.data || []).flatMap((d) => d.x || []).map((x) => new Date(x).getTime()).filter(Number.isFinite);
+        if (xs.length && Math.min(...xs) - new Date(xr[0]).getTime() > 62 * 864e5) bad.push(g.id);
+      }
+    }
+    ok("every dated chart has data from the start of its window", bad.length === 0, bad.join(","));
+  });
+
   // ---------------------------------------------------------------- I. brief, tour, demo
   await step("brief: A4 preview with two charts", async () => {
     await tab("overview");
