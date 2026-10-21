@@ -1058,3 +1058,4 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
 - **Also named:** the README title and the assistant's description of itself.
 - **Checked:** Python tests pass; end-to-end 165/165.
 - **Tour:** each step now scrolls to the top of its section, not the centre. Centring tall sections (the simulator, the country panels) cut off their headings. Checked all 8 steps: each heading sits at the top and the tour box never covers it.
+- **Header:** with the longer EuroPulse subtitle, the title block took the whole row and pushed the buttons onto a new line on the left. The title block now shrinks and wraps its subtitle, so the buttons stay on the right (1280 px). On phones they still sit full width below the title, with no horizontal scroll.

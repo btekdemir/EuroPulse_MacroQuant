@@ -41,7 +41,10 @@ header { padding: 20px 24px 0; max-width: 1280px; margin: 0 auto; }
 .top { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; justify-content: space-between; }
 h1 { font-size: 22px; margin: 0; font-weight: 650; letter-spacing: -0.01em; }
 .subtitle { color: var(--text-secondary); margin: 4px 0 0; }
-.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-left: auto; flex: none; }
+/* D68: the title block shrinks and its subtitle wraps, so the buttons stay on the right beside it */
+.top > .brand { flex: 1 1 320px; min-width: 0; }
+@media (max-width: 700px) { .controls { margin-left: 0; flex: 1 1 100%; } }
 .controls .primary { border-color: var(--accent); background: var(--accent); color: #fff; font-weight: 600; }
 .controls .secondary { border-color: var(--accent); color: var(--accent); background: transparent; font-weight: 600; }
 .controls .quiet { border: 0; background: none; color: var(--text-secondary); text-decoration: underline; text-underline-offset: 3px; padding: 6px 4px; }
