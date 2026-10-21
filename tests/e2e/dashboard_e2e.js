@@ -43,7 +43,7 @@
       if (!/\d/.test(b.text)) return J({ error: "No size found." }, 422);
       return J({ scenario: { name: "Stub gas DE", legs: [{ components: ["ELC_GAS"], countries: ["DE"], size_pct: 30, profile: { kind: "permanent" }, start: D.basis.months[0] }],
         second_round: false, second_round_regime: "post2020", rationale: "Stub interpretation for the end-to-end test.", sources: ["stub"], mapping: null },
-        interpretation: ["stub"], intent: {}, model: "stub" });
+        interpretation: ["stub", "Applies to ELC_GAS in DE, from 2026-11."], intent: {}, model: "stub" });
     }
     return J({ error: "unknown" }, 404);
   };
@@ -306,6 +306,9 @@
   await step("shocks: sentence box (stubbed interpreter)", async () => {
     setVal(el("nl-text"), "gas +30% in Germany"); el("nl-go").click(); await sleep(500);
     ok("interpretation shown", !el("nl-confirm").hidden);
+    const lines = visibleText(el("nl-lines"));
+    ok("codes shown as names (D63)", !/ELC_GAS|\bDE\b/.test(lines) && lines.includes(D.i18n.en.g_DE || "Germany"), lines.slice(0, 120));
+    ok("bare 'gas' gets the component note", lines.includes(D.i18n.en.nl_gas_note.slice(0, 20)));
     el("nl-run").click(); await sleep(300);
     ok("scenario loaded", $("#f-countries input[value=DE]").checked && el("f-size").value === "30");
   });
@@ -371,7 +374,8 @@
   });
   await step("assistant: what-if runs in the engine; preset; fragment follow-up", async () => {
     setVal(el("ask-text"), "What if gas rises 30% in Germany?"); el("ask-go").click(); await sleep(700);
-    ok("what-if result in the chat", /Peak|Impact maximal/.test($$(".ask-msg.bot").pop().textContent));
+    ok("what-if result in the chat", /Largest impact|Impact le plus fort/.test($$(".ask-msg.bot").pop().textContent));
+    ok("chat result uses names, not codes", !/ELC_GAS/.test($$(".ask-msg.bot").pop().textContent));
     setVal(el("ask-text"), "oil supply shock"); el("ask-go").click(); await sleep(600);
     ok("preset by name, no interpreter call", $$(".ask-msg.bot").pop().textContent.includes(D.basis.presets[0].name) && !sent.slice(-1)[0][1].text);
     setVal(el("ask-text"), "gas shock in Germany"); el("ask-go").click(); await sleep(600);

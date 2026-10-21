@@ -961,3 +961,20 @@ Two reviews were pasted in, one on method and consistency and one on looks. Thei
   - While a what-if line is drawn, a line above the headline chart says so and has a Remove button.
 - **Not changed:** Plotly's range buttons are SVG and cannot be reached by keyboard. Low priority; noted.
 - **Checked:** Python 213/213; end-to-end 150/150.
+
+## D63. Live chatbot test: six fixes, no paid calls (22 Oct 2026)
+
+A live test of 9 calls found every number checked and every "Go to" correct, plus the six issues below. All were fixed without paid calls.
+
+- **Scenario cards (chat and sentence box):**
+  - They said "Peak impact"; now "Largest impact", as on the rest of the page.
+  - The interpreter's "Applies to FOOD_P in DE" is rebuilt on the page with names in the page's language ("Processed food in Germany, Slovakia").
+  - A bare "gas" gets a note: it is mapped to the electricity & gas component, so the size applies to the whole component and overstates a gas-only change.
+- **Stale chart description:** the assistant described the headline chart as "since 2020". The description now says history from 1998, opening on two years. "Explain this" also sends the visible date window first, so the answer describes what is on screen.
+- **Rounding:**
+  - Answers had "27,27 %", "35,42 %" and a p-value of "0,02" for 0.016, and the ">2 decimals" rule cost a second paid call each time (3 of the 9).
+  - The checked numbers are now rounded in code to the page's precision: probabilities and shares whole, band ends and component price changes one decimal, p-values three, otherwise at most two. The value is unchanged, so each still matches its fact, and the retry is gone.
+- **Citations:** two facts that round alike (September 3.770% vs December 3.774%) were cited the wrong way round. The prompt now says to cite the fact that describes the sentence's month.
+- **Scales:** "Germany contributes 0.90 pp … It accounts for 1.41 pp from fuels" mixed two scales: 1.41 pp is fuels' share of Germany's own 3.3%. The prompt now requires keeping them apart.
+- **Not verified live:** the two prompt changes would need paid calls to confirm.
+- **Checked:** Python tests pass, including 2 new rounding tests; end-to-end 153/153.

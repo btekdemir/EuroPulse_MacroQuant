@@ -393,7 +393,7 @@
   "ask_building": "Building the scenario…",
   "ask_sc_failed": "The scenario could not be built from that sentence. Try the simulator's form.",
   "ask_sc_title": "Scenario, as interpreted:",
-  "ask_sc_peak": "Peak impact on headline y/y: {pp} pp in {month}.",
+  "ask_sc_peak": "Largest impact on headline y/y: {pp} pp in {month}.",
   "ask_sc_dec": "{date}: {pp} pp, so {y} instead of {base}.",
   "ask_sc_prob": "P({thr}% exceeded in December): {p}% (baseline {b}%).",
   "ask_sc_open": "Open in the simulator →",
@@ -771,7 +771,11 @@
   "nf_n_components": "Number of modelled components",
   "nf_ledger_entries": "Forecast runs recorded in the ledger",
   "oct_chip": "The chart also shows a what-if: October at {v}%.",
-  "oct_chip_rm": "Remove"
+  "oct_chip_rm": "Remove",
+  "nl_applies": "Applies to {c} in {g}, from {m}.",
+  "nl_shock_n": "Shock {n}: ",
+  "nl_whole_ea": "the whole euro area",
+  "nl_gas_note": "'Gas' is mapped to the electricity & gas component. The size applies to the whole component, so it overstates a change in gas prices alone."
  },
  "fr": {
   "title": "Suivi de l'inflation en zone euro",
@@ -1167,7 +1171,7 @@
   "ask_building": "Construction du scénario…",
   "ask_sc_failed": "Impossible de construire un scénario à partir de cette phrase. Utilisez le formulaire du simulateur.",
   "ask_sc_title": "Scénario, tel qu’interprété :",
-  "ask_sc_peak": "Impact maximal sur le glissement annuel : {pp} pt en {month}.",
+  "ask_sc_peak": "Impact le plus fort sur le glissement annuel : {pp} pt en {month}.",
   "ask_sc_dec": "{date} : {pp} pt, soit {y} au lieu de {base}.",
   "ask_sc_prob": "P(dépassement de {thr} % en décembre) : {p} % (référence {b} %).",
   "ask_sc_open": "Ouvrir dans le simulateur →",
@@ -1545,6 +1549,10 @@
   "nf_n_components": "Nombre de composantes modélisées",
   "nf_ledger_entries": "Prévisions enregistrées dans le registre",
   "oct_chip": "Le graphique montre aussi une hypothèse : octobre à {v} %.",
-  "oct_chip_rm": "Retirer"
+  "oct_chip_rm": "Retirer",
+  "nl_applies": "S'applique à : {c}, en {g}, à partir de {m}.",
+  "nl_shock_n": "Choc {n} : ",
+  "nl_whole_ea": "toute la zone euro",
+  "nl_gas_note": "« Gaz » correspond à la composante électricité et gaz. La taille s'applique à toute la composante : elle surestime une variation du seul prix du gaz."
  }
 }

@@ -1079,9 +1079,25 @@
   // Opened from a file or any server without that route, the box falls back to the recorded examples.
   const liveOk = () => /^https?:$/.test(location.protocol);
 
+  // The interpreter's notes are English and name things by code ("FOOD_P in DE"). The "applies to" line is rebuilt
+  // here with readable names in the page's language, and a bare "gas" gets a note on what it was mapped to (D63).
+  function readableLines(lines, sc, text) {
+    const out = lines.map((l) => {
+      const m = /^(Shock (\d+): )?Applies to (.+) in (.+), from (\d{4}-\d{2})\.$/.exec(l);
+      if (!m) return l;
+      const leg = sc && sc.legs ? sc.legs[m[2] ? Number(m[2]) - 1 : 0] : null;
+      const comps = leg ? leg.components.map(comp).join(", ") : m[3];
+      const where = leg && leg.countries.length ? leg.countries.map(geo).join(", ") : t("nl_whole_ea");
+      return (m[2] ? t("nl_shock_n", { n: m[2] }) : "") + t("nl_applies", { c: comps, g: where, m: monthLabel(m[5]) });
+    });
+    const s = (text || "").toLowerCase();
+    if (/\bgas\b|\bgaz\b/.test(s) && !/electric|élec|elec/.test(s) && sc && sc.legs && sc.legs.some((lg) => lg.components.includes("ELC_GAS")))
+      out.push(t("nl_gas_note"));
+    return out;
+  }
   function showInterpretation(res, srcLabel) {
     nlPending = res;
-    el("nl-lines").replaceChildren(...res.interpretation.map((l) => node("li", {}, l)));
+    el("nl-lines").replaceChildren(...readableLines(res.interpretation, res.scenario, el("nl-text").value).map((l) => node("li", {}, l)));
     el("nl-src").textContent = srcLabel;
     el("nl-confirm").hidden = false;
   }
@@ -1989,7 +2005,7 @@ ${note}
       return;
     }
     askPendingWhatIf = null;
-    askScenarioResult(body.scenario, body.interpretation || [], t("ask_sc_meta", { model: body.model }));
+    askScenarioResult(body.scenario, readableLines(body.interpretation || [], body.scenario, q), t("ask_sc_meta", { model: body.model }));
   }
 
   // A preset needs no interpreter: the page already has it.
@@ -2087,7 +2103,15 @@ ${note}
         : `${tr.line && tr.line.dash && tr.line.dash !== "solid" ? tr.line.dash + " " : "solid "}line${/markers/.test(tr.mode || "") ? " with markers" : ""}`;
       return `${kind}${tr.name ? ": " + tr.name : ""}`;
     }).filter((x, i, a) => a.indexOf(x) === i);
-    askSend(t("ask_explain_q", { title }), { chart: p.id, chart_state: ctx.state, chart_facts: ctx.facts, chart_traces: traces });
+    // The dates actually on screen, so the explanation describes the visible window, not the whole series (D63).
+    let state = ctx.state;
+    const xr = p.layout && p.layout.xaxis && p.layout.xaxis.range;
+    if (xr && /^\d{4}-\d{2}/.test(String(xr[0]))) {
+      const xs = (p.data || []).flatMap((tr) => tr.x || []).map((x) => String(x).slice(0, 7)).filter((x) => /^\d{4}-\d{2}$/.test(x)).sort();
+      const vis = `visible window ${String(xr[0]).slice(0, 7)} to ${String(xr[1]).slice(0, 7)}` + (xs.length ? ` (data from ${xs[0]})` : "");
+      state = state ? `${vis}; ${state}` : vis;  // first: the route keeps 200 characters
+    }
+    askSend(t("ask_explain_q", { title }), { chart: p.id, chart_state: state, chart_facts: ctx.facts, chart_traces: traces });
   }
 
   function askLog(n) { const log = el("ask-log"); log.appendChild(n); log.scrollTop = log.scrollHeight; }

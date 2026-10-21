@@ -184,12 +184,25 @@ def test_every_chart_is_in_the_page_and_maps_to_a_section():
         assert f'id="{tid}"' in page and sec in SECTIONS, tid
 
 
-def test_more_than_two_decimals_is_sent_back(doc):
+def test_more_than_two_decimals_is_rounded_in_code_without_a_second_call(doc):
     v = fact(doc, "forecast_h3").value
-    long_, short = draft(f"December {v:.3f}%.", (f"{v:.3f}", "forecast_h3")), draft(f"December {v:.2f}%.", (f"{v:.2f}", "forecast_h3"))
-    c = FakeClient(long_, short)
+    c = FakeClient(draft(f"December {v:.3f}%.", (f"{v:.3f}", "forecast_h3")))
     r = answer("q", doc, client=c, model="m")
-    assert r["verified"] and r["attempts"] == 2 and "two decimals" in c.calls[1]["messages"][-1]["content"]
+    assert r["verified"] and r["attempts"] == 1 and len(c.calls) == 1  # D63: no paid retry for rounding
+    assert r["answer"] == f"December {v:.2f}%." and r["numbers"][0]["token"] == f"{v:.2f}"
+
+
+def test_page_precision_for_probabilities_pvalues_and_bands(doc):
+    """D63: whole percentages for probabilities and shares, three decimals for p-values, one for band ends;
+    the separator of the answer's language is kept and every rounded number still matches its fact."""
+    p4 = next(x for x in doc.facts if "Probability" in x.label)
+    dm = next(x for x in doc.facts if "p-value" in x.label and 0.001 < x.value < 0.1)
+    band = next(x for x in doc.facts if "band upper end" in x.label)
+    tp, td, tb = f"{p4.value:.2f}".replace(".", ","), f"{dm.value:.2f}".replace(".", ","), f"{band.value:.2f}".replace(".", ",")
+    r = answer("q", doc, client=FakeClient(draft(f"Probabilité {tp} %, p {td}, bande {tb} %.", (tp, p4.id), (td, dm.id), (tb, band.id))), model="m")
+    assert r["verified"] and r["attempts"] == 1
+    fr = lambda v, d: f"{v:.{d}f}".replace(".", ",")  # noqa: E731
+    assert r["answer"] == f"Probabilité {fr(p4.value, 0)} %, p {fr(dm.value, 3)}, bande {fr(band.value, 1)} %."
 
 
 def test_chart_traces_reach_the_model(doc):
