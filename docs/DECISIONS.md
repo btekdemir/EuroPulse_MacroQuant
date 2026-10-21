@@ -641,3 +641,22 @@ Committed to git before the code that runs it. It does not change after the resu
   - The 7th wrong guess in a minute gives 429.
   - Browser, against the real local server started with a test code: the code box appears, a wrong code is refused, and the right one is attached to the next request (that request was answered by a stub, so no paid call was made).
 - `deploy/README.md` no longer quotes a per-token price: it was never verified, so the reader is told to check the Console.
+
+## D46. End-to-end dashboard check (21 Oct 2026)
+
+- **What:** `tests/e2e/dashboard_e2e.js` makes 101 assertions on every feature, run inside the page against `deploy/serve_local.py` (which serves it at `/e2e.js`).
+  - Every tab: charts have data and fit their cards, tables have rows, no untranslated keys, no horizontal scroll.
+  - Overview: threshold, month explainer (menu and chart click), October what-if, range buttons.
+  - Drivers: contributions click, core card.
+  - Countries: compare add/remove with stable colours, small-multiple click, profile menu, Italy warning.
+  - Shock simulator: every preset, multi-leg add/delete, second round, reverse stress test solve and apply, heatmap click, share-link round trip, sentence box.
+  - Model & validation: all tables, sample menu, horizon buttons, time machine.
+  - Every chart: CSV export and an Explain button.
+  - Assistant (answer with cited number, Go to, what-if in the engine, preset by name, fragment follow-up, Explain context, access-code flow).
+  - Brief, the full tour and demo, French, dark theme, no JavaScript errors.
+- **No paid calls:** POSTs to the two LLM routes are answered by stubs inside the script. The real routes are covered by the Python tests, and the live site was checked for 200/401 with curl.
+- **Runs:** 101/101 at 1280×800 and at 375×812.
+- **Bugs it found, now fixed:**
+  - "Explain" on the track chart sent `horizon undefined` (it read `.value` from a button group).
+  - The simulator form widened phones to 417px (449px in French). The causes were a fieldset's default min-content width, a grid column sized by its widest item, and a `nowrap` chip label.
+- **Bugs in the test itself, now fixed:** a dataset code read as an i18n key; the horizon button that was already selected; a stub that matched "Germany" before "what if"; a reverse test on a preset that starts after December (the page correctly says no size can reach the target).
