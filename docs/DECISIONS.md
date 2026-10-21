@@ -794,3 +794,20 @@ Written and committed **before any of these models was run**. Results are report
   - The seasonal naive identity holds.
   - The report follows the rule: Holm thresholds and order, and the candidate selection.
 - **Dashboard:** a Round 3 card under Round 2, with a table by horizon, the verdict and each model's December forecast (SARIMA 4.07%, Elastic Net 3.90%, boosting 3.87%, ensemble 3.89%, against bottom-up 3.82%). The tour, demo, assistant facts and end-to-end check cover it: 121/121.
+
+## D57. Round 4, pre-registered: bottom-up variants (22 Oct 2026)
+
+Written and committed **before any of these variants was run**. Results are reported whatever they are.
+
+- **Idea:** keep the bottom-up structure, but forecast each component with what it is good at.
+  - The core components (services, non-energy industrial goods) lose to "no change in y/y" (D44).
+  - Fuels use real-time pump prices, which the random walk does not have.
+  - "No change in y/y" for a component means its next monthly changes repeat last year's same-month changes. That is known at the origin (target − 12 ≤ origin).
+- **Variants:** every other component keeps its current selected model, and the chain-link, weights and origins are unchanged.
+  - **B1, core no-change:** services and non-energy industrial goods use last year's same-month m/m.
+  - **B2, all but fuel no-change:** every component except fuels uses last year's same-month m/m; fuels keep the pump-price model.
+  - **B3, half-way shrink:** every component except fuels uses 0.5 × its current model's m/m + 0.5 × last year's same-month m/m. The weight is fixed at 0.5 and not estimated.
+- **Test (as in D27 and D56):** DM (HLN, Newey–West h−1) against the random walk at h = 3 on all origins, with Holm at 5% across {B1, B2, B3}. A variant passes if Holm rejects and its MSE is below the random walk's.
+- **Adoption:** the lowest-MSE passing variant is adopted as the published model only if its full-sample MSE at h = 3 is also below the current bottom-up model's. Because it is still bottom-up, the decomposition, fan, shock basis and everything else follow it. Otherwise nothing changes.
+- Also reported, not used for the decision: DM against the current bottom-up model, and the 2010–2019 and 2020-on samples.
+- **Not done:** estimating the shrink weight, choosing components after seeing results, or adding variants.
