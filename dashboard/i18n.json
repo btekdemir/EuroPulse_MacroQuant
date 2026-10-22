@@ -820,7 +820,16 @@
   "tour_invite": "New to this page?",
   "tour_invite_sim": "The simulator has a lot in it: a 1-minute guide shows how to build a shock and read the result.",
   "tour_invite_go": "Take the {n}-step tour →",
-  "tour_invite_no": "No thanks"
+  "tour_invite_no": "No thanks",
+  "gate_V1": "Schema: columns, dtypes, units, codes",
+  "gate_V2": "Continuity: no gaps, no duplicates, common last period",
+  "gate_V3": "Weights: components and countries sum to 1000 per mille",
+  "gate_V4": "Reconciliation: headline rebuilt from 6 components vs published",
+  "gate_V5": "Contributions: exact chain-linked formula vs official prc_hicp_ctr",
+  "gate_V6": "Countries → euro area*: 21 national indices × country weights vs published EA",
+  "gate_V7": "Composition: members by year; changing vs fixed composition in enlargement years",
+  "gate_V8": "Outliers: robust z on seasonally-demeaned m/m (flagged, not dropped)",
+  "gate_V9": "Freshness: last period vs today"
  },
  "fr": {
   "title": "EuroPulse",
@@ -1374,7 +1383,7 @@
   "tour_prob_t": "Des probabilités, pas seulement un point",
   "tour_prob_b": "Choisissez un seuil : la part des erreurs passées du modèle qui placerait décembre au-dessus. La même probabilité apparaît pour chaque choc simulé.",
   "tour_backtest_t": "Les preuves en une ligne",
-  "tour_backtest_b": "Erreurs à trois mois 21 % sous la marche aléatoire (p = 0,016), indice global d'Eurostat reconstruit à 0,03 pp près, et 9 contrôles de données sans échec. En dessous : précision par période, machine à remonter le temps et registre des prévisions.",
+  "tour_backtest_b": "Erreurs à trois mois 21 % sous la marche aléatoire (p = 0,016), indice global d'Eurostat reconstruit à 0,03 pt près, et 9 contrôles de données sans échec. En dessous : précision par période, machine à remonter le temps et registre des prévisions.",
   "tour_ledger_t": "Un registre qui tient les comptes",
   "tour_ledger_b": "Chaque prévision publiée est enregistrée dans un fichier chaîné par hachage et notée automatiquement à la publication d'Eurostat : l'historique ne peut pas être réécrit après coup.",
   "demo_note_t": "Note de recherche",
@@ -1539,11 +1548,11 @@
   "kpi_last_why": "Effet de base {base} pt et dynamique cumulée {mom} pt se compensent presque exactement",
   "msum_title": "En une ligne : les preuves",
   "msum_ratio": "RMSE vs marche aléatoire, 3 mois",
-  "msum_ratio_s": "{rmse} vs {rw} pp, toutes les origines depuis 2010",
+  "msum_ratio_s": "{rmse} vs {rw} pt, toutes les origines depuis 2010",
   "msum_dm": "p de Diebold–Mariano (HLN), 3 mois",
   "msum_dm_s": "Sous 5 % : le gain n'est probablement pas dû au hasard",
   "msum_rc": "Plus grand écart de contribution vs Eurostat",
-  "msum_rc_s": "Indice global reconstruit à {h} pp près",
+  "msum_rc_s": "Indice global reconstruit à {h} pt près",
   "msum_val": "Contrôles de données sans échec",
   "msum_val_ok": "Aucun échec",
   "msum_val_warn": "{p} réussis, 1 avertissement ({g})",
@@ -1643,6 +1652,15 @@
   "tour_invite": "Première visite sur cette page ?",
   "tour_invite_sim": "Le simulateur est riche : un guide d'une minute montre comment construire un choc et lire le résultat.",
   "tour_invite_go": "Suivre la visite en {n} étapes →",
-  "tour_invite_no": "Non merci"
+  "tour_invite_no": "Non merci",
+  "gate_V1": "Schéma : colonnes, types, unités, codes",
+  "gate_V2": "Continuité : pas de trous, pas de doublons, dernière période commune",
+  "gate_V3": "Pondérations : composantes et pays somment à 1000 ‰",
+  "gate_V4": "Réconciliation : indice global reconstruit à partir des 6 composantes vs publié",
+  "gate_V5": "Contributions : formule chaînée exacte vs prc_hicp_ctr officiel",
+  "gate_V6": "Pays → zone euro* : 21 indices nationaux × pondérations pays vs zone euro publiée",
+  "gate_V7": "Composition : membres par année ; composition évolutive vs fixe les années d'élargissement",
+  "gate_V8": "Valeurs aberrantes : z robuste sur les variations mensuelles corrigées de la saison (signalées, non supprimées)",
+  "gate_V9": "Fraîcheur : dernière période vs aujourd'hui"
  }
 }

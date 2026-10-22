@@ -190,6 +190,72 @@
       [2, 3, 3.5, 4, 4.5, 5].map((x) => [fmt(x, 1) + "%", probTxt(probOf(last.point, x)) + "%"]), [1]);
   }
 
+  // ------------------------------------------------------------------ pipeline texts in French (D75)
+  // Some texts come from the Python pipeline in English with live numbers in them: validation results, the preset
+  // rationales and mappings, assumptions A1-A5 and the sentence interpreter's notes. In French each known sentence is
+  // rewritten with the same numbers; anything that does not match stays in English rather than being guessed.
+  const frNum = (s) => s.replace(/(\d)\.(\d)/g, "$1,$2");
+  const frMon = (ym) => monthLabel(ym);
+  const FR_PATTERNS = [
+    // validation results
+    [/^all tables match the expected schema$/, () => "toutes les tables respectent le schéma attendu"],
+    [/^last period (\d{4}-\d{2}); (\d+) series with gaps, (\d+) lagging, (\d+) duplicate keys$/, (m) => `dernière période ${frMon(m[1])} ; ${m[2]} série(s) avec trous, ${m[3]} en retard, ${m[4]} clé(s) en double`],
+    [/^EA max gap ([\d.]+) per mille; country weights max gap ([\d.]+)$/, (m) => `écart max zone euro ${frNum(m[1])} ‰ ; écart max des pondérations pays ${frNum(m[2])} ‰`],
+    [/^index max \|err\| ([\d.]+) pts, YoY max \|err\| ([\d.]+)pp over (\d+) months$/, (m) => `écart max de l'indice ${frNum(m[1])} point d'indice, du glissement annuel ${frNum(m[2])} pt, sur ${m[3]} mois`],
+    [/^max \|err\| ([\d.]+)pp, mean ([\d.]+)pp over (\d+) observations$/, (m) => `écart max ${frNum(m[1])} pt, moyen ${frNum(m[2])} pt, sur ${m[3]} observations`],
+    [/^YoY max \|err\| ([\d.]+)pp, mean ([\d.]+)pp; index max \|err\| ([\d.]+) pts$/, (m) => `glissement annuel : écart max ${frNum(m[1])} pt, moyen ${frNum(m[2])} pt ; indice : écart max ${frNum(m[3])} point d'indice`],
+    [/^membership matches accession dates in all years: (True|False); in enlargement years the changing composition tracks published EA within ([\d.]+)pp \(fixed: ([\d.]+)pp\)$/,
+      (m) => `appartenance conforme aux dates d'adhésion chaque année : ${m[1] === "True" ? "oui" : "non"} ; les années d'élargissement, la composition évolutive suit la zone euro publiée à ${frNum(m[2])} pt près (fixe : ${frNum(m[3])} pt)`],
+    [/^(\d+) month-component observations beyond \|z\| > ([\d.]+)$/, (m) => `${m[1]} observations mois × composante au-delà de |z| > ${frNum(m[2])}`],
+    [/^last period (\d{4}-\d{2}), (\d+) days after its month-end; flash beyond last final release: (True|False)$/,
+      (m) => `dernière période ${frMon(m[1])}, ${m[2]} jours après sa fin de mois ; estimation flash au-delà de la dernière publication définitive : ${m[3] === "True" ? "oui" : "non"}`],
+    // assumptions A1-A5
+    [/^A1 Each shock leg moves the consumer price level vs baseline along its own profile from its own start month; legs on the same country and component compound \(their log effects add\)\.$/,
+      () => "A1 Chaque choc déplace le niveau des prix à la consommation par rapport au scénario de base selon son propre profil, à partir de son propre mois de début ; les chocs sur un même pays et une même composante se cumulent (leurs effets en log s'additionnent)."],
+    [/^A2 Weights: each country × component share of the euro area\* basket at origin prices, held constant \(no weight drift, no Jan (\d{4}) reweighting\)\.$/,
+      (m) => `A2 Pondérations : la part de chaque pays × composante dans le panier de la zone euro*, aux prix de l'origine, maintenue constante (pas de dérive des pondérations, pas de repondération en janvier ${m[1]}).`],
+    [/^A3 YoY impact = \(1 \+ baseline YoY\) × \(R_t \/ R_t−12 − 1\): a permanent shock lifts YoY for 12 months, then drops out\.$/,
+      () => "A3 Impact sur le glissement annuel = (1 + glissement de base) × (R_t / R_t−12 − 1) : un choc permanent relève le glissement annuel pendant 12 mois, puis sort de la fenêtre."],
+    [/^A4 Second round \(optional, estimated, uncertain\): energy → core via a 12-month distributed lag, regime-specific, with 95% bands; energy treated as exogenous\.$/,
+      () => "A4 Second tour (facultatif, estimé, incertain) : énergie → sous-jacente via un retard distribué sur 12 mois, propre à chaque régime, avec bandes à 95 % ; l'énergie est traitée comme exogène."],
+    [/^A5 No policy or demand response; other components stay at baseline\.$/, () => "A5 Aucune réaction de la politique monétaire ou de la demande ; les autres composantes restent au scénario de base."],
+    // preset rationales and mappings
+    [/^A supply disruption \(e\.g\. Strait of Hormuz\) lifts Brent in EUR by (\d+)% and it stays there\. Fuel consumer prices respond with the estimated elasticity ([\d.]+) \(HAC s\.e\. ([\d.]+), (\d{4}-\d{2})–(\d{4}-\d{2})\): \+([\d.]+)% on the fuel price level, (\d+)% of it in the first month\. Elasticity < 1 because excise duty is per litre\.$/,
+      (m) => `Une rupture d'approvisionnement (par exemple dans le détroit d'Ormuz) fait monter le Brent en euros de ${m[1]} % durablement. Les prix des carburants réagissent selon l'élasticité estimée de ${frNum(m[2])} (é.-t. HAC ${frNum(m[3])}, ${frMon(m[4])}–${frMon(m[5])}) : +${frNum(m[6])} % sur le niveau des prix des carburants, dont ${m[7]} % le premier mois. Élasticité < 1 car les accises sont fixées par litre.`],
+    [/^FUEL level = \(([\d.]+)\)\^([\d.]+) − 1, lag profile from the estimated distributed lag$/, (m) => `Niveau des carburants = (${frNum(m[1])})^${frNum(m[2])} − 1, profil de retard issu du retard distribué estimé`],
+    [/^Wholesale gas \(TTF\) spikes\. Retail gas and electricity follow slowly and partially because of regulated tariffs, fixed-term contracts and price caps, so the shock ramps in over (\d+) months\. Size \+(\d+)% on the retail level, about a quarter of the 2021–22 episode, when euro area electricity, gas and heat prices rose (\d+)% from Jun 2021 to their peak \(Eurostat\)\.$/,
+      (m) => `Flambée du gaz de gros (TTF). Les prix de détail du gaz et de l'électricité suivent lentement et partiellement, à cause des tarifs réglementés, des contrats à prix fixe et des boucliers tarifaires : le choc monte progressivement sur ${m[1]} mois. Taille +${m[2]} % sur le niveau de détail, environ un quart de l'épisode 2021–22, quand les prix de l'électricité, du gaz et de la chaleur de la zone euro ont augmenté de ${m[3]} % entre juin 2021 et leur pic (Eurostat).`],
+    [/^Judgemental: retail ELC_GAS \+(\d+)% over (\d+) months \(no TTF series in the pipeline\)$/, (m) => `À dire d'expert : électricité et gaz au détail +${m[1]} % sur ${m[2]} mois (pas de série TTF dans le pipeline)`],
+    [/^Illustrative \+(\d+)% change in France's regulated electricity tariff \(TRVE\), which is typically revised on 1 February\. Electricity is ([\d.]+)% of France's ELC_GAS weight in (\d{4}) \(Eurostat CP0451 \/ ELC_GAS\), so ELC_GAS in France rises ([\d.]+)%\. Assumes the change applies to all households\.$/,
+      (m) => `Hausse illustrative de ${m[1]} % du tarif réglementé de vente de l'électricité en France (TRVE), généralement révisé au 1er février. L'électricité représente ${frNum(m[2])} % de la pondération électricité et gaz de la France en ${m[3]} (Eurostat CP0451 / ELC_GAS), donc l'électricité et gaz augmente de ${frNum(m[4])} % en France. On suppose que la hausse s'applique à tous les ménages.`],
+    [/^FR ELC_GAS level = (\d+)% × electricity share ([\d.]+)$/, (m) => `Niveau électricité et gaz en France = ${m[1]} % × part de l'électricité ${frNum(m[2])}`],
+    [/^User-defined scenario built in the dashboard \(no external mapping\)\.$/, () => "Scénario défini par l'utilisateur dans le tableau de bord (sans correspondance externe)."],
+    [/^Opened from the sensitivity heatmap: a \+10% permanent price-level shock in one country and component, to read the size of the response; not a forecast of any event\.$/,
+      () => "Ouvert depuis la carte de sensibilité : un choc permanent de +10 % sur le niveau des prix d'un pays et d'une composante, pour lire l'ampleur de la réponse ; ce n'est la prévision d'aucun événement."],
+    // the sentence interpreter's notes
+    [/^You wrote: “(.*)”$/s, (m) => `Vous avez écrit : « ${m[1]} »`],
+    [/^Assumed: (.*)$/s, (m) => `Hypothèse retenue (texte du modèle de langue, en anglais) : ${m[1]}`],
+    [/^(Shock (\d+): )?Start (\d{4}-\d{2}) plus a delay of (\d+) month\(s\): the shock starts in (\d{4}-\d{2})\. If you meant a gradual build-up instead, say 'ramp over N months'\.$/,
+      (m) => `${m[1] ? `Choc ${m[2]} : ` : ""}Début ${frMon(m[3])} plus un délai de ${m[4]} mois : le choc commence en ${frMon(m[5])}. Pour une montée progressive, dites « progressif sur N mois ».`],
+    [/^(Shock (\d+): )?A delay of (\d+) month\(s\): starts in (\d{4}-\d{2}) \(counted from (\d{4}-\d{2}), the first month after the last published data\)\.$/,
+      (m) => `${m[1] ? `Choc ${m[2]} : ` : ""}Un délai de ${m[3]} mois : début en ${frMon(m[4])} (compté à partir de ${frMon(m[5])}, le premier mois après les dernières données publiées).`],
+    [/^(Shock (\d+): )?No start given: starts in (\d{4}-\d{2}), the first month after the last published data\.$/,
+      (m) => `${m[1] ? `Choc ${m[2]} : ` : ""}Pas de début indiqué : début en ${frMon(m[3])}, le premier mois après les dernières données publiées.`],
+    [/^(Shock (\d+): )?'Fading over ([\d.]+) months' is modelled as exponential decay with half-life ([\d.]+) months \(about 25% of the shock remains after that time\)\.$/,
+      (m) => `${m[1] ? `Choc ${m[2]} : ` : ""}« S'estompe sur ${frNum(m[3])} mois » est modélisé comme une décroissance exponentielle de demi-vie ${frNum(m[4])} mois (environ 25 % du choc subsiste après cette durée).`],
+    [/^(Shock (\d+): )?Brent ([+−-]?[\d.]+)% → fuel prices ([+−-]?[\d.]+)% through the estimated elasticity ([\d.]+) \(computed by the model code, not the LLM\)\.$/,
+      (m) => `${m[1] ? `Choc ${m[2]} : ` : ""}Brent ${frNum(m[3])} % → prix des carburants ${frNum(m[4])} % selon l'élasticité estimée de ${frNum(m[5])} (calculée par le code du modèle, pas par le modèle de langue).`],
+    [/^(Shock (\d+): )?A time path was ignored for a Brent shock: the fuel pass-through profile is estimated\.$/,
+      (m) => `${m[1] ? `Choc ${m[2]} : ` : ""}Le profil temporel indiqué est ignoré pour un choc sur le Brent : le profil de transmission aux carburants est estimé.`],
+  ];
+  // Returns [text, translated?]; in English, or for an unknown sentence, the original.
+  function pipelineText(s) {
+    if (lang === "en" || typeof s !== "string") return [s, false];
+    for (const [re, f] of FR_PATTERNS) { const m = re.exec(s.trim()); if (m) return [f(m), true]; }
+    return [s, false];
+  }
+  const pt_ = (s) => pipelineText(s)[0];
+
   // ------------------------------------------------------------------ research note (numbers verified)
   // The fact sheet is written in English; in French the check table shows each fact's French label (D62).
   function factLabel(x) {
@@ -1158,7 +1224,7 @@
   function readableLines(lines, sc, text) {
     const out = lines.map((l) => {
       const m = /^(Shock (\d+): )?Applies to (.+) in (.+), from (\d{4}-\d{2})\.$/.exec(l);
-      if (!m) return l;
+      if (!m) return pt_(l);
       const leg = sc && sc.legs ? sc.legs[m[2] ? Number(m[2]) - 1 : 0] : null;
       const comps = leg ? leg.components.map(comp).join(", ") : m[3];
       const where = leg && leg.countries.length ? leg.countries.map(geo).join(", ") : t("nl_whole_ea");
@@ -1363,17 +1429,18 @@
 
     const rat = el("sim-rationale"); rat.replaceChildren();
     const nm = presetIdx >= 0 ? t("preset_" + presetIdx) : t("sim_custom");
-    if (presetIdx >= 0) rat.append(node("b", {}, `${nm} — ${t("sim_rationale")}: `), document.createTextNode(scenario.rationale));
+    const [ratText, ratFr] = pipelineText(scenario.rationale);
+    if (presetIdx >= 0) rat.append(node("b", {}, `${nm} — ${t("sim_rationale")}: `), document.createTextNode(ratText));
     else {  // the reader's own scenario: the rationale is theirs to write, and it travels with the link (D64)
       const box = node("textarea", { id: "sim-rat-edit", rows: "2", maxlength: "1200", class: "nl-text", "aria-label": t("sim_rat_edit") });
       box.value = scenario.rationale || ""; box.placeholder = t("sim_rat_ph");
       box.addEventListener("input", () => { scenario.rationale = box.value.slice(0, 1200); scenario.ratByUser = true; });
       rat.append(node("label", { for: "sim-rat-edit", class: "rat-label" }, `${nm} — ${t("sim_rat_edit")}`), box);
     }
-    if (scenario.mapping) rat.append(node("br"), node("b", {}, t("sim_mapping") + ": "), document.createTextNode(scenario.mapping));
+    if (scenario.mapping) rat.append(node("br"), node("b", {}, t("sim_mapping") + ": "), document.createTextNode(pt_(scenario.mapping)));
     rat.append(node("br"), node("b", {}, t("sim_sources") + ": "), document.createTextNode(scenario.sources.join("; ")));
-    if (lang !== "en") rat.append(node("br"), node("i", {}, t("rationale_lang_note")));
-    el("sim-assume").replaceChildren(...S.assumptions.map((a) => node("li", {}, a)));
+    if (lang !== "en" && presetIdx >= 0 && !ratFr) rat.append(node("br"), node("i", {}, t("rationale_lang_note")));  // only if not translated
+    el("sim-assume").replaceChildren(...S.assumptions.map((a) => node("li", {}, pt_(a))));
     el("legs-block").hidden = !multi;
     if (multi) {
       table(el("tbl-legs"), [t("leg_shock"), t("leg_alone_peak"), t("leg_alone_dec", { date: monthLabel(last.date) })],
@@ -1576,7 +1643,7 @@
       V.gates.map((g) => {
         const st = node("span", { class: "status st-" + g.status });
         st.append(node("span", { class: "dot", "aria-hidden": "true" }), document.createTextNode(t("st_" + g.status)));
-        return [g.gate + (g.critical ? ` (${t("critical")})` : ""), g.name, st, g.message];
+        return [g.gate + (g.critical ? ` (${t("critical")})` : ""), lang !== "en" && D.i18n[lang]["gate_" + g.gate] ? t("gate_" + g.gate) : g.name, st, pt_(g.message)];
       }));
     table(el("tbl-vin"), [t("vin_source"), t("vin_dataset"), t("vin_updated")],
       M.vintages.map((v) => [v.name, v.dataset, v.updated]));
@@ -2292,7 +2359,7 @@ ${note}
         const k = k0 >= 0 && presetAsIs(q, k0) ? k0 : -1;  // any other number (a size, a date) goes to the interpreter
         if (k >= 0) {
           const pre = S.presets[k];
-          askScenarioResult(JSON.parse(JSON.stringify(pre)), [t("ask_sc_preset", { name: t("preset_" + k) }), pre.rationale], t("ask_sc_meta_preset"));
+          askScenarioResult(JSON.parse(JSON.stringify(pre)), [t("ask_sc_preset", { name: t("preset_" + k) }), pt_(pre.rationale)], t("ask_sc_meta_preset"));
         } else await askScenario(q);
       }
     } catch (e) {

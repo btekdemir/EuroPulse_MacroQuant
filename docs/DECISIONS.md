@@ -1156,3 +1156,20 @@ The "vs last print" card read "Base effect −0.113 and cumulative momentum +0.1
 - **The fix:** a folded card now keeps its own height (`align-self: start`), and once opened it spans the full row (`:has(details.fold[open])`). Its neighbour stays a closed bar on the next row, and the opened card's chart and tables get the full width; the chart is resized on opening.
 - **Not done:** opening both together was rejected: two independent questions in one long block, and two charts drawn at once.
 - **Checked:** at 1280 px the opened card is 1232 px wide with its chart at 1198 px, and the closed one stays 57 px tall. End-to-end 170/170.
+
+## D75. The French page in full (22 Oct 2026)
+
+- **How it was checked:** every tab, every folded section, all three presets, the header and the Ask panel, in French: text, chart labels, tooltips, placeholders and aria labels.
+- **What was still English:** texts the Python pipeline writes in English with live numbers in them.
+  - The validation results and gate names.
+  - The preset rationales and mappings.
+  - Assumptions A1–A5.
+  - The sentence interpreter's notes ("You wrote", "No start given…", "Fading over…", Brent).
+  - Two evidence-box strings said "pp".
+- **How it was fixed:**
+  - In French each known sentence is rewritten with the same live numbers in French format (0,31; mars 2005).
+  - A sentence that does not match a known pattern stays in English rather than being guessed. The "rationales are in English" note now appears only then.
+  - Gate names are translated in French only; English shows the pipeline's own wording.
+  - The LLM's free-text assumptions ("Assumed: …") are labelled as model text in English, since they cannot be translated without another call.
+- **What stays in its original form:** dataset codes in source citations (e.g. "Eurostat prc_hicp_cw (FR country weight)").
+- **Checked:** the French scan finds nothing else; end-to-end 174/174 (4 new); Python tests pass.

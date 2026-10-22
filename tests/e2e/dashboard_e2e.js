@@ -447,6 +447,18 @@
     el("ask-close").click();
   });
 
+  await step("i18n: French page shows no pipeline English (D75)", async () => {
+    $("[data-lang=fr]").click(); await sleep(500);
+    await tab("model");
+    const val = visibleText(el("tbl-val"));
+    ok("validation results in French", !/all tables match|series with gaps|duplicate keys|month-end/.test(val), val.slice(0, 80));
+    ok("evidence box says pt, not pp", !/\bpp\b/.test(visibleText(el("msum"))));
+    await tab("shocks"); $$("#presets button")[0].click(); await sleep(300);
+    ok("preset rationale and assumptions in French", !/supply disruption|Each shock leg/.test(visibleText(el("sim-rationale")) + visibleText(el("sim-assume"))));
+    $("[data-lang=en]").click(); await sleep(400);
+    await tab("model");  // a page is redrawn in the new language when it is opened
+    ok("English unchanged", /all tables match/.test(visibleText(el("tbl-val"))));
+  });
   await step("charts: no time window opens on an empty stretch (D61)", async () => {
     const bad = [];
     for (const tb of ["overview", "drivers", "countries", "shocks", "model"]) {
