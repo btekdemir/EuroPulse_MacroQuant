@@ -243,9 +243,10 @@
     const l0 = legs();
     el("leg-add").click(); await sleep(250);
     ok("add a leg", legs() === l0 + 1);
-    ok("a new shock starts empty and asks for a component (D65)", $$("#f-comps input:checked").length === 0 && !el("sim-warn").hidden);
+    ok("a new shock starts empty and asks for a component (D65)", $$("#f-comps input:checked").length === 0 && !el("leg-empty").hidden);
+    ok("an empty shock leaves the results in place (D76)", el("sim-warn").hidden && visibleText(el("k-peak")).includes("pp"));
     $("#f-comps input[value=SERV]").click(); await sleep(250);
-    ok("picking a component simulates it", el("sim-warn").hidden);
+    ok("picking a component includes it", el("leg-empty").hidden && el("sim-warn").hidden);
     setVal(el("f-size"), "25"); await sleep(250);
     ok("legs table shown for 2+ legs", !el("legs-block").hidden);
     el("leg-del").click(); await sleep(250);
@@ -300,6 +301,13 @@
     }
     setVal(el("f-size"), size0); await sleep(150);
     ok("valid size clears the message", el("size-warn").hidden);
+  });
+  await step("shocks: compact controls (D76)", async () => {
+    $$("#presets button")[0].click(); await sleep(250);
+    ok("country chips hidden while 'whole euro area' is ticked", el("f-allea").checked && el("f-countries").hidden);
+    ok("regime menu hidden while second round is off", !el("f-second").checked && el("w-regime").hidden);
+    const cur = el("cur-sec").getBoundingClientRect(), ed = el("leg-group").getBoundingClientRect();
+    ok("the shock editor sits inside the current scenario box", ed.top >= cur.top && ed.bottom <= cur.bottom);
   });
   await step("shocks: heatmap labels every row and column (D61)", async () => {
     const H = el("p-heat");

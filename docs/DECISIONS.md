@@ -1173,3 +1173,18 @@ The "vs last print" card read "Base effect −0.113 and cumulative momentum +0.1
   - The LLM's free-text assumptions ("Assumed: …") are labelled as model text in English, since they cannot be translated without another call.
 - **What stays in its original form:** dataset codes in source citations (e.g. "Eurostat prc_hicp_cw (FR country weight)").
 - **Checked:** the French scan finds nothing else; end-to-end 174/174 (4 new); Python tests pass.
+
+## D76. One control box for the simulator; an empty shock no longer blanks the result (22 Oct 2026)
+
+- **One box:**
+  - "Current scenario" now holds everything that defines the scenario: the list of shocks, + Add / Remove, the editor of the selected shock (components, countries, size, start, profile), second-round effects, Copy link and Download. So the scenario and its editor are always in view together.
+  - Presets and the sentence box follow as the other ways to fill it.
+  - The control column is wider (5/12, results 7/12). Size, start, profile and length sit in a two-column grid.
+- **Less height:**
+  - The 21 country chips appear only when "Whole euro area" is unticked.
+  - The regime menu appears only when second-round effects are on. It picks the estimated energy → core pass-through: post-2020 about 0.074, pre-2020 about 0.016.
+- **Empty shock:**
+  - "+ Add shock" still adds an empty shock (D65), but the results no longer blank. The engine treats an empty shock as zero, so the KPIs and chart keep showing the complete shocks.
+  - The strip labels it "empty · pick a component", with a hint under its editor. Only a scenario with no complete shock at all shows the warning.
+- **Tour:** the simulator tour follows the new order: current scenario → shock editor → second round → presets → sentence box → results.
+- **Checked:** end-to-end 178/178 (5 new); Python tests pass.

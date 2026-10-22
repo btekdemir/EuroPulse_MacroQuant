@@ -908,7 +908,7 @@
   const activeShock = () => scenario.legs[activeLeg];
   // A new shock starts empty (D65): nothing is simulated until the reader picks what it hits.
   const newLeg = () => ({ components: [], countries: [], size_pct: 10, profile: { kind: "permanent" }, start: S.months[0] });
-  const legLabel = (lg) => `${lg.components.map(comp).join(" + ") || "?"} · ${lg.countries.length ? lg.countries.join("/") : geo("EA")} · ${sgn(lg.size_pct, 1)}%`;
+  const legLabel = (lg) => (lg.components.length ? `${lg.components.map(comp).join(" + ")} · ${lg.countries.length ? lg.countries.join("/") : geo("EA")} · ${sgn(lg.size_pct, 1)}%` : t("leg_empty_label"));
 
   function buildForm() {
     const comps = el("f-comps"); comps.replaceChildren();
@@ -921,11 +921,11 @@
     const cs = el("f-countries"); cs.replaceChildren();
     S.countries.forEach((g) => {
       const lab = node("label"), cb = node("input", { type: "checkbox", value: g });
-      cb.addEventListener("change", () => { el("f-allea").checked = !cs.querySelector("input:checked"); fromForm(); });
+      cb.addEventListener("change", () => { el("f-allea").checked = !cs.querySelector("input:checked"); fromForm(); el("f-countries").hidden = false; el("f-countries-hint").hidden = true; });
       lab.append(cb, node("span", {}, g));
       cs.appendChild(lab);
     });
-    el("f-allea").addEventListener("change", () => { if (el("f-allea").checked) cs.querySelectorAll("input").forEach((i) => { i.checked = false; }); fromForm(); });
+    el("f-allea").addEventListener("change", () => { if (el("f-allea").checked) cs.querySelectorAll("input").forEach((i) => { i.checked = false; }); syncOptional(); fromForm(); });
     ["f-size", "f-start", "f-profile", "f-param", "f-second", "f-regime"].forEach((id) => el(id).addEventListener("input", fromForm));
     el("leg-add").addEventListener("click", () => {
       if (scenario.legs.length >= MAX_LEGS) return;
@@ -1144,6 +1144,7 @@
     el("f-comps").querySelectorAll("input").forEach((i) => { i.checked = lg.components.includes(i.value); });
     el("f-countries").querySelectorAll("input").forEach((i) => { i.checked = lg.countries.includes(i.value); });
     el("f-allea").checked = lg.countries.length === 0;
+    setTimeout(syncOptional, 0);
     el("f-size").value = lg.size_pct; el("size-warn").hidden = true; el("f-size").setAttribute("aria-invalid", "false");
     el("f-start").value = lg.start;
     el("f-profile").value = lg.profile.kind;
@@ -1329,6 +1330,13 @@
     el("leg-group").scrollIntoView({ block: "nearest" });
   }
 
+  // Space (D76): the 21 country chips show only when "whole euro area" is unticked, the regime menu only with the
+  // second round on.
+  function syncOptional() {
+    el("f-countries").hidden = el("f-allea").checked;
+    el("f-countries-hint").hidden = !el("f-allea").checked;
+    el("w-regime").hidden = !el("f-second").checked;
+  }
   function paramVisibility() {
     const k = el("f-profile").value;
     el("w-param").hidden = !["decaying", "temporary", "ramp"].includes(k);
@@ -1370,6 +1378,7 @@
       size_pct: size === null ? lg.size_pct : size, profile, start: el("f-start").value,
     });
     scenario.second_round = el("f-second").checked;
+    syncOptional();
     scenario.second_round_regime = el("f-regime").value;
     markCustom();
     renderLegs();
@@ -1377,8 +1386,13 @@
   }
 
   function renderShock() {
-    const none = scenario.legs.some((lg) => lg.components.length === 0);
+    // An empty shock adds nothing (the engine treats it as zero), so the results show the other shocks; only a
+    // scenario with no complete shock at all has nothing to show (D76).
+    const isEmpty = (lg) => lg.components.length === 0;
+    const none = scenario.legs.every(isEmpty);
     el("sim-warn").hidden = !none;
+    el("leg-empty").hidden = !(scenario.legs[activeLeg] && isEmpty(scenario.legs[activeLeg])) || none;
+    el("leg-empty").textContent = t("leg_empty_note");
     const r = none ? null : ShockEngine.simulate(scenario, S);
     const kpi = (id, label, value, sub) => el(id).replaceChildren(node("div", { class: "label" }, label), node("div", { class: "value" }, value), node("div", { class: "sub" }, sub || ""));
     const decIdx = S.months.indexOf(last.date);
@@ -1386,15 +1400,15 @@
     kpi("k-peak", t("sim_peak"), sgn(r.peak_pp) + " " + t("pp"), monthLabel(r.peak_month));
     kpi("k-dec", t("sim_dec", { date: monthLabel(last.date) }), sgn(r.delta_yoy_pp[decIdx]) + " " + t("pp"),
       scenario.second_round ? `${t("s_first")} ${sgn(r.delta_first_round_pp[decIdx])} · ${t("s_second")} ${sgn(r.delta_second_round_pp[decIdx])}`
-        : scenario.legs.length > 1 ? t("sim_n_shocks", { n: scenario.legs.length }) : t("s_first"));
+        : scenario.legs.filter((lg) => !isEmpty(lg)).length > 1 ? t("sim_n_shocks", { n: scenario.legs.filter((lg) => !isEmpty(lg)).length }) : t("s_first"));
     kpi("k-shocked", t("sim_shocked", { date: monthLabel(last.date) }), pct(r.shocked_yoy[decIdx]), `${t("s_baseline")}: ${pct(last.point)}`);
     kpi("k-prob", t("k_prob", { date: monthLabel(last.date), thr: fmt(thr, 1) }), probTxt(probOf(r.shocked_yoy[decIdx], thr)) + "%",
       `${t("k_prob_sub", { b: probTxt(probOf(last.point, thr)) })} · ${t("prob_shock_note")}`);
 
     const xs = r.months.map(toDate);
-    const multi = scenario.legs.length > 1;
+    const multi = scenario.legs.filter((lg) => !isEmpty(lg)).length > 1;
     const tr = multi
-      ? scenario.legs.map((lg, k) => ({ type: "bar", name: `${k + 1}. ${legLabel(lg)}`, x: xs, y: r.leg_first_round_pp[k],
+      ? scenario.legs.map((lg, k) => [lg, k]).filter(([lg]) => !isEmpty(lg)).map(([lg, k]) => ({ type: "bar", name: `${k + 1}. ${legLabel(lg)}`, x: xs, y: r.leg_first_round_pp[k],
         marker: { color: css(LEG_SLOT[k]), line: { color: css("--surface-1"), width: 1 } }, hovertemplate: "%{y:+.3f} " + t("pp") }))
       : [{ type: "bar", name: t("s_first"), x: xs, y: r.delta_first_round_pp, marker: { color: css("--accent") }, hovertemplate: "%{y:+.3f} " + t("pp") }];
     if (scenario.second_round) {
@@ -1444,7 +1458,7 @@
     el("legs-block").hidden = !multi;
     if (multi) {
       table(el("tbl-legs"), [t("leg_shock"), t("leg_alone_peak"), t("leg_alone_dec", { date: monthLabel(last.date) })],
-        scenario.legs.map((lg, k) => {
+        scenario.legs.map((lg, k) => [lg, k]).filter(([lg]) => !isEmpty(lg)).map(([lg, k]) => {
           const arr = r.leg_first_round_pp[k];
           const pk = arr.reduce((a, b) => (Math.abs(b) > Math.abs(a) ? b : a), 0);
           return [`${k + 1}. ${legLabel(lg)}`, sgn(pk, 3), sgn(arr[decIdx], 3)];
@@ -1838,10 +1852,10 @@
     ],
     shocks: [
       { key: "sim_current", sel: "#cur-sec", self: true },
-      { key: "sim_ways", sel: "#presets", self: true },
-      { key: "sim_words", sel: "#nl-sec", self: true },
       { key: "sim_build", sel: "#leg-group", self: true },
       { key: "sim_second", sel: "#second-row", self: true },
+      { key: "sim_ways", sel: "#presets", self: true },
+      { key: "sim_words", sel: "#nl-sec", self: true },
       { key: "sim_results", sel: "#sim-kpis", self: true },
       { key: "sim_chart", sel: "#p-shock", self: true },
       { key: "reverse", sel: "#rev-card", self: true },
