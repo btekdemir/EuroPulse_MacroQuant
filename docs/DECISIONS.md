@@ -1124,3 +1124,8 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
   - Screenshots come from the live build with `?notour&tab=…`, two new address options that skip the auto tour and open a page directly.
 - **Power BI:** the brief's Power BI pack was dropped earlier (no Power BI). The deck says the schema-validated JSON can feed Power BI or a research platform, and claims no pack.
 - **Checked:** the deck passes the OOXML validator and was rendered and inspected slide by slide (LibreOffice). It uses Cambria and Calibri, which ship with Office, so PowerPoint will match.
+- **PowerPoint repair (fixed):**
+  - PowerPoint asked to repair the first build and then showed slide 1 empty. Its line chart had two faults the validator does not catch.
+  - First, missing values (where the history and forecast lines start or stop) were written as empty `<c:v></c:v>`. The build now removes those points; an absent point is a gap.
+  - Second, the per-line dash styles were joined into one invalid value. The bands are now told apart by colour.
+  - The rebuilt file has neither fault and passes the validator.

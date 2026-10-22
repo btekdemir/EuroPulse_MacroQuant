@@ -133,9 +133,9 @@ pres.addSection({ title: "Answer" });
     { name: "90% band", labels, values: band("q95") }, { name: "90% band low", labels, values: band("q05") },
   ], Object.assign({
     x: 6.0, y: 2.05, w: 6.6, h: 4.1, objectName: "headline forecast chart",
-    chartColors: [HEX.dk1, HEX.accent1, HEX.accent4, HEX.accent4, "C9DCF4", "C9DCF4"],
+    // Bands told apart by colour, not dash: this pptxgenjs writes a per-series lineDash array as one invalid value.
+    chartColors: [HEX.dk1, HEX.accent1, "7FAEE6", "7FAEE6", "C9DCF4", "C9DCF4"],
     lineSize: 2, lineDataSymbol: "none", displayBlanksAs: "gap",
-    lineDash: ["solid", "solid", "dash", "dash", "sysDot", "sysDot"],
     showTitle: true, title: "Headline HICP, % y/y: last 24 months and the forecast fan", titleFontSize: 13, titleColor: HEX.dk2,
     showLegend: false,
     catAxisLabelColor: HEX.accent3, valAxisLabelColor: HEX.accent3, catAxisLabelFontSize: 10, valAxisLabelFontSize: 11,
@@ -145,7 +145,9 @@ pres.addSection({ title: "Answer" });
 
   text(s, [
     { text: "Actual", options: { bold: true, color: HEX.dk1 } }, { text: "   " },
-    { text: "Forecast", options: { bold: true, color: HEX.accent1 } }, { text: "   dashed: 68% band   dotted: 90% band", options: { color: HEX.accent3 } },
+    { text: "Forecast", options: { bold: true, color: HEX.accent1 } }, { text: "   " },
+    { text: "68% band", options: { bold: true, color: "7FAEE6" } }, { text: "   " },
+    { text: "90% band", options: { bold: true, color: "A9C7EE" } },
   ], { x: 6.25, y: 6.18, w: 6.3, h: 0.35, fontSize: 12, objectName: "chart key" });
 
   s.addNotes(`Lead with the answer. Euro area* headline HICP is forecast at ${fmt(F.point, 2)}% y/y for ${mlong(D.target)}, three months after the ${mlong(D.origin)} print of ${fmt(F.last_actual, 2)}%. The 68% band is ${fmt(F.q16, 1)} to ${fmt(F.q84, 1)}% and the 90% band ${fmt(F.q05, 1)} to ${fmt(F.q95, 1)}%; both come from the model's own out-of-sample errors, not from model assumptions, which is why the fan is skewed up (the model under-predicted in 2021-22).
@@ -289,9 +291,25 @@ The simulator also works backwards: what shock size takes December to a target. 
 Next steps: weekly fuel prices, pre-tax energy prices, country-level gas and electricity, and true real-time vintages. Every output is schema-validated JSON, so the same results can feed Power BI or a research platform without re-computing anything.`);
 }
 
+// pptxgenjs writes a missing chart value (null, for a line that starts or stops) as an empty <c:v></c:v>. PowerPoint
+// treats that as a corrupt file and drops the slide; a gap must be an absent point. Remove those points.
+async function dropEmptyChartPoints(file) {
+  const JSZip = require("jszip");
+  const zip = await JSZip.loadAsync(fs.readFileSync(file));
+  let n = 0;
+  for (const name of Object.keys(zip.files).filter((f) => /^ppt\/charts\/chart\d+\.xml$/.test(f))) {
+    const xml = await zip.file(name).async("string");
+    const fixed = xml.replace(/<c:pt idx="\d+"><c:v><\/c:v><\/c:pt>/g, () => { n++; return ""; });
+    if (fixed !== xml) zip.file(name, fixed);
+  }
+  fs.writeFileSync(file, await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" }));
+  return n;
+}
+
 (async () => {
   const out = path.join(__dirname, "deck.pptx");
   await pres.writeFile({ fileName: out });
   await applyTheme(out, THEME);
-  console.log("written", out);
+  const n = await dropEmptyChartPoints(out);
+  console.log("written", out, `(${n} empty chart points removed)`);
 })();
