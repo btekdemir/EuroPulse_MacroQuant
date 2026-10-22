@@ -943,6 +943,7 @@
     });
     el("nl-go").addEventListener("click", nlInterpret);
     el("nl-run").addEventListener("click", nlRun);
+    el("nl-add").addEventListener("click", nlAdd);
     el("nl-text").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); nlInterpret(); } });
     el("sim-share").addEventListener("click", copyShare);
     el("sim-export").addEventListener("click", () => {
@@ -1336,6 +1337,24 @@
     el("f-countries").hidden = el("f-allea").checked;
     el("f-countries-hint").hidden = !el("f-allea").checked;
     el("w-regime").hidden = !el("f-second").checked;
+  }
+  // "+ Add as shocks" (D77): the interpreted shocks join the current scenario instead of replacing it, up to the
+  // six-shock limit; an empty placeholder shock is replaced rather than kept.
+  function nlAdd() {
+    if (!nlPending) return;
+    const add = JSON.parse(JSON.stringify(nlPending.scenario.legs));
+    const keep = scenario.legs.filter((lg) => lg.components.length > 0);
+    const room = MAX_LEGS - keep.length;
+    if (room <= 0) { el("nl-status").textContent = t("nl_add_full", { max: MAX_LEGS }); return; }
+    const taken = add.slice(0, room);
+    scenario.legs = [...keep, ...taken];
+    activeLeg = keep.length;                      // the first added shock is the one shown in the editor
+    markCustom();
+    el("nl-confirm").hidden = true; nlPending = null;
+    el("nl-status").textContent = taken.length < add.length
+      ? t("nl_added_partial", { n: taken.length, m: add.length, max: MAX_LEGS }) : t("nl_added", { n: taken.length });
+    refreshAll();
+    el("leg-group").scrollIntoView({ block: "nearest" });
   }
   function paramVisibility() {
     const k = el("f-profile").value;
@@ -1851,11 +1870,11 @@
       { key: "profile", sel: "#cp-summary", self: true },
     ],
     shocks: [
+      { key: "sim_words", sel: "#nl-sec", self: true },
       { key: "sim_current", sel: "#cur-sec", self: true },
       { key: "sim_build", sel: "#leg-group", self: true },
       { key: "sim_second", sel: "#second-row", self: true },
       { key: "sim_ways", sel: "#presets", self: true },
-      { key: "sim_words", sel: "#nl-sec", self: true },
       { key: "sim_results", sel: "#sim-kpis", self: true },
       { key: "sim_chart", sel: "#p-shock", self: true },
       { key: "reverse", sel: "#rev-card", self: true },

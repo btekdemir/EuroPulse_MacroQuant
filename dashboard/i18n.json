@@ -800,9 +800,9 @@
   "tour_ccmp_t": "Compare up to three countries",
   "tour_ccmp_b": "Add or remove countries next to the euro area* line; each keeps its colour. 1Y / 3Y / All change the window, and the scale follows the dates shown.",
   "tour_sim_ways_t": "Three ways to build a shock",
-  "tour_sim_ways_b": "1) A preset: a ready-made, documented scenario (oil, gas, French electricity tariff). 2) A sentence, in the box below. 3) By hand, in the editor under the current scenario. All three fill the current scenario at the top, and the results on the right update at once.",
+  "tour_sim_ways_b": "1) A preset: a ready-made, documented scenario (oil, gas, French electricity tariff). 2) A sentence, in the box at the top. 3) By hand, in the editor under the current scenario. All three fill the current scenario at the top, and the results on the right update at once.",
   "tour_sim_words_t": "Describe it in words",
-  "tour_sim_words_b": "Type a shock as you would say it ('gas +40% in Germany and Italy, fading over 6 months') and press Interpret. A language model only turns the sentence into shocks; it computes nothing. You see what it understood (component, countries, size, start, profile) and confirm with 'Run this scenario' before anything changes. Or click an example.",
+  "tour_sim_words_b": "Type a shock as you would say it ('gas +40% in Germany and Italy, fading over 6 months') and press Interpret. A language model only turns the sentence into shocks; it computes nothing. You see what it understood (component, countries, size, start, profile) and confirm before anything changes: 'Run this scenario' replaces the current one, '+ Add as shocks' adds them to it. Or click an example.",
   "tour_sim_build_t": "One shock: what, where, how much, when",
   "tour_sim_build_b": "Components: which prices move (fuels, electricity & gas, food, goods, services). Countries: the whole euro area or chosen members. Size: the change in the price level, between −50% and +100%. Start: the first month hit. Profile: permanent, fading (half-life), temporary (for N months) or a gradual ramp.",
   "tour_sim_second_t": "Second-round effects (optional)",
@@ -832,7 +832,11 @@
   "gate_V9": "Freshness: last period vs today",
   "leg_empty_note": "This shock is empty: pick a component to include it. The results show the other shocks.",
   "leg_empty_label": "empty · pick a component",
-  "sim_countries_hint": "untick to pick countries"
+  "sim_countries_hint": "untick to pick countries",
+  "nl_add": "+ Add as shocks",
+  "nl_added": "Added {n} shock(s) to the current scenario.",
+  "nl_added_partial": "Added {n} of {m} shocks: a scenario holds at most {max}.",
+  "nl_add_full": "The scenario already has {max} shocks: remove one first."
  },
  "fr": {
   "title": "EuroPulse",
@@ -1635,9 +1639,9 @@
   "tour_ccmp_t": "Comparer jusqu'à trois pays",
   "tour_ccmp_b": "Ajoutez ou retirez des pays à côté de la courbe de la zone euro* ; chacun garde sa couleur. 1 an / 3 ans / Tout changent la période, et l'échelle suit les dates affichées.",
   "tour_sim_ways_t": "Trois façons de construire un choc",
-  "tour_sim_ways_b": "1) Un scénario prédéfini : documenté et tout prêt (pétrole, gaz, tarif de l'électricité en France). 2) Une phrase, dans le champ ci-dessous. 3) À la main, dans l'éditeur sous le scénario en cours. Les trois remplissent le scénario en cours en haut, et les résultats à droite se mettent à jour aussitôt.",
+  "tour_sim_ways_b": "1) Un scénario prédéfini : documenté et tout prêt (pétrole, gaz, tarif de l'électricité en France). 2) Une phrase, dans le champ en haut. 3) À la main, dans l'éditeur sous le scénario en cours. Les trois remplissent le scénario en cours en haut, et les résultats à droite se mettent à jour aussitôt.",
   "tour_sim_words_t": "Le décrire en mots",
-  "tour_sim_words_b": "Écrivez un choc comme vous le diriez (« gaz +40 % en Allemagne et en Italie, s'estompant sur 6 mois ») et cliquez sur Interpréter. Un modèle de langage transforme seulement la phrase en chocs ; il ne calcule rien. Vous voyez ce qu'il a compris (composante, pays, taille, début, profil) et confirmez avec « Lancer ce scénario » avant tout changement. Ou cliquez sur un exemple.",
+  "tour_sim_words_b": "Écrivez un choc comme vous le diriez (« gaz +40 % en Allemagne et en Italie, s'estompant sur 6 mois ») et cliquez sur Interpréter. Un modèle de langage transforme seulement la phrase en chocs ; il ne calcule rien. Vous voyez ce qu'il a compris (composante, pays, taille, début, profil) et confirmez avant tout changement : « Lancer ce scénario » remplace le scénario en cours, « + Ajouter comme chocs » les y ajoute. Ou cliquez sur un exemple.",
   "tour_sim_build_t": "Un choc : quoi, où, combien, quand",
   "tour_sim_build_b": "Composantes : quels prix bougent (carburants, électricité et gaz, alimentation, biens, services). Pays : toute la zone euro ou certains membres. Taille : la variation du niveau des prix, entre −50 % et +100 %. Début : le premier mois touché. Profil : permanent, qui s'estompe (demi-vie), temporaire (pendant N mois) ou progressif.",
   "tour_sim_second_t": "Effets de second tour (facultatif)",
@@ -1667,6 +1671,10 @@
   "gate_V9": "Fraîcheur : dernière période vs aujourd'hui",
   "leg_empty_note": "Ce choc est vide : choisissez une composante pour l'inclure. Les résultats montrent les autres chocs.",
   "leg_empty_label": "vide · choisir une composante",
-  "sim_countries_hint": "décochez pour choisir des pays"
+  "sim_countries_hint": "décochez pour choisir des pays",
+  "nl_add": "+ Ajouter comme chocs",
+  "nl_added": "{n} choc(s) ajouté(s) au scénario en cours.",
+  "nl_added_partial": "{n} des {m} chocs ajoutés : un scénario en contient au plus {max}.",
+  "nl_add_full": "Le scénario a déjà {max} chocs : retirez-en un d'abord."
  }
 }

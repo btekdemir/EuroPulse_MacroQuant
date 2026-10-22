@@ -118,6 +118,8 @@ a.dcode { color: inherit; text-decoration: underline dotted; text-underline-offs
 .leg-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin-top: 4px; }
 .leg-fields label { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .leg-fields input, .leg-fields select { width: 100%; }
+.nl-top { margin-top: 0; margin-bottom: 14px; }
+#nl-sec textarea { min-height: 2.6em; }
 .card.plain { background: transparent; border: 0; padding: 4px 2px; }
 .tab-lede { grid-column: span 12; margin: 2px 0 0; color: var(--text-secondary); font-size: 14px; }
 .sec-head { grid-column: span 12; margin: 14px 2px -4px; font-size: 11.5px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
@@ -395,6 +397,23 @@ input[type="range"] { min-width: 160px; }
     <div class="grid">
       <p class="tab-lede" data-i18n="lede_shocks"></p>
       <div class="card span-5" id="sim-controls">
+        <!-- D77: the sentence box first, so it is seen at once; its result can replace or add to the current scenario -->
+        <section class="subsec nl-top" id="nl-sec">
+          <h2 data-i18n="nl_title"></h2>
+          <p class="note" data-i18n="nl_intro" style="margin:0 0 6px"></p>
+          <p class="note ex-label" data-i18n="nl_examples_label"></p>
+          <div class="presets examples" id="nl-examples"></div>
+          <textarea id="nl-text" rows="2" maxlength="300" class="nl-text"></textarea>
+          <div class="row" style="margin-top:6px"><button class="btn tour-primary" id="nl-go" type="button" data-i18n="nl_go"></button>
+            <span class="note" id="nl-status" style="margin:0" role="status"></span></div>
+          <div class="ask-row" id="nl-code-row" hidden style="margin-top:6px"><input type="password" id="nl-code" class="nl-text" autocomplete="off" aria-label="Access code">
+            <button type="button" class="btn tour-primary" id="nl-code-go" data-i18n="code_unlock"></button></div>
+          <div class="assume" id="nl-confirm" hidden>
+            <b data-i18n="nl_confirm_title"></b><ul id="nl-lines"></ul>
+            <div class="row" style="margin-top:6px"><button class="btn tour-primary" id="nl-run" type="button" data-i18n="nl_run"></button>
+              <button class="btn" id="nl-add" type="button" data-i18n="nl_add"></button>
+              <span class="note" id="nl-src" style="margin:0"></span></div></div>
+        </section>
         <!-- D76: the scenario and the editor of its selected shock in one box, so both are always in view; presets and
              the sentence box below are the other ways to fill the same scenario. -->
         <section class="cur-sec" id="cur-sec">
@@ -431,21 +450,6 @@ input[type="range"] { min-width: 160px; }
             <span class="note" id="share-status" role="status" style="margin:0"></span></div>
         </section>
         <h2 style="margin-top:16px" data-i18n="sim_presets"></h2><div class="presets" id="presets"></div>
-        <section class="subsec" id="nl-sec">
-          <h2 data-i18n="nl_title"></h2>
-          <p class="note" data-i18n="nl_intro" style="margin:0 0 6px"></p>
-          <p class="note ex-label" data-i18n="nl_examples_label"></p>
-          <div class="presets examples" id="nl-examples"></div>
-          <textarea id="nl-text" rows="2" maxlength="300" class="nl-text"></textarea>
-          <div class="row" style="margin-top:6px"><button class="btn tour-primary" id="nl-go" type="button" data-i18n="nl_go"></button>
-            <span class="note" id="nl-status" style="margin:0" role="status"></span></div>
-          <div class="ask-row" id="nl-code-row" hidden style="margin-top:6px"><input type="password" id="nl-code" class="nl-text" autocomplete="off" aria-label="Access code">
-            <button type="button" class="btn tour-primary" id="nl-code-go" data-i18n="code_unlock"></button></div>
-          <div class="assume" id="nl-confirm" hidden>
-            <b data-i18n="nl_confirm_title"></b><ul id="nl-lines"></ul>
-            <div class="row" style="margin-top:6px"><button class="btn tour-primary" id="nl-run" type="button" data-i18n="nl_run"></button>
-              <span class="note" id="nl-src" style="margin:0"></span></div></div>
-        </section>
       </div>
       <div class="card span-7">
         <div class="row" style="margin-bottom:8px;align-items:flex-end;flex-wrap:wrap;gap:12px"><label><span data-i18n="prob_threshold"></span>

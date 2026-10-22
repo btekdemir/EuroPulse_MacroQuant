@@ -1188,3 +1188,12 @@ The "vs last print" card read "Base effect −0.113 and cumulative momentum +0.1
   - The strip labels it "empty · pick a component", with a hint under its editor. Only a scenario with no complete shock at all shows the warning.
 - **Tour:** the simulator tour follows the new order: current scenario → shock editor → second round → presets → sentence box → results.
 - **Checked:** end-to-end 178/178 (5 new); Python tests pass.
+
+## D77. The sentence box first, and "Add as shocks" (22 Oct 2026)
+
+- **The sentence box first:** "Describe a scenario in words" now opens the simulator's control column, above "Current scenario", so it is seen at once.
+- **Two ways to use an interpretation:**
+  - "Run this scenario" replaces the current scenario, as before.
+  - New: "+ Add as shocks" appends the interpreted shocks to the current scenario, up to six. An empty placeholder shock is replaced, the first added shock opens in the editor, and the page says how many were added (or that the scenario is full).
+- **Tour:** the simulator tour starts at the sentence box and mentions both buttons.
+- **Checked:** a quick browser check, at the user's request no full run. A recorded example added on top of the oil preset gave two shocks and +1.07 pp; "Run this scenario" still replaces. Python dashboard tests pass.
