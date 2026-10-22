@@ -358,7 +358,7 @@
       t("kpi_band", { lo: fmt(q.q16), hi: fmt(q.q84), lo90: fmt(q.q05), hi90: fmt(q.q95) }));
     el("kpi-dec").querySelector(".value").after(node("div", { class: "point" }, t("kpi_point", { v: pct(last.point, 2) })));  // 1 dp headline: the error is ~0.6 pp
     kpi("kpi-last", t("kpi_last", { date: origin }), sgn(last.point - F.last_actual_yoy, 2) + " " + t("pp"), `${origin}: ${pct(F.last_actual_yoy)}`);
-    el("kpi-last").querySelector(".value").after(node("div", { class: "point" }, t("kpi_last_why", { base: sgn(last.base_effect_pp, 3), mom: sgn(last.momentum_pp, 3), sum: sgn(last.point - F.last_actual_yoy, 3) })));  // 3 dp: at 2 dp the parts seem to add to 0.01 (D68)
+    el("kpi-last").querySelector(".value").after(node("div", { class: "point" }, t("kpi_last_why", { base: sgn(last.base_effect_pp, 3), mom: sgn(last.momentum_pp, 3) })));  // 3 dp parts, no net figure: rounded parts never add exactly to a rounded total (D73)
     kpi("kpi-ecb", t("kpi_ecb"), sgn(last.point - F.ecb_target, 1) + " " + t("pp"), `${pct(last.point)} − ${pct(F.ecb_target)}`);
     kpi("kpi-base", t("kpi_locked", { date: dec }), sgn(last.base_effect_pp) + " " + t("pp"),
       `${t("kpi_locked_note")} · ${t("kpi_momentum", { date: dec })} ${sgn(last.momentum_pp)} ${t("pp")} (${t("kpi_momentum_note")})`);

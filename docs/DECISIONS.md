@@ -1145,3 +1145,7 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
   - With the outline turned off, the stacked-area fan still showed a thin line where the bands start in another viewer. A fan has no native PowerPoint chart form, so it is now drawn once by `deck/fan_chart.py` from `deck_data.json` (the same numbers) and placed as an image with alt text. It looks the same everywhere.
   - It adds a forecast divider, a "Dec 26: 3.77%" end label and the ECB target line. The other charts stay native.
 - **Slide 4:** "Each price increment affects y/y for 12 months" replaces "A permanent shock lifts y/y for 12 months…", which suits a shock phased in over six months. The notes take the month the impact starts falling from the data.
+
+## D73. No net figure next to rounded parts (22 Oct 2026)
+
+The "vs last print" card read "Base effect −0.113 and cumulative momentum +0.117 pp almost cancel: +0.003 pp". The parts as shown add to +0.004; the exact values are −0.1135 + 0.1167 = +0.0032. Rounded parts never add exactly to a rounded total. The line now gives the two parts (three decimals) and says they offset each other almost exactly; the card's own figure, 0.00 pp, is the net change.
