@@ -1149,3 +1149,10 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
 ## D73. No net figure next to rounded parts (22 Oct 2026)
 
 The "vs last print" card read "Base effect −0.113 and cumulative momentum +0.117 pp almost cancel: +0.003 pp". The parts as shown add to +0.004; the exact values are −0.1135 + 0.1167 = +0.0032. Rounded parts never add exactly to a rounded total. The line now gives the two parts (three decimals) and says they offset each other almost exactly; the card's own figure, 0.00 pp, is the net change.
+
+## D74. An opened folded card takes the whole row (22 Oct 2026)
+
+- **The problem:** in "Explore the numbers", the two folded cards sat side by side at half width. Opening one stretched the other to the same height, as an empty box.
+- **The fix:** a folded card now keeps its own height (`align-self: start`), and once opened it spans the full row (`:has(details.fold[open])`). Its neighbour stays a closed bar on the next row, and the opened card's chart and tables get the full width; the chart is resized on opening.
+- **Not done:** opening both together was rejected: two independent questions in one long block, and two charts drawn at once.
+- **Checked:** at 1280 px the opened card is 1232 px wide with its chart at 1198 px, and the closed one stays 57 px tall. End-to-end 170/170.
