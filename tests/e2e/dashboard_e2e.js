@@ -453,7 +453,8 @@
       await tab(tb);
       for (const g of $$(`#tab-${tb} .js-plotly-plot`)) {
         const xr = g.layout && g.layout.xaxis && g.layout.xaxis.range;
-        if (!xr || !/^\d{4}-/.test(String(xr[0]))) continue;
+        // Only windows the page sets itself; an autoscaled bar chart's padding before its first bar is not a gap.
+        if (!xr || !/^\d{4}-/.test(String(xr[0])) || g.layout.xaxis.autorange) continue;
         const xs = (g.data || []).flatMap((d) => d.x || []).map((x) => new Date(x).getTime()).filter(Number.isFinite);
         if (xs.length && Math.min(...xs) - new Date(xr[0]).getTime() > 62 * 864e5) bad.push(g.id);
       }
@@ -489,17 +490,22 @@
     ok("each page's tour runs and closes", bad.filter((b) => /steps/.test(b)).length === 0, counts.join(" "));
     ok("every step's heading is in the top half of the screen", bad.filter((b) => !/steps/.test(b)).length === 0, bad.join(","));
   });
-  await step("tours: a page's tour starts by itself on its first visit only (D69)", async () => {
-    let saved = null;
-    try { saved = localStorage.getItem("hicp.tour.drivers"); localStorage.removeItem("hicp.tour.drivers"); } catch (e) { /* ignore */ }
+  await step("tours: Overview starts by itself; other pages invite (D71)", async () => {
+    const keep = {};
+    for (const k of ["overview", "drivers"]) { try { keep[k] = localStorage.getItem("hicp.tour." + k); localStorage.removeItem("hicp.tour." + k); } catch (e) { /* ignore */ } }
     window.__noAutoTour = false;
-    await tab("overview"); await tab("drivers"); await sleep(500);
-    ok("first visit starts the page's tour", !el("tour-box").hidden);
+    await tab("drivers"); await sleep(600);
+    ok("Drivers does not take over the screen", el("tour-box").hidden);
+    ok("Drivers shows an invitation", !!$("#tab-drivers .tour-invite"));
+    $("#tab-drivers .tour-invite .btn").click(); await sleep(500);
+    ok("the invitation starts the page's tour", !el("tour-box").hidden);
     el("tour-skip").click(); await sleep(200);
-    await tab("overview"); await tab("drivers"); await sleep(500);
-    ok("second visit does not", el("tour-box").hidden);
+    ok("the invitation is gone afterwards", !$("#tab-drivers .tour-invite"));
+    await tab("overview"); await sleep(600);
+    ok("Overview's tour starts by itself on a first visit", !el("tour-box").hidden);
+    el("tour-skip").click(); await sleep(200);
     window.__noAutoTour = true;
-    try { if (saved !== null) localStorage.setItem("hicp.tour.drivers", saved); } catch (e) { /* ignore */ }
+    for (const [k, v] of Object.entries(keep)) { try { if (v !== null) localStorage.setItem("hicp.tour." + k, v); } catch (e) { /* ignore */ } }
   });
   await step("demo: every step and exit", async () => {
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "D", shiftKey: true })); await sleep(300);

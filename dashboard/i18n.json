@@ -816,7 +816,11 @@
   "sim_current": "Current scenario",
   "sim_custom_name": "your own",
   "tour_sim_current_t": "The scenario being simulated",
-  "tour_sim_current_b": "Whichever way you build it (a preset, a sentence or by hand), the scenario lands here: its shocks, up to six, each with its own components, countries, size and timing. Click a shock to edit it below; '+ Add shock' starts an empty one. 'Copy link' shares the exact scenario with its threshold and rationale; 'Download scenario JSON' saves it as a file."
+  "tour_sim_current_b": "Whichever way you build it (a preset, a sentence or by hand), the scenario lands here: its shocks, up to six, each with its own components, countries, size and timing. Click a shock to edit it below; '+ Add shock' starts an empty one. 'Copy link' shares the exact scenario with its threshold and rationale; 'Download scenario JSON' saves it as a file.",
+  "tour_invite": "New to this page?",
+  "tour_invite_sim": "The simulator has a lot in it: a 1-minute guide shows how to build a shock and read the result.",
+  "tour_invite_go": "Take the {n}-step tour →",
+  "tour_invite_no": "No thanks"
  },
  "fr": {
   "title": "EuroPulse",
@@ -1635,6 +1639,10 @@
   "sim_current": "Scénario en cours",
   "sim_custom_name": "personnalisé",
   "tour_sim_current_t": "Le scénario simulé",
-  "tour_sim_current_b": "Quelle que soit la façon de le construire (scénario prédéfini, phrase ou à la main), le scénario arrive ici : ses chocs, jusqu'à six, chacun avec ses composantes, pays, taille et calendrier. Cliquez sur un choc pour le modifier plus bas ; « + Ajouter un choc » en crée un vide. « Copier le lien » partage le scénario exact avec son seuil et sa justification ; « Télécharger le scénario (JSON) » l'enregistre dans un fichier."
+  "tour_sim_current_b": "Quelle que soit la façon de le construire (scénario prédéfini, phrase ou à la main), le scénario arrive ici : ses chocs, jusqu'à six, chacun avec ses composantes, pays, taille et calendrier. Cliquez sur un choc pour le modifier plus bas ; « + Ajouter un choc » en crée un vide. « Copier le lien » partage le scénario exact avec son seuil et sa justification ; « Télécharger le scénario (JSON) » l'enregistre dans un fichier.",
+  "tour_invite": "Première visite sur cette page ?",
+  "tour_invite_sim": "Le simulateur est riche : un guide d'une minute montre comment construire un choc et lire le résultat.",
+  "tour_invite_go": "Suivre la visite en {n} étapes →",
+  "tour_invite_no": "Non merci"
  }
 }

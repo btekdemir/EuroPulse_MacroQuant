@@ -1720,7 +1720,7 @@
     if (tab === "model") renderModel();
     linkCodes();
   }
-  function renderAll() { applyText(); renderAsk(); renderTab(activeTab); linkCodes(); }
+  function renderAll() { applyText(); renderAsk(); renderTab(activeTab); linkCodes(); renderInvite(activeTab); }
 
   function setTheme(th) {
     theme = th; store.set("hicp.theme", th);
@@ -1798,10 +1798,26 @@
     if (activeTab !== tab) showTab(tab);
     if (TOUR.length) tourShow(0);
   }
-  // First visit of a page in this browser: its tour starts by itself (not during the demo or a running tour).
+  // First visit (D71): only the Overview tour starts by itself, once. The other pages show a small invitation under
+  // their intro instead of taking over the screen; it goes away once that page's tour is taken or dismissed.
   function maybeAutoTour(tab) {
-    if (tourIdx >= 0 || demoIdx >= 0 || window.__noAutoTour || tourSeen(tab) || !TOURS[tab]) return;
+    renderInvite(tab);
+    if (tab !== "overview" || tourIdx >= 0 || demoIdx >= 0 || window.__noAutoTour || tourSeen(tab)) return;
     setTimeout(() => { if (tourIdx < 0 && activeTab === tab && !tourSeen(tab)) tourStart(tab); }, 700);
+  }
+  function renderInvite(tab) {
+    const panel = el("tab-" + tab);
+    if (!panel) return;
+    panel.querySelectorAll(".tour-invite").forEach((x) => x.remove());
+    if (tab === "overview" || !TOURS[tab] || tourSeen(tab) || demoIdx >= 0) return;
+    const box = node("div", { class: "tour-invite" + (tab === "shocks" ? " strong" : ""), role: "note" });
+    const go = node("button", { type: "button", class: "btn tour-primary" }, t("tour_invite_go", { n: TOURS[tab].length }));
+    const no = node("button", { type: "button", class: "linkbtn" }, t("tour_invite_no"));
+    go.addEventListener("click", () => { box.remove(); tourStart(tab); });
+    no.addEventListener("click", () => { store.set("hicp.tour." + tab, "dismissed"); box.remove(); });
+    box.append(node("span", {}, t(tab === "shocks" ? "tour_invite_sim" : "tour_invite")), go, no);
+    const lede = panel.querySelector(".tab-lede");
+    if (lede) lede.after(box); else panel.prepend(box);
   }
   let tourIdx = -1, tourEl = null;
   const tourTarget = (s) => { const e = document.querySelector(s.sel); return s.self ? e : (e.closest(".card") || e); };
@@ -1850,6 +1866,7 @@
     el("tour-box").hidden = true;
     el("tour-banner").hidden = true;
     store.set("hicp.tour." + tourTab, "done");
+    renderInvite(tourTab);
     if (skipped !== true) window.scrollTo(0, 0);  // finished: back to the top of the same page; Skip stays put
     el("tour-open").focus({ preventScroll: true });
   }

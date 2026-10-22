@@ -1095,3 +1095,14 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
   - The simulator tour starts at this box (10 steps); the old "several shocks" step is part of it.
 - **Drivers:** the contributions-over-time chart now comes first and the September→December bridge second, so the page and its tour start on the main chart.
 - **Checked:** Python tests pass; end-to-end 167/167.
+
+## D71. Only Overview's tour starts by itself (22 Oct 2026)
+
+- **Overview:** its 6-step tour still starts by itself on a first visit. It is the first impression and carries the main message, that the chatbot can do everything, including running a scenario.
+- **The other pages:**
+  - They no longer take over the screen. A small invitation under the page intro says "New to this page? Take the N-step tour →" with "No thanks".
+  - On the simulator it is more visible and says why ("a 1-minute guide shows how to build a shock and read the result").
+  - The invitation disappears once that page's tour is taken or dismissed. The Tour button still replays any page's tour.
+- **Why:** an evaluator spends a few minutes on the site, and a blocking 10-step tour on every new page would be skipped and feel intrusive. Readers who explore can opt in.
+- **Test fix:** the end-to-end "empty window" check now applies only to windows the page sets itself; an autoscaled bar chart's padding before its first bar is not a gap.
+- **Checked:** Python tests pass; end-to-end 170/170.
