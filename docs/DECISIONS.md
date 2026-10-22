@@ -1136,3 +1136,8 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
   - Slide 4: a shorter title.
   - Slide 5: "Ask about the dashboard" and "Forecast tracking". The heading that ran into its text is fixed.
   - Every number still comes from `deck_data.json`; the Holm-adjusted p, freeze date, models and V8 text were added there.
+- **Fixes after a check in PowerPoint (D72):**
+  - Slide 1 showed thin vertical lines where the bands start. pptxgenjs gives area series no outline setting, so PowerPoint drew its default one. The build now turns the outline off for every area series.
+  - Slide 2: "8 pass" and "1 warning (V8)" are on separate lines, because one line wrapped into the label in PowerPoint's fonts.
+  - Slide 5: "Ask about the dashboard" → "Ask EuroPulse", one line.
+  - The preview renderer (LibreOffice) does not show these PowerPoint-only effects, so the final check is in PowerPoint.

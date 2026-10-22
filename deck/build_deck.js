@@ -181,9 +181,12 @@ pres.addSection({ title: "Method" });
   st.forEach(([h, b], i) => step(s, i + 1, 0.6 + (i % 2) * 4.15, 2.05 + Math.floor(i / 2) * 1.5, 3.95, h, b));
 
   card(s, 9.05, 2.0, 3.68, 4.55, C.background2, "proof card");
-  stat(s, 9.35, 2.2, 3.1, `${D.validation.n_pass} pass · ${D.validation.warn.length} warning`, `of ${D.validation.n_gates} data checks; the warning (${D.validation.warn.join(", ")}) flags ${D.v8.message.split(" ")[0]} outlier observations, kept, not dropped`, { size: 26 });
-  stat(s, 9.35, 3.65, 3.1, `${fmt(D.recon.yoy_max_pp, 3)} pp`, "largest error rebuilding Eurostat's headline");
-  stat(s, 9.35, 5.1, 3.1, `${D.n_python_tests}`, "automated tests (maths, data contracts, engine parity)");
+  text(s, `${D.validation.n_pass} pass`, { x: 9.35, y: 2.15, w: 3.1, h: 0.62, fontSize: 34, bold: true, color: C.accent1, fontFace: THEME.headFontFace, objectName: "stat checks pass" });
+  text(s, `${D.validation.warn.length} warning (${D.validation.warn.join(", ")})`, { x: 9.35, y: 2.78, w: 3.1, h: 0.4, fontSize: 18, bold: true, color: C.accent2, objectName: "stat checks warning" });
+  text(s, `of ${D.validation.n_gates} data checks; ${D.validation.warn.join(", ")} flags ${D.v8.message.split(" ")[0]} outlier observations, kept, not dropped`,
+    { x: 9.35, y: 3.2, w: 3.1, h: 0.62, fontSize: 13, color: C.accent3, objectName: "stat checks label" });
+  stat(s, 9.35, 3.98, 3.1, `${fmt(D.recon.yoy_max_pp, 3)} pp`, "largest error rebuilding Eurostat's headline", { size: 32 });
+  stat(s, 9.35, 5.28, 3.1, `${D.n_python_tests}`, "automated tests (maths, data contracts, engine parity)", { size: 32 });
 
   s.addNotes(`For validation and structured outputs. Nothing is downloaded by hand: the pipeline pulls Eurostat's HICP index, item and country weights and the official contributions through the API, and records the vintage of every pull.
 Before any model runs, ${D.validation.n_gates} gates check the data; ${D.validation.n_pass} pass and ${D.validation.warn.join(", ")} is a documented warning, not a failure.
@@ -279,7 +282,7 @@ pres.addSection({ title: "Dashboard" });
   text(s, "hicpinflationshocksimulator.vercel.app · also one offline HTML file", { x: 0.6, y: 6.05, w: 6.05, h: 0.35, fontSize: 12, color: C.accent4 });
 
   const cards = [
-    ["Ask about the dashboard", "A chatbot answers in EN, FR or Turkish, checks each number it quotes against the page, and builds and runs scenarios itself."],
+    ["Ask EuroPulse", "A chatbot answers in EN, FR or Turkish, checks each number it quotes against the page, and builds and runs scenarios itself."],
     ["Words become shocks", "Describe a shock in a sentence: the language model only fills a validated schema; the engine computes, the reader confirms."],
     ["Solve it backwards", "Reverse stress test: the shock size that takes December to a target or probability."],
     ["Forecast tracking", "Pre-registered model rounds and a hash-chained ledger, scored as Eurostat publishes."],
@@ -309,7 +312,11 @@ async function dropEmptyChartPoints(file) {
   let n = 0;
   for (const name of Object.keys(zip.files).filter((f) => /^ppt\/charts\/chart\d+\.xml$/.test(f))) {
     const xml = await zip.file(name).async("string");
-    const fixed = xml.replace(/<c:pt idx="\d+"><c:v><\/c:v><\/c:pt>/g, () => { n++; return ""; });
+    let fixed = xml.replace(/<c:pt idx="\d+"><c:v><\/c:v><\/c:pt>/g, () => { n++; return ""; });
+    // Area series get no explicit outline from pptxgenjs, and PowerPoint then draws its default one: thin lines up
+    // the chart where a band starts. Turn the outline off for every area series.
+    fixed = fixed.replace(/<c:areaChart>[\s\S]*?<\/c:areaChart>/g, (block) =>
+      block.replace(/<\/a:solidFill><a:effectLst\/>/g, "</a:solidFill><a:ln><a:noFill/></a:ln><a:effectLst/>"));
     if (fixed !== xml) zip.file(name, fixed);
   }
   fs.writeFileSync(file, await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" }));
