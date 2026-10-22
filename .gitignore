@@ -11,3 +11,6 @@ deploy/api/_lib/
 deploy/.vercel/
 .env
 .env.*
+
+# Office lock files while a deck is open
+~$*
