@@ -6264,14 +6264,14 @@ return Plotly;
   // their intro instead of taking over the screen; it goes away once that page's tour is taken or dismissed.
   function maybeAutoTour(tab) {
     renderInvite(tab);
-    if (tab !== "overview" || tourIdx >= 0 || demoIdx >= 0 || window.__noAutoTour || tourSeen(tab)) return;
+    if (tab !== "overview" || tourIdx >= 0 || demoIdx >= 0 || window.__noAutoTour || /[?&]notour\b/.test(location.search) || tourSeen(tab)) return;
     setTimeout(() => { if (tourIdx < 0 && activeTab === tab && !tourSeen(tab)) tourStart(tab); }, 700);
   }
   function renderInvite(tab) {
     const panel = el("tab-" + tab);
     if (!panel) return;
     panel.querySelectorAll(".tour-invite").forEach((x) => x.remove());
-    if (tab === "overview" || !TOURS[tab] || tourSeen(tab) || demoIdx >= 0) return;
+    if (tab === "overview" || !TOURS[tab] || tourSeen(tab) || demoIdx >= 0 || /[?&]notour\b/.test(location.search)) return;
     const box = node("div", { class: "tour-invite" + (tab === "shocks" ? " strong" : ""), role: "note" });
     const go = node("button", { type: "button", class: "btn tour-primary" }, t("tour_invite_go", { n: TOURS[tab].length }));
     const no = node("button", { type: "button", class: "linkbtn" }, t("tour_invite_no"));
@@ -6828,6 +6828,7 @@ ${note}
   renderAll();
   if (location.hash === "#demo") setTimeout(() => demoShow(0), 600);  // after the Ask probe has answered
   else if (shared) showTab("shocks");
+  else if (/[?&]tab=(overview|drivers|countries|shocks|model)\b/.test(location.search)) showTab(/[?&]tab=(\w+)/.exec(location.search)[1]);  // a link straight to a page (D72)
   else maybeAutoTour(activeTab);  // the first page's tour starts by itself on a first visit (D69)
 })();
 </script>

@@ -11,6 +11,9 @@ For the LLM features too (the Ask panel, "Explain this" and natural-language sce
 `.venv/bin/python deploy/serve_local.py` and open http://127.0.0.1:8812. This needs `ANTHROPIC_API_KEY`
 in `.env`. Without a key, or in the offline file, those buttons are simply hidden.
 
+**Deck:** `deck/deck.pptx`, five slides with speaker notes, built from the outputs: `python deck/deck_data.py`
+(every number, read from `outputs/`) then `node deck/build_deck.js` (needs the `pptxgenjs` npm package).
+
 **Live site:** https://hicpinflationshocksimulator.vercel.app. Everything works without a login. The LLM
 features (Ask, "Explain this" answers, sentence scenarios) need an **access code**, which is given in the
 submission email; it is asked for once and then kept in that browser. Without it, "Explain this" shows the

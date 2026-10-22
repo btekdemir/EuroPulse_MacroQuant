@@ -1106,3 +1106,21 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
 - **Why:** an evaluator spends a few minutes on the site, and a blocking 10-step tour on every new page would be skipped and feel intrusive. Readers who explore can opt in.
 - **Test fix:** the end-to-end "empty window" check now applies only to windows the page sets itself; an autoscaled bar chart's padding before its first bar is not a gap.
 - **Checked:** Python tests pass; end-to-end 170/170.
+
+## D72. The deck (22 Oct 2026)
+
+- **The five slides:** `deck/deck.pptx` follows the brief's five slides:
+  1. answer first
+  2. method and validation
+  3. forecast accuracy
+  4. shock pass-through (the European gas spike preset, with assumptions A1–A5)
+  5. dashboard and next steps
+  The innovations sit on slide 5 (the chatbot answers with checked numbers and runs scenarios, sentence → shock, reverse stress test) and slides 2–3 (pre-registration, hash-chained ledger).
+- **No typed numbers:**
+  - `deck/deck_data.py` reads every figure from `outputs/*.json` and recomputes the preset's path with the same shock engine.
+  - `deck/build_deck.js` only lays it out. Re-running both after `python run.py` updates the deck.
+- **Format:**
+  - Native, editable PowerPoint charts. Theme colours follow EuroPulse; Cambria headings, Calibri body; speaker notes on every slide; no CA CIB branding.
+  - Screenshots come from the live build with `?notour&tab=…`, two new address options that skip the auto tour and open a page directly.
+- **Power BI:** the brief's Power BI pack was dropped earlier (no Power BI). The deck says the schema-validated JSON can feed Power BI or a research platform, and claims no pack.
+- **Checked:** the deck passes the OOXML validator and was rendered and inspected slide by slide (LibreOffice). It uses Cambria and Calibri, which ship with Office, so PowerPoint will match.
