@@ -402,7 +402,7 @@ input[type="range"] { min-width: 160px; }
         <section class="subsec" id="build-sec">
         <h2 data-i18n="sim_custom"></h2>
         <div class="form" id="sim-form">
-          <fieldset><legend data-i18n="sim_legs"></legend>
+          <fieldset id="legs-fs"><legend data-i18n="sim_legs"></legend>
             <div class="presets" id="leg-strip"></div>
             <div class="row" style="margin-top:6px"><button class="btn" id="leg-add" type="button" data-i18n="sim_add_leg"></button>
               <button class="btn" id="leg-del" type="button" data-i18n="sim_del_leg"></button>
@@ -424,7 +424,7 @@ input[type="range"] { min-width: 160px; }
               <label id="w-param"><span id="l-param"></span><input type="number" id="f-param" min="1" max="24" step="1" value="6"></label>
             </div>
           </div>
-          <div class="chips"><label><input type="checkbox" id="f-second"> <span data-i18n="sim_second"></span></label></div>
+          <div class="chips" id="second-row"><label><input type="checkbox" id="f-second"> <span data-i18n="sim_second"></span></label></div>
           <div class="row"><label><span data-i18n="sim_regime"></span><select id="f-regime"></select></label></div>
           <div class="warnmsg" id="sim-warn" hidden data-i18n="sim_warn_none"></div>
           <button class="btn" id="sim-export" type="button" data-i18n="sim_export"></button>
@@ -439,7 +439,7 @@ input[type="range"] { min-width: 160px; }
           <label><span data-i18n="cmp_name"></span><input type="text" id="cmp-name" maxlength="60" class="nl-text" style="min-width:180px"></label>
           <button type="button" class="btn" id="cmp-save" data-i18n="cmp_save"></button><span class="note" id="cmp-status" role="status" style="margin:0"></span></div>
         <div class="infomsg" id="heat-notice" role="status" hidden></div>
-        <div class="grid" style="gap:12px">
+        <div class="grid" id="sim-kpis" style="gap:12px">
           <div class="kpi" style="grid-column: span 3" id="k-peak"></div>
           <div class="kpi" style="grid-column: span 3" id="k-dec"></div>
           <div class="kpi" style="grid-column: span 3" id="k-shocked"></div>

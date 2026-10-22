@@ -21,6 +21,9 @@
   const errors = [];
   window.addEventListener("error", (e) => errors.push(e.message));
   const D = JSON.parse(el("dashboard-data").textContent);
+  // Page tours start by themselves on a first visit (D69); keep them out of the way while the checks run.
+  window.__noAutoTour = true;
+  if (!el("tour-box").hidden) el("tour-skip").click();
 
   // ---- stubs for the paid routes (records what the page sends)
   const sent = [];
@@ -469,17 +472,34 @@
     el("brief-close").click(); await sleep(200);
     ok("brief button usable again", !el("brief-open").disabled);
   });
-  await step("tour: every step has a visible target", async () => {
-    el("tour-open").click(); const bad = []; let n = 0;
-    for (let i = 0; i < 25; i++) {
-      await sleep(600); n++;
-      const tg = $(".tour-target"), r = tg && tg.getBoundingClientRect();
-      if (!r || !(r.bottom > 0 && r.top < innerHeight)) bad.push(visibleText(el("tour-step")));
-      if (el("tour-next").textContent === D.i18n.en.tour_done || el("tour-next").textContent === D.i18n.fr.tour_done) { el("tour-next").click(); break; }
-      el("tour-next").click();
+  await step("tours: one per page, every step on screen (D69)", async () => {
+    const want = { overview: [5, 6], drivers: [4, 4], countries: [4, 4], shocks: [10, 10], model: [6, 6] }, bad = [], counts = [];
+    for (const [tb, [lo, hi]] of Object.entries(want)) {
+      await tab(tb); el("tour-open").click(); let n = 0;
+      for (let i = 0; i < 14; i++) {
+        await sleep(450); n++;
+        const tg = $(".tour-target"), r = tg && tg.getBoundingClientRect();
+        if (!r || !(r.top >= 0 && r.top < innerHeight * 0.5)) bad.push(`${tb}:${visibleText(el("tour-step"))}`);
+        const last = [D.i18n.en.tour_done, D.i18n.fr.tour_done].includes(el("tour-next").textContent);
+        el("tour-next").click(); if (last) break;
+      }
+      counts.push(`${tb}=${n}`);
+      if (n < lo || n > hi || !el("tour-box").hidden) bad.push(`${tb}: ${n} steps`);
     }
-    ok(`tour ran ${n} steps and closed`, n >= 6 && n <= 8 && el("tour-box").hidden, n);
-    ok("all tour targets on screen", bad.length === 0, bad.join(","));
+    ok("each page's tour runs and closes", bad.filter((b) => /steps/.test(b)).length === 0, counts.join(" "));
+    ok("every step's heading is in the top half of the screen", bad.filter((b) => !/steps/.test(b)).length === 0, bad.join(","));
+  });
+  await step("tours: a page's tour starts by itself on its first visit only (D69)", async () => {
+    let saved = null;
+    try { saved = localStorage.getItem("hicp.tour.drivers"); localStorage.removeItem("hicp.tour.drivers"); } catch (e) { /* ignore */ }
+    window.__noAutoTour = false;
+    await tab("overview"); await tab("drivers"); await sleep(500);
+    ok("first visit starts the page's tour", !el("tour-box").hidden);
+    el("tour-skip").click(); await sleep(200);
+    await tab("overview"); await tab("drivers"); await sleep(500);
+    ok("second visit does not", el("tour-box").hidden);
+    window.__noAutoTour = true;
+    try { if (saved !== null) localStorage.setItem("hicp.tour.drivers", saved); } catch (e) { /* ignore */ }
   });
   await step("demo: every step and exit", async () => {
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "D", shiftKey: true })); await sleep(300);

@@ -1060,3 +1060,28 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
 - **Tour:** each step now scrolls to the top of its section, not the centre. Centring tall sections (the simulator, the country panels) cut off their headings. Checked all 8 steps: each heading sits at the top and the tour box never covers it.
 - **Header:** with the longer EuroPulse subtitle, the title block took the whole row and pushed the buttons onto a new line on the left. The title block now shrinks and wraps its subtitle, so the buttons stay on the right (1280 px). On phones they still sit full width below the title, with no horizontal scroll.
 - **"vs last print" card:** it reads 0.00 pp, which is right: +0.003 pp exactly. But its parts, shown at two decimals (−0.11, +0.12), seemed to add to 0.01. The card now gives them at three decimals with their exact sum: "Base effect −0.113 and cumulative momentum +0.117 pp almost cancel: +0.003 pp".
+
+## D69. One tour per page, starting on the first visit (22 Oct 2026)
+
+- **What:**
+  - Instead of one 8-step tour across the site, each page has its own short tour: Overview 6, Drivers 4, Countries 4, Shock simulator 10, Model & validation 6.
+  - Each starts by itself the first time that page is opened in a browser (remembered per page in localStorage). Tour replays the tour of the page in view; Skip stays where the reader is.
+  - The old "New here?" banner is gone. The presenter demo (Shift+D, `#demo`) is unchanged and never triggers the tours.
+- **Overview tour:**
+  - It covers the answer, the fan, probabilities, the header tools, the five pages and the chatbot.
+  - The chatbot step says it can do everything from the chat: questions in EN/FR/TR with checked numbers, "Go to", "Explain this", and running a scenario ("what if gas prices rise 30% in Germany from November?" builds the shock, runs it in the simulator and shows December).
+- **Shock simulator tour (the complex page), ten steps:**
+  1. three ways in
+  2. the sentence box (the LLM only reads the sentence; the reader confirms)
+  3. one shock's fields (components, countries, size −50…+100%, start, profile)
+  4. several shocks
+  5. second-round effects
+  6. the results
+  7. the path chart
+  8. the reverse stress test
+  9. compare and share
+  10. the heatmap
+- **Labels:** button names quoted in the steps match the page in both languages.
+- **Checked:**
+  - From a fresh browser, every page's tour started by itself, every step's heading was at the top of the screen and uncovered, and a second visit stayed quiet.
+  - End-to-end 167/167. The suite turns auto-start off while it runs and tests it once.

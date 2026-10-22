@@ -5,7 +5,7 @@
 
 **Dashboard:** open `outputs/dashboard.html`. It is one self-contained file that works offline,
 with an FR/EN toggle and five tabs: Overview, Drivers, Countries, Shock simulator, Model &
-validation. Press **Tour** for an 8-step first look (Shift+D, or `#demo` in the address, runs the full presenter demo). Every chart and table has CSV export (charts also PNG) and "Explain this".
+validation. Each page has its own short tour, which starts by itself the first time that page is opened in a browser; **Tour** replays it (Shift+D, or `#demo` in the address, runs the full presenter demo). Every chart and table has CSV export (charts also PNG) and "Explain this".
 
 For the LLM features too (the Ask panel, "Explain this" and natural-language scenarios), run
 `.venv/bin/python deploy/serve_local.py` and open http://127.0.0.1:8812. This needs `ANTHROPIC_API_KEY`

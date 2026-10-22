@@ -1734,6 +1734,7 @@
     document.querySelectorAll("[role=tabpanel]").forEach((p) => p.classList.toggle("active", p.id === "tab-" + name));
     renderTab(name);
     fitPlots(name);
+    maybeAutoTour(name);
   }
   // Plotly cannot measure a chart in a hidden tab, so a window resize while a tab is hidden (or a render made while
   // it was hidden, e.g. for the brief) leaves its charts at the old width, overflowing their cards. Refit on show.
@@ -1744,28 +1745,69 @@
 
   // ------------------------------------------------------------------ guided tour
   // Never opens by itself: a one-line banner offers it on the first visit, the Tour button restarts it.
-  // Every feature, in reading order. Steps with `when` appear only where that feature is available.
-  // Eight stops (D61): the tour is for a first look; the demo mode still walks through every feature.
-  const TOUR_ALL = [
-    { key: "answer", tab: "overview", sel: "#answer" },
-    { key: "fan", tab: "overview", sel: "#p-headline", corner: "left" },  // the fan sits at the right of the chart
-    { key: "drivers", tab: "drivers", sel: "#p-contrib" },
-    { key: "countries", tab: "countries", sel: "#p-csm" },
-    { key: "shock", tab: "shocks", sel: "#sim-form" },
-    { key: "backtest", tab: "model", sel: "#msum-card", self: true },
-    { key: "trust", tab: "model", sel: "#r4-card", self: true },
-    { key: "ask", tab: "overview", sel: "#ask-open", self: true, when: () => !el("ask-open").hidden },
-    { key: "brief", tab: "overview", sel: "#brief-open", self: true, when: () => el("ask-open").hidden },
-  ];
-  let TOUR = TOUR_ALL;
+  // One short tour per page (D69). Each starts by itself the first time that page is opened in a browser; the Tour
+  // button replays the tour of the page in view. Steps with `when` appear only where that feature is available.
+  const TOURS = {
+    overview: [
+      { key: "answer", sel: "#answer" },
+      { key: "fan", sel: "#p-headline", corner: "left" },  // the fan sits at the right of the chart
+      { key: "prob", sel: "#t-prob" },
+      { key: "ask", sel: "#ask-open", self: true, when: () => !el("ask-open").hidden },
+      { key: "tools", sel: "header .controls", self: true },
+      { key: "tabs", sel: "nav[role=tablist]", self: true },
+    ],
+    drivers: [
+      { key: "drivers", sel: "#p-contrib" },
+      { key: "bridge", sel: "#br-title" },
+      { key: "basemom", sel: "#p-basemom" },
+      { key: "core", sel: "#core-card", self: true },
+    ],
+    countries: [
+      { key: "map", sel: "#map-card", self: true },
+      { key: "ccmp", sel: "#p-ccmp" },
+      { key: "countries", sel: "#p-csm" },
+      { key: "profile", sel: "#cp-summary", self: true },
+    ],
+    shocks: [
+      { key: "sim_ways", sel: "#presets", self: true },
+      { key: "sim_words", sel: "#nl-sec", self: true },
+      { key: "sim_build", sel: "#leg-group", self: true },
+      { key: "sim_legs", sel: "#legs-fs", self: true },
+      { key: "sim_second", sel: "#second-row", self: true },
+      { key: "sim_results", sel: "#sim-kpis", self: true },
+      { key: "sim_chart", sel: "#p-shock", self: true },
+      { key: "reverse", sel: "#rev-card", self: true },
+      { key: "compare", sel: "#cmp-card", self: true },
+      { key: "heat", sel: "#hm-card", self: true },
+    ],
+    model: [
+      { key: "backtest", sel: "#msum-card", self: true },
+      { key: "bttable", sel: "#tbl-bt" },
+      { key: "timemachine", sel: "#tm-card", self: true },
+      { key: "trust", sel: "#r4-card", self: true },
+      { key: "recon", sel: "#rc-card", self: true },
+      { key: "ledger", sel: "#n-led" },
+    ],
+  };
+  let TOUR = TOURS.overview, tourTab = "overview";
+  const tourSeen = (tab) => store.get("hicp.tour." + tab, null) !== null;
+  function tourStart(tab) {
+    tourTab = tab;
+    TOUR = TOURS[tab].filter((s) => (!s.when || s.when()) && document.querySelector(s.sel));
+    if (activeTab !== tab) showTab(tab);
+    if (TOUR.length) tourShow(0);
+  }
+  // First visit of a page in this browser: its tour starts by itself (not during the demo or a running tour).
+  function maybeAutoTour(tab) {
+    if (tourIdx >= 0 || demoIdx >= 0 || window.__noAutoTour || tourSeen(tab) || !TOURS[tab]) return;
+    setTimeout(() => { if (tourIdx < 0 && activeTab === tab && !tourSeen(tab)) tourStart(tab); }, 700);
+  }
   let tourIdx = -1, tourEl = null;
   const tourTarget = (s) => { const e = document.querySelector(s.sel); return s.self ? e : (e.closest(".card") || e); };
 
   function tourShow(i) {
-    if (i === 0 || tourIdx < 0) TOUR = TOUR_ALL.filter((s) => !s.when || s.when());
     tourIdx = i;
     const s = TOUR[i];
-    if (activeTab !== s.tab) showTab(s.tab);
     if (tourEl) tourEl.classList.remove("tour-target");
     tourEl = tourTarget(s);
     { const f = tourEl.closest("details.fold") || tourEl.querySelector("details.fold"); if (f) f.open = true; }
@@ -1806,13 +1848,13 @@
     el("tour-shade").hidden = true;
     el("tour-box").hidden = true;
     el("tour-banner").hidden = true;
-    store.set("hicp.tour", "done");
-    if (skipped !== true) { showTab("overview"); window.scrollTo(0, 0); }
+    store.set("hicp.tour." + tourTab, "done");
+    if (skipped !== true) window.scrollTo(0, 0);  // finished: back to the top of the same page; Skip stays put
     el("tour-open").focus({ preventScroll: true });
   }
 
-  el("tour-open").addEventListener("click", () => tourShow(0));
-  el("tour-start").addEventListener("click", () => tourShow(0));
+  el("tour-open").addEventListener("click", () => tourStart(activeTab));
+  el("tour-start").addEventListener("click", () => tourStart(activeTab));
   el("tour-dismiss").addEventListener("click", () => { store.set("hicp.tour", "dismissed"); el("tour-banner").hidden = true; });
   el("tour-next").addEventListener("click", () => (tourIdx >= TOUR.length - 1 ? tourEnd() : tourShow(tourIdx + 1)));
   el("tour-back").addEventListener("click", () => { if (tourIdx > 0) tourShow(tourIdx - 1); });
@@ -2306,5 +2348,5 @@ ${note}
   renderAll();
   if (location.hash === "#demo") setTimeout(() => demoShow(0), 600);  // after the Ask probe has answered
   else if (shared) showTab("shocks");
-  else if (store.get("hicp.tour", null) === null) el("tour-banner").hidden = false;
+  else maybeAutoTour(activeTab);  // the first page's tour starts by itself on a first visit (D69)
 })();
