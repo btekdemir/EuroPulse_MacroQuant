@@ -31,7 +31,7 @@ def load(name: str) -> dict:
 
 def main() -> None:
     f, bt, val, rc = load("forecast.json"), load("backtest_metrics.json"), load("validation_report.json"), load("reconciliation.json")
-    r4, man = load("round4.json"), load("run_manifest.json")
+    r4, man, led = load("round4.json"), load("run_manifest.json"), load("ledger_scores.json")
     basis = ShockBasis.model_validate_json((OUT / "shock_basis.json").read_text())
     dec = f["points"][-1]
     m = {(x["model"], x["h"], x["sample"]): x for x in bt["metrics"]}
@@ -43,6 +43,7 @@ def main() -> None:
     oil = simulate(basis.presets[0], basis)
     k_dec = g.months.index(dec["date"])
     gates = val["gates"]
+    v8 = next(g_ for g_ in gates if g_["gate"] == "V8")
     holm = {d["name"]: d for d in r4["holm"]}
     adopted = holm[r4["adopted"]]
     n_tests = subprocess.run([sys.executable, "-m", "pytest", "--collect-only", "-q"], cwd=ROOT, capture_output=True, text=True).stdout
@@ -76,7 +77,13 @@ def main() -> None:
             "in68_crisis_h3": 100 * cov[("2020-2023", 3)]["in68"], "in68_calm_h3": 100 * cov[("2010-2019", 3)]["in68"],
             "june2022": {"origin": june["origin"], "fc": june["fc"], "rw": june_rw["fc"], "actual": june["actual"]},
         },
-        "rounds": {"n": 4, "adopted": r4["adopted"], "adopted_p": adopted["p"], "adopted_threshold": adopted["threshold"]},
+        "rounds": {"n": 4, "adopted": r4["adopted"], "adopted_p": adopted["p"], "adopted_threshold": adopted["threshold"],
+                   # Holm step-down: the smallest of m p-values is compared with alpha/m, so its adjusted p is m * p
+                   "adopted_p_holm": min(1.0, len(r4["holm"]) * adopted["p"]), "n_tests_in_round": len(r4["holm"]),
+                   # the frozen model's forecast for the target, first recorded in the ledger: where prospective scoring starts
+                   "freeze_date": min(x["recorded_at"][:10] for x in led["rows"] if x["target"] == dec["date"] and abs(x["point"] - dec["point"]) < 1e-9)},
+        "models": dict(f["selected_models"]),
+        "v8": {"name": v8["name"], "message": v8["message"]},
         "shock": {
             "name": gas.name, "size_pct": gas.legs[0].size_pct, "ramp_months": gas.legs[0].profile.months, "start": gas.legs[0].start,
             "months": g.months, "first_round_pp": g.delta_first_round_pp, "total_pp": g.delta_yoy_pp,

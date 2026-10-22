@@ -1,7 +1,7 @@
 {
  "origin": "2026-09",
  "target": "2026-12",
- "code_version": "b70cab4",
+ "code_version": "b883938",
  "run_at": "2026-10-22",
  "forecast": {
   "point": 3.7735759028955096,
@@ -202,7 +202,22 @@
   "n": 4,
   "adopted": "B1_core_nochange",
   "adopted_p": 0.016289229405117886,
-  "adopted_threshold": 0.016666666666666666
+  "adopted_threshold": 0.016666666666666666,
+  "adopted_p_holm": 0.04886768821535366,
+  "n_tests_in_round": 3,
+  "freeze_date": "2026-10-21"
+ },
+ "models": {
+  "FUEL": "PUMP",
+  "ELC_GAS": "SM",
+  "FOOD_P": "ARP",
+  "FOOD_NP": "SM",
+  "IGD_NNRG": "NC",
+  "SERV": "NC"
+ },
+ "v8": {
+  "name": "Outliers: robust z on seasonally-demeaned m/m (flagged, not dropped)",
+  "message": "61 month-component observations beyond |z| > 5.0"
  },
  "shock": {
   "name": "European gas price spike",

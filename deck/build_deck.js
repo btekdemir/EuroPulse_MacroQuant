@@ -20,6 +20,7 @@ const sgn = (x, d = 2) => (Number(x.toFixed(d)) > 0 ? "+" : Number(x.toFixed(d))
 const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const mlabel = (ym) => `${MON[Number(ym.slice(5, 7)) - 1]} ${ym.slice(2, 4)}`;
 const mlong = (ym) => `${MON[Number(ym.slice(5, 7)) - 1]} ${ym.slice(0, 4)}`;
+const dlong = (ymd) => `${Number(ymd.slice(8, 10))} ${mlong(ymd)}`;
 const F = D.forecast, B = D.backtest, S = D.shock;
 const h3 = B.by_h[2];
 
@@ -93,7 +94,7 @@ function step(slide, n, x, y, w, head, body) {
   slide.addShape(pres.shapes.OVAL, { x, y, w: 0.46, h: 0.46, fill: { color: C.accent1 }, line: { color: C.accent1 }, objectName: `step ${n} badge` });
   text(slide, String(n), { x, y, w: 0.46, h: 0.46, fontSize: 16, bold: true, color: C.background1, align: "center", valign: "middle" });
   text(slide, head, { x: x + 0.6, y: y - 0.02, w: w - 0.6, h: 0.32, fontSize: 16, bold: true, color: C.text2 });
-  text(slide, body, { x: x + 0.6, y: y + 0.32, w: w - 0.6, h: 0.62, fontSize: 13, color: C.accent3 });
+  text(slide, body, { x: x + 0.6, y: y + 0.32, w: w - 0.6, h: 1.05, fontSize: 13, color: C.accent3 });
 }
 const chartText = { catAxisLabelFontFace: "+mn-lt", valAxisLabelFontFace: "+mn-lt", legendFontFace: "+mn-lt", dataLabelFontFace: "+mn-lt", titleFontFace: "+mn-lt" };
 
@@ -126,28 +127,36 @@ pres.addSection({ title: "Answer" });
   const pad = (arr, at) => { const a = Array(n).fill(null); arr.forEach((v, i) => { a[at + i] = v; }); return a; };
   const last = hist.length - 1, la = hist[last].yoy;
   const band = (q) => pad([la, ...path_.map((p) => p[q])], last);
-  s.addChart(pres.charts.LINE, [
-    { name: "Actual", labels, values: pad(hist.map((h) => h.yoy), 0) },
-    { name: "Forecast", labels, values: pad([la, ...path_.map((p) => p.point)], last) },
-    { name: "68% band", labels, values: band("q84") }, { name: "68% band low", labels, values: band("q16") },
-    { name: "90% band", labels, values: band("q95") }, { name: "90% band low", labels, values: band("q05") },
+  // Shaded fan (D72): stacked areas give the bands, a white base hides everything below the 90% band's lower end
+  // (so the chart has no grid lines), and the actual and forecast lines are drawn on top.
+  const zeroHist = Array(last + 1).fill(0);
+  const base = [...hist.map((h) => h.yoy), ...path_.map((p) => p.q05)];
+  const w90lo = [...zeroHist, ...path_.map((p) => p.q16 - p.q05)];
+  const w68 = [...zeroHist, ...path_.map((p) => p.q84 - p.q16)];
+  const w90hi = [...zeroHist, ...path_.map((p) => p.q95 - p.q84)];
+  s.addChart([
+    { type: pres.charts.AREA, data: [
+      { name: "base", labels, values: base }, { name: "90% band", labels, values: w90lo },
+      { name: "68% band", labels, values: w68 }, { name: "90% band upper", labels, values: w90hi }],
+      options: { barGrouping: "stacked", chartColors: [HEX.lt1, "C9DCF4", "8FB8EA", "C9DCF4"] } },
+    { type: pres.charts.LINE, data: [
+      { name: "Actual", labels, values: pad(hist.map((h) => h.yoy), 0) },
+      { name: "Forecast", labels, values: pad([la, ...path_.map((p) => p.point)], last) }],
+      options: { chartColors: [HEX.dk1, HEX.accent1], lineSize: 2.25, lineDataSymbol: "none" } },
   ], Object.assign({
-    x: 6.0, y: 2.05, w: 6.6, h: 4.1, objectName: "headline forecast chart",
-    // Bands told apart by colour, not dash: this pptxgenjs writes a per-series lineDash array as one invalid value.
-    chartColors: [HEX.dk1, HEX.accent1, "7FAEE6", "7FAEE6", "C9DCF4", "C9DCF4"],
-    lineSize: 2, lineDataSymbol: "none", displayBlanksAs: "gap",
+    x: 6.0, y: 2.05, w: 6.6, h: 4.1, objectName: "headline forecast chart", displayBlanksAs: "gap",
     showTitle: true, title: "Headline HICP, % y/y: last 24 months and the forecast fan", titleFontSize: 13, titleColor: HEX.dk2,
     showLegend: false,
     catAxisLabelColor: HEX.accent3, valAxisLabelColor: HEX.accent3, catAxisLabelFontSize: 10, valAxisLabelFontSize: 11,
     catAxisLabelFrequency: 3, valAxisLabelFormatCode: "0.0", valAxisMinVal: 1, valAxisMaxVal: 5.5,
-    valGridLine: { color: "E3E8EF", size: 0.5 }, catGridLine: { style: "none" },
+    valGridLine: { style: "none" }, catGridLine: { style: "none" },
   }, chartText));
 
   text(s, [
     { text: "Actual", options: { bold: true, color: HEX.dk1 } }, { text: "   " },
     { text: "Forecast", options: { bold: true, color: HEX.accent1 } }, { text: "   " },
-    { text: "68% band", options: { bold: true, color: "7FAEE6" } }, { text: "   " },
-    { text: "90% band", options: { bold: true, color: "A9C7EE" } },
+    { text: "68% band", options: { bold: true, color: "6F9FDB" } }, { text: "   " },
+    { text: "90% band", options: { bold: true, color: "9DB9DE" } }, { text: "   (from past forecast errors)", options: { color: HEX.accent3 } },
   ], { x: 6.25, y: 6.18, w: 6.3, h: 0.35, fontSize: 12, objectName: "chart key" });
 
   s.addNotes(`Lead with the answer. Euro area* headline HICP is forecast at ${fmt(F.point, 2)}% y/y for ${mlong(D.target)}, three months after the ${mlong(D.origin)} print of ${fmt(F.last_actual, 2)}%. The 68% band is ${fmt(F.q16, 1)} to ${fmt(F.q84, 1)}% and the 90% band ${fmt(F.q05, 1)} to ${fmt(F.q95, 1)}%; both come from the model's own out-of-sample errors, not from model assumptions, which is why the fan is skewed up (the model under-predicted in 2021-22).
@@ -160,25 +169,26 @@ Risk framing: a ${fmt(F.p_above_4, 0)}% chance that December prints above 4%.`);
 pres.addSection({ title: "Method" });
 {
   const s = pres.addSlide({ masterName: "EP_LIGHT", sectionTitle: "Method" });
-  heading(s, "Method and validation", "Every number is checked before it is shown", false);
+  heading(s, "Method and validation", "Validated data and reproducible calculations", false);
   const st = [
     ["Eurostat API, no manual files", "HICP index 2025 = 100 by COICOP ver.2 component and country, item and country weights, official contributions."],
     [`${D.validation.n_gates} validation gates`, `${D.validation.n_pass} pass, ${D.validation.warn.length} warning (${D.validation.warn.join(", ") || "none"}), ${D.validation.fail.length} failures. A failed critical gate stops the run.`],
     ["Rebuild Eurostat's headline", `Chain-linked Laspeyres, December link: ${D.recon.n_months} months within ${fmt(D.recon.yoy_max_pp, 3)} pp; contributions within ${fmt(D.recon.contrib_max_pp, 3)} pp.`],
-    ["Bottom-up forecast", "Six components, each with its own model, aggregated with the weights known at the forecast date."],
+    ["Bottom-up forecast", "Monthly price change per component. Fuels: pump prices; electricity & gas, unprocessed food: seasonal mean; processed food: AR(p); goods, services: 'no change in y/y'."],
     ["Pre-registered tests", `Rules written and committed before results: ${D.rounds.n} model rounds, Diebold-Mariano with Holm correction.`],
     ["Structured outputs", "Schema-validated JSON for every result, a hash-chained forecast ledger, one offline dashboard."],
   ];
-  st.forEach(([h, b], i) => step(s, i + 1, 0.6 + (i % 2) * 4.15, 2.05 + Math.floor(i / 2) * 1.35, 3.95, h, b));
+  st.forEach(([h, b], i) => step(s, i + 1, 0.6 + (i % 2) * 4.15, 2.05 + Math.floor(i / 2) * 1.5, 3.95, h, b));
 
   card(s, 9.05, 2.0, 3.68, 4.55, C.background2, "proof card");
-  stat(s, 9.35, 2.2, 3.1, `${D.validation.n_pass + D.validation.warn.length}/${D.validation.n_gates}`, "data checks without a failure");
+  stat(s, 9.35, 2.2, 3.1, `${D.validation.n_pass} pass · ${D.validation.warn.length} warning`, `of ${D.validation.n_gates} data checks; the warning (${D.validation.warn.join(", ")}) flags ${D.v8.message.split(" ")[0]} outlier observations, kept, not dropped`, { size: 26 });
   stat(s, 9.35, 3.65, 3.1, `${fmt(D.recon.yoy_max_pp, 3)} pp`, "largest error rebuilding Eurostat's headline");
   stat(s, 9.35, 5.1, 3.1, `${D.n_python_tests}`, "automated tests (maths, data contracts, engine parity)");
 
   s.addNotes(`For validation and structured outputs. Nothing is downloaded by hand: the pipeline pulls Eurostat's HICP index, item and country weights and the official contributions through the API, and records the vintage of every pull.
 Before any model runs, ${D.validation.n_gates} gates check the data; ${D.validation.n_pass} pass and ${D.validation.warn.join(", ")} is a documented warning, not a failure.
 The strongest check is the reconciliation: we rebuild Eurostat's headline from the six components with annual chain-linked Laspeyres weights and a December link. Over ${D.recon.n_months} months the largest gap is ${fmt(D.recon.yoy_max_pp, 3)} pp, and the contributions match Eurostat's within ${fmt(D.recon.contrib_max_pp, 3)} pp. If our arithmetic is right there, the forecast's contributions can be trusted.
+The forecast itself is bottom-up: each component's monthly price change is forecast with what won in the backtest (pump prices for fuels, a seasonal mean for electricity & gas and unprocessed food, an AR(p) for processed food, and "no change in y/y" for goods and services), then chain-linked to the headline with the weights known at the forecast date.
 Every model rule was written and committed before results existed, and every output is schema-validated JSON. ${D.n_python_tests} automated tests cover the maths and the data contracts.`);
 }
 
@@ -202,31 +212,31 @@ pres.addSection({ title: "Accuracy" });
   }, chartText));
 
   stat(s, 7.3, 2.0, 2.6, fmt(h3.ratio, 2), "error ratio vs random walk, 3 months");
-  stat(s, 10.1, 2.0, 2.6, fmt(h3.dm_p, 3), `Diebold-Mariano p (${B.n_origins_h3} origins)`);
+  stat(s, 10.1, 2.0, 2.6, fmt(h3.dm_p, 3), `raw Diebold-Mariano p, ${B.n_origins_h3} origins; Holm-adjusted ${fmt(D.rounds.adopted_p_holm, 3)}`);
   text(s, [
     { text: "Same gain in calm and in crisis: ", options: { bold: true, color: C.text2 } },
     { text: `ratio ${fmt(B.ratio_h3["2010-2019"], 2)} in 2010–19, ${fmt(B.ratio_h3["2020-2023"], 2)} in 2020–23, ${fmt(B.ratio_h3["2024-now"], 2)} since 2024.` },
   ], { x: 7.3, y: 3.6, w: 5.4, h: 0.7, fontSize: 14, color: C.accent3 });
 
-  card(s, 7.3, 4.4, 5.43, 2.2, C.background2, "limits card");
-  text(s, "Honest limits", { x: 7.55, y: 4.55, w: 5.0, h: 0.35, fontSize: 16, bold: true, color: C.accent6 });
+  card(s, 7.3, 4.3, 5.43, 2.35, C.background2, "limits card");
+  text(s, "Honest limits", { x: 7.55, y: 4.42, w: 5.0, h: 0.35, fontSize: 16, bold: true, color: C.accent6 });
   text(s, [
-    { text: `In 2020–23 only ${fmt(B.in68_crisis_h3, 0)}% of outcomes fell inside the 68% band (${fmt(B.in68_calm_h3, 0)}% in 2010–19), and the model under-predicted by ${fmt(-B.bias_crisis_h3, 2)} pp on average.`, options: { breakLine: true } },
+    { text: `2020–23: only ${fmt(B.in68_crisis_h3, 0)}% of outcomes inside the 68% band (${fmt(B.in68_calm_h3, 0)}% in 2010–19); under-prediction ${fmt(-B.bias_crisis_h3, 2)} pp on average.`, options: { breakLine: true } },
     { text: `June 2022: forecast ${fmt(B.june2022.fc, 1)}% from ${mlong(B.june2022.origin)}, outcome ${fmt(B.june2022.actual, 1)}% (random walk ${fmt(B.june2022.rw, 1)}%).`, options: { breakLine: true } },
-    { text: `Model frozen after ${D.rounds.n} pre-registered rounds; the ledger now scores it out of sample.` },
-  ], { x: 7.55, y: 4.95, w: 5.0, h: 1.6, fontSize: 13, color: C.text1, paraSpaceAfter: 4 });
+    { text: `The backtest uses latest-vintage data, and the model was chosen on the same history; the ledger scores it prospectively from the freeze, ${dlong(D.rounds.freeze_date)}.` },
+  ], { x: 7.55, y: 4.8, w: 5.0, h: 1.8, fontSize: 13, color: C.text1, paraSpaceAfter: 4 });
 
-  s.addNotes(`The benchmark that matters at short horizons is the random walk, "y/y stays where it is", which most inflation models fail to beat. Out of sample over ${B.n_origins_h3} forecast origins, our three-month error is ${fmt(h3.rmse, 2)} pp against ${fmt(h3.rmse_rw, 2)} pp, a ratio of ${fmt(h3.ratio, 2)}. The Diebold-Mariano test (HLN correction, Newey-West) gives p = ${fmt(h3.dm_p, 3)}.
+  s.addNotes(`The benchmark that matters at short horizons is the random walk, "y/y stays where it is", which most inflation models fail to beat. Out of sample over ${B.n_origins_h3} forecast origins, our three-month error is ${fmt(h3.rmse, 2)} pp against ${fmt(h3.rmse_rw, 2)} pp, a ratio of ${fmt(h3.ratio, 2)}. The Diebold-Mariano test (HLN correction, Newey-West) gives a raw p of ${fmt(h3.dm_p, 3)}; Holm across round 4's ${D.rounds.n_tests_in_round} tests compares it with ${fmt(D.rounds.adopted_threshold, 4)}, so the Holm-adjusted p is ${fmt(D.rounds.adopted_p_holm, 3)}: significant at 5%, narrowly.
 The gain is the same before and after 2020, which makes it less likely to be a crisis accident.
 Be upfront about the limits: in 2020-23 only ${fmt(B.in68_crisis_h3, 0)}% of outcomes fell inside the 68% band and the model under-predicted by ${fmt(-B.bias_crisis_h3, 2)} pp on average. In June 2022 it said ${fmt(B.june2022.fc, 1)}% and inflation was ${fmt(B.june2022.actual, 1)}%.
-On model choice: there were ${D.rounds.n} rounds, each with its rule fixed and committed first. The adopted variant passed narrowly (p ${fmt(D.rounds.adopted_p, 3)} against a Holm threshold of ${fmt(D.rounds.adopted_threshold, 4)}). The model is now frozen, and the hash-chained ledger is the clean out-of-sample test from here.`);
+On model choice: there were ${D.rounds.n} rounds, each with its rule fixed and committed first. The adopted variant passed narrowly (p ${fmt(D.rounds.adopted_p, 3)} against a Holm threshold of ${fmt(D.rounds.adopted_threshold, 4)}). The backtest is pseudo out-of-sample: it uses latest-vintage data, and the model was chosen on that same history, so it carries some selection optimism. The model was frozen on ${dlong(D.rounds.freeze_date)}; from there the hash-chained ledger is the clean prospective test.`);
 }
 
 // ================================================================= 4. shock pass-through
 pres.addSection({ title: "Shocks" });
 {
   const s = pres.addSlide({ masterName: "EP_LIGHT", sectionTitle: "Shocks" });
-  heading(s, "Shock pass-through · preset scenario", `A gas price spike would add up to ${sgn(S.peak_pp, 2)} pp to headline`, false);
+  heading(s, "Shock pass-through · European gas price spike preset", `Gas price shock adds up to ${sgn(S.peak_pp, 2)} pp`, false);
 
   const labels = S.months.map(mlabel);
   s.addChart(pres.charts.BAR, [{ name: "Impact on headline y/y, pp", labels, values: S.total_pp }], Object.assign({
@@ -269,10 +279,10 @@ pres.addSection({ title: "Dashboard" });
   text(s, "hicpinflationshocksimulator.vercel.app · also one offline HTML file", { x: 0.6, y: 6.05, w: 6.05, h: 0.35, fontSize: 12, color: C.accent4 });
 
   const cards = [
-    ["Ask it anything", "A chatbot answers in EN, FR or Turkish; every number is checked against the page, and it builds and runs scenarios itself."],
+    ["Ask about the dashboard", "A chatbot answers in EN, FR or Turkish, checks each number it quotes against the page, and builds and runs scenarios itself."],
     ["Words become shocks", "Describe a shock in a sentence: the language model only fills a validated schema; the engine computes, the reader confirms."],
     ["Solve it backwards", "Reverse stress test: the shock size that takes December to a target or probability."],
-    ["Forecasts that keep score", "Pre-registered model rounds and a hash-chained ledger scored as Eurostat publishes."],
+    ["Forecast tracking", "Pre-registered model rounds and a hash-chained ledger, scored as Eurostat publishes."],
   ];
   cards.forEach(([h, b], i) => {
     const x = 6.95 + (i % 2) * 2.94, y = 2.0 + Math.floor(i / 2) * 1.98;

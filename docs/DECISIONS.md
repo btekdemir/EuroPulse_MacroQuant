@@ -1129,3 +1129,10 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
   - First, missing values (where the history and forecast lines start or stop) were written as empty `<c:v></c:v>`. The build now removes those points; an absent point is a gap.
   - Second, the per-line dash styles were joined into one invalid value. The bands are now told apart by colour.
   - The rebuilt file has neither fault and passes the validator.
+- **Deck review applied (D72 follow-up):**
+  - Slide 1: shaded 68%/90% bands under the lines, as on the dashboard (stacked areas, no grid lines). The vertical divider at the forecast start was not added: a shape placed over a native chart does not line up reliably across PowerPoint and other viewers.
+  - Slide 2: title "Validated data and reproducible calculations" (not "every number is checked"). The model for each component is named. The big figure reads "8 pass · 1 warning", with what V8 is (61 outlier observations, flagged and kept).
+  - Slide 3: 0.016 is labelled as the raw Diebold–Mariano p, with the Holm-adjusted 0.049 (3 tests). A sentence separates the backtest (latest-vintage data, model chosen on the same history) from the prospective test (the ledger, from the freeze on 21 Oct 2026).
+  - Slide 4: a shorter title.
+  - Slide 5: "Ask about the dashboard" and "Forecast tracking". The heading that ran into its text is fixed.
+  - Every number still comes from `deck_data.json`; the Holm-adjusted p, freeze date, models and V8 text were added there.
