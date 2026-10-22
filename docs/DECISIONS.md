@@ -1085,3 +1085,13 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
 - **Checked:**
   - From a fresh browser, every page's tour started by itself, every step's heading was at the top of the screen and uncovered, and a second visit stayed quiet.
   - End-to-end 167/167. The suite turns auto-start off while it runs and tests it once.
+
+## D70. A shared "Current scenario" box; contributions first on Drivers (22 Oct 2026)
+
+- **Current scenario:**
+  - The list of shocks in the scenario, with "+ Add shock" / "Remove shock", sat inside "Build a scenario". It looked like it belonged to the builder only, but presets and sentences fill it too.
+  - It now sits in its own box at the top of the simulator column, titled "Current scenario: <name>", together with "Copy link" and "Download scenario JSON".
+  - Below it come the three ways in: presets, the sentence box and the builder. The builder now edits the shock selected in that box.
+  - The simulator tour starts at this box (10 steps); the old "several shocks" step is part of it.
+- **Drivers:** the contributions-over-time chart now comes first and the September→December bridge second, so the page and its tour start on the main chart.
+- **Checked:** Python tests pass; end-to-end 167/167.

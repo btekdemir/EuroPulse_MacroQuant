@@ -1045,6 +1045,7 @@
     el("leg-del").disabled = scenario.legs.length <= 1;
     el("leg-edit").textContent = "";  // the shock group header says which shock is being edited (D65)
     el("leg-head").textContent = t("sim_leg_head", { n: activeLeg + 1 });
+    el("cur-name").textContent = presetIdx >= 0 ? t("preset_" + presetIdx) : (scenario.name && scenario.name !== "Custom scenario" ? scenario.name : t("sim_custom_name"));
     el("leg-group").style.setProperty("--leg-color", `var(${LEG_SLOT[activeLeg]})`);
   }
 
@@ -1769,10 +1770,10 @@
       { key: "profile", sel: "#cp-summary", self: true },
     ],
     shocks: [
+      { key: "sim_current", sel: "#cur-sec", self: true },
       { key: "sim_ways", sel: "#presets", self: true },
       { key: "sim_words", sel: "#nl-sec", self: true },
       { key: "sim_build", sel: "#leg-group", self: true },
-      { key: "sim_legs", sel: "#legs-fs", self: true },
       { key: "sim_second", sel: "#second-row", self: true },
       { key: "sim_results", sel: "#sim-kpis", self: true },
       { key: "sim_chart", sel: "#p-shock", self: true },

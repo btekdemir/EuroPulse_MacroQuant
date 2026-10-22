@@ -105,6 +105,8 @@ a.dcode { color: inherit; text-decoration: underline dotted; text-underline-offs
 @media (prefers-reduced-motion: reduce) { .logo .pulse { animation: none; } }
 @media (max-width: 700px) { .logo { width: 32px; height: 32px; } }
 .logo.mini { width: 18px; height: 18px; vertical-align: -3px; margin-right: 6px; }
+.cur-sec { padding: 12px; border: 1px solid var(--accent); border-radius: 10px; background: var(--surface-1); }
+.cur-sec > h2 { margin-top: 0; } #cur-name { font-weight: 500; color: var(--text-secondary); }
 .card.plain { background: transparent; border: 0; padding: 4px 2px; }
 .tab-lede { grid-column: span 12; margin: 2px 0 0; color: var(--text-secondary); font-size: 14px; }
 .sec-head { grid-column: span 12; margin: 14px 2px -4px; font-size: 11.5px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); }
@@ -328,6 +330,9 @@ input[type="range"] { min-width: 160px; }
   <section role="tabpanel" id="tab-drivers">
     <div class="grid">
       <p class="tab-lede" data-i18n="lede_drivers"></p>
+      <div class="card"><h2 data-i18n="ch_contrib"></h2><div class="plot tall" id="p-contrib"></div>
+        <p class="note" data-i18n="ch_contrib_note"></p><p class="src" data-src="src_eurostat"></p>
+        <button class="toggle-table" data-table="tbl-contrib"></button><div class="tablewrap" id="tbl-contrib" hidden></div></div>
       <div class="card" id="br-card"><h2 id="br-title"></h2>
         <div class="row" style="margin:4px 0 8px"><div class="seg" id="br-mode" role="group">
           <button type="button" data-br="comp" aria-pressed="true" data-i18n="br_by_comp"></button>
@@ -335,9 +340,6 @@ input[type="range"] { min-width: 160px; }
         <div class="plot" id="p-bridge"></div>
         <p class="answer" id="br-text" style="margin:8px 0 4px"></p><p class="note" id="br-note"></p><p class="src" data-src="src_eurostat"></p>
         <div class="tablewrap" id="tbl-bridge" hidden></div><button class="toggle-table" data-table="tbl-bridge"></button></div>
-      <div class="card"><h2 data-i18n="ch_contrib"></h2><div class="plot tall" id="p-contrib"></div>
-        <p class="note" data-i18n="ch_contrib_note"></p><p class="src" data-src="src_eurostat"></p>
-        <button class="toggle-table" data-table="tbl-contrib"></button><div class="tablewrap" id="tbl-contrib" hidden></div></div>
       <div class="card span-6"><h2 id="t-basemom"></h2><div class="plot short" id="p-basemom"></div>
         <p class="note" data-i18n="ch_basemom_note"></p><p class="src" data-src="src_eurostat"></p>
         <div class="tablewrap" id="tbl-basemom"></div></div>
@@ -382,7 +384,19 @@ input[type="range"] { min-width: 160px; }
     <div class="grid">
       <p class="tab-lede" data-i18n="lede_shocks"></p>
       <div class="card span-4">
-        <h2 data-i18n="sim_presets"></h2><div class="presets" id="presets"></div>
+        <!-- D70: what is being simulated, whichever way it was built (preset, sentence or by hand) -->
+        <section class="cur-sec" id="cur-sec">
+          <h2><span data-i18n="sim_current"></span>: <span id="cur-name"></span></h2>
+          <fieldset id="legs-fs"><legend data-i18n="sim_legs"></legend>
+            <div class="presets" id="leg-strip"></div>
+            <div class="row" style="margin-top:6px"><button class="btn" id="leg-add" type="button" data-i18n="sim_add_leg"></button>
+              <button class="btn" id="leg-del" type="button" data-i18n="sim_del_leg"></button>
+              <span class="note" id="leg-edit" style="margin:0"></span></div></fieldset>
+          <div class="row" style="margin-top:8px"><button class="btn" id="sim-share" type="button" data-i18n="share_copy"></button>
+            <button class="btn" id="sim-export" type="button" data-i18n="sim_export"></button>
+            <span class="note" id="share-status" role="status" style="margin:0"></span></div>
+        </section>
+        <h2 style="margin-top:16px" data-i18n="sim_presets"></h2><div class="presets" id="presets"></div>
         <!-- D65: two clearly separate ways in. The sentence box and its examples are one section; the builder another. -->
         <section class="subsec" id="nl-sec">
           <h2 data-i18n="nl_title"></h2>
@@ -402,11 +416,6 @@ input[type="range"] { min-width: 160px; }
         <section class="subsec" id="build-sec">
         <h2 data-i18n="sim_custom"></h2>
         <div class="form" id="sim-form">
-          <fieldset id="legs-fs"><legend data-i18n="sim_legs"></legend>
-            <div class="presets" id="leg-strip"></div>
-            <div class="row" style="margin-top:6px"><button class="btn" id="leg-add" type="button" data-i18n="sim_add_leg"></button>
-              <button class="btn" id="leg-del" type="button" data-i18n="sim_del_leg"></button>
-              <span class="note" id="leg-edit" style="margin:0"></span></div></fieldset>
           <!-- D65: everything that defines one shock sits in one group, so it reads as one thing -->
           <div class="leg-group" id="leg-group">
             <div class="leg-head" id="leg-head"></div>
@@ -427,9 +436,6 @@ input[type="range"] { min-width: 160px; }
           <div class="chips" id="second-row"><label><input type="checkbox" id="f-second"> <span data-i18n="sim_second"></span></label></div>
           <div class="row"><label><span data-i18n="sim_regime"></span><select id="f-regime"></select></label></div>
           <div class="warnmsg" id="sim-warn" hidden data-i18n="sim_warn_none"></div>
-          <button class="btn" id="sim-export" type="button" data-i18n="sim_export"></button>
-          <button class="btn" id="sim-share" type="button" data-i18n="share_copy"></button>
-          <span class="note" id="share-status" role="status" style="margin:0"></span>
         </div>
         </section>
       </div>
