@@ -1141,3 +1141,7 @@ A live test of 9 calls found every number checked and every "Go to" correct, plu
   - Slide 2: "8 pass" and "1 warning (V8)" are on separate lines, because one line wrapped into the label in PowerPoint's fonts.
   - Slide 5: "Ask about the dashboard" → "Ask EuroPulse", one line.
   - The preview renderer (LibreOffice) does not show these PowerPoint-only effects, so the final check is in PowerPoint.
+- **Slide 1's fan is now an image (D72):**
+  - With the outline turned off, the stacked-area fan still showed a thin line where the bands start in another viewer. A fan has no native PowerPoint chart form, so it is now drawn once by `deck/fan_chart.py` from `deck_data.json` (the same numbers) and placed as an image with alt text. It looks the same everywhere.
+  - It adds a forecast divider, a "Dec 26: 3.77%" end label and the ECB target line. The other charts stay native.
+- **Slide 4:** "Each price increment affects y/y for 12 months" replaces "A permanent shock lifts y/y for 12 months…", which suits a shock phased in over six months. The notes take the month the impact starts falling from the data.

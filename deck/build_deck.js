@@ -120,44 +120,13 @@ pres.addSection({ title: "Answer" });
     text(s, l, { x: 2.2, y: y + 0.04, w: 3.3, h: 0.55, fontSize: 13, color: C.background2, objectName: "driver label " + i });
   });
 
-  // history (24 months) + forecast path with its 68% / 90% bands
-  card(s, 5.85, 1.95, 6.88, 4.75, C.background1, "chart card");
-  const hist = F.history, path_ = F.path, n = hist.length + path_.length;
-  const labels = [...hist.map((h) => mlabel(h.date)), ...path_.map((p) => mlabel(p.date))];
-  const pad = (arr, at) => { const a = Array(n).fill(null); arr.forEach((v, i) => { a[at + i] = v; }); return a; };
-  const last = hist.length - 1, la = hist[last].yoy;
-  const band = (q) => pad([la, ...path_.map((p) => p[q])], last);
-  // Shaded fan (D72): stacked areas give the bands, a white base hides everything below the 90% band's lower end
-  // (so the chart has no grid lines), and the actual and forecast lines are drawn on top.
-  const zeroHist = Array(last + 1).fill(0);
-  const base = [...hist.map((h) => h.yoy), ...path_.map((p) => p.q05)];
-  const w90lo = [...zeroHist, ...path_.map((p) => p.q16 - p.q05)];
-  const w68 = [...zeroHist, ...path_.map((p) => p.q84 - p.q16)];
-  const w90hi = [...zeroHist, ...path_.map((p) => p.q95 - p.q84)];
-  s.addChart([
-    { type: pres.charts.AREA, data: [
-      { name: "base", labels, values: base }, { name: "90% band", labels, values: w90lo },
-      { name: "68% band", labels, values: w68 }, { name: "90% band upper", labels, values: w90hi }],
-      options: { barGrouping: "stacked", chartColors: [HEX.lt1, "C9DCF4", "8FB8EA", "C9DCF4"] } },
-    { type: pres.charts.LINE, data: [
-      { name: "Actual", labels, values: pad(hist.map((h) => h.yoy), 0) },
-      { name: "Forecast", labels, values: pad([la, ...path_.map((p) => p.point)], last) }],
-      options: { chartColors: [HEX.dk1, HEX.accent1], lineSize: 2.25, lineDataSymbol: "none" } },
-  ], Object.assign({
-    x: 6.0, y: 2.05, w: 6.6, h: 4.1, objectName: "headline forecast chart", displayBlanksAs: "gap",
-    showTitle: true, title: "Headline HICP, % y/y: last 24 months and the forecast fan", titleFontSize: 13, titleColor: HEX.dk2,
-    showLegend: false,
-    catAxisLabelColor: HEX.accent3, valAxisLabelColor: HEX.accent3, catAxisLabelFontSize: 10, valAxisLabelFontSize: 11,
-    catAxisLabelFrequency: 3, valAxisLabelFormatCode: "0.0", valAxisMinVal: 1, valAxisMaxVal: 5.5,
-    valGridLine: { style: "none" }, catGridLine: { style: "none" },
-  }, chartText));
-
-  text(s, [
-    { text: "Actual", options: { bold: true, color: HEX.dk1 } }, { text: "   " },
-    { text: "Forecast", options: { bold: true, color: HEX.accent1 } }, { text: "   " },
-    { text: "68% band", options: { bold: true, color: "6F9FDB" } }, { text: "   " },
-    { text: "90% band", options: { bold: true, color: "9DB9DE" } }, { text: "   (from past forecast errors)", options: { color: HEX.accent3 } },
-  ], { x: 6.25, y: 6.18, w: 6.3, h: 0.35, fontSize: 12, objectName: "chart key" });
+  // The fan as an image drawn from the same data (deck/fan_chart.py): imitated with stacked areas, its band edges
+  // showed as thin vertical lines in some viewers. A fan has no native PowerPoint chart form.
+  card(s, 5.85, 1.95, 6.88, 4.6, C.background1, "chart card");
+  const end = F.path[F.path.length - 1];
+  s.addImage({ path: path.join(__dirname, "fan.png"), x: 6.02, y: 2.12, w: 6.54, h: 3.865, objectName: "headline forecast fan",
+    altText: `Headline HICP y/y over the last 24 months and the forecast to ${mlong(end.date)}: ${fmt(end.point, 2)}%, 68% band ${fmt(end.q16, 1)}–${fmt(end.q84, 1)}%, 90% band ${fmt(end.q05, 1)}–${fmt(end.q95, 1)}%.` });
+  text(s, "Bands from the model's own past out-of-sample errors", { x: 6.2, y: 6.05, w: 6.3, h: 0.35, fontSize: 11, color: C.accent3, objectName: "chart note" });
 
   s.addNotes(`Lead with the answer. Euro area* headline HICP is forecast at ${fmt(F.point, 2)}% y/y for ${mlong(D.target)}, three months after the ${mlong(D.origin)} print of ${fmt(F.last_actual, 2)}%. The 68% band is ${fmt(F.q16, 1)} to ${fmt(F.q84, 1)}% and the 90% band ${fmt(F.q05, 1)} to ${fmt(F.q95, 1)}%; both come from the model's own out-of-sample errors, not from model assumptions, which is why the fan is skewed up (the model under-predicted in 2021-22).
 Why it barely moves: the base effect takes off ${fmt(-F.base_effect_pp, 2)} pp, because last year's October to December monthly changes drop out of the window, and new momentum adds ${fmt(F.momentum_pp, 2)} pp. The two almost cancel.
@@ -260,13 +229,13 @@ pres.addSection({ title: "Shocks" });
 
   text(s, "Assumptions, always shown", { x: 8.35, y: 4.95, w: 4.38, h: 0.32, fontSize: 14, bold: true, color: C.text2 });
   const A = ["Price-level shock per country × component, on its own profile", "Weights at origin prices, held constant",
-    "A permanent shock lifts y/y for 12 months, then drops out", "Second round optional: estimated, regime-dependent lag",
+    "Each price increment affects y/y for 12 months", "Second round optional: estimated, regime-dependent lag",
     "No policy or demand response"];
   text(s, A.map((a, i) => ({ text: a, options: { bullet: true, breakLine: i < A.length - 1 } })),
     { x: 8.35, y: 5.3, w: 4.38, h: 1.45, fontSize: 12, color: C.accent3, paraSpaceAfter: 2 });
 
   s.addNotes(`One preset, with its assumptions on screen. Wholesale gas spikes; retail gas and electricity follow slowly because of regulated tariffs and fixed contracts, so the shock is +${fmt(S.size_pct, 0)}% on the retail level, phased in over ${S.ramp_months} months from ${mlong(S.start)}, about a quarter of the 2021-22 episode.
-The engine moves each country and component's price level and re-aggregates with the euro area weights, so the pass-through is exact arithmetic rather than a regression: the impact builds to ${sgn(S.peak_pp, 2)} pp in ${mlong(S.peak_month)}, and December would print ${fmt(S.dec_shocked, 1)}% instead of ${fmt(F.point, 1)}%. Because it is a level shock, it lifts y/y for a year and then drops out as a base effect.
+The engine moves each country and component's price level and re-aggregates with the euro area weights, so the pass-through is exact arithmetic rather than a regression: the impact builds to ${sgn(S.peak_pp, 2)} pp in ${mlong(S.peak_month)}, and December would print ${fmt(S.dec_shocked, 1)}% instead of ${fmt(F.point, 1)}%. Each step of the price increase affects y/y for twelve months and then drops out as a base effect, which is why the impact plateaus and then falls from ${mlong(S.months[S.total_pp.findIndex((v, i) => i > S.total_pp.indexOf(S.peak_pp) && v < S.peak_pp - 1e-9)])}.
 The assumptions (A1 to A5) are always visible next to the result. Second-round effects into core are optional, estimated with a regime-dependent distributed lag, and shown separately because they are uncertain.
 For oil, the Brent preset goes through an estimated pass-through to fuel prices of ${fmt(S.brent_elasticity, 2)} (s.e. ${fmt(S.brent_elasticity_se, 2)}); +30% Brent peaks at ${sgn(S.oil_peak_pp, 2)} pp. The simulator also solves backwards: what size of shock takes December to a target.`);
 }
