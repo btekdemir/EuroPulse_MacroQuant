@@ -1,6 +1,6 @@
 {
   "origin": "2026-09",
-  "facts_hash": "a6a40b52f48f6bf9",
+  "facts_hash": "684b1a84eb689414",
   "context": "Data: Eurostat HICP, euro area* = the 21 current members at every date, chain-linked bottom-up from six components. Last published month: Sep 2026. The forecast covers the next three months.\nSelected component models (pre-committed rule: keep the simpler model unless a richer one is significantly better, Diebold-Mariano test, chosen on 2010-2019 origins): fuels: Weekly Oil Bulletin pump prices; electricity and gas: seasonal mean of monthly changes; processed food: AR(p) chosen by AIC; unprocessed food: seasonal mean of monthly changes; non-energy industrial goods: no change in y/y (last year's monthly changes repeated; round 4, D57); services: no change in y/y (last year's monthly changes repeated; round 4, D57).\nBase effect = the part of the change in y/y that comes from the monthly change a year earlier dropping out; it is known in advance. Momentum = the part from new monthly price changes.\nThe bands are empirical quantiles of the model's own past out-of-sample errors, not model-implied.\nThe shock simulator moves price levels per country and component; second-round effects are an estimated distributed lag. Actuals are final Eurostat releases; flash estimates are used only in the first-release check.\nModel history: rounds 2 and 3 (pre-registered; round 3 tried SARIMA, Elastic Net, gradient boosting and an ensemble) found nothing that beat the random walk at three months. Round 4 (pre-registered) forecast services and non-energy industrial goods as 'no change in y/y' (their monthly changes repeat last year's); it passed the Holm test narrowly and beat the earlier bottom-up model, so it is now the published model. Core inflation is a by-product of the goods and services forecasts, so it is now forecast essentially as a random walk. Not modelled: country forecasts (only the euro area* headline is forecast and selected), ECB policy decisions, anything after the three-month horizon.\nItaly: its published total differs from the weighted sum of its components by up to about a tenth of a point; the cause is not identified.",
   "facts": [
     {
@@ -11,37 +11,37 @@
     {
       "id": "forecast_h1",
       "label": "Forecast headline y/y, 2026-10 (h=1), %",
-      "value": 3.778144269083472
+      "value": 3.776369758294895
     },
     {
       "id": "forecast_h2",
       "label": "Forecast headline y/y, 2026-11 (h=2), %",
-      "value": 3.6895580856292742
+      "value": 3.6871906557503387
     },
     {
       "id": "forecast_h3",
       "label": "Forecast headline y/y, 2026-12 (h=3), %",
-      "value": 3.7735759028955096
+      "value": 3.7712199118156597
     },
     {
       "id": "band68_lo",
       "label": "68% band lower end, 2026-12, %",
-      "value": 3.3984852197475606
+      "value": 3.3961292286676894
     },
     {
       "id": "band68_hi",
       "label": "68% band upper end, 2026-12, %",
-      "value": 4.2312625809057085
+      "value": 4.228906589825847
     },
     {
       "id": "band90_lo",
       "label": "90% band lower end, 2026-12, %",
-      "value": 2.998638531993297
+      "value": 2.996282540913444
     },
     {
       "id": "band90_hi",
       "label": "90% band upper end, 2026-12, %",
-      "value": 5.0745349216619235
+      "value": 5.072178930582075
     },
     {
       "id": "ecb_target",
@@ -51,32 +51,32 @@
     {
       "id": "vs_last_pp",
       "label": "Change in y/y from 2026-09 to 2026-12, pp",
-      "value": 0.003181951443065323
+      "value": 0.0008259603632154722
     },
     {
       "id": "vs_target_pp",
       "label": "Forecast 2026-12 minus ECB target, pp",
-      "value": 1.7735759028955096
+      "value": 1.7712199118156597
     },
     {
       "id": "base_effect_pp",
       "label": "Base effect on the change in y/y to 2026-12, pp (known today)",
-      "value": -0.11349658940065353
+      "value": -0.11349530102082434
     },
     {
       "id": "momentum_pp",
       "label": "Cumulative momentum to 2026-12: sum of the new monthly changes, not a monthly rate, pp (forecast)",
-      "value": 0.11667854084371886
+      "value": 0.11432126138403981
     },
     {
       "id": "contrib_FUEL",
       "label": "Contribution of fuels to 2026-12 headline y/y, pp",
-      "value": 1.304255386868818
+      "value": 1.3018992187811411
     },
     {
       "id": "contrib_ELC_GAS",
       "label": "Contribution of electricity and gas to 2026-12 headline y/y, pp",
-      "value": 0.40552000208288713
+      "value": 0.40552000208288824
     },
     {
       "id": "contrib_FOOD_P",
@@ -86,12 +86,12 @@
     {
       "id": "contrib_FOOD_NP",
       "label": "Contribution of unprocessed food to 2026-12 headline y/y, pp",
-      "value": 0.1983852515294173
+      "value": 0.19838525152941844
     },
     {
       "id": "contrib_IGD_NNRG",
       "label": "Contribution of non-energy industrial goods to 2026-12 headline y/y, pp",
-      "value": 0.2880540379457535
+      "value": 0.28805403794577583
     },
     {
       "id": "contrib_SERV",
@@ -101,7 +101,7 @@
     {
       "id": "fuel_yoy",
       "label": "Fuel prices y/y, 2026-12, %",
-      "value": 32.3235535779137
+      "value": 32.265160316756905
     },
     {
       "id": "band68_level",
@@ -121,7 +121,7 @@
     {
       "id": "p_above_3",
       "label": "Probability that 2026-12 headline y/y exceeds 3%, %",
-      "value": 94.94949494949495
+      "value": 94.44444444444444
     },
     {
       "id": "threshold_3_5",
@@ -166,7 +166,7 @@
     {
       "id": "rmse_h1",
       "label": "Bottom-up RMSE, h=1, pp",
-      "value": 0.23174786528410443
+      "value": 0.23174786528410316
     },
     {
       "id": "rmse_rw_h1",
@@ -176,17 +176,17 @@
     {
       "id": "ratio_h1",
       "label": "RMSE ratio vs random walk, h=1",
-      "value": 0.6271620354848212
+      "value": 0.6271620354848177
     },
     {
       "id": "dm_p_h1",
       "label": "Diebold-Mariano p-value vs random walk, h=1",
-      "value": 0.0001785955915822747
+      "value": 0.0001785955915822448
     },
     {
       "id": "rmse_h3",
       "label": "Bottom-up RMSE, h=3, pp",
-      "value": 0.6315162454819622
+      "value": 0.6315162454819614
     },
     {
       "id": "rmse_rw_h3",
@@ -196,12 +196,12 @@
     {
       "id": "ratio_h3",
       "label": "RMSE ratio vs random walk, h=3",
-      "value": 0.7887923318144632
+      "value": 0.7887923318144622
     },
     {
       "id": "dm_p_h3",
       "label": "Diebold-Mariano p-value vs random walk, h=3",
-      "value": 0.016289229405117886
+      "value": 0.016289229405117407
     },
     {
       "id": "n_origins",
@@ -211,7 +211,7 @@
     {
       "id": "bias_crisis_h3",
       "label": "Mean forecast error 2020-2023, h=3, pp (forecast minus actual)",
-      "value": -0.37237373819788755
+      "value": -0.37237373819788727
     },
     {
       "id": "coverage_calm_68",
@@ -226,22 +226,22 @@
     {
       "id": "preset_0_peak",
       "label": "Largest impact on headline y/y of the scenario 'Oil supply shock (Brent +30%)', pp",
-      "value": 0.45502323714707127
+      "value": 0.4550129066686377
     },
     {
       "id": "preset_1_peak",
       "label": "Largest impact on headline y/y of the scenario 'European gas price spike', pp",
-      "value": 1.066166817641559
+      "value": 1.0661426122550708
     },
     {
       "id": "preset_2_peak",
       "label": "Largest impact on headline y/y of the scenario 'France regulated electricity tariff +10%', pp",
-      "value": 0.05773146127601431
+      "value": 0.057730150587752785
     },
     {
       "id": "brent_elasticity",
       "label": "Estimated pass-through of Brent (EUR) to fuel consumer prices",
-      "value": 0.30703644656928797
+      "value": 0.30703644656928814
     },
     {
       "id": "horizon_months",
@@ -256,17 +256,17 @@
     {
       "id": "ledger_entries",
       "label": "Forecast runs recorded in the ledger",
-      "value": 3.0
+      "value": 4.0
     },
     {
       "id": "contrib_FUEL_h1",
       "label": "Forecast contribution of fuels to headline y/y, Oct 2026, pp",
-      "value": 1.3259002828394986
+      "value": 1.324125638730253
     },
     {
       "id": "comp_yoy_FUEL_h1",
       "label": "Forecast fuels y/y, Oct 2026, %",
-      "value": 32.87155525633138
+      "value": 32.827561640400596
     },
     {
       "id": "contrib_ELC_GAS_h1",
@@ -301,12 +301,12 @@
     {
       "id": "contrib_IGD_NNRG_h1",
       "label": "Forecast contribution of non-energy industrial goods to headline y/y, Oct 2026, pp",
-      "value": 0.2894868465080837
+      "value": 0.2894868465081061
     },
     {
       "id": "comp_yoy_IGD_NNRG_h1",
       "label": "Forecast non-energy industrial goods y/y, Oct 2026, %",
-      "value": 1.1423462799244444
+      "value": 1.1423462799245332
     },
     {
       "id": "contrib_SERV_h1",
@@ -321,42 +321,42 @@
     {
       "id": "band_q05_h1",
       "label": "Forecast band 5% quantile, Oct 2026, %",
-      "value": 3.491592567361237
+      "value": 3.4898180565726564
     },
     {
       "id": "band_q16_h1",
       "label": "Forecast band 16% quantile, Oct 2026, %",
-      "value": 3.61150920812502
+      "value": 3.6097346973364433
     },
     {
       "id": "band_q84_h1",
       "label": "Forecast band 84% quantile, Oct 2026, %",
-      "value": 3.9406402280441544
+      "value": 3.93886571725554
     },
     {
       "id": "band_q95_h1",
       "label": "Forecast band 95% quantile, Oct 2026, %",
-      "value": 4.199794343633122
+      "value": 4.1980198328445235
     },
     {
       "id": "base_effect_h1",
       "label": "Base effect on the change in y/y from Sep 2026 to Oct 2026, pp",
-      "value": -0.22687417556425943
+      "value": -0.22687223586476138
     },
     {
       "id": "momentum_h1",
       "label": "Momentum on the change in y/y from Sep 2026 to Oct 2026, pp",
-      "value": 0.23462449319528728
+      "value": 0.2328480427072123
     },
     {
       "id": "contrib_FUEL_h2",
       "label": "Forecast contribution of fuels to headline y/y, Nov 2026, pp",
-      "value": 1.2372408987163177
+      "value": 1.2348732909701747
     },
     {
       "id": "comp_yoy_FUEL_h2",
       "label": "Forecast fuels y/y, Nov 2026, %",
-      "value": 30.048259640466046
+      "value": 29.990870447213315
     },
     {
       "id": "contrib_ELC_GAS_h2",
@@ -381,82 +381,82 @@
     {
       "id": "contrib_FOOD_NP_h2",
       "label": "Forecast contribution of unprocessed food to headline y/y, Nov 2026, pp",
-      "value": 0.20736386329702414
+      "value": 0.20736386329702639
     },
     {
       "id": "comp_yoy_FOOD_NP_h2",
       "label": "Forecast unprocessed food y/y, Nov 2026, %",
-      "value": 4.037145001710174
+      "value": 4.037145001710196
     },
     {
       "id": "contrib_IGD_NNRG_h2",
       "label": "Forecast contribution of non-energy industrial goods to headline y/y, Nov 2026, pp",
-      "value": 0.2898845012198976
+      "value": 0.2898845012199201
     },
     {
       "id": "comp_yoy_IGD_NNRG_h2",
       "label": "Forecast non-energy industrial goods y/y, Nov 2026, %",
-      "value": 1.1423462799244444
+      "value": 1.1423462799245332
     },
     {
       "id": "contrib_SERV_h2",
       "label": "Forecast contribution of services to headline y/y, Nov 2026, pp",
-      "value": 1.5080557314657912
+      "value": 1.5080557314657494
     },
     {
       "id": "comp_yoy_SERV_h2",
       "label": "Forecast services y/y, Nov 2026, %",
-      "value": 3.2424392662370183
+      "value": 3.2424392662369073
     },
     {
       "id": "band_q05_h2",
       "label": "Forecast band 5% quantile, Nov 2026, %",
-      "value": 3.093708168999547
+      "value": 3.0913407391206116
     },
     {
       "id": "band_q16_h2",
       "label": "Forecast band 16% quantile, Nov 2026, %",
-      "value": 3.4318369085583678
+      "value": 3.429469478679432
     },
     {
       "id": "band_q84_h2",
       "label": "Forecast band 84% quantile, Nov 2026, %",
-      "value": 3.988689526767063
+      "value": 3.986322096888184
     },
     {
       "id": "band_q95_h2",
       "label": "Forecast band 95% quantile, Nov 2026, %",
-      "value": 4.538188394311049
+      "value": 4.5358209644320935
     },
     {
       "id": "base_effect_h2",
       "label": "Base effect on the change in y/y from Sep 2026 to Nov 2026, pp",
-      "value": 0.07226051895772677
+      "value": 0.07225969413915831
     },
     {
       "id": "momentum_h2",
       "label": "Momentum on the change in y/y from Sep 2026 to Nov 2026, pp",
-      "value": -0.15309638478089682
+      "value": -0.15546298984126392
     },
     {
       "id": "contrib_FUEL_h3",
       "label": "Forecast contribution of fuels to headline y/y, Dec 2026, pp",
-      "value": 1.304255386868818
+      "value": 1.3018992187811411
     },
     {
       "id": "comp_yoy_FUEL_h3",
       "label": "Forecast fuels y/y, Dec 2026, %",
-      "value": 32.3235535779137
+      "value": 32.265160316756905
     },
     {
       "id": "contrib_ELC_GAS_h3",
       "label": "Forecast contribution of electricity and gas to headline y/y, Dec 2026, pp",
-      "value": 0.40552000208288713
+      "value": 0.40552000208288824
     },
     {
       "id": "comp_yoy_ELC_GAS_h3",
       "label": "Forecast electricity and gas y/y, Dec 2026, %",
-      "value": 8.12502508681401
+      "value": 8.12502508681403
     },
     {
       "id": "contrib_FOOD_P_h3",
@@ -471,22 +471,22 @@
     {
       "id": "contrib_FOOD_NP_h3",
       "label": "Forecast contribution of unprocessed food to headline y/y, Dec 2026, pp",
-      "value": 0.1983852515294173
+      "value": 0.19838525152941844
     },
     {
       "id": "comp_yoy_FOOD_NP_h3",
       "label": "Forecast unprocessed food y/y, Dec 2026, %",
-      "value": 3.859635243762982
+      "value": 3.8596352437630044
     },
     {
       "id": "contrib_IGD_NNRG_h3",
       "label": "Forecast contribution of non-energy industrial goods to headline y/y, Dec 2026, pp",
-      "value": 0.2880540379457535
+      "value": 0.28805403794577583
     },
     {
       "id": "comp_yoy_IGD_NNRG_h3",
       "label": "Forecast non-energy industrial goods y/y, Dec 2026, %",
-      "value": 1.1423462799244666
+      "value": 1.1423462799245554
     },
     {
       "id": "contrib_SERV_h3",
@@ -501,32 +501,32 @@
     {
       "id": "band_q05_h3",
       "label": "Forecast band 5% quantile, Dec 2026, %",
-      "value": 2.998638531993297
+      "value": 2.996282540913444
     },
     {
       "id": "band_q16_h3",
       "label": "Forecast band 16% quantile, Dec 2026, %",
-      "value": 3.3984852197475606
+      "value": 3.3961292286676894
     },
     {
       "id": "band_q84_h3",
       "label": "Forecast band 84% quantile, Dec 2026, %",
-      "value": 4.2312625809057085
+      "value": 4.228906589825847
     },
     {
       "id": "band_q95_h3",
       "label": "Forecast band 95% quantile, Dec 2026, %",
-      "value": 5.0745349216619235
+      "value": 5.072178930582075
     },
     {
       "id": "base_effect_h3",
       "label": "Base effect on the change in y/y from Sep 2026 to Dec 2026, pp",
-      "value": -0.11349658940065353
+      "value": -0.11349530102082434
     },
     {
       "id": "momentum_h3",
       "label": "Momentum on the change in y/y from Sep 2026 to Dec 2026, pp",
-      "value": 0.11667854084371886
+      "value": 0.11432126138403981
     },
     {
       "id": "weight_eff_FUEL",
@@ -1261,7 +1261,7 @@
     {
       "id": "BG_mom",
       "label": "Momentum part of that change for Bulgaria, pp",
-      "value": -0.03979133334408121
+      "value": -0.03979133334408122
     },
     {
       "id": "BG_base",
@@ -2431,12 +2431,12 @@
     {
       "id": "SK_mom",
       "label": "Momentum part of that change for Slovakia, pp",
-      "value": 0.10933312107069512
+      "value": 0.10933312107069507
     },
     {
       "id": "SK_base",
       "label": "Base-effect part of that change for Slovakia, pp",
-      "value": -0.20480392032216874
+      "value": -0.20480392032216868
     },
     {
       "id": "SK_contrib_FUEL",
@@ -2471,32 +2471,32 @@
     {
       "id": "r3_rmse_M2_sarima",
       "label": "Round 3, SARIMA airline model: RMSE at h=3, pp",
-      "value": 0.7216068815188357
+      "value": 0.7212355421930132
     },
     {
       "id": "r3_ratio_M2_sarima",
       "label": "Round 3, SARIMA airline model: RMSE ratio vs random walk at h=3",
-      "value": 0.901319607846673
+      "value": 0.9008557882461394
     },
     {
       "id": "r3_p_M2_sarima",
       "label": "Round 3, SARIMA airline model: Diebold-Mariano p-value vs random walk at h=3",
-      "value": 0.2533105181423202
+      "value": 0.2510784980496442
     },
     {
       "id": "r3_rmse_M3_enet",
       "label": "Round 3, Elastic Net: RMSE at h=3, pp",
-      "value": 0.709972958703862
+      "value": 0.7099729587038637
     },
     {
       "id": "r3_ratio_M3_enet",
       "label": "Round 3, Elastic Net: RMSE ratio vs random walk at h=3",
-      "value": 0.8867883124587467
+      "value": 0.8867883124587488
     },
     {
       "id": "r3_p_M3_enet",
       "label": "Round 3, Elastic Net: Diebold-Mariano p-value vs random walk at h=3",
-      "value": 0.17025240666043723
+      "value": 0.1702524066604441
     },
     {
       "id": "r3_rmse_M4_gbm",
@@ -2516,27 +2516,27 @@
     {
       "id": "r3_rmse_M5_ensemble",
       "label": "Round 3, Elastic Net + boosting ensemble: RMSE at h=3, pp",
-      "value": 0.7547606703269126
+      "value": 0.7547606703269133
     },
     {
       "id": "r3_ratio_M5_ensemble",
       "label": "Round 3, Elastic Net + boosting ensemble: RMSE ratio vs random walk at h=3",
-      "value": 0.9427301884445624
+      "value": 0.9427301884445631
     },
     {
       "id": "r3_p_M5_ensemble",
       "label": "Round 3, Elastic Net + boosting ensemble: Diebold-Mariano p-value vs random walk at h=3",
-      "value": 0.46070490330048297
+      "value": 0.46070490330049063
     },
     {
       "id": "r3_dec_M2_sarima",
       "label": "Round 3, SARIMA airline model: forecast for Dec 2026, %",
-      "value": 4.065941002056417
+      "value": 4.065941461165989
     },
     {
       "id": "r3_dec_M3_enet",
       "label": "Round 3, Elastic Net: forecast for Dec 2026, %",
-      "value": 3.902837480089058
+      "value": 3.9028374800890457
     },
     {
       "id": "r3_dec_M4_gbm",
@@ -2546,7 +2546,7 @@
     {
       "id": "r3_dec_M5_ensemble",
       "label": "Round 3, Elastic Net + boosting ensemble: forecast for Dec 2026, %",
-      "value": 3.886394504038959
+      "value": 3.886394504038953
     },
     {
       "id": "rc_months",
@@ -2581,7 +2581,7 @@
     {
       "id": "core_fc_h1",
       "label": "Core inflation bottom-up forecast, Oct 2026, %",
-      "value": 2.4984220562993986
+      "value": 2.498422056299421
     },
     {
       "id": "core_fc_h2",
@@ -2591,12 +2591,12 @@
     {
       "id": "core_fc_h3",
       "label": "Core inflation bottom-up forecast, Dec 2026, %",
-      "value": 2.505241913411571
+      "value": 2.5052419134115933
     },
     {
       "id": "core_rmse_h1",
       "label": "Core bottom-up RMSE, h=1, pp",
-      "value": 0.24244255627780317
+      "value": 0.24244255627780203
     },
     {
       "id": "core_rmse_rw_h1",
@@ -2606,12 +2606,12 @@
     {
       "id": "core_dm_p_h1",
       "label": "Diebold-Mariano p-value, core bottom-up vs random walk, h=1",
-      "value": 0.5700972440242968
+      "value": 0.5700972440236342
     },
     {
       "id": "core_rmse_h2",
       "label": "Core bottom-up RMSE, h=2, pp",
-      "value": 0.315761232406962
+      "value": 0.3157612324069596
     },
     {
       "id": "core_rmse_rw_h2",
@@ -2621,12 +2621,12 @@
     {
       "id": "core_dm_p_h2",
       "label": "Diebold-Mariano p-value, core bottom-up vs random walk, h=2",
-      "value": 0.33586082346859814
+      "value": 0.33586082346819307
     },
     {
       "id": "core_rmse_h3",
       "label": "Core bottom-up RMSE, h=3, pp",
-      "value": 0.4010067707728437
+      "value": 0.40100677077284275
     },
     {
       "id": "core_rmse_rw_h3",
@@ -2636,7 +2636,7 @@
     {
       "id": "core_dm_p_h3",
       "label": "Diebold-Mariano p-value, core bottom-up vs random walk, h=3",
-      "value": 0.24583562581224033
+      "value": 0.245835625812172
     },
     {
       "id": "wc_fc_prev",
@@ -2651,7 +2651,7 @@
     {
       "id": "wc_surprise_FUEL",
       "label": "Part of the Sep 2026 surprise from fuels, pp",
-      "value": -0.021252832661974308
+      "value": -0.02125283266196898
     },
     {
       "id": "wc_surprise_ELC_GAS",
@@ -2661,7 +2661,7 @@
     {
       "id": "wc_surprise_FOOD_P",
       "label": "Part of the Sep 2026 surprise from processed food, pp",
-      "value": -0.030461997819883506
+      "value": -0.030461997819880453
     },
     {
       "id": "wc_surprise_FOOD_NP",
@@ -2681,17 +2681,17 @@
     {
       "id": "wc_prev_2026_10",
       "label": "Last month's forecast for Oct 2026, %",
-      "value": 3.7183798093922915
+      "value": 3.7183798093923137
     },
     {
       "id": "wc_rev_2026_10",
       "label": "Revision to the Oct 2026 forecast since last month, pp",
-      "value": 0.059764459691180605
+      "value": 0.05798994890258147
     },
     {
       "id": "wc_rev_2026_10_FUEL",
       "label": "Part of the Oct 2026 revision from fuels, pp",
-      "value": -0.09131435598694981
+      "value": -0.09308900009619037
     },
     {
       "id": "wc_rev_2026_10_ELC_GAS",
@@ -2701,7 +2701,7 @@
     {
       "id": "wc_rev_2026_10_FOOD_P",
       "label": "Part of the Oct 2026 revision from processed food, pp",
-      "value": -0.044030507229198775
+      "value": -0.044030507229192654
     },
     {
       "id": "wc_rev_2026_10_FOOD_NP",
@@ -2711,7 +2711,7 @@
     {
       "id": "wc_rev_2026_10_IGD_NNRG",
       "label": "Part of the Oct 2026 revision from non-energy industrial goods, pp",
-      "value": -0.024262432967764147
+      "value": -0.02426243296775854
     },
     {
       "id": "wc_rev_2026_10_SERV",
@@ -2721,32 +2721,32 @@
     {
       "id": "wc_prev_2026_11",
       "label": "Last month's forecast for Nov 2026, %",
-      "value": 3.6426016751853085
+      "value": 3.6426016751852863
     },
     {
       "id": "wc_rev_2026_11",
       "label": "Revision to the Nov 2026 forecast since last month, pp",
-      "value": 0.0469564104439657
+      "value": 0.04458898056505234
     },
     {
       "id": "wc_rev_2026_11_FUEL",
       "label": "Part of the Nov 2026 revision from fuels, pp",
-      "value": -0.08973455706711153
+      "value": -0.09210216481325095
     },
     {
       "id": "wc_rev_2026_11_ELC_GAS",
       "label": "Part of the Nov 2026 revision from electricity and gas, pp",
-      "value": 0.07099989161246617
+      "value": 0.07099989161246512
     },
     {
       "id": "wc_rev_2026_11_FOOD_P",
       "label": "Part of the Nov 2026 revision from processed food, pp",
-      "value": -0.058500444581362235
+      "value": -0.0585004445813561
     },
     {
       "id": "wc_rev_2026_11_FOOD_NP",
       "label": "Part of the Nov 2026 revision from unprocessed food, pp",
-      "value": 0.0539304089195512
+      "value": 0.053930408919553446
     },
     {
       "id": "wc_rev_2026_11_IGD_NNRG",
@@ -2756,7 +2756,7 @@
     {
       "id": "wc_rev_2026_11_SERV",
       "label": "Part of the Nov 2026 revision from services, pp",
-      "value": 0.10060927861677649
+      "value": 0.10060927861676583
     }
   ],
   "presets": [
