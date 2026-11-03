@@ -1,6 +1,6 @@
 {
   "origin": "2026-09",
-  "facts_hash": "684b1a84eb689414",
+  "facts_hash": "9f8ed155413eb2b3",
   "context": "Data: Eurostat HICP, euro area* = the 21 current members at every date, chain-linked bottom-up from six components. Last published month: Sep 2026. The forecast covers the next three months.\nSelected component models (pre-committed rule: keep the simpler model unless a richer one is significantly better, Diebold-Mariano test, chosen on 2010-2019 origins): fuels: Weekly Oil Bulletin pump prices; electricity and gas: seasonal mean of monthly changes; processed food: AR(p) chosen by AIC; unprocessed food: seasonal mean of monthly changes; non-energy industrial goods: no change in y/y (last year's monthly changes repeated; round 4, D57); services: no change in y/y (last year's monthly changes repeated; round 4, D57).\nBase effect = the part of the change in y/y that comes from the monthly change a year earlier dropping out; it is known in advance. Momentum = the part from new monthly price changes.\nThe bands are empirical quantiles of the model's own past out-of-sample errors, not model-implied.\nThe shock simulator moves price levels per country and component; second-round effects are an estimated distributed lag. Actuals are final Eurostat releases; flash estimates are used only in the first-release check.\nModel history: rounds 2 and 3 (pre-registered; round 3 tried SARIMA, Elastic Net, gradient boosting and an ensemble) found nothing that beat the random walk at three months. Round 4 (pre-registered) forecast services and non-energy industrial goods as 'no change in y/y' (their monthly changes repeat last year's); it passed the Holm test narrowly and beat the earlier bottom-up model, so it is now the published model. Core inflation is a by-product of the goods and services forecasts, so it is now forecast essentially as a random walk. Not modelled: country forecasts (only the euro area* headline is forecast and selected), ECB policy decisions, anything after the three-month horizon.\nItaly: its published total differs from the weighted sum of its components by up to about a tenth of a point; the cause is not identified.",
   "facts": [
     {
@@ -166,7 +166,7 @@
     {
       "id": "rmse_h1",
       "label": "Bottom-up RMSE, h=1, pp",
-      "value": 0.23174786528410316
+      "value": 0.23174786528410354
     },
     {
       "id": "rmse_rw_h1",
@@ -176,17 +176,17 @@
     {
       "id": "ratio_h1",
       "label": "RMSE ratio vs random walk, h=1",
-      "value": 0.6271620354848177
+      "value": 0.6271620354848187
     },
     {
       "id": "dm_p_h1",
       "label": "Diebold-Mariano p-value vs random walk, h=1",
-      "value": 0.0001785955915822448
+      "value": 0.00017859559158225145
     },
     {
       "id": "rmse_h3",
       "label": "Bottom-up RMSE, h=3, pp",
-      "value": 0.6315162454819614
+      "value": 0.631516245481961
     },
     {
       "id": "rmse_rw_h3",
@@ -196,12 +196,12 @@
     {
       "id": "ratio_h3",
       "label": "RMSE ratio vs random walk, h=3",
-      "value": 0.7887923318144622
+      "value": 0.7887923318144616
     },
     {
       "id": "dm_p_h3",
       "label": "Diebold-Mariano p-value vs random walk, h=3",
-      "value": 0.016289229405117407
+      "value": 0.016289229405117043
     },
     {
       "id": "n_origins",
@@ -211,7 +211,7 @@
     {
       "id": "bias_crisis_h3",
       "label": "Mean forecast error 2020-2023, h=3, pp (forecast minus actual)",
-      "value": -0.37237373819788727
+      "value": -0.3723737381978863
     },
     {
       "id": "coverage_calm_68",
@@ -241,7 +241,7 @@
     {
       "id": "brent_elasticity",
       "label": "Estimated pass-through of Brent (EUR) to fuel consumer prices",
-      "value": 0.30703644656928814
+      "value": 0.307036446569288
     },
     {
       "id": "horizon_months",
@@ -1261,7 +1261,7 @@
     {
       "id": "BG_mom",
       "label": "Momentum part of that change for Bulgaria, pp",
-      "value": -0.03979133334408122
+      "value": -0.03979133334408121
     },
     {
       "id": "BG_base",
@@ -2431,12 +2431,12 @@
     {
       "id": "SK_mom",
       "label": "Momentum part of that change for Slovakia, pp",
-      "value": 0.10933312107069507
+      "value": 0.10933312107069512
     },
     {
       "id": "SK_base",
       "label": "Base-effect part of that change for Slovakia, pp",
-      "value": -0.20480392032216868
+      "value": -0.20480392032216874
     },
     {
       "id": "SK_contrib_FUEL",
@@ -2471,17 +2471,17 @@
     {
       "id": "r3_rmse_M2_sarima",
       "label": "Round 3, SARIMA airline model: RMSE at h=3, pp",
-      "value": 0.7212355421930132
+      "value": 0.7216064637940273
     },
     {
       "id": "r3_ratio_M2_sarima",
       "label": "Round 3, SARIMA airline model: RMSE ratio vs random walk at h=3",
-      "value": 0.9008557882461394
+      "value": 0.9013190860895083
     },
     {
       "id": "r3_p_M2_sarima",
       "label": "Round 3, SARIMA airline model: Diebold-Mariano p-value vs random walk at h=3",
-      "value": 0.2510784980496442
+      "value": 0.2533082692442134
     },
     {
       "id": "r3_rmse_M3_enet",
@@ -2496,7 +2496,7 @@
     {
       "id": "r3_p_M3_enet",
       "label": "Round 3, Elastic Net: Diebold-Mariano p-value vs random walk at h=3",
-      "value": 0.1702524066604441
+      "value": 0.1702524066604444
     },
     {
       "id": "r3_rmse_M4_gbm",
@@ -2516,12 +2516,12 @@
     {
       "id": "r3_rmse_M5_ensemble",
       "label": "Round 3, Elastic Net + boosting ensemble: RMSE at h=3, pp",
-      "value": 0.7547606703269133
+      "value": 0.7547606703269134
     },
     {
       "id": "r3_ratio_M5_ensemble",
       "label": "Round 3, Elastic Net + boosting ensemble: RMSE ratio vs random walk at h=3",
-      "value": 0.9427301884445631
+      "value": 0.9427301884445634
     },
     {
       "id": "r3_p_M5_ensemble",
@@ -2531,7 +2531,7 @@
     {
       "id": "r3_dec_M2_sarima",
       "label": "Round 3, SARIMA airline model: forecast for Dec 2026, %",
-      "value": 4.065941461165989
+      "value": 4.065944783585063
     },
     {
       "id": "r3_dec_M3_enet",
@@ -2596,7 +2596,7 @@
     {
       "id": "core_rmse_h1",
       "label": "Core bottom-up RMSE, h=1, pp",
-      "value": 0.24244255627780203
+      "value": 0.24244255627780242
     },
     {
       "id": "core_rmse_rw_h1",
@@ -2606,12 +2606,12 @@
     {
       "id": "core_dm_p_h1",
       "label": "Diebold-Mariano p-value, core bottom-up vs random walk, h=1",
-      "value": 0.5700972440236342
+      "value": 0.5700972440237884
     },
     {
       "id": "core_rmse_h2",
       "label": "Core bottom-up RMSE, h=2, pp",
-      "value": 0.3157612324069596
+      "value": 0.3157612324069598
     },
     {
       "id": "core_rmse_rw_h2",
@@ -2621,12 +2621,12 @@
     {
       "id": "core_dm_p_h2",
       "label": "Diebold-Mariano p-value, core bottom-up vs random walk, h=2",
-      "value": 0.33586082346819307
+      "value": 0.33586082346822455
     },
     {
       "id": "core_rmse_h3",
       "label": "Core bottom-up RMSE, h=3, pp",
-      "value": 0.40100677077284275
+      "value": 0.40100677077284264
     },
     {
       "id": "core_rmse_rw_h3",
@@ -2636,7 +2636,7 @@
     {
       "id": "core_dm_p_h3",
       "label": "Diebold-Mariano p-value, core bottom-up vs random walk, h=3",
-      "value": 0.245835625812172
+      "value": 0.2458356258121651
     },
     {
       "id": "wc_fc_prev",
@@ -2696,7 +2696,7 @@
     {
       "id": "wc_rev_2026_10_ELC_GAS",
       "label": "Part of the Oct 2026 revision from electricity and gas, pp",
-      "value": 0.07063330460177819
+      "value": 0.07063330460177708
     },
     {
       "id": "wc_rev_2026_10_FOOD_P",
@@ -2731,7 +2731,7 @@
     {
       "id": "wc_rev_2026_11_FUEL",
       "label": "Part of the Nov 2026 revision from fuels, pp",
-      "value": -0.09210216481325095
+      "value": -0.09210216481325184
     },
     {
       "id": "wc_rev_2026_11_ELC_GAS",
@@ -2741,7 +2741,7 @@
     {
       "id": "wc_rev_2026_11_FOOD_P",
       "label": "Part of the Nov 2026 revision from processed food, pp",
-      "value": -0.0585004445813561
+      "value": -0.05850044458135917
     },
     {
       "id": "wc_rev_2026_11_FOOD_NP",
